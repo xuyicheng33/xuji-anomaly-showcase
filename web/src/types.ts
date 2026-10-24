@@ -1,12 +1,112 @@
-export type DatasetId='converter'|'xuji';
-export type ModelId='model1'|'model2'|'model3';
-export type Metric={tp:number;fp:number;fn:number;tn:number;precision:number|null;recall:number|null;f1:number|null};
-export type Experiment={id:string;dataset:DatasetId;model:ModelId;name:string;source:string;threshold:number;thresholdSource:string;scoreMethod:string;window:number;history:{epoch:number;loss:number;lr:number}[];metrics:{direct:Metric;adjusted:Metric;auc:number|null};files:Record<string,{url:string;dtype:string;shape:number[]}>;checkpointBytes?:number;trainingSeconds?:number;trainSamples?:number;hasFeatureLabels?:boolean;jobId?:string};
-export type Dictionary={index:number;name:string;code:string;originalName:string;pointId:string};
-export type Dataset={name:string;short:string;features:number;train:number;test:number;total:number;split:number;originalRows:number|null;sampling:string;period:string;timeStatus:string;rawView:Record<string,(number|null)[]>;rawTime:string[];preprocess:{feature:number;start:number;raw:(number|null)[];filled:number[];smoothed:number[];method:string;source:string}|null;missing:number;discarded:number|null;dictionary:Dictionary[];models:{id:ModelId;name:string;title:string;detail:string;note:string}[];experiments:Experiment[];trainFile:string;cleanFile:string};
-export type Catalog={datasets:Record<DatasetId,Dataset>};
-export type Arrays={raw:Float32Array;recon:Float32Array;errors:Float32Array;scores:Float64Array;labels:Uint8Array;matrix:Uint8Array};
-export type Injection={start:number;seed:number;features:number[];raw:number[][];injected:number[][];matrix:number[][];labels:number[];method:string};
-export type LivePoint={index:number;score:number;threshold:number;alarm:boolean;recon:number[];input:number[];errors:number[];elapsedMs:number;source:string};
-export type Job={id:string;status:string;progress:number;error?:string;config:{dataset:DatasetId;model:ModelId};result?:Experiment};
-
+export type DatasetId = "converter" | "xuji";
+export type ModelId = "model1" | "model2" | "model3";
+export type Metric = {
+  tp: number;
+  fp: number;
+  fn: number;
+  tn: number;
+  precision: number | null;
+  recall: number | null;
+  f1: number | null;
+};
+export type Experiment = {
+  id: string;
+  dataset: DatasetId;
+  model: ModelId;
+  name: string;
+  source: string;
+  threshold: number;
+  thresholdSource: string;
+  scoreMethod: string;
+  window: number;
+  history: { epoch: number; loss: number; lr: number }[];
+  metrics: { direct: Metric; adjusted: Metric; auc: number | null };
+  files: Record<string, { url: string; dtype: string; shape: number[] }>;
+  checkpointBytes?: number;
+  trainingSeconds?: number;
+  trainSamples?: number;
+  hasFeatureLabels?: boolean;
+  jobId?: string;
+};
+export type Dictionary = {
+  index: number;
+  name: string;
+  code: string;
+  originalName: string;
+  pointId: string;
+};
+export type Dataset = {
+  name: string;
+  short: string;
+  features: number;
+  train: number;
+  test: number;
+  total: number;
+  split: number;
+  originalRows: number | null;
+  sampling: string;
+  period: string;
+  timeStatus: string;
+  rawView: Record<string, (number | null)[]>;
+  rawTime: string[];
+  preprocess: {
+    feature: number;
+    start: number;
+    raw: (number | null)[];
+    filled: number[];
+    smoothed: number[];
+    method: string;
+    source: string;
+  } | null;
+  missing: number;
+  discarded: number | null;
+  dictionary: Dictionary[];
+  models: {
+    id: ModelId;
+    name: string;
+    title: string;
+    detail: string;
+    note: string;
+  }[];
+  experiments: Experiment[];
+  trainFile: string;
+  cleanFile: string;
+};
+export type Catalog = { datasets: Record<DatasetId, Dataset> };
+export type Arrays = {
+  raw: Float32Array;
+  recon: Float32Array;
+  errors: Float32Array;
+  scores: Float64Array;
+  labels: Uint8Array;
+  matrix: Uint8Array;
+};
+export type Injection = {
+  start: number;
+  seed: number;
+  features: number[];
+  raw: number[][];
+  injected: number[][];
+  matrix: number[][];
+  labels: number[];
+  method: string;
+};
+export type LivePoint = {
+  index: number;
+  score: number;
+  threshold: number;
+  alarm: boolean;
+  recon: number[];
+  input: number[];
+  errors: number[];
+  elapsedMs: number;
+  source: string;
+};
+export type Job = {
+  id: string;
+  status: string;
+  progress: number;
+  error?: string;
+  config: { dataset: DatasetId; model: ModelId };
+  result?: Experiment;
+};
