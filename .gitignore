@@ -1,0 +1,12 @@
+node_modules/
+.venv/
+data/source/
+data/models/
+data/jobs/
+web/public/data/
+web/dist/
+.runtime/
+__pycache__/
+*.pyc
+*.log
+.env
