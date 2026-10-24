@@ -10,6 +10,8 @@ from server.compute import fit
 from server.research import memory_state
 
 cat = catalog()
+if cat.get("officialOnly"):
+    raise SystemExit("当前展示只读取服务器保存成果，不进行本地试训。")
 cat["datasets"]["xuji"]["experiments"] = []
 for mid in ["model1", "model2", "model3"]:
     print("Normalized local fit", mid, flush=True)

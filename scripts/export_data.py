@@ -3,6 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from server.data import ROOT, PUBLIC, dataset_arrays, save_experiment
+from server.official import evaluate_archive
 from openpyxl import load_workbook
 import numpy as np
 import torch
@@ -104,37 +105,7 @@ for ds in ["converter", "xuji"]:
             for item in cols
         ]
         raw = raw_np[:, selected]
-        finite = raw[np.isfinite(raw)]
-        # A genuine gap fragment, selected for a variable with missing readings.
-        candidates = np.argwhere(~np.isfinite(raw))
-        if len(candidates):
-            t, c = candidates[len(candidates) // 2]
-            start = max(0, int(t) - 12)
-            c = int(c)
-        else:
-            start = 200
-            c = 0
-        values = raw[start : start + 32, c]
-        valid = np.isfinite(values)
-        filled = (
-            np.interp(np.arange(len(values)), np.where(valid)[0], values[valid])
-            if valid.any()
-            else np.zeros(len(values))
-        )
-        smooth = np.convolve(
-            np.pad(filled, (2, 2), mode="edge"),
-            np.array([1, 2, 3, 2, 1]) / 9,
-            mode="valid",
-        )
-        preview = dict(
-            feature=c,
-            start=start,
-            raw=[float(v) if np.isfinite(v) else None for v in values],
-            filled=filled.tolist(),
-            smoothed=smooth.tolist(),
-            method="本机线性缺失补齐 + 五点加权平滑",
-            source="原始Sheet8片段，本地处理",
-        )
+        preview = None
         raw_view = {
             str(i): [float(v) if np.isfinite(v) else None for v in raw[700:1200, i]]
             for i in range(len(cols))
@@ -198,10 +169,8 @@ for ds in ["converter", "xuji"]:
             match = re.search(
                 r"^(?:FIXED_THRESHOLD|THRESHOLD)\s*=\s*([\d.eE+-]+)", tx, re.M
             )
-            threshold = (
-                float(match.group(1))
-                if match
-                else float(np.quantile(arrays["lossFinal"], 0.95))
+            threshold, _, threshold_source = evaluate_archive(
+                p / "viz_best.py", arrays["lossFinal"].reshape(-1), arrays["labels"].reshape(-1)
             )
             ckpt = torch.load(
                 ROOT / "data/models/converter" / mid / "model.ckpt",
@@ -229,7 +198,7 @@ for ds in ["converter", "xuji"]:
                 score=arrays["lossFinal"],
                 per_feature=arrays["lossPerFeat"],
                 extra=dict(
-                    thresholdSource="历史绘图脚本固定阈值（扫描选择）",
+                    thresholdSource=threshold_source,
                     scoreMethod="离线重叠窗口误差聚合",
                     memoryStatus="历史回放",
                     checkpointBytes=(
@@ -245,3 +214,5 @@ for ds in ["converter", "xuji"]:
     json.dumps(catalog, ensure_ascii=False, indent=2), encoding="utf-8"
 )
 print("Exported catalog and real arrays")
+from scripts.import_official import import_archives
+import_archives()

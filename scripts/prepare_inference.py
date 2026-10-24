@@ -3,7 +3,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import numpy as np, torch
-from server.data import ROOT, dataset_arrays, save_experiment, register
+from server.data import ROOT, dataset_arrays, save_experiment, register, catalog
+if catalog().get("officialOnly"):
+    raise SystemExit("当前展示只读取服务器保存成果，不进行本地训练或校准。")
 from server.research import (
     create_model,
     freeze,

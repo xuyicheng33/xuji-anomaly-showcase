@@ -90,6 +90,8 @@ def catalog():
 
 def register(meta):
     cat = catalog()
+    if cat.get("officialOnly"):
+        raise ValueError("当前展示仅使用研究服务器保存成果")
     ds = cat["datasets"][meta["dataset"]]
     ds["experiments"] = [e for e in ds["experiments"] if e["id"] != meta["id"]] + [meta]
     (PUBLIC / "catalog.json").write_text(
