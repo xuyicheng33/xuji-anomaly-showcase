@@ -33,6 +33,7 @@ def catalog():
     return json.loads((PUBLIC/"catalog.json").read_text(encoding="utf-8"))
 
 def register(meta):
-    cat=catalog();cat["datasets"][meta["dataset"]]["experiments"].append(meta)
+    cat=catalog();ds=cat["datasets"][meta["dataset"]]
+    ds["experiments"]=[e for e in ds["experiments"] if e["id"]!=meta["id"]]+[meta]
     (PUBLIC/"catalog.json").write_text(json.dumps(cat,ensure_ascii=False,indent=2),encoding="utf-8")
 

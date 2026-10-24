@@ -27,7 +27,10 @@ for i,code in enumerate(clean_header):
  dictionary.append(item)
 for ds in ["converter","xuji"]:
  train,test,label=dataset_arrays(ds);d=PUBLIC/ds;d.mkdir(exist_ok=True)
- train.astype("float32").tofile(d/"train.bin");test.astype("float32").tofile(d/"clean.bin")
+ if ds=="xuji":
+  lo=train.min(0);hi=train.max(0);train_display=(train-lo)/np.maximum(hi-lo,1e-8);test_display=(test-lo)/np.maximum(hi-lo,1e-8)
+ else:train_display,test_display=train,test
+ train_display.astype("float32").tofile(d/"train.bin");test_display.astype("float32").tofile(d/"clean.bin")
  cols=dictionary if ds=="converter" else [dict(index=i,name=f"变量 {i+1}",code=f"X{i+1}",originalName="字段字典待补齐",pointId="") for i in range(7)]
  if ds=="converter":
   selected=[raw_header.index(item["code"])-1 if item["code"] in raw_header else 0 for item in cols]

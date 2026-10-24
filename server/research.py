@@ -52,6 +52,8 @@ def freeze(model):
 
 def load_model(dataset,model_id):
     path=ROOT/"data/models"/dataset/model_id/"model.ckpt"
+    local=path.parent/"local.ckpt"
+    if local.exists():path=local
     checkpoint=torch.load(path,map_location="cpu",weights_only=False)
     state=checkpoint["model_state_dict"]
     w=64
@@ -62,8 +64,8 @@ def load_model(dataset,model_id):
     model.load_state_dict(state,strict=True)
     if model_id=="model3":
         supplemental=ROOT/"data/models"/dataset/model_id/"memory_state.pt"
-        if supplemental.exists():
-            saved=torch.load(supplemental,map_location="cpu",weights_only=True)
+        if "memory_state" in checkpoint or supplemental.exists():
+            saved=checkpoint.get("memory_state") or torch.load(supplemental,map_location="cpu",weights_only=True)
             for name,module in model.named_modules():
                 if name in saved:module.mem=saved[name].clone()
         else:

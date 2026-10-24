@@ -22,7 +22,10 @@ def fit(dataset,mid,epochs=1,samples=128,seed=42,kind="mixed",split=None,progres
     train,test,_=dataset_arrays(dataset)
     if split:
         seq=np.concatenate([train,test]);cut=int(len(seq)*split);train,test=seq[:cut],seq[cut:]
+    minimum=train.min(0);maximum=train.max(0);scale=np.maximum(maximum-minimum,1e-8)
+    train=(train-minimum)/scale;test=(test-minimum)/scale
     torch.manual_seed(seed);model=create_model(mid,train.shape[1]);model.save_attn=False
+    model.preprocessing={"method":"训练集min–max","min":minimum.tolist(),"max":maximum.tolist()}
     if mid=="model3":calibrate_memory(model,train)
     optimizer=torch.optim.Adam(model.parameters(),lr=1e-4)
     end_indices=np.linspace(model.n_window,len(train)-1,samples,dtype=int)
@@ -57,6 +60,8 @@ def fit(dataset,mid,epochs=1,samples=128,seed=42,kind="mixed",split=None,progres
 def submit(config):
     jid=uuid.uuid4().hex[:12]
     JOBS[jid]=dict(id=jid,status="queued",progress=0,created=time.time(),config=config,cancel=False)
+    folder=ROOT/"data/jobs"/jid;folder.mkdir(parents=True,exist_ok=True)
+    persist(JOBS[jid])
     threading.Thread(target=run_job,args=(jid,),daemon=True).start()
     return JOBS[jid]
 
@@ -69,13 +74,24 @@ def run_job(jid):
             model,raw,recon,labels,threshold,history,seconds,train_count=fit(cfg["dataset"],cfg["model"],cfg["epochs"],cfg["samples"],
                cfg["seed"],cfg["kind"],cfg["split"],progress=lambda p:job.update(progress=p),cancel=lambda:job["cancel"])
             if job["cancel"]:raise InterruptedError("任务已取消")
-            folder=ROOT/"data/jobs"/jid;folder.mkdir(parents=True)
+            folder=ROOT/"data/jobs"/jid;folder.mkdir(parents=True,exist_ok=True)
             torch.save(dict(model_state_dict=model.state_dict(),memory_state=memory_state(model),epoch=cfg["epochs"]-1,
-                            accuracy_list=[(h["loss"],h["lr"]) for h in history]),folder/"model.ckpt")
+                            accuracy_list=[(h["loss"],h["lr"]) for h in history],preprocessing=model.preprocessing),folder/"model.ckpt")
             meta=save_experiment(cfg["dataset"],"job-"+jid,raw,recon,labels,threshold,"本地训练 · "+str(cfg["epochs"])+" 轮",cfg["model"],history,
                     extra=dict(scoreMethod="当前窗口末点误差",hasFeatureLabels=True,trainSamples=cfg["samples"],trainRows=train_count,
-                               trainingSeconds=seconds,checkpointBytes=(folder/"model.ckpt").stat().st_size,jobId=jid))
-            register(meta);job.update(status="complete",progress=1,result=meta)
-        except InterruptedError:job.update(status="cancelled")
-        except Exception as e:job.update(status="failed",error=str(e));traceback.print_exc()
+                               trainingSeconds=seconds,preprocessing=model.preprocessing,checkpointBytes=(folder/"model.ckpt").stat().st_size,jobId=jid))
+            register(meta);job.update(status="complete",progress=1,result=meta);persist(job)
+        except InterruptedError:job.update(status="cancelled");persist(job)
+        except Exception as e:job.update(status="failed",error=str(e));persist(job);traceback.print_exc()
 
+
+
+def persist(job):
+    import json
+    (ROOT/"data/jobs"/job["id"]/"job.json").write_text(json.dumps(job,ensure_ascii=False,indent=2),encoding="utf-8")
+
+for jobfile in (ROOT/"data/jobs").glob("*/job.json"):
+    import json
+    saved=json.loads(jobfile.read_text(encoding="utf-8"))
+    if saved["status"] in ["running","queued"]:saved.update(status="failed",error="上次运行中断，请重新提交")
+    JOBS[saved["id"]]=saved

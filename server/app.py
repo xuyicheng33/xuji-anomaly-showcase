@@ -30,7 +30,7 @@ class TrainInput(BaseModel):
  kind:Literal["soft","uniform","peak","length","mixed"]="mixed"
  split:float=Field(default=.7,ge=.5,le=.9)
 @app.get("/api/health")
-def health():return {"status":"ok","device":"cpu","models":[list(k) for k in MODELS]}
+def health():return {"status":"ok","app":"xuji-anomaly-explorer","device":"cpu","models":[list(k) for k in MODELS]}
 @app.get("/api/catalog")
 def get_catalog():return catalog()
 @app.get("/api/live/{dataset}/{model}")
@@ -42,6 +42,8 @@ def live_info(dataset:str,model:str):
 @app.post("/api/inject")
 def injection(body:InjectionInput):
  train,test,_=dataset_arrays(body.dataset);sequence=train if body.split=="train" else test
+ if body.dataset=="xuji":
+  lo=train.min(0);hi=train.max(0);sequence=(sequence-lo)/np.maximum(hi-lo,1e-8)
  raw=sequence[:512];x,matrix=inject(raw,body.kind,body.seed,.8)
  cols=np.where(matrix.any(0))[0].tolist();active=np.where(matrix.any(1))[0]
  center=int(active[0]) if len(active) else 80;start=max(0,center-12);end=min(start+100,len(raw))
@@ -72,12 +74,14 @@ def infer(body:InferInput):
  else:
   _,sequence,_=dataset_arrays(body.dataset)
   if body.index>=len(sequence):raise HTTPException(422,"索引超过序列范围")
+  if info.get("preprocessing"):
+   lo=np.asarray(info["preprocessing"]["min"]);hi=np.asarray(info["preprocessing"]["max"]);sequence=(sequence-lo)/np.maximum(hi-lo,1e-8)
   data=sequence[max(0,body.index-w+1):body.index+1]
   if len(data)<w:data=np.concatenate([np.repeat(data[:1],w-len(data),axis=0),data])
  features=125 if body.dataset=="converter" else 7
  if data.shape!=(w,features):raise HTTPException(422,f"输入需要 {w}×{features} 窗口，收到 {data.shape}")
  if not np.isfinite(data).all():raise HTTPException(422,"输入包含非有限数值")
- if np.abs(data).max()>100:raise HTTPException(422,"请提供训练尺度的归一化输入")
+ if np.abs(data).max()>10:raise HTTPException(422,"请提供训练尺度的归一化输入")
  reconstruction=predict(model,body.model,data)[0];errors=(reconstruction[-1]-data[-1])**2;score=float(errors.mean())
  return dict(index=body.index,score=score,threshold=threshold,alarm=score>threshold,recon=reconstruction[-1].tolist(),
              input=data[-1].tolist(),errors=errors.tolist(),elapsedMs=(time.perf_counter()-started)*1000,
