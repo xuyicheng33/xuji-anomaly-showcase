@@ -226,6 +226,14 @@ input[type="text"] {
 .dataset-switch button.active {
   color: #695042;
 }
+.official-dataset,
+.official-result-label {
+  color: #6c6356;
+  font-size: 13px;
+}
+.official-dataset {
+  justify-self: center;
+}
 .switch-plate {
   position: absolute;
   top: 3px;
@@ -1459,7 +1467,7 @@ td b {
   color: #517654;
 }
 .confusion-cell.fp b {
-  color: #ac6643;
+  color: #965535;
 }
 .confusion-cell.fn b {
   color: #80652e;

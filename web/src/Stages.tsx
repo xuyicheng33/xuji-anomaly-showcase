@@ -281,7 +281,7 @@ function DataOverview(p: Props) {
                 <th>模型</th>
                 <th>检测成果</th>
                 <th>训练记录</th>
-                <th>推理方式</th>
+                <th>结果来源</th>
               </tr>
             </thead>
             <tbody>
@@ -294,13 +294,7 @@ function DataOverview(p: Props) {
                     </td>
                     <td>{e?.name || "等待计算"}</td>
                     <td>{e?.history.length || 0} 轮记录</td>
-                    <td>
-                      {p.dataset === "xuji"
-                        ? "本地完整保存的固定模型"
-                        : m.id === "model3"
-                          ? "固定网络 + 本地校准记忆"
-                          : "固定网络权重"}
-                    </td>
+                    <td>研究服务器保存成果</td>
                   </tr>
                 );
               })}
@@ -429,83 +423,22 @@ function RawData(p: Props) {
   );
 }
 function Cleaning(p: Props) {
-  if (!p.ds.preprocess)
-    return (
-      <>
-        <div className="process-row">
-          {["目标时刻匹配", "关键字段筛查", "多源时间对齐", "连续时段筛选"].map(
-            (s, i) => (
-              <div className="process-cell" key={s}>
-                <span className="mono">0{i + 1}</span>
-                <h3>{s}</h3>
-                <p>
-                  {
-                    [
-                      "将预测目标时刻与实测时刻对应",
-                      "筛查缺失字段与重复记录",
-                      "匹配5分钟观测和15分钟目标",
-                      "选择共同可用的连续区间",
-                    ][i]
-                  }
-                </p>
-              </div>
-            ),
-          )}
-        </div>
-        <div className="panel prose-panel">
-          <h2>风电数据的融合过程</h2>
-          <p>
-            研究材料记录了短期功率、气象观测与气象预报的匹配流程，最终形成当前8759点数据。现存材料主要为建模数组，尚未包含多表处理的中间文件。
-          </p>
-          <p>
-            后续补齐原始分片与字段字典后，可在这一页逐项对照匹配结果与被筛除的记录。
-          </p>
-          <button className="outline" onClick={() => p.goto(6)}>
-            查看已形成的模型输入
-            <ArrowRight size={16} />
-          </button>
-        </div>
-      </>
-    );
-  const v = p.ds.preprocess;
-  const option = lines(
-    [
-      { name: "原始记录", data: v.raw, color: colors.input },
-      { name: "缺失补齐", data: v.filled, color: colors.recon },
-      { name: "加权平滑", data: v.smoothed, color: colors.score },
-    ],
-    { xAxis: { type: "category", data: v.raw.map((_, i) => v.start + i) } },
-  );
   return (
     <>
       <div className="stats-row standalone">
-        <Stat label="原始小时记录" value={8760} />
-        <Stat label="原始变量" value={136} />
-        <Stat label="保留建模变量" value={125} />
-        <Stat label="原表缺失单元格" value={p.ds.missing} />
+        <Stat label="原始记录" value={p.ds.originalRows || 0} />
+        <Stat label="建模时刻" value={p.ds.total} />
+        <Stat label="建模变量" value={p.ds.features} />
       </div>
-      <div className="panel">
-        <div className="section-title">
-          <h2>缺失数据处理</h2>
-          <span className="mono">{p.ds.dictionary[v.feature].code}</span>
-        </div>
-        <Chart option={option} height={300} />
-        <div className="processing-equation">
-          <span>原始断点</span>
-          <ArrowRight size={17} />
-          <span>线性插值补齐</span>
-          <ArrowRight size={17} />
-          <span>五点权重 1 : 2 : 3 : 2 : 1</span>
-          <ArrowRight size={17} />
-          <b>平滑片段</b>
-        </div>
-        <details className="source-details">
-          <summary>方法与来源</summary>
-          <div>
-            {v.source} ·
-            历史完整清洗参数尚未恢复，本片段使用明确的本地处理方法。
-          </div>
-        </details>
+      <div className="panel prose-panel">
+        <h2>服务器预处理成果</h2>
+        <p>
+          原始记录与训练、测试数组均来自研究服务器。当前展示保存的最终输入，处理中间曲线未保存。
+        </p>
+        <button className="outline" onClick={() => p.goto(5)}>
+          查看数据划分
+          <ArrowRight size={16} />
+        </button>
       </div>
     </>
   );
@@ -588,7 +521,7 @@ function Split(p: Props) {
         </div>
         <Chart option={opt} height={240} />
       </div>
-      <Note>{p.ds.timeStatus}。新的划分可在“训练与保存”中生成独立实验。</Note>
+      <Note>{p.ds.timeStatus}。训练与测试划分沿用服务器保存数组。</Note>
     </>
   );
 }
@@ -673,8 +606,8 @@ function Windows(p: Props) {
             <b className="mono">1</b>
           </div>
           <div>
-            <span>流式输出</span>
-            <b>当前窗口末点</b>
+            <span>序列输出</span>
+            <b>重叠窗口平均</b>
           </div>
           <div>
             <span>序列边界</span>
@@ -683,7 +616,7 @@ function Windows(p: Props) {
         </div>
       </div>
       <Note>
-        现存输入已归一化。历史缩放参数未完整保存，实时推理接收训练尺度窗口；本地新实验单独记录处理与阈值配置。
+        输入与窗口配置沿用服务器实验。每个时刻的重建与误差按覆盖该时刻的窗口次数平均，再将变量误差平均为异常分数。
       </Note>
     </>
   );
@@ -715,219 +648,77 @@ const methods = [
   },
 ];
 function Anomalies(p: Props) {
-  const [kind, setKind] = useState("soft");
-  const [strategy, setStrategy] = useState("fixed");
-  const [part, setPart] = useState("test");
-  const [seed, setSeed] = useState(42);
-  const [data, setData] = useState<Injection>();
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [feature, setFeature] = useState(0);
-  useEffect(() => {
-    let alive = true;
-    setBusy(true);
-    api<Injection>("/inject", { dataset: p.dataset, kind, split: part, seed })
-      .then((d) => {
-        if (alive) {
-          setData(d);
-          const visibleFeatures = [...d.features].sort((a, b) => {
-            const change = (c: number) =>
-              d.raw.reduce(
-                (sum, row, i) => sum + Math.abs(d.injected[i][c] - row[c]),
-                0,
-              );
-            return change(b) - change(a);
-          });
-          setFeature(visibleFeatures[0] ?? 0);
-          setError("");
-        }
-      })
-      .catch((e) => {
-        if (alive) setError(e.message);
-      })
-      .finally(() => {
-        if (alive) setBusy(false);
-      });
-    return () => {
-      alive = false;
-    };
-  }, [kind, part, seed, p.dataset]);
-  const option = useMemo(
-    () =>
-      lines(
-        [
-          {
-            name: "原始片段",
-            data: data?.raw.map((r) => r[feature]) || [],
-            color: colors.input,
-          },
-          {
-            name: "注入后",
-            data: data?.injected.map((r) => r[feature]) || [],
-            color: colors.alarm,
-          },
-        ],
-        {
-          xAxis: {
-            type: "category",
-            data: data?.raw.map((_, i) => data.start + i),
-          },
-          series: [
-            {
-              name: "原始片段",
-              type: "line",
-              data: data?.raw.map((r) => r[feature]),
-              showSymbol: false,
-              itemStyle: { color: colors.input },
-              lineStyle: { color: colors.input, width: 2 },
-            },
-            {
-              name: "注入后",
-              type: "line",
-              data: data?.injected.map((r) => r[feature]),
-              showSymbol: false,
-              itemStyle: { color: colors.alarm },
-              lineStyle: { color: colors.alarm, width: 2 },
-              markArea: {
-                silent: true,
-                itemStyle: { color: "rgba(217,119,6,.08)" },
-                data: (data?.labels || [])
-                  .map((v, i) => (v ? [{ xAxis: i }, { xAxis: i + 1 }] : null))
-                  .filter(Boolean),
-              },
-            },
-          ],
-        },
-      ),
-    [data, feature],
-  );
-  const cols = data?.features.slice(0, 10) || [];
-  const heat = useMemo(
-    () => ({
-      animation: false,
-      grid: { left: 70, right: 22, top: 10, bottom: 22 },
-      xAxis: {
-        type: "category",
-        data: data?.raw.map((_, i) => data.start + i),
-        axisLabel: { show: false },
+  const [feature, setFeature] = useState(4);
+  if (!p.arrays) return <div className="loading-panel">实验数据加载中</div>;
+  const a = p.arrays;
+  const start = Math.max(0, Array.from(a.labels).findIndex((v) => v > 0) - 25);
+  const end = Math.min(start + 200, a.labels.length);
+  const indices = Array.from({ length: end - start }, (_, i) => i + start);
+  const option = lines(
+    [
+      {
+        name: "服务器实验输入",
+        data: indices.map((i) => a.raw[i * p.ds.features + feature]),
+        color: colors.input,
       },
-      yAxis: {
-        type: "category",
-        data: cols.map((c) => p.ds.dictionary[c]?.code),
-        axisLabel: { fontSize: 10, width: 60, overflow: "truncate" },
-      },
-      visualMap: {
-        show: false,
-        min: 0,
-        max: 1,
-        inRange: { color: ["#f5f3ec", "#d97706"] },
-      },
+    ],
+    {
+      xAxis: { type: "category", data: indices },
       series: [
         {
-          type: "heatmap",
-          data:
-            data?.matrix.flatMap((r, t) => cols.map((c, j) => [t, j, r[c]])) ||
-            [],
+          name: "服务器实验输入",
+          type: "line",
+          showSymbol: false,
+          data: indices.map((i) => a.raw[i * p.ds.features + feature]),
+          itemStyle: { color: colors.input },
+          markArea: {
+            silent: true,
+            itemStyle: { color: "rgba(189,135,64,.12)" },
+            data: indices.flatMap((i, j) =>
+              a.matrix[i * p.ds.features + feature]
+                ? [[{ xAxis: j }, { xAxis: j + 1 }]]
+                : [],
+            ),
+          },
         },
       ],
-    }),
-    [data, cols.join(), p.ds],
+    },
   );
   return (
     <>
-      <div className="method-grid">
-        {methods.map((m) => (
-          <button
-            className={kind === m.id ? "method active" : "method"}
-            key={m.id}
-            onClick={() => setKind(m.id)}
-          >
-            <span className="method-mark">
-              {m.id === "peak"
-                ? "╱╲"
-                : m.id === "uniform"
-                  ? "─ ─"
-                  : m.id === "length"
-                    ? "↔"
-                    : "∿"}
-            </span>
-            <b>{m.name}</b>
-          </button>
-        ))}
-      </div>
       <div className="anomaly-controls">
-        <div className="segmented">
-          {["fixed", "dynamic"].map((id) => (
-            <button
-              className={strategy === id ? "active" : ""}
-              key={id}
-              onClick={() => {
-                setStrategy(id);
-                setSeed(42);
-              }}
-            >
-              {id === "fixed" ? "固定注入" : "动态注入"}
-            </button>
-          ))}
-        </div>
-        <div className="segmented">
-          {["train", "test"].map((id) => (
-            <button
-              className={part === id ? "active" : ""}
-              key={id}
-              onClick={() => setPart(id)}
-            >
-              {id === "train" ? "训练集" : "测试集"}
-            </button>
-          ))}
-        </div>
+        <span>服务器保存的异常输入与标签</span>
         <select
           aria-label="查看异常变量"
           value={feature}
           onChange={(e) => setFeature(Number(e.target.value))}
         >
-          {(data?.features.length ? data.features : [0]).map((c) => (
-            <option value={c} key={c}>
-              {p.ds.dictionary[c]?.code}
+          {p.ds.dictionary.map((d) => (
+            <option key={d.code} value={d.index}>
+              {d.code}
             </option>
           ))}
         </select>
-        <button
-          className="outline"
-          disabled={strategy === "fixed" || busy}
-          onClick={() => setSeed((s) => s + 1)}
-        >
-          <RefreshCw size={15} />
-          重新生成
-        </button>
-        <span className="mono seed">seed {seed}</span>
       </div>
-      {error && <Note>{error}</Note>}
-      <div className={"panel " + (busy ? "pending" : "")}>
+      <div className="panel">
         <div className="section-title">
-          <h2>注入结果</h2>
+          <h2>异常输入</h2>
+          <span>{p.exp?.name}</span>
         </div>
-        <Chart option={option} height={230} />
+        <Chart option={option} height={280} />
         <div className="label-strip">
-          <span>异常区间</span>
+          <span>逐时刻标签</span>
           <div>
-            {data?.labels.map((v, i) => (
-              <i key={i} className={v ? "abnormal" : ""} />
+            {indices.map((i) => (
+              <i key={i} className={a.labels[i] ? "abnormal" : ""} />
             ))}
           </div>
         </div>
         <details className="source-details">
-          <summary>变量标签</summary>
-          <Chart option={heat} height={Math.max(70, cols.length * 18 + 30)} />
-        </details>
-        <details className="source-details">
           <summary>方法与来源</summary>
           <div>
-            基于当前{part === "train" ? "训练" : "测试"}序列执行本地构造。
-            {strategy === "fixed"
-              ? "固定seed可重复查看。"
-              : "重新生成时改变seed，更新异常位置与扰动。"}
-            检测页面的历史结果保留其原实验输入。
+            {p.exp?.source}
+            。背景标出当前变量的异常标签，下方标签条汇总全部变量。页面读取保存结果，不重新构造异常。
           </div>
         </details>
       </div>
@@ -1128,7 +919,7 @@ function Models(p: Props) {
         <div className="panel">
           <div className="section-title">
             <h2>检测结果</h2>
-            <span>直接逐点评价</span>
+            <span>服务器点调整评价</span>
           </div>
           <table>
             <thead>
@@ -1150,9 +941,11 @@ function Models(p: Props) {
                       <b>{m.name}</b>
                     </td>
                     <td>{e?.name || "—"}</td>
-                    <td className="mono">{pct(e?.metrics.direct.precision)}</td>
-                    <td className="mono">{pct(e?.metrics.direct.recall)}</td>
-                    <td className="mono">{pct(e?.metrics.direct.f1)}</td>
+                    <td className="mono">
+                      {pct(e?.metrics.adjusted.precision)}
+                    </td>
+                    <td className="mono">{pct(e?.metrics.adjusted.recall)}</td>
+                    <td className="mono">{pct(e?.metrics.adjusted.f1)}</td>
                     <td className="mono">{fmt(e?.metrics.auc)}</td>
                   </tr>
                 );
@@ -1162,9 +955,7 @@ function Models(p: Props) {
           <details className="source-details">
             <summary>方法与来源</summary>
             <div>
-              {p.dataset === "converter"
-                ? "三模型输入和标签一致，分别使用各自记录的阈值。"
-                : "三模型使用同一归一化、异常输入、seed和本地训练预算，阈值按各自训练分数确定。"}
+              三模型输入和标签一致，阈值与点调整预测沿用各自服务器绘图脚本。
             </div>
           </details>
         </div>
@@ -1174,236 +965,51 @@ function Models(p: Props) {
   );
 }
 function Training(p: Props) {
-  const [epochs, setEpochs] = useState(1);
-  const [samples, setSamples] = useState(128);
-  const [split, setSplit] = useState(p.ds.split);
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  useEffect(() => {
-    let alive = true;
-    const load = () =>
-      api<Job[]>("/jobs").then((j) => {
-        if (alive) setJobs(j);
-      });
-    void load();
-    const t = setInterval(() => void load(), 1500);
-    return () => {
-      alive = false;
-      clearInterval(t);
-    };
-  }, []);
-  const active = jobs.some(
-    (j) => j.status === "running" || j.status === "queued",
-  );
-  const start = async () => {
-    setSubmitting(true);
-    try {
-      const j = await api<Job>("/jobs", {
-        dataset: p.dataset,
-        model: p.model,
-        epochs,
-        samples,
-        split,
-        seed: 42,
-        kind: "mixed",
-      });
-      setJobs((s) => [...s, j]);
-      setError("");
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
   const history = p.exp?.history || [];
-  const opt = lines(
+  const option = lines(
     [
       {
-        name: "保存的训练损失",
+        name: "服务器训练损失",
         data: history.map((h) => h.loss),
         color: colors.score,
       },
     ],
-    {
-      xAxis: { type: "category", data: history.map((h) => h.epoch) },
-      series: [
-        {
-          name: "保存的训练损失",
-          type: "line",
-          data: history.map((h) => h.loss),
-          showSymbol: true,
-          symbolSize: 6,
-          itemStyle: { color: colors.score },
-        },
-      ],
-    },
+    { xAxis: { type: "category", data: history.map((h) => h.epoch) } },
   );
   return (
-    <>
-      <div className="training-grid">
-        <div className="panel">
-          <div className="section-title">
-            <h2>训练记录</h2>
-            <span>{p.exp?.name}</span>
-          </div>
-          <Chart option={opt} height={250} />
-          <div className="facts-grid">
-            <div>
-              <span>记录轮数</span>
-              <b className="mono">{history.length}</b>
-            </div>
-            <div>
-              <span>学习率</span>
-              <b className="mono">
-                {history.length ? history.at(-1)!.lr.toExponential(1) : "—"}
-              </b>
-            </div>
-            <div>
-              <span>权重大小</span>
-              <b className="mono">
-                {fmt((p.exp?.checkpointBytes || 0) / 1e6, 1)} MB
-              </b>
-            </div>
-            <div>
-              <span>结果版本</span>
-              <b className="mono">{p.exp?.id}</b>
-            </div>
-          </div>
-          <details className="source-details">
-            <summary>方法与来源</summary>
-            <div>
-              损失曲线来自保存记录，显示实际轮次。记忆模型历史文件未包含训练后记忆向量，本地补存校准记忆。
-            </div>
-          </details>
-        </div>
-        <details className="content-details new-training">
-          <summary>新建训练任务</summary>{" "}
-          <div className="panel compute-form">
-            <div className="section-title">
-              <h2>训练参数</h2>
-              <span className="badge">CPU</span>
-            </div>
-            <p>训练并保存独立实验成果。</p>
-            <label>
-              训练轮数
-              <select
-                aria-label="训练轮数"
-                value={epochs}
-                onChange={(e) => setEpochs(Number(e.target.value))}
-              >
-                {[1, 2, 3, 5].map((n) => (
-                  <option key={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              训练窗口数
-              <select
-                aria-label="训练窗口数"
-                value={samples}
-                onChange={(e) => setSamples(Number(e.target.value))}
-              >
-                {[32, 64, 128, 256].map((n) => (
-                  <option key={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              训练集比例
-              <select
-                aria-label="训练集比例"
-                value={split}
-                onChange={(e) => setSplit(Number(e.target.value))}
-              >
-                {[0.6, 0.7, 0.8].map((n) => (
-                  <option key={n} value={n}>
-                    {n * 100}%
-                  </option>
-                ))}
-              </select>
-            </label>
-            <div className="form-summary">
-              <span>
-                {p.ds.short} · {p.ds.models.find((m) => m.id === p.model)?.name}
-              </span>
-              <small>
-                {p.model === "model3"
-                  ? "正常重建 · 固定记忆"
-                  : "重建损失 · 异常约束"}
-              </small>
-            </div>
-            <button
-              className="primary full"
-              disabled={active || submitting}
-              onClick={start}
-            >
-              <Play size={16} />
-              {active ? "任务运行中" : "提交训练"}
-            </button>
-            {error && <p className="error-message">{error}</p>}
-          </div>
-        </details>
+    <div className="panel">
+      <div className="section-title">
+        <h2>服务器训练记录</h2>
+        <span>{p.exp?.name}</span>
       </div>
-      {jobs.length > 0 && (
-        <details className="content-details">
-          <summary>任务记录</summary>
-          <div className="panel">
-            <div className="section-title">
-              <h2>计算任务</h2>
-              <span>新成果独立保存</span>
-            </div>
-            {jobs.map((j) => (
-              <div className="job-row" key={j.id}>
-                <div>
-                  <b>
-                    {j.config.dataset === "converter" ? "换流设备" : "风电功率"}{" "}
-                    · {j.config.model}
-                  </b>
-                  <small className="mono">{j.id}</small>
-                </div>
-                <div className="job-progress">
-                  <i style={{ width: j.progress * 100 + "%" }} />
-                </div>
-                <span>
-                  {
-                    (
-                      {
-                        queued: "排队",
-                        running: "计算中",
-                        complete: "已完成",
-                        failed: "失败",
-                        cancelled: "已取消",
-                      } as Record<string, string>
-                    )[j.status]
-                  }
-                </span>
-                {j.status === "complete" ? (
-                  <button
-                    className="outline compact"
-                    onClick={async () => {
-                      await p.refresh();
-                      p.selectExperiment(j.result!);
-                    }}
-                  >
-                    加载成果
-                    <ArrowRight size={14} />
-                  </button>
-                ) : j.status === "running" || j.status === "queued" ? (
-                  <button
-                    className="text-button"
-                    onClick={() => void api("/jobs/" + j.id + "/cancel", {})}
-                  >
-                    <Square size={12} />
-                    取消
-                  </button>
-                ) : null}
-                {j.error && <small className="error-message">{j.error}</small>}
-              </div>
-            ))}
-          </div>
-        </details>
-      )}
-    </>
+      <Chart option={option} height={300} />
+      <div className="facts-grid">
+        <div>
+          <span>训练轮数</span>
+          <b className="mono">{history.length}</b>
+        </div>
+        <div>
+          <span>学习率</span>
+          <b className="mono">{history.at(-1)?.lr.toExponential(1) || "—"}</b>
+        </div>
+        <div>
+          <span>权重大小</span>
+          <b className="mono">
+            {fmt((p.exp?.checkpointBytes || 0) / 1e6, 1)} MB
+          </b>
+        </div>
+        <div>
+          <span>结果来源</span>
+          <b>研究服务器</b>
+        </div>
+      </div>
+      <details className="source-details">
+        <summary>方法与来源</summary>
+        <div>
+          {p.exp?.source}
+          。损失曲线来自服务器权重中的训练记录，检测读取同目录保存结果。
+        </div>
+      </details>
+    </div>
   );
 }

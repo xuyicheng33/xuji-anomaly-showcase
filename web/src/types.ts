@@ -26,6 +26,9 @@ export type Experiment = {
   trainingSeconds?: number;
   trainSamples?: number;
   hasFeatureLabels?: boolean;
+  official?: boolean;
+  evaluation?: "point-adjust";
+  sourcePath?: string;
   jobId?: string;
 };
 export type Dictionary = {
@@ -80,6 +83,7 @@ export type Arrays = {
   scores: Float64Array;
   labels: Uint8Array;
   matrix: Uint8Array;
+  predictions: Uint8Array;
 };
 export type Injection = {
   start: number;

@@ -9,7 +9,7 @@ import {
 import type { Arrays, Catalog, DatasetId, ModelId, Experiment } from "./types";
 import { api, arraysFor } from "./data";
 import { Stages } from "./Stages";
-import { Detection } from "./Detection";
+import { Detection } from "./OfficialDetection";
 const STEPS = [
   "项目概览",
   "数据概况",
@@ -51,7 +51,13 @@ export default function App() {
   const [menu, setMenu] = useState(false);
   const reload = () =>
     api<Catalog>("/catalog")
-      .then(setCat)
+      .then((catalog) => {
+        setCat(catalog);
+        if (!catalog.datasets[dataset]) {
+          setDataset(Object.keys(catalog.datasets)[0] as DatasetId);
+          setExperiment("");
+        }
+      })
       .catch((e) => setError(e.message));
   useEffect(() => {
     void reload();
@@ -146,23 +152,27 @@ export default function App() {
             <small>异常检测</small>
           </span>
         </a>
-        <div className="dataset-switch" role="group" aria-label="选择数据集">
-          <span
-            className={"switch-plate " + (dataset === "xuji" ? "right" : "")}
-          />
-          {(["converter", "xuji"] as DatasetId[]).map((id) => (
-            <button
-              key={id}
-              className={dataset === id ? "active" : ""}
-              onClick={() => {
-                setDataset(id);
-                setExperiment("");
-              }}
-            >
-              {cat!.datasets[id].short}
-            </button>
-          ))}
-        </div>
+        {Object.keys(cat!.datasets).length > 1 ? (
+          <div className="dataset-switch" role="group" aria-label="选择数据集">
+            <span
+              className={"switch-plate " + (dataset === "xuji" ? "right" : "")}
+            />
+            {(Object.keys(cat!.datasets) as DatasetId[]).map((id) => (
+              <button
+                key={id}
+                className={dataset === id ? "active" : ""}
+                onClick={() => {
+                  setDataset(id);
+                  setExperiment("");
+                }}
+              >
+                {cat!.datasets[id].short}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <span className="official-dataset">{ds.short}</span>
+        )}
         <button
           className="workflow-menu"
           onClick={() => setMenu(!menu)}
@@ -251,7 +261,6 @@ export default function App() {
           {step === 10 && exp && arrays ? (
             <Detection
               key={dataset + exp.id}
-              dataset={dataset}
               ds={ds}
               exp={exp}
               arrays={arrays}

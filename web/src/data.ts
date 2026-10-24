@@ -20,7 +20,15 @@ export async function api<T>(path: string, body?: unknown): Promise<T> {
   return result as T;
 }
 export async function arraysFor(exp: Experiment): Promise<Arrays> {
-  const keys = ["raw", "recon", "errors", "scores", "labels", "matrix"];
+  const keys = [
+    "raw",
+    "recon",
+    "errors",
+    "scores",
+    "labels",
+    "matrix",
+    "predictions",
+  ];
   const entries = await Promise.all(
     keys.map(async (key) => {
       const r = await fetch(exp.files[key].url);
