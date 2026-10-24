@@ -5,6 +5,7 @@ from pathlib import Path
 import paramiko
 
 ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = ROOT / "data/manifest.json"
 REMOTE = "/root/gpufree-data/DTAAD"
 FOLDERS = {
     "model0": "DTAAD-main",
@@ -82,29 +83,32 @@ def synchronize(client):
             if e.filename.endswith(".npy") and e.st_size < 1000000:
                 rel = "DTAAD_64_n_method_3/" + sub + "/" + e.filename
                 targets.append((rel, ROOT / "data/source" / sub / e.filename))
-    manifest = []
+    existing = json.loads(MANIFEST.read_text(encoding="utf-8-sig")) if MANIFEST.exists() else []
+    manifest = {entry["local"]: entry for entry in existing}
     for i, (rel, dest) in enumerate(targets):
         dest.parent.mkdir(parents=True, exist_ok=True)
         stat = sftp.stat(REMOTE + "/" + rel)
-        if not dest.exists() or dest.stat().st_size != stat.st_size:
-            sftp.get(REMOTE + "/" + rel, str(dest), max_concurrent_prefetch_requests=32)
-        sha = hashlib.sha256(dest.read_bytes()).hexdigest()
-        manifest.append(
-            {
-                "remote": REMOTE + "/" + rel,
-                "local": str(dest.relative_to(ROOT)).replace("\\", "/"),
-                "bytes": stat.st_size,
-                "sha256": sha,
-            }
-        )
+        temporary = dest.with_name(dest.name + ".part")
+        sftp.get(REMOTE + "/" + rel, str(temporary), max_concurrent_prefetch_requests=32)
+        if temporary.stat().st_size != stat.st_size:
+            raise ValueError(f"同步文件大小不一致：{rel}")
+        sha = hashlib.sha256(temporary.read_bytes()).hexdigest()
+        temporary.replace(dest)
+        local = dest.relative_to(ROOT).as_posix()
+        manifest[local] = {
+            "remote": REMOTE + "/" + rel,
+            "local": local,
+            "bytes": stat.st_size,
+            "sha256": sha,
+        }
         if i % 20 == 0:
             print(f"Downloaded {i+1}/{len(targets)}", flush=True)
-    (ROOT / "data/source/manifest.json").write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
+    MANIFEST.write_text(
+        json.dumps(sorted(manifest.values(), key=lambda entry: entry["local"]), ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
     sftp.close()
     print(
-        f"Synchronized {len(manifest)} files, {sum(x['bytes'] for x in manifest)/1e6:.1f} MB",
+        f"Synchronized {len(targets)} server files; retained {len(manifest)} asset records",
         flush=True,
     )
 

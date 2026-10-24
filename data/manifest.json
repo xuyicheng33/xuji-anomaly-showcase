@@ -1,0 +1,866 @@
+[
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/checkpoints/DTAAD_converter/model.ckpt",
+    "local": "data/models/converter/model1/model.ckpt",
+    "bytes": 15881366,
+    "sha256": "8ced8979ad743d66dab27b88a0c969c4125b87c79980d5d6d1ba5a0b73e4f6ab"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/checkpoints/DTAAD_converter/model.ckpt",
+    "local": "data/models/converter/model2/model.ckpt",
+    "bytes": 37879594,
+    "sha256": "2a26778d1521bf4c6eda09d1dd0faf1a9d99d6334d06efe9df3fa3aad2c4b28e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/checkpoints/DTAAD_converter/model.ckpt",
+    "local": "data/models/converter/model3/model.ckpt",
+    "bytes": 43035434,
+    "sha256": "5f9442131241da562fd1bd979b354f706d7dc810bcad8ae0cb57c46a807014af"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/checkpoints/DTAAD_xuji/model.ckpt",
+    "local": "data/models/xuji/model3/model.ckpt",
+    "bytes": 2229573,
+    "sha256": "ab0db805fb3c9a43a8f54f365a6a98956e59864e50e72f00f2b558cee15a866c"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/data/xuji/labels.npy",
+    "local": "data/source/data/xuji/labels.npy",
+    "bytes": 98240,
+    "sha256": "881210f27dd4713f6a3ce5f0a9dcb31f61d7c5ab787e170c5e7b3ee8b5b80cf1"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/data/xuji/test.npy",
+    "local": "data/source/data/xuji/test.npy",
+    "bytes": 98240,
+    "sha256": "46f9a073f23660d1d153c59635ab21fe2229c0f36090a72ea00a9fc118aa09fb"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/data/xuji/train.npy",
+    "local": "data/source/data/xuji/train.npy",
+    "bytes": 392520,
+    "sha256": "13f4ba95e66478d89a996b0a4ef1a14f27e50324e9d9fd3110ab084297eeee76"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/dataset/converter.xlsx",
+    "local": "data/source/dataset/converter.xlsx",
+    "bytes": 9524784,
+    "sha256": "71aa683bc1c709eff29aca8d26c8e0f339e957d31bc7a9fa2edaa1b713cbc6ea"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/dataset/orgdata/converter.xlsx",
+    "local": "data/source/dataset/orgdata/converter.xlsx",
+    "bytes": 8092533,
+    "sha256": "a94111fb9535759c545a84a22c735e797a6c939675e616205bcb7ea5b9753b88"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/dataset/orgdata/converternew.xlsx",
+    "local": "data/source/dataset/orgdata/converternew.xlsx",
+    "bytes": 8090646,
+    "sha256": "1f5b17c280b3229313ad244d9298e80f31b0999cedb6fe2c4fad62db1cf8631f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/dataset/prodata/converter_labels.npy",
+    "local": "data/source/dataset/prodata/converter_labels.npy",
+    "bytes": 9716,
+    "sha256": "0fce45485d2823733f8071754d2daa478d059eca61e989d2b7fae01c369da75d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/dataset/prodata/converter_test.npy",
+    "local": "data/source/dataset/prodata/converter_test.npy",
+    "bytes": 2397128,
+    "sha256": "6fd7669d29188478056dddac189e0676ecff8a35387f2060955cfd3821d665cf"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/dataset/prodata/converter_train.npy",
+    "local": "data/source/dataset/prodata/converter_train.npy",
+    "bytes": 5593128,
+    "sha256": "8a9d1d7fceba6bea024ec82e3888baba190b53bfb9239bdddf52d7d55a79f636"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_labels.npy",
+    "local": "data/source/insertedData/xuji/xuji_labels.npy",
+    "bytes": 49184,
+    "sha256": "d2ef5ea2235a32b692aa0aa94faaa080f6b7f34920d8a2aae540825c93995cdc"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_test_labels_mergedSeq_after_insert.npy",
+    "local": "data/source/insertedData/xuji/xuji_test_labels_mergedSeq_after_insert.npy",
+    "bytes": 49184,
+    "sha256": "d2ef5ea2235a32b692aa0aa94faaa080f6b7f34920d8a2aae540825c93995cdc"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_test_mergedSeq_after_insert.npy",
+    "local": "data/source/insertedData/xuji/xuji_test_mergedSeq_after_insert.npy",
+    "bytes": 98240,
+    "sha256": "f64fa0088d6490beb0db5b70f038be8c4dbf7e98f49f61858623ac56b165c0d9"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train.npy",
+    "local": "data/source/insertedData/xuji/xuji_train.npy",
+    "bytes": 394368,
+    "sha256": "37450033fb308c6b7fbfd6d886cccf7c9cb5fc2ea5dacfdd2b10dfa568d52c76"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train_label.npy",
+    "local": "data/source/insertedData/xuji/xuji_train_label.npy",
+    "bytes": 197248,
+    "sha256": "007cc15b3e78fc25926a2105a88f4866341b10805c661e19f7ceb3b42ec2031f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train_labels_mergedSeq_after_insert.npy",
+    "local": "data/source/insertedData/xuji/xuji_train_labels_mergedSeq_after_insert.npy",
+    "bytes": 196324,
+    "sha256": "e88579b1558b4f734f3ed93183cc5eaeb733756a12f9a1dcb05d49085a7fdf33"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train_mergedSeq_after_insert.npy",
+    "local": "data/source/insertedData/xuji/xuji_train_mergedSeq_after_insert.npy",
+    "bytes": 392520,
+    "sha256": "af20f459faad326257d4dcb31cc2d80cfe197943926d84c00782b8396d24fee6"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/processed/xuji/labels.npy",
+    "local": "data/source/processed/xuji/labels.npy",
+    "bytes": 98240,
+    "sha256": "881210f27dd4713f6a3ce5f0a9dcb31f61d7c5ab787e170c5e7b3ee8b5b80cf1"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/processed/xuji/test.npy",
+    "local": "data/source/processed/xuji/test.npy",
+    "bytes": 98240,
+    "sha256": "a6bccb70d06d27ab8b907ce11b4ac62cde1cd047a3b69955cf15a8b5735e1563"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/processed/xuji/train.npy",
+    "local": "data/source/processed/xuji/train.npy",
+    "bytes": 392520,
+    "sha256": "dc25c6e0fd0083104cb372df0aa9dad3fb69ee317cdf968e91ce0e9ae50b16a6"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/constants.py",
+    "local": "data/source/research/model0/src/constants.py",
+    "bytes": 1167,
+    "sha256": "bc81a0c90de7df7e3d2cb22bb067514db3852fb70ae20fb5283013cf8ab78863"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/diagnosis.py",
+    "local": "data/source/research/model0/src/diagnosis.py",
+    "bytes": 964,
+    "sha256": "42a9176c722dfb18cab82d651138ccc994e0d8d13937b845965a1de25609cb1d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/dlutils.py",
+    "local": "data/source/research/model0/src/dlutils.py",
+    "bytes": 12827,
+    "sha256": "40fe2437f6deb5648c15771551790d9a3ad73b4b35da6bf3fe2c0db7a33e5c6f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/folderconstants.py",
+    "local": "data/source/research/model0/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/gltcn.py",
+    "local": "data/source/research/model0/src/gltcn.py",
+    "bytes": 5575,
+    "sha256": "ee5f6148c14cd89b5916fd5f3eff7a78afb578a0ec474106a41af9de461209b9"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/models.py",
+    "local": "data/source/research/model0/src/models.py",
+    "bytes": 22828,
+    "sha256": "6a97562ff615c19504939be1f76d4689d4b83264eb9b2d0ece89cd29d837d0e4"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/orgpot.py",
+    "local": "data/source/research/model0/src/orgpot.py",
+    "bytes": 5529,
+    "sha256": "dea053a8307fbf1f23e2bb8d4ca928764a114dd13c9fd952bd803588fc66d8bf"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/parser.py",
+    "local": "data/source/research/model0/src/parser.py",
+    "bytes": 1130,
+    "sha256": "935b70b689db3c0d8439d67baf84a67697cd52e5718cd0e83540d20f9fe4ceb1"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/plotting.py",
+    "local": "data/source/research/model0/src/plotting.py",
+    "bytes": 2324,
+    "sha256": "6a8c11247ecfd76444c812c76ea395a0b052f7019c386640cafaed680eeea7be"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/pot.py",
+    "local": "data/source/research/model0/src/pot.py",
+    "bytes": 7147,
+    "sha256": "2b89225823a16d0e91128b04876309a481cdae4c09b2603d0dd6bff2914b9336"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/spot.py",
+    "local": "data/source/research/model0/src/spot.py",
+    "bytes": 66128,
+    "sha256": "7d68506d28421da21247e6ac76e9684ed1a687820426695fe3016416b68035bb"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/utils.py",
+    "local": "data/source/research/model0/src/utils.py",
+    "bytes": 2056,
+    "sha256": "9a5ed10545103e3d6e803e55ca6616191a1e9e04eb72a856b6808ac0e0e37c5e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/BNDLosswithW_single.py",
+    "local": "data/source/research/model1/BNDLosswithW_single.py",
+    "bytes": 696,
+    "sha256": "6c06dd20309d4be5cb72a9a6dfbeb2c05598fbc461eb5526c1480b90800d284f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/adaptive_mask.py",
+    "local": "data/source/research/model1/adaptive_mask.py",
+    "bytes": 4830,
+    "sha256": "745ea27a04b6d7709a9f60caa64be277d601345f49a8dd08e24548e26d1f418d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/demo11.py",
+    "local": "data/source/research/model1/demo11.py",
+    "bytes": 20171,
+    "sha256": "10c0a08f2f635197488a8accb08e6b18f4222fa78451b25ddcdee5b0c22d971a"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/demoNew03.py",
+    "local": "data/source/research/model1/demoNew03.py",
+    "bytes": 13773,
+    "sha256": "1be1ef7eb9d3096ba7b60c51ad08a30941ef8c2e327b95ffc8718e558054887d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/newMain17.py",
+    "local": "data/source/research/model1/newMain17.py",
+    "bytes": 42670,
+    "sha256": "dd5185713daa70f53ddd7e79b606b53867568f2d4ba301ce915c00daa364f7ac"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/constants.py",
+    "local": "data/source/research/model1/src/constants.py",
+    "bytes": 4014,
+    "sha256": "b63f0b15eb3c3c679a4328a607cdffb26e79ddef5a1fb880aeee9c53dddeef1e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/diagnosis.py",
+    "local": "data/source/research/model1/src/diagnosis.py",
+    "bytes": 964,
+    "sha256": "42a9176c722dfb18cab82d651138ccc994e0d8d13937b845965a1de25609cb1d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/dlutils.py",
+    "local": "data/source/research/model1/src/dlutils.py",
+    "bytes": 13844,
+    "sha256": "67f938707a76b6ed371607a20c2a1c0831993529bd68cf4efb592c5d2669294f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/folderconstants.py",
+    "local": "data/source/research/model1/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/gltcn.py",
+    "local": "data/source/research/model1/src/gltcn.py",
+    "bytes": 5575,
+    "sha256": "ee5f6148c14cd89b5916fd5f3eff7a78afb578a0ec474106a41af9de461209b9"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/models.py",
+    "local": "data/source/research/model1/src/models.py",
+    "bytes": 27129,
+    "sha256": "0ec2426c50e9ce757c69b4eb8acbfa9b0aa7a2441bc69c7f13af35cbb9925852"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/newmodels01.py",
+    "local": "data/source/research/model1/src/newmodels01.py",
+    "bytes": 24072,
+    "sha256": "1e96574c6aab08f71f0d2885a4e1f44fc40c2595e8d4eb465d117d64b2b128bc"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/newmodels02.py",
+    "local": "data/source/research/model1/src/newmodels02.py",
+    "bytes": 28176,
+    "sha256": "abe213fdccd525965c783beca173262790d16d7df1c34739e0064070e90aa460"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/newmodels03.py",
+    "local": "data/source/research/model1/src/newmodels03.py",
+    "bytes": 28176,
+    "sha256": "abe213fdccd525965c783beca173262790d16d7df1c34739e0064070e90aa460"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/orgmodel.py",
+    "local": "data/source/research/model1/src/orgmodel.py",
+    "bytes": 23603,
+    "sha256": "6a0cb8e0b8065376268a8aa65af1e9d05f1c2df8df4c77b308cb6b56400a5efd"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/parser.py",
+    "local": "data/source/research/model1/src/parser.py",
+    "bytes": 2973,
+    "sha256": "1c7d90ff5b81d69ff91595b3764cbe0881ce0a57e57f238ccc906c9f2182ed4d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/plotting.py",
+    "local": "data/source/research/model1/src/plotting.py",
+    "bytes": 2324,
+    "sha256": "6a8c11247ecfd76444c812c76ea395a0b052f7019c386640cafaed680eeea7be"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/pot.py",
+    "local": "data/source/research/model1/src/pot.py",
+    "bytes": 8365,
+    "sha256": "d37448282e3255495cfe1f10327aaf96ebc9b619ea5e9ec1293f83b5734e934f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/spot.py",
+    "local": "data/source/research/model1/src/spot.py",
+    "bytes": 66128,
+    "sha256": "7d68506d28421da21247e6ac76e9684ed1a687820426695fe3016416b68035bb"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/src/utils.py",
+    "local": "data/source/research/model1/src/utils.py",
+    "bytes": 2056,
+    "sha256": "9a5ed10545103e3d6e803e55ca6616191a1e9e04eb72a856b6808ac0e0e37c5e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/BNDLosswithW_single.py",
+    "local": "data/source/research/model2/BNDLosswithW_single.py",
+    "bytes": 5306,
+    "sha256": "2203459b36a6feb1743e4deb3aafc4971a7f32ca0afee04eb86d7e383534ab89"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/adaptive_mask.py",
+    "local": "data/source/research/model2/adaptive_mask.py",
+    "bytes": 4830,
+    "sha256": "745ea27a04b6d7709a9f60caa64be277d601345f49a8dd08e24548e26d1f418d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/demo11.py",
+    "local": "data/source/research/model2/demo11.py",
+    "bytes": 18024,
+    "sha256": "ff42cfc9c70ee480eacd3e60ac791ea1a4bf86cea1e442d4745450a661e8aeaa"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/demoNew03.py",
+    "local": "data/source/research/model2/demoNew03.py",
+    "bytes": 13773,
+    "sha256": "1be1ef7eb9d3096ba7b60c51ad08a30941ef8c2e327b95ffc8718e558054887d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/newMain17.py",
+    "local": "data/source/research/model2/newMain17.py",
+    "bytes": 45967,
+    "sha256": "f81a0b56691bcf4b8df0589b5b8bb47fb58d3a632eeae805f2a914413dc4891c"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/constants.py",
+    "local": "data/source/research/model2/src/constants.py",
+    "bytes": 4010,
+    "sha256": "22bf3b05b91e0a8e61abd1dfae0d0c6b47bd3ae06e192084957dacb7a3eef04d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/diagnosis.py",
+    "local": "data/source/research/model2/src/diagnosis.py",
+    "bytes": 964,
+    "sha256": "42a9176c722dfb18cab82d651138ccc994e0d8d13937b845965a1de25609cb1d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/dlutils.py",
+    "local": "data/source/research/model2/src/dlutils.py",
+    "bytes": 13844,
+    "sha256": "67f938707a76b6ed371607a20c2a1c0831993529bd68cf4efb592c5d2669294f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/folderconstants.py",
+    "local": "data/source/research/model2/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/gltcn.py",
+    "local": "data/source/research/model2/src/gltcn.py",
+    "bytes": 6382,
+    "sha256": "7b076b9fc252ce8f8a375a33876382682cce5cb4100853bfd18fff46199e5091"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/models.py",
+    "local": "data/source/research/model2/src/models.py",
+    "bytes": 34994,
+    "sha256": "eaf3263d5926306d60752bf0f1f9037f19dc809d88c5d6aeb49e1f6ef6ba4a94"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/newmodels01.py",
+    "local": "data/source/research/model2/src/newmodels01.py",
+    "bytes": 24072,
+    "sha256": "1e96574c6aab08f71f0d2885a4e1f44fc40c2595e8d4eb465d117d64b2b128bc"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/newmodels02.py",
+    "local": "data/source/research/model2/src/newmodels02.py",
+    "bytes": 28176,
+    "sha256": "abe213fdccd525965c783beca173262790d16d7df1c34739e0064070e90aa460"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/newmodels03.py",
+    "local": "data/source/research/model2/src/newmodels03.py",
+    "bytes": 28176,
+    "sha256": "abe213fdccd525965c783beca173262790d16d7df1c34739e0064070e90aa460"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/newmodels04.py",
+    "local": "data/source/research/model2/src/newmodels04.py",
+    "bytes": 38954,
+    "sha256": "4c06750e5cf802119ba01148a211bac841ec307f71de62079a86e12ff596e817"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/orgmodel.py",
+    "local": "data/source/research/model2/src/orgmodel.py",
+    "bytes": 23603,
+    "sha256": "6a0cb8e0b8065376268a8aa65af1e9d05f1c2df8df4c77b308cb6b56400a5efd"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/parser.py",
+    "local": "data/source/research/model2/src/parser.py",
+    "bytes": 2973,
+    "sha256": "1c7d90ff5b81d69ff91595b3764cbe0881ce0a57e57f238ccc906c9f2182ed4d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/plotting.py",
+    "local": "data/source/research/model2/src/plotting.py",
+    "bytes": 2324,
+    "sha256": "6a8c11247ecfd76444c812c76ea395a0b052f7019c386640cafaed680eeea7be"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/pot.py",
+    "local": "data/source/research/model2/src/pot.py",
+    "bytes": 8365,
+    "sha256": "d37448282e3255495cfe1f10327aaf96ebc9b619ea5e9ec1293f83b5734e934f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/spot.py",
+    "local": "data/source/research/model2/src/spot.py",
+    "bytes": 66128,
+    "sha256": "7d68506d28421da21247e6ac76e9684ed1a687820426695fe3016416b68035bb"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/src/utils.py",
+    "local": "data/source/research/model2/src/utils.py",
+    "bytes": 2056,
+    "sha256": "9a5ed10545103e3d6e803e55ca6616191a1e9e04eb72a856b6808ac0e0e37c5e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/BNDLosswithW_single.py",
+    "local": "data/source/research/model3/BNDLosswithW_single.py",
+    "bytes": 5318,
+    "sha256": "6445f8050da76046bc383905cf9bf3a09c6e72b300e08b6252b5fadf3bd88846"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/adaptive_mask.py",
+    "local": "data/source/research/model3/adaptive_mask.py",
+    "bytes": 4830,
+    "sha256": "745ea27a04b6d7709a9f60caa64be277d601345f49a8dd08e24548e26d1f418d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/demo11.py",
+    "local": "data/source/research/model3/demo11.py",
+    "bytes": 18024,
+    "sha256": "ff42cfc9c70ee480eacd3e60ac791ea1a4bf86cea1e442d4745450a661e8aeaa"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/demoNew03.py",
+    "local": "data/source/research/model3/demoNew03.py",
+    "bytes": 13773,
+    "sha256": "1be1ef7eb9d3096ba7b60c51ad08a30941ef8c2e327b95ffc8718e558054887d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/newMainV801.py",
+    "local": "data/source/research/model3/newMainV801.py",
+    "bytes": 44136,
+    "sha256": "8541335aaae1b78638fde57ab65992a9d28ba0549798ed1b6f90d56e78396ab5"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/constants.py",
+    "local": "data/source/research/model3/src/constants.py",
+    "bytes": 4587,
+    "sha256": "df9a4d53b2177760f9946f7186e886d40d83993a65ec0606629267ddf19edf1b"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/diagnosis.py",
+    "local": "data/source/research/model3/src/diagnosis.py",
+    "bytes": 964,
+    "sha256": "42a9176c722dfb18cab82d651138ccc994e0d8d13937b845965a1de25609cb1d"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/dlutils.py",
+    "local": "data/source/research/model3/src/dlutils.py",
+    "bytes": 15743,
+    "sha256": "b77cf83517114a79028b9b43454ed543f58ad293f4f2ec5be15d02c71be2eca5"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/dual_memory_loss.py",
+    "local": "data/source/research/model3/src/dual_memory_loss.py",
+    "bytes": 1902,
+    "sha256": "fd484495395496a29ee03279e3d674d29cb88e8228c769ed9745a3aec07b7b4e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/folderconstants.py",
+    "local": "data/source/research/model3/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/gltcn.py",
+    "local": "data/source/research/model3/src/gltcn.py",
+    "bytes": 6377,
+    "sha256": "a0ac6e2f525ec04f3eb592c73b7aecd10104f6cba2ec70c8b99943aa5ed1a978"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/memory_anomoly_score.py",
+    "local": "data/source/research/model3/src/memory_anomoly_score.py",
+    "bytes": 1543,
+    "sha256": "8272795a15b88be73636c708917dd18dc1ec3f5900a7877ce4bcdfa22e78f6c5"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/memory_init_utils.py",
+    "local": "data/source/research/model3/src/memory_init_utils.py",
+    "bytes": 839,
+    "sha256": "4f48d5f0f30dbfd216ea2bf2e270ef14d9a6d90448335b325eb9eb65333f7a48"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/memory_loss.py",
+    "local": "data/source/research/model3/src/memory_loss.py",
+    "bytes": 1050,
+    "sha256": "4d5f80bd6565aeea39be3480b71ecd0d59b6e0106be88d79399fa4460640006f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/models.py",
+    "local": "data/source/research/model3/src/models.py",
+    "bytes": 39584,
+    "sha256": "7f380347461eb11e3bdaee28c566a1b511fb308ee4bf62f35c034b3cabda738c"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/models_allCorrect.py",
+    "local": "data/source/research/model3/src/models_allCorrect.py",
+    "bytes": 34492,
+    "sha256": "150dcfcb30728ae184fec06bd7fc0cb3926123642c6bce422024d75574a5e132"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/models_anomaly.py",
+    "local": "data/source/research/model3/src/models_anomaly.py",
+    "bytes": 34499,
+    "sha256": "e56ddd0051b46b0d74a062ced4f399139f451104607864d0aff199cdfce87daa"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/models_method3_org.py",
+    "local": "data/source/research/model3/src/models_method3_org.py",
+    "bytes": 29069,
+    "sha256": "21ba8d5629f6a577091a6bdfc635f7c00d97d2db12063e88d8990f7e220db2ff"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/models_org.py",
+    "local": "data/source/research/model3/src/models_org.py",
+    "bytes": 23603,
+    "sha256": "6a0cb8e0b8065376268a8aa65af1e9d05f1c2df8df4c77b308cb6b56400a5efd"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/modelsv8.py",
+    "local": "data/source/research/model3/src/modelsv8.py",
+    "bytes": 38766,
+    "sha256": "a49099d4ba99b7c6b7ab652921097441d74c3f281d98daf9805d5f15e618d661"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/newmodels01.py",
+    "local": "data/source/research/model3/src/newmodels01.py",
+    "bytes": 24072,
+    "sha256": "1e96574c6aab08f71f0d2885a4e1f44fc40c2595e8d4eb465d117d64b2b128bc"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/newmodels02.py",
+    "local": "data/source/research/model3/src/newmodels02.py",
+    "bytes": 28176,
+    "sha256": "abe213fdccd525965c783beca173262790d16d7df1c34739e0064070e90aa460"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/newmodels03.py",
+    "local": "data/source/research/model3/src/newmodels03.py",
+    "bytes": 26291,
+    "sha256": "c0e5cc63042e07e3cfa11e2bd2cd6d0999d37c81f0dbf06f0fbb826b84c7f115"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/newmodels04.py",
+    "local": "data/source/research/model3/src/newmodels04.py",
+    "bytes": 28412,
+    "sha256": "7e3604d0a3689cd2af8cff86fdfb45efe8a9a38c8821cba854f8c27d5c307c97"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/newmodels05.py",
+    "local": "data/source/research/model3/src/newmodels05.py",
+    "bytes": 29274,
+    "sha256": "c9e22a39cd98cfad4a54a2583ec448b25014249007e7ef95dfe98b7508d34079"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/newmodels06.py",
+    "local": "data/source/research/model3/src/newmodels06.py",
+    "bytes": 26233,
+    "sha256": "0b03abdafec2f094b4034a075de42cbb905bdc5f423b20751e961a7ae0addb40"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/ours_memory_module.py",
+    "local": "data/source/research/model3/src/ours_memory_module.py",
+    "bytes": 10814,
+    "sha256": "7503ecb2231702ed9061e65094f2b56934bc9c9abb574d400ed699e179997a65"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/ours_memory_module_anomaly.py",
+    "local": "data/source/research/model3/src/ours_memory_module_anomaly.py",
+    "bytes": 13783,
+    "sha256": "c9bf36e8d65f362a223a47e2cc1218a72874d7cb744f2d49f1ca87b0f2e17d4f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/ours_memory_module_old.py",
+    "local": "data/source/research/model3/src/ours_memory_module_old.py",
+    "bytes": 5795,
+    "sha256": "0e840cb2f2ca04a6222cf8a3d97bb2ab38aadd4178d1d3fa31537b44b4341698"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/ours_memory_module_v8.py",
+    "local": "data/source/research/model3/src/ours_memory_module_v8.py",
+    "bytes": 10817,
+    "sha256": "dcc82777bb97bf4f43882eb979d42a3bae53b07d1d64f74dde2710a56f664058"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/ours_temporal_memory_module.py",
+    "local": "data/source/research/model3/src/ours_temporal_memory_module.py",
+    "bytes": 6683,
+    "sha256": "6219ea6931a24fe9e8edc9dc1ac1ce6fcd9efcb0c7f58a41c919474eccec93a8"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/parser.py",
+    "local": "data/source/research/model3/src/parser.py",
+    "bytes": 3133,
+    "sha256": "7cd04f5c0cbdf7cb4db703ec675a66edc9052d2286ea2093d52f589c1dcfb46e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/plotting.py",
+    "local": "data/source/research/model3/src/plotting.py",
+    "bytes": 2324,
+    "sha256": "6a8c11247ecfd76444c812c76ea395a0b052f7019c386640cafaed680eeea7be"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/pot.py",
+    "local": "data/source/research/model3/src/pot.py",
+    "bytes": 8365,
+    "sha256": "d37448282e3255495cfe1f10327aaf96ebc9b619ea5e9ec1293f83b5734e934f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/single_memory_loss.py",
+    "local": "data/source/research/model3/src/single_memory_loss.py",
+    "bytes": 4480,
+    "sha256": "2b54d18f46cde3a8e6370c8928b87bbf85027d02d3fea1e04d5bda1d71399c8b"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/single_memory_loss_org.py",
+    "local": "data/source/research/model3/src/single_memory_loss_org.py",
+    "bytes": 2301,
+    "sha256": "f28f7884967e54e24dbc388c10fe7d47d1e1cf65d0f2ecdbb5ad0b8aabad1efa"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/single_memory_loss_v8.py",
+    "local": "data/source/research/model3/src/single_memory_loss_v8.py",
+    "bytes": 3581,
+    "sha256": "91e3065be45446c49c9305081277777c2a48389b6b05f7153d0204bb4cafd1ca"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/spot.py",
+    "local": "data/source/research/model3/src/spot.py",
+    "bytes": 66128,
+    "sha256": "7d68506d28421da21247e6ac76e9684ed1a687820426695fe3016416b68035bb"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/src/utils.py",
+    "local": "data/source/research/model3/src/utils.py",
+    "bytes": 2056,
+    "sha256": "9a5ed10545103e3d6e803e55ca6616191a1e9e04eb72a856b6808ac0e0e37c5e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/viz/data/labels.npy",
+    "local": "data/source/results/converter/model1/labels.npy",
+    "bytes": 19304,
+    "sha256": "a62dc0839da8d6497b0e7c23294ee0e6db90a0e11eb8feb661fb7934fe1dadef"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/viz/data/lossFinal.npy",
+    "local": "data/source/results/converter/model1/lossFinal.npy",
+    "bytes": 19304,
+    "sha256": "184fa8337104d69d4086e7c49afa463d1fbf30c1dd2862b3d396ffe2e207c530"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/viz/data/lossPerFeat.npy",
+    "local": "data/source/results/converter/model1/lossPerFeat.npy",
+    "bytes": 2397128,
+    "sha256": "b5c79d68af4bc9b2b4aa3a1d1062bbcc3cbb97ae63e43aafb3013d15662b771f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/processed/converter/converter_labels.npy",
+    "local": "data/source/results/converter/model1/matrix.npy",
+    "bytes": 1198628,
+    "sha256": "f78bb4c3bc2eda8009ca7546c1bd952f54cb2ea84538e41d81561e0d11e3f387"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/viz/data/recon.npy",
+    "local": "data/source/results/converter/model1/recon.npy",
+    "bytes": 2397128,
+    "sha256": "16424aa61950783513d413374dc610adbd99c1794cb5c64536b0a21ddf698256"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/viz/regen_viz_data.py",
+    "local": "data/source/results/converter/model1/regen_viz_data.py",
+    "bytes": 3788,
+    "sha256": "20388c794f019ad128ceb4378f8fc465fc2035a45f9f58f51190225e2d3bcc58"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/viz/data/testRaw.npy",
+    "local": "data/source/results/converter/model1/testRaw.npy",
+    "bytes": 2397128,
+    "sha256": "568d483762a68c1ee842b0d3ca569aba1b4b53ab4e661b21e6722eff061fbe69"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n/viz/viz_best.py",
+    "local": "data/source/results/converter/model1/viz_best.py",
+    "bytes": 8991,
+    "sha256": "4a196f41d1c022eb65697f35b7fa40197bb94f6c6f64a2692771beb33587432b"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/viz/data/labels.npy",
+    "local": "data/source/results/converter/model2/labels.npy",
+    "bytes": 19304,
+    "sha256": "a62dc0839da8d6497b0e7c23294ee0e6db90a0e11eb8feb661fb7934fe1dadef"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/nohup_all.log",
+    "local": "data/source/results/converter/model2/logs/nohup_all.log",
+    "bytes": 22,
+    "sha256": "0ea7cf1d885ad4976e0150df9dce6ffc37f00cf7db07e24b2b2e886ad0493c46"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/viz/data/lossFinal.npy",
+    "local": "data/source/results/converter/model2/lossFinal.npy",
+    "bytes": 19304,
+    "sha256": "72bf1ddc5c281b976c532805a3251ba3d41deecf24bb5b94afa038546eec9f1f"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/viz/data/lossPerFeat.npy",
+    "local": "data/source/results/converter/model2/lossPerFeat.npy",
+    "bytes": 2397128,
+    "sha256": "b3ec2580942754d8a11072b721d7a43fb53c428077ad9391a0c52f07421a41ed"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/processed/converter/converter_labels.npy",
+    "local": "data/source/results/converter/model2/matrix.npy",
+    "bytes": 1198628,
+    "sha256": "f78bb4c3bc2eda8009ca7546c1bd952f54cb2ea84538e41d81561e0d11e3f387"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/viz/data/recon.npy",
+    "local": "data/source/results/converter/model2/recon.npy",
+    "bytes": 2397128,
+    "sha256": "e972cd7ef7422b92ce5e759ec4413bda0defb2722ced927a003b45c8b54581eb"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/viz/regen_viz_data.py",
+    "local": "data/source/results/converter/model2/regen_viz_data.py",
+    "bytes": 3891,
+    "sha256": "f751e9f7ed63d6026d15fd8e7844e417887457ca819afbf44b4551af2d960a4a"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/viz/data/testRaw.npy",
+    "local": "data/source/results/converter/model2/testRaw.npy",
+    "bytes": 2397128,
+    "sha256": "568d483762a68c1ee842b0d3ca569aba1b4b53ab4e661b21e6722eff061fbe69"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_2/viz/viz_best.py",
+    "local": "data/source/results/converter/model2/viz_best.py",
+    "bytes": 9962,
+    "sha256": "8e15493ca49ea1a8d84f56de3a506d47d84e9bcf245f5cb84744e39a70061228"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/viz/data/labels.npy",
+    "local": "data/source/results/converter/model3/labels.npy",
+    "bytes": 19304,
+    "sha256": "a62dc0839da8d6497b0e7c23294ee0e6db90a0e11eb8feb661fb7934fe1dadef"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/_eval_out.log",
+    "local": "data/source/results/converter/model3/logs/_eval_out.log",
+    "bytes": 2894,
+    "sha256": "39cdedbfd978093f91d98c7f7d190fbdb17d011517a8502cd890d9ce3f0f5b76"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/nohup_all.log",
+    "local": "data/source/results/converter/model3/logs/nohup_all.log",
+    "bytes": 1259,
+    "sha256": "5bf8182b76099f8ce0dee5d052b0833319dea92fa96a44dfbe8a978e741bbcbb"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/viz/data/lossFinal.npy",
+    "local": "data/source/results/converter/model3/lossFinal.npy",
+    "bytes": 19304,
+    "sha256": "fb4725ead590662ff021547b3c4d9ab4b313dbbea1a72491ca95e3b59a4a433c"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/viz/data/lossPerFeat.npy",
+    "local": "data/source/results/converter/model3/lossPerFeat.npy",
+    "bytes": 2397128,
+    "sha256": "f6d03879139945218ba3a7fa8d0416cf84548c8a445a12bb4a30b1aa1a1e2276"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/processed/converter/converter_labels.npy",
+    "local": "data/source/results/converter/model3/matrix.npy",
+    "bytes": 1198628,
+    "sha256": "f78bb4c3bc2eda8009ca7546c1bd952f54cb2ea84538e41d81561e0d11e3f387"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/viz/data/recon.npy",
+    "local": "data/source/results/converter/model3/recon.npy",
+    "bytes": 2397128,
+    "sha256": "e019cb2ac3e39b8f4675845aba98388d38890bf79a6b2b3b9dd78a11975944af"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/viz/regen_viz_data.py",
+    "local": "data/source/results/converter/model3/regen_viz_data.py",
+    "bytes": 5338,
+    "sha256": "4cc9f6b5c3223187678582f5fa8c0b10b75c492f1bde7f0dcc864951785e451e"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/viz/data/testRaw.npy",
+    "local": "data/source/results/converter/model3/testRaw.npy",
+    "bytes": 2397128,
+    "sha256": "568d483762a68c1ee842b0d3ca569aba1b4b53ab4e661b21e6722eff061fbe69"
+  },
+  {
+    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/viz/viz_best.py",
+    "local": "data/source/results/converter/model3/viz_best.py",
+    "bytes": 9947,
+    "sha256": "c48d24e29976fb9c18d86900582baaeab2807934709883f814e7065812f264bd"
+  },
+  {
+    "local": "materials/周四 14点15分.md",
+    "bytes": 22130,
+    "sha256": "c835421e862f684f4a8a0eca9b367db56db6bdae655bce5f5df2ac2a44cc2faf",
+    "origin": "user-provided material"
+  },
+  {
+    "local": "materials/异常检测报告.docx",
+    "bytes": 1593730,
+    "sha256": "f48af2e60b06809cd81f596cbcf385611ea593ae0d32356e4f3ed1e4079e013e",
+    "origin": "user-provided material"
+  }
+]
