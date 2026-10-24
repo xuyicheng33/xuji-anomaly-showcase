@@ -51,6 +51,21 @@ const OUT=path.join(__dirname,'../.runtime/qa');fs.mkdirSync(OUT,{recursive:true
  await inputData();await page.locator('input[type=file]').setInputFiles({name:'bad.csv',mimeType:'text/csv',buffer:Buffer.from('a,b\n1,2')});
  await page.locator('[role=alert]').filter({hasText:'表头必须'}).waitFor();assert(await page.getByRole('button',{name:'选择CSV',exact:true}).isVisible());
  await page.locator('.dataset-switch button').nth(1).click();await page.locator('.scope-panel canvas').waitFor();
+ for(let i=0;i<3;i++)await page.getByLabel('下一个检测事件').click();
+ const markerAlignment=await page.evaluate(async()=>{
+  const source=await (await fetch('/src/Chart.tsx')).text();
+  const moduleUrl=source.match(/from "([^"]*echarts_core[^"]*)"/)[1];
+  const echarts=await import(moduleUrl);
+  const chart=echarts.getInstanceByDom(document.querySelector('.scope-panel .chart'));
+  const option=chart.getOption();
+  const cursor=Number(document.querySelector('[aria-label="检测播放进度"]').value);
+  const ordinal=option.xAxis[0].data.findIndex(v=>Number(v)===cursor);
+  return option.series.filter(s=>s.markLine).every(s=>{
+   const actual=chart.convertToPixel({xAxisIndex:s.xAxisIndex||0},s.markLine.data[0].xAxis);
+   const expected=chart.convertToPixel({xAxisIndex:0},ordinal);
+   return Math.abs(actual-expected)<1;
+  });
+ });assert(markerAlignment,'all current-time markers align with the score endpoint after window scroll');
  await page.getByRole('button',{name:'实时推理',exact:true}).click();await inputData();
  const csv=Array.from({length:70},(_,i)=>Array.from({length:7},(_,j)=>.2+Math.sin(i/8+j)*.1).join(',')).join('\n');
  await page.locator('input[type=file]').setInputFiles({name:'compatible.csv',mimeType:'text/csv',buffer:Buffer.from(csv)});

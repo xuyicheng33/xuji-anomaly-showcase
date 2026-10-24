@@ -384,7 +384,7 @@ export function Detection({ dataset, ds, exp, arrays }: Props) {
             silent: true,
             label: { show: false },
             lineStyle: { color: "#b16d48", width: 1, type: "solid" },
-            data: [{ xAxis: cursor }],
+            data: [{ xAxis: cursor - start }],
           },
         },
         {
@@ -411,7 +411,10 @@ export function Detection({ dataset, ds, exp, arrays }: Props) {
             symbol: "none",
             label: { show: false },
             lineStyle: { color: colors.alarm, type: "dashed", width: 1 },
-            data: [{ xAxis: cursor }, ...(th == null ? [] : [{ yAxis: th }])],
+            data: [
+              { xAxis: cursor - start },
+              ...(th == null ? [] : [{ yAxis: th }]),
+            ],
           },
         },
         {
@@ -437,7 +440,7 @@ export function Detection({ dataset, ds, exp, arrays }: Props) {
             silent: true,
             label: { show: false },
             lineStyle: { color: "#b16d48", width: 1, type: "solid" },
-            data: [{ xAxis: cursor }],
+            data: [{ xAxis: cursor - start }],
           },
         },
         {
@@ -461,7 +464,7 @@ export function Detection({ dataset, ds, exp, arrays }: Props) {
             silent: true,
             label: { show: false },
             lineStyle: { color: "#b16d48", width: 1, type: "solid" },
-            data: [{ xAxis: cursor }],
+            data: [{ xAxis: cursor - start }],
           },
         },
       ],
