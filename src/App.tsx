@@ -49,7 +49,7 @@ export default function App() {
     const keyboard = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement;
       if (event.key === 'Escape') { setContents(false); setDetails(false); menuButton.current?.focus(); return; }
-      if (contents || /INPUT|SELECT|TEXTAREA/.test(target.tagName) || target.isContentEditable || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (contents || /INPUT|SELECT|TEXTAREA/.test(target.tagName) || target.isContentEditable || target.closest('.table-scroll') || event.metaKey || event.ctrlKey || event.altKey) return;
       if (event.key === 'ArrowRight') { event.preventDefault(); go(id + 1); }
       if (event.key === 'ArrowLeft') { event.preventDefault(); go(id - 1); }
       if (event.key === 'Home') { event.preventDefault(); go(1); }

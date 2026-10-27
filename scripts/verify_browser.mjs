@@ -109,6 +109,24 @@ try {
     await page.getByRole('button', { name: '收起原图' }).click();
   }
   await page.close();
+  const tableKeyboard = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+  await tableKeyboard.goto(`${base}#/step/60`);
+  await tableKeyboard.locator('.canvas').waitFor();
+  const reportTable = tableKeyboard.getByRole('region', { name: '三模型报告指标' });
+  await reportTable.focus();
+  await tableKeyboard.keyboard.press('ArrowRight');
+  await tableKeyboard.waitForFunction(() => document.querySelector('.table-scroll').scrollLeft > 0);
+  const rightPosition = await reportTable.evaluate(element => element.scrollLeft);
+  assert.equal(new URL(tableKeyboard.url()).hash, '#/step/60');
+  await tableKeyboard.screenshot({ path: '.qa/screens/state-table-scroll.png' });
+  await tableKeyboard.keyboard.press('ArrowLeft');
+  await tableKeyboard.waitForFunction(position => document.querySelector('.table-scroll').scrollLeft < position, rightPosition);
+  assert.equal(new URL(tableKeyboard.url()).hash, '#/step/60');
+  await tableKeyboard.locator('h1').focus();
+  await tableKeyboard.keyboard.press('ArrowLeft');
+  await tableKeyboard.waitForFunction(() => document.querySelector('h1')?.textContent === '解释评价指标');
+  assert.equal(new URL(tableKeyboard.url()).hash, '#/step/59');
+  await tableKeyboard.close();
   const recovery = await browser.newPage();
   let fail = true;
   await recovery.route('**/data/research.json', route => fail ? route.fulfill({ status: 503, body: 'unavailable' }) : route.continue());
@@ -120,8 +138,8 @@ try {
   await recovery.locator('.canvas').waitFor();
   await recovery.close();
   assert.deepEqual(errors, []);
-  await writeFile('.qa/browser-report.json', JSON.stringify({ passed: results.length, viewports: 3, interactions: 'navigation, history, reload, inputs, sources, error recovery', errors, results }, null, 2));
-  console.log('[PASS] Navigation, selection persistence, source traceability, keyboard, history, native controls, saved images and load recovery');
+  await writeFile('.qa/browser-report.json', JSON.stringify({ passed: results.length, viewports: 3, interactions: 'navigation, history, reload, inputs, sources, error recovery, focused table keyboard scrolling', errors, results }, null, 2));
+  console.log('[PASS] Navigation, selection persistence, source traceability, keyboard, history, native controls, saved images, load recovery and focused table scrolling');
 } finally {
   await browser?.close();
   server?.kill();
