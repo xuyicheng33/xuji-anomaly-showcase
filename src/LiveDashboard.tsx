@@ -21,7 +21,6 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
   const labels = data.labels;
   const totalSteps = data.times.length;
 
-  // 预计算前缀和，O(1) 瞬时查询实时指标
   const prefixStats = useMemo(() => {
     const tps = new Int32Array(totalSteps);
     const fps = new Int32Array(totalSteps);
@@ -45,7 +44,6 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
     return { tps, fps, fns, tns };
   }, [modelKey, scores, threshold, labels, totalSteps]);
 
-  // 播放驱动循环
   useEffect(() => {
     if (!isPlaying) {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
@@ -84,20 +82,18 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
   const recall = tp + fn > 0 ? tp / (tp + fn) : 0;
   const f1 = precision + recall > 0 ? (2 * precision * recall) / (precision + recall) : 0;
 
-  // 判定状态
   const curActual = labels[timeStep] === 1;
   const curScore = scores[timeStep];
   const curPred = curScore > threshold;
-  let statusBadge = { type: 'normal', text: '正常态 (TN)', desc: '模型判定正常，工况与标签一致' };
+  let statusBadge = { type: 'normal', text: '正常态 (TN)' };
   if (curActual && curPred) {
-    statusBadge = { type: 'alert-tp', text: '真实报警 (TP)', desc: '成功捕捉真实异常工况' };
+    statusBadge = { type: 'tp', text: '真实报警 (TP)' };
   } else if (!curActual && curPred) {
-    statusBadge = { type: 'alert-fp', text: '虚警 (FP)', desc: '模型超阈值判定，实际为正常工况' };
+    statusBadge = { type: 'fp', text: '虚警 (FP)' };
   } else if (curActual && !curPred) {
-    statusBadge = { type: 'alert-fn', text: '漏检 (FN)', desc: '存在异常，但得分未达到自适应阈值' };
+    statusBadge = { type: 'fn', text: '漏检 (FN)' };
   }
 
-  // 滑动窗口：前后各 120 个时间步
   const windowRadius = 120;
   const winStart = Math.max(0, Math.min(totalSteps - windowRadius * 2, timeStep - windowRadius));
   const winEnd = Math.min(totalSteps, winStart + windowRadius * 2);
@@ -105,11 +101,10 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
 
   const rawSeries = data.testRaw[String(featureIdx)] || [];
   const reconSeries = model.recons[String(featureIdx)] || [];
-  const curFeature = data.features.find(f => f.index === featureIdx) || data.features[0];
 
   const svgWidth = 960;
-  const svgHeight = 180;
-  const padLeft = 48, padRight = 20, padTop = 16, padBottom = 26;
+  const svgHeight = 170;
+  const padLeft = 46, padRight = 20, padTop = 14, padBottom = 24;
   const chartW = svgWidth - padLeft - padRight;
   const chartH = svgHeight - padTop - padBottom;
 
@@ -168,67 +163,58 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
 
   return (
     <div>
-      {/* 头部标题与返回 */}
       <div className="page-header-row">
-        <div className="page-header-left">
-          <div className="page-kicker">模块 04 · 动态推演</div>
-          <h1 className="page-headline">检测过程时序回放与验证</h1>
-          <p className="page-lead">
-            模拟真实运行环境，逐时刻推进时间序列输入。系统对比真实观测与模型重构波形，计算多变量综合异常得分，
-            依据 SPOT 极值分布自适应阈值触发告警，并在右侧动态累加混淆矩阵与评测指标。
-          </p>
-        </div>
-        <button className="back-to-overview" onClick={onBack}>
-          ← 返回首页目录
+        <h1 className="page-headline">时序检测回放</h1>
+        <button className="back-btn" onClick={onBack}>
+          ← 返回首页
         </button>
       </div>
 
-      {/* 播放控制栏 */}
+      {/* 控制栏 */}
       <div className="playback-bar">
-        <div className="playback-buttons">
+        <div className="playback-group">
           <button
-            className={`ctrl-btn ${isPlaying ? 'primary' : ''}`}
+            className={`btn-mora ${isPlaying ? 'primary' : ''}`}
             onClick={() => setIsPlaying(!isPlaying)}
           >
-            {isPlaying ? '暂停回放' : '开始回放'}
+            {isPlaying ? '暂停' : '播放'}
           </button>
           <button
-            className="ctrl-btn"
+            className="btn-mora"
             onClick={() => {
               setIsPlaying(false);
               setTimeStep(0);
             }}
           >
-            重置起点
+            重置
           </button>
           <button
-            className="ctrl-btn"
+            className="btn-mora"
             onClick={() => {
               const nextSeg = data.anomalySegments.find(s => s.start > timeStep);
               if (nextSeg) setTimeStep(nextSeg.start);
               else if (data.anomalySegments.length > 0) setTimeStep(data.anomalySegments[0].start);
             }}
           >
-            定位至下个故障段
+            下个异常段
           </button>
           <button
-            className="ctrl-btn"
+            className="btn-mora"
             onClick={() => {
               setIsPlaying(false);
               setTimeStep(totalSteps - 1);
             }}
           >
-            跳转至序列末尾
+            序列末尾
           </button>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* 回放倍速 */}
-          <div className="speed-selector">
+          <div className="speed-bar">
             {[0.5, 1, 2, 5, 10].map(s => (
               <button
                 key={s}
-                className={`speed-btn ${speed === s ? 'active' : ''}`}
+                className={`speed-opt ${speed === s ? 'active' : ''}`}
                 onClick={() => setSpeed(s)}
               >
                 {s}x
@@ -236,30 +222,26 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
             ))}
           </div>
 
-          {/* 模型选择 */}
           <select
-            className="ctrl-select"
+            className="select-mora"
             value={modelKey}
             onChange={e => setModelKey(e.target.value as any)}
             style={{ fontWeight: 600, color: 'var(--accent)' }}
           >
-            <option value="STAM-AD">STAM-AD (自适应掩码双分支)</option>
-            <option value="SMST-AD">SMST-AD (多尺度时空关联)</option>
-            <option value="STMem-AD">STMem-AD (时空模式记忆)</option>
+            <option value="STAM-AD">STAM-AD</option>
+            <option value="SMST-AD">SMST-AD</option>
+            <option value="STMem-AD">STMem-AD</option>
           </select>
         </div>
       </div>
 
-      {/* 时间滑动进度条 */}
-      <div className="progress-card">
-        <div className="progress-header">
-          <div>
-            <span style={{ color: 'var(--text-muted)', marginRight: '8px' }}>时刻时间戳:</span>
-            <span className="progress-time">{data.times[timeStep]}</span>
-          </div>
-          <div style={{ color: 'var(--text-muted)' }}>
-            步数: <strong style={{ color: 'var(--text-main)', fontFamily: 'var(--font-mono)' }}>{timeStep}</strong> / {totalSteps - 1} ({((timeStep / (totalSteps - 1)) * 100).toFixed(1)}%)
-          </div>
+      {/* 进度条 */}
+      <div className="slider-card">
+        <div className="slider-meta">
+          <span className="slider-ts">{data.times[timeStep]}</span>
+          <span style={{ color: 'var(--text-muted)' }}>
+            时刻 {timeStep} / {totalSteps - 1}
+          </span>
         </div>
         <input
           type="range"
@@ -267,36 +249,34 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
           max={totalSteps - 1}
           value={timeStep}
           onChange={e => setTimeStep(Number(e.target.value))}
-          aria-label="时序推进滑动条"
         />
       </div>
 
-      {/* 通道 1: 时序波形与重构 */}
-      <div className="waveform-section">
-        <div className="waveform-header">
-          <div className="waveform-title-group">
-            <span className="waveform-title">测点输入波形与模型重构通道</span>
+      {/* 通道 1: 测点波形与重构 */}
+      <div className="chart-panel">
+        <div className="chart-panel-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span className="chart-panel-title">观测输入与模型重构波形</span>
             <select
-              className="ctrl-select"
+              className="select-mora"
               value={featureIdx}
               onChange={e => setFeatureIdx(Number(e.target.value))}
-              style={{ fontSize: '12px', padding: '3px 8px' }}
+              style={{ fontSize: '12px', padding: '2px 8px' }}
             >
               {data.coreFeatures.map(f => (
                 <option key={f.index} value={f.index}>
-                  [{f.group}] {f.label}
+                  {f.group} · {f.label}
                 </option>
               ))}
             </select>
           </div>
-          <div className="waveform-legend">
-            <span><i className="legend-dot" style={{ background: '#1C1917' }} />真实输入观测值 x</span>
-            <span><i className="legend-dot" style={{ background: 'var(--accent)' }} />模型重构波形 x̂</span>
-            <span><i className="legend-dot" style={{ background: 'rgba(180, 83, 9, 0.25)' }} />重构残差阴影</span>
+          <div className="chart-legend">
+            <span><i className="legend-point" style={{ background: '#242220' }} />输入值 x</span>
+            <span><i className="legend-point" style={{ background: 'var(--accent)' }} />重构值 x̂</span>
           </div>
         </div>
 
-        <div className="svg-canvas-box">
+        <div className="canvas-box">
           <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="none">
             {[0, 0.5, 1].map(v => (
               <g key={v}>
@@ -331,40 +311,35 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
                   y={padTop}
                   width={Math.max(2, x2 - x1)}
                   height={chartH}
-                  fill="rgba(185, 28, 28, 0.08)"
+                  fill="var(--morandi-red-wash)"
                 />
               );
             })}
 
-            {pathDiffArea && <path d={pathDiffArea} fill="rgba(180, 83, 9, 0.15)" />}
-            {pathRaw && <path d={pathRaw} fill="none" stroke="#1C1917" strokeWidth="1.6" />}
-            {pathRecon && <path d={pathRecon} fill="none" stroke="var(--accent)" strokeWidth="1.8" />}
+            {pathDiffArea && <path d={pathDiffArea} fill="var(--accent-wash)" />}
+            {pathRaw && <path d={pathRaw} fill="none" stroke="#242220" strokeWidth="1.5" />}
+            {pathRecon && <path d={pathRecon} fill="none" stroke="var(--accent)" strokeWidth="1.6" />}
 
-            {/* 当前时刻扫描线 */}
             <line
               x1={getX(timeStep)}
               x2={getX(timeStep)}
               y1={padTop - 4}
               y2={svgHeight - padBottom + 4}
               stroke="var(--accent)"
-              strokeWidth="2"
-              strokeDasharray="4 3"
+              strokeWidth="1.5"
+              strokeDasharray="3 3"
             />
             <circle
               cx={getX(timeStep)}
               cy={getY1(rawSeries[timeStep] ?? 0.5)}
-              r="4"
-              fill="#1C1917"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
+              r="3.5"
+              fill="#242220"
             />
             <circle
               cx={getX(timeStep)}
               cy={getY1(reconSeries[timeStep] ?? 0.5)}
-              r="4"
+              r="3.5"
               fill="var(--accent)"
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
             />
 
             <text x={padLeft} y={svgHeight - 8} fontSize="11" fill="var(--text-muted)" fontFamily="var(--font-mono)">
@@ -377,42 +352,39 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
         </div>
       </div>
 
-      {/* 通道 2: 综合异常得分与阈值判定 */}
-      <div className="waveform-section">
-        <div className="waveform-header">
-          <div className="waveform-title-group">
-            <span className="waveform-title">多测点综合异常得分与自适应阈值</span>
-            <span className={`status-pill ${statusBadge.type}`}>
+      {/* 通道 2: 异常分数与阈值 */}
+      <div className="chart-panel">
+        <div className="chart-panel-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span className="chart-panel-title">单点综合异常得分与阈值</span>
+            <span className={`status-badge ${statusBadge.type}`}>
               {statusBadge.text}
             </span>
           </div>
-          <div className="waveform-legend">
-            <span><i className="legend-dot" style={{ background: '#2563EB' }} />单点异常分数 s_t</span>
-            <span><i className="legend-dot" style={{ background: '#B91C1C' }} />SPOT 自适应阈值 τ ({threshold.toFixed(5)})</span>
-            <span><i className="legend-dot" style={{ background: 'rgba(185, 28, 28, 0.15)' }} />真实异常区间</span>
+          <div className="chart-legend">
+            <span><i className="legend-point" style={{ background: 'var(--morandi-blue)' }} />异常得分</span>
+            <span><i className="legend-point" style={{ background: 'var(--morandi-red)' }} />阈值 τ ({threshold.toFixed(4)})</span>
           </div>
         </div>
 
-        <div className="svg-canvas-box">
+        <div className="canvas-box">
           <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="none">
-            {/* 自适应阈值线 */}
             <line
               x1={padLeft}
               x2={svgWidth - padRight}
               y1={getY2(threshold)}
               y2={getY2(threshold)}
-              stroke="#B91C1C"
-              strokeWidth="1.5"
-              strokeDasharray="5 4"
+              stroke="var(--morandi-red)"
+              strokeWidth="1.2"
+              strokeDasharray="4 3"
             />
             <text
               x={svgWidth - padRight - 6}
               y={getY2(threshold) - 5}
               fontSize="10"
-              fill="#B91C1C"
-              fontWeight="600"
-              textAnchor="end"
+              fill="var(--morandi-red)"
               fontFamily="var(--font-mono)"
+              textAnchor="end"
             >
               τ = {threshold.toFixed(4)}
             </text>
@@ -427,12 +399,12 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
                   y={padTop}
                   width={Math.max(2, x2 - x1)}
                   height={chartH}
-                  fill="rgba(185, 28, 28, 0.12)"
+                  fill="var(--morandi-red-wash)"
                 />
               );
             })}
 
-            {pathScore && <path d={pathScore} fill="none" stroke="#2563EB" strokeWidth="1.8" />}
+            {pathScore && <path d={pathScore} fill="none" stroke="var(--morandi-blue)" strokeWidth="1.6" />}
 
             <line
               x1={getX(timeStep)}
@@ -440,16 +412,14 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
               y1={padTop - 4}
               y2={svgHeight - padBottom + 4}
               stroke="var(--accent)"
-              strokeWidth="2"
-              strokeDasharray="4 3"
+              strokeWidth="1.5"
+              strokeDasharray="3 3"
             />
             <circle
               cx={getX(timeStep)}
               cy={getY2(curScore)}
-              r="4.5"
-              fill={curScore > threshold ? '#B91C1C' : '#2563EB'}
-              stroke="#FFFFFF"
-              strokeWidth="1.5"
+              r="4"
+              fill={curScore > threshold ? 'var(--morandi-red)' : 'var(--morandi-blue)'}
             />
 
             <text x={padLeft - 8} y={getY2(0) + 4} fontSize="10" fill="var(--text-muted)" textAnchor="end" fontFamily="var(--font-mono)">
@@ -460,47 +430,32 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
             </text>
           </svg>
         </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
-          <span>状态判别：{statusBadge.desc}</span>
-          <span>当前时刻综合重构误差：<strong style={{ fontFamily: 'var(--font-mono)', color: curScore > threshold ? 'var(--state-alert)' : 'var(--text-main)' }}>{curScore.toFixed(5)}</strong></span>
-        </div>
       </div>
 
-      {/* 实时统计与混淆矩阵 */}
-      <div className="playback-stats-grid">
-        <div className="stats-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>实时累加评测指标</span>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>已推进至第 {timeStep + 1} 时刻</span>
+      {/* 底部指标与混淆矩阵 */}
+      <div className="bottom-metrics-grid">
+        <div className="kpi-row">
+          <div className="kpi-block">
+            <div className="kpi-label">F1-Score</div>
+            <div className="kpi-value accent">{(f1 * 100).toFixed(2)}%</div>
           </div>
-          <div className="stats-row">
-            <div className="stat-cell highlight">
-              <div className="stat-cell-label">综合 F1 指标</div>
-              <div className="stat-cell-value">{(f1 * 100).toFixed(2)}%</div>
-            </div>
-            <div className="stat-cell">
-              <div className="stat-cell-label">精确率 Precision</div>
-              <div className="stat-cell-value">{(precision * 100).toFixed(2)}%</div>
-            </div>
-            <div className="stat-cell">
-              <div className="stat-cell-label">召回率 Recall</div>
-              <div className="stat-cell-value">{(recall * 100).toFixed(2)}%</div>
-            </div>
-            <div className="stat-cell">
-              <div className="stat-cell-label">全序列 AUC</div>
-              <div className="stat-cell-value">{(model.metrics.auc * 100).toFixed(2)}%</div>
-            </div>
+          <div className="kpi-block">
+            <div className="kpi-label">Precision</div>
+            <div className="kpi-value">{(precision * 100).toFixed(2)}%</div>
+          </div>
+          <div className="kpi-block">
+            <div className="kpi-label">Recall</div>
+            <div className="kpi-value">{(recall * 100).toFixed(2)}%</div>
+          </div>
+          <div className="kpi-block">
+            <div className="kpi-label">AUC</div>
+            <div className="kpi-value">{(model.metrics.auc * 100).toFixed(2)}%</div>
           </div>
         </div>
 
-        <div className="stats-card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)' }}>混淆矩阵 (Confusion Matrix)</span>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>当前步累计</span>
-          </div>
-
-          <table className="cm-clean-table">
+        <div className="matrix-card">
+          <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-main)' }}>混淆矩阵统计</div>
+          <table className="matrix-table">
             <thead>
               <tr>
                 <th style={{ width: '28%' }}></th>
@@ -511,24 +466,24 @@ export function LiveDashboard({ data, onBack }: LiveDashboardProps) {
             <tbody>
               <tr>
                 <th>真实异常</th>
-                <td style={{ backgroundColor: 'var(--state-alert-bg)' }}>
-                  <strong style={{ color: 'var(--state-alert)' }}>{tp}</strong>
-                  <span>检出 (TP)</span>
+                <td style={{ background: 'var(--morandi-red-wash)' }}>
+                  <strong style={{ color: 'var(--morandi-red)' }}>{tp}</strong>
+                  <span>TP</span>
                 </td>
-                <td style={{ backgroundColor: '#F3F4F6' }}>
+                <td style={{ background: 'var(--bg-subtle)' }}>
                   <strong>{fn}</strong>
-                  <span>漏检 (FN)</span>
+                  <span>FN</span>
                 </td>
               </tr>
               <tr>
                 <th>真实正常</th>
-                <td style={{ backgroundColor: 'var(--state-warn-bg)' }}>
-                  <strong style={{ color: 'var(--state-warn)' }}>{fp}</strong>
-                  <span>虚警 (FP)</span>
+                <td style={{ background: 'var(--morandi-amber-wash)' }}>
+                  <strong style={{ color: 'var(--morandi-amber)' }}>{fp}</strong>
+                  <span>FP</span>
                 </td>
-                <td style={{ backgroundColor: 'var(--state-normal-bg)' }}>
-                  <strong style={{ color: 'var(--state-normal)' }}>{tn}</strong>
-                  <span>正确正常 (TN)</span>
+                <td style={{ background: 'var(--morandi-green-wash)' }}>
+                  <strong style={{ color: 'var(--morandi-green)' }}>{tn}</strong>
+                  <span>TN</span>
                 </td>
               </tr>
             </tbody>

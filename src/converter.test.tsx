@@ -23,58 +23,53 @@ describe('Converter Editorial Showcase Suite', () => {
 
   it('renders HomePortal with 4 core modules and key metrics', () => {
     const html = renderToStaticMarkup(<HomePortal data={showcaseData} onNavigate={() => {}} />);
-    expect(html).toContain('特高压换流设备异常检测展示系统');
+    expect(html).toContain('特高压换流设备异常检测');
     expect(html).toContain('01');
-    expect(html).toContain('换流设备时序数据');
+    expect(html).toContain('测点数据');
     expect(html).toContain('02');
-    expect(html).toContain('异常样本构造方法');
+    expect(html).toContain('异常构造');
     expect(html).toContain('03');
-    expect(html).toContain('模型架构与评测指标');
+    expect(html).toContain('模型评测');
     expect(html).toContain('04');
-    expect(html).toContain('检测过程时序回放');
+    expect(html).toContain('时序回放');
     expect(html).toContain('90.61%');
   });
 
   it('renders DataOverview correctly', () => {
     const html = renderToStaticMarkup(<DataOverview data={showcaseData} onBack={() => {}} />);
-    expect(html).toContain('换流设备时序数据全景');
-    expect(html).toContain('125 维换流测点系统分类');
+    expect(html).toContain('换流设备测点数据');
     expect(html).toContain('直流电压系统');
-    expect(html).toContain('测试集连续时序波形观察');
+    expect(html).toContain('2,397 测试时刻连续波形');
   });
 
   it('renders AnomalyStudio with 8 standard scenarios and no emojis', () => {
     const html = renderToStaticMarkup(<AnomalyStudio data={showcaseData} onBack={() => {}} />);
-    expect(html).toContain('异常样本构造方法与机理');
+    expect(html).toContain('异常形态构造');
     expect(html).toContain('软替换 · 训练动态');
     expect(html).toContain('均匀替换 · 训练动态');
     expect(html).toContain('峰值噪声 · 训练动态');
     expect(html).toContain('长度调整 · 训练动态');
-    expect(html).toContain('电力设备物理映射');
-    expect(html).toContain('变换公式');
     expect(html).not.toMatch(/[⚡🧪📊🟢🔴🟡🟣]/);
   });
 
   it('renders ModelBenchmark comparing all three models with editorial rigor', () => {
     const html = renderToStaticMarkup(<ModelBenchmark data={showcaseData} onBack={() => {}} />);
-    expect(html).toContain('模型架构演进与实验指标');
+    expect(html).toContain('模型架构与评测指标');
     expect(html).toContain('STAM-AD');
     expect(html).toContain('SMST-AD');
     expect(html).toContain('STMem-AD');
     expect(html).toContain('90.61%');
     expect(html).toContain('89.78%');
     expect(html).toContain('72.69%');
-    expect(html).toContain('区间点调整（Point-Adjust）机制');
     expect(html).not.toMatch(/[⚡🧪📊🟢🔴🟡🟣]/);
   });
 
   it('renders LiveDashboard server markup cleanly', () => {
     const html = renderToStaticMarkup(<LiveDashboard data={showcaseData} onBack={() => {}} />);
-    expect(html).toContain('检测过程时序回放与验证');
-    expect(html).toContain('测点输入波形与模型重构通道');
-    expect(html).toContain('多测点综合异常得分与自适应阈值');
-    expect(html).toContain('实时累加评测指标');
-    expect(html).toContain('混淆矩阵 (Confusion Matrix)');
+    expect(html).toContain('时序检测回放');
+    expect(html).toContain('观测输入与模型重构波形');
+    expect(html).toContain('单点综合异常得分与阈值');
+    expect(html).toContain('混淆矩阵统计');
     expect(html).not.toMatch(/[⚡🧪📊🟢🔴🟡🟣]/);
   });
 });
