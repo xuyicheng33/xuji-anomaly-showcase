@@ -126,7 +126,13 @@ def export():
         normalization.append({'feature': c, 'trainMin': float(clean[1:5594,c].min()), 'trainMax': float(clean[1:5594,c].max()),
             'testMin': float(clean[5595:,c].min()), 'testMax': float(clean[5595:,c].max()),
             'raw': clean[5300:5364,c].tolist(), 'normalized': train[5299:5363,c].tolist()})
-    data = {'schemaVersion': 2, 'dataset': '第一批换流设备', 'window': 64, 'features': features, 'times': times[5595:],
+    datasets = {}
+    for key, values, keys, dates in [('raw', raw, list(raw_headers), [str(r[0]).replace('.', '-')[:16] for r in raw_rows[1:]]), ('clean', clean, list(headers), times), ('train', clean[1:5594], list(headers), times[1:5594])]:
+        filename = key + '-full.bin'
+        payload = np.asarray(values, dtype='<f8').tobytes()
+        (OUT / filename).write_bytes(payload)
+        datasets[key] = {'file': filename, 'shape': list(values.shape), 'bytes': len(payload), 'sha256': hashlib.sha256(payload).hexdigest(), 'keys': keys, 'times': dates}
+    data = {'datasets': datasets, 'schemaVersion': 2, 'dataset': '第一批换流设备', 'window': 64, 'features': features, 'times': times[5595:],
         'labels': labels.tolist(), 'segments': segments(labels), 'models': models,
         'input': binary('input', input_values), 'cleanTest': binary('clean-test', test), 'labelMatrix': binary('labels', matrix),
         'summary': {'rawRows': len(raw), 'rawFeatures': len(raw_headers), 'emptyFeatures': int(all_missing.sum()),
@@ -140,7 +146,7 @@ def export():
         'rawSampleRows': [{'time': str(raw_rows[i + 1][0]).replace('.', '-')[:16],
             'values': serial(raw[i:i+1, [raw_headers.index(headers[c]) for c in selected]])[0]} for i in sample_indices],
         'trainingSample': train[5300:5428][:,selected].tolist(),
-        'provenance': {'raw': 'data/source/dataset/converter.xlsx · Sheet8', 'clean': 'data/source/dataset/orgdata/converternew.xlsx · Sheet1',
+        'provenance': {'raw': 'data/source/dataset/converter.xlsx　Sheet8', 'clean': 'data/source/dataset/orgdata/converternew.xlsx　Sheet1',
             'arrays': 'data/source/dataset/prodata', 'results': 'data/source/results/converter',
             'normalization': '归档数组与两段分别执行 Min–Max 的结果逐值一致（容差 1e-8）。报告描述采用训练段统计量。',
             'mapping': '训练对应整理表数据索引 1…5593；测试对应 5595…7991。索引从 0 开始。映射经全部数值比对。',

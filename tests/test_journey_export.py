@@ -49,5 +49,19 @@ class JourneyExportTests(unittest.TestCase):
         self.assertIsNone(ex['before'][ex['selected']])
         self.assertEqual(ex['after'][ex['selected']], 0)
 
+    def test_complete_dataset_assets(self):
+        expected = {'raw': (8760,136), 'clean': (7992,125), 'train': (5593,125)}
+        for key, shape in expected.items():
+            asset = self.data['datasets'][key]
+            payload = (self.folder / asset['file']).read_bytes()
+            self.assertEqual(hashlib.sha256(payload).hexdigest(), asset['sha256'])
+            self.assertEqual(tuple(asset['shape']), shape)
+            self.assertEqual(len(asset['times']), shape[0])
+            self.assertEqual(len(asset['keys']), shape[1])
+        clean = np.fromfile(self.folder/'clean-full.bin', dtype='<f8').reshape(7992,125)
+        train = np.fromfile(self.folder/'train-full.bin', dtype='<f8').reshape(5593,125)
+        np.testing.assert_array_equal(clean[1:5594],train)
+        self.assertNotIn('·', json.dumps(self.data,ensure_ascii=False))
+
 if __name__ == '__main__':
     unittest.main()
