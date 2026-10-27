@@ -18,7 +18,7 @@ try {
   }
   browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined), headless: true });
   await mkdir('.qa/screens', { recursive: true });
-  for (const viewport of [{ width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 1707, height: 782 }, { width: 390, height: 844 }]) {
+  for (const viewport of [{ width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 1707, height: 782 }, { width: 1024, height: 768 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1, reducedMotion: 'reduce' });
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
@@ -69,6 +69,13 @@ try {
   await page.locator('.controls select').selectOption('0');
   assert.equal(await page.locator('tbody tr').count(), 2);
   assert.equal(await page.locator('.table-pagination').count(), 0);
+  await go(21);
+  await page.locator('#changed-field').selectOption('weather_ws_hub');
+  assert.match(await page.locator('.table-pagination').innerText(), /1–5 \/ 58 条/);
+  assert.equal(await page.locator('main').evaluate(element => element.scrollHeight <= element.clientHeight + 1), true, 'Wind-speed change records must fit the desktop page');
+  for (let group = 1; group < 12; group++) await page.getByRole('button', { name: '下一组记录' }).click();
+  assert.equal(await page.locator('tbody tr').count(), 3);
+  assert.equal(await page.getByRole('button', { name: '下一组记录' }).isDisabled(), true);
   await go(22);
   await page.locator('.feature-groups section').nth(2).getByRole('button').nth(3).click();
   const selected = await page.locator('.feature-selected code').textContent();
@@ -131,8 +138,14 @@ try {
     await page.locator('.report-figure').scrollIntoViewIfNeeded();
     await page.screenshot({ path: `.qa/screens/state-model-${i + 1}.png` });
     assert.equal(await page.locator('.report-figure img').evaluate(img => img.complete && img.naturalWidth > 0), true);
+    assert.equal(await page.locator('main').evaluate(element => element.scrollHeight <= element.clientHeight + 1), true, 'Expanded model figure must fit the desktop page');
+    assert.equal(await page.getByRole('link', { name: '查看大图' }).count(), 1);
     await page.getByRole('button', { name: '收起原图' }).click();
   }
+  await go(48);
+  await page.getByRole('button', { name: '训练原图' }).click();
+  await page.locator('.report-figure img').evaluate(img => img.decode());
+  assert.equal(await page.locator('main').evaluate(element => element.scrollHeight <= element.clientHeight + 1), true, 'Saved training figure must fit the desktop page');
   await page.close();
   const tableKeyboard = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
   await tableKeyboard.goto(`${base}#/step/60`);
@@ -163,7 +176,7 @@ try {
   await recovery.locator('.canvas').waitFor();
   await recovery.close();
   assert.deepEqual(errors, []);
-  await writeFile('.qa/browser-report.json', JSON.stringify({ passed: results.length, viewports: 4, interactions: 'navigation, history, reload, inputs, sources, error recovery, focused table keyboard scrolling', errors, results }, null, 2));
+  await writeFile('.qa/browser-report.json', JSON.stringify({ passed: results.length, viewports: 5, interactions: 'navigation, history, reload, inputs, duplicate pairs, complete change-record pagination, sources, error recovery, expanded figures, focused table keyboard scrolling', errors, results }, null, 2));
   console.log('[PASS] Navigation, selection persistence, source traceability, keyboard, history, native controls, saved images, load recovery and focused table scrolling');
 } finally {
   await browser?.close();

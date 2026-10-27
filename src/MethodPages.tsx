@@ -53,11 +53,11 @@ function Losses() {
 
 function History({ data }: { data: Research }) {
   const [image, setImage] = useState(false);
-  return <><div className="section-heading"><h2>STMem-AD · 7 维实验</h2><button className="text-button" onClick={() => setImage(!image)} aria-expanded={image}>{image ? '收起原图' : '训练原图'}</button></div>{image ? <figure className="report-figure"><img src="./assets/old7-training.png" alt="服务器保存的旧版 7 维风电训练图" /><figcaption>STMem-AD · 7 维实验</figcaption></figure> : <div className="history-layout"><LineChart compact series={[{ name: '训练损失', values: data.old.history.map(row => row[0]) }]} labels={data.old.history.map((_, i) => `第 ${i + 1} 轮`)} /><DataTable columns={[{ key: 'epoch', label: '轮次（Epoch）' }, { key: 'loss', label: '训练损失' }, { key: 'lr', label: '学习率' }]} rows={data.old.history.map((row, i) => ({ epoch: i + 1, loss: row[0].toFixed(8), lr: row[1].toExponential(1) }))} caption="7 维实验训练记录" /></div>}</>;
+  return <><div className="section-heading"><h2>STMem-AD · 7 维实验</h2><button className="text-button" onClick={() => setImage(!image)} aria-expanded={image}>{image ? '收起原图' : '训练原图'}</button></div>{image ? <figure className="report-figure"><img src="./assets/old7-training.png" alt="服务器保存的旧版 7 维风电训练图" /><figcaption>STMem-AD · 7 维实验</figcaption></figure> : <div className="history-layout"><LineChart compact series={[{ name: '训练损失', values: data.old.history.map(row => row[0]) }]} labels={data.old.history.map((_, i) => `第 ${i + 1} 轮`)} /><DataTable columns={[{ key: 'epoch', label: '训练轮次' }, { key: 'loss', label: '训练损失' }, { key: 'lr', label: '学习率' }]} rows={data.old.history.map((row, i) => ({ epoch: i + 1, loss: row[0].toFixed(8), lr: row[1].toExponential(1) }))} caption="7 维实验训练记录" /></div>}</>;
 }
 
 function Checkpoint({ data }: { data: Research }) {
-  return <div className="checkpoint-view"><div className="checkpoint-file"><svg width="70" height="86" viewBox="0 0 70 86" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M9 2h32l20 20v60H9zM41 2v21h20M22 43h26M22 53h26M22 63h17" /></svg><h2>model.ckpt</h2><p>STMem-AD · 7 维风电实验</p><span>7 维 · 窗口 64</span></div><dl className="checkpoint-fields">{data.old.checkpoint.keys.map(key => <div key={key}><dt>{key}（{{ epoch: '训练轮次', model_state_dict: '模型参数', optimizer_state_dict: '优化器状态', scheduler_state_dict: '学习率调度状态', accuracy_list: '训练记录' }[key] || '保存状态'}）</dt><dd>{key === 'epoch' ? data.old.checkpoint.epoch : key === 'accuracy_list' ? '5 轮损失与学习率' : key === 'model_state_dict' ? `${number(data.old.checkpoint.state_entries)} 个参数与状态项` : key === 'optimizer_state_dict' ? '优化器状态' : '学习率调度状态'}</dd></div>)}</dl></div>;
+  return <div className="checkpoint-view"><div className="checkpoint-file"><svg width="70" height="86" viewBox="0 0 70 86" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M9 2h32l20 20v60H9zM41 2v21h20M22 43h26M22 53h26M22 63h17" /></svg><h2>model.ckpt</h2><p>STMem-AD · 7 维风电实验</p><span>7 维 · 窗口 64</span></div><dl className="checkpoint-fields">{data.old.checkpoint.keys.map(key => <div key={key}><dt>{key}（{{ epoch: '轮次索引，从 0 起', model_state_dict: '模型参数', optimizer_state_dict: '优化器状态', scheduler_state_dict: '学习率调度状态', accuracy_list: '训练记录' }[key] || '保存状态'}）</dt><dd>{key === 'epoch' ? data.old.checkpoint.epoch : key === 'accuracy_list' ? '5 轮损失与学习率' : key === 'model_state_dict' ? `${number(data.old.checkpoint.state_entries)} 个参数与状态项` : key === 'optimizer_state_dict' ? '优化器状态' : '学习率调度状态'}</dd></div>)}</dl></div>;
 }
 
 export function MethodPages(props: ViewProps) {
@@ -73,10 +73,10 @@ export function MethodPages(props: ViewProps) {
   if (id === 41) return <Padding />;
   if (id === 42) return <Tensor />;
   if (id === 43) return <ModelOverview />;
-  if (id === 44) return <><Flow steps={[{ title: '窗口 X', detail: 'B × W × C' }, { title: '标签 Y', detail: '与窗口逐位置对齐' }, { title: '自适应掩码', detail: '选择参与重建的位置' }, { title: '模型输入', detail: '带掩码的训练批次' }]} /><Formula label="训练输入结构">窗口值 + 异常标签 + 掩码</Formula></>;
+  if (id === 44) return <><Flow steps={[{ title: '窗口 X', detail: 'B × W × C' }, { title: '标签 Y', detail: '与窗口逐位置对齐' }, { title: '自适应掩码', detail: '选择参与重建的位置' }, { title: '模型输入', detail: '带掩码的训练批次' }]} /></>;
   if (id === 45) return <Reconstruction />;
   if (id === 46) return <Losses />;
-  if (id === 47) return <><Flow steps={[{ title: '前向计算', detail: 'X → fθ(X)' }, { title: '计算损失', detail: '重建目标与模型约束' }, { title: '反向传播', detail: 'loss.backward()' }, { title: '更新参数', detail: 'optimizer.step()' }]} /><div className="update-equation">θ → θ′<span>根据损失梯度更新模型参数</span></div></>;
+  if (id === 47) return <><Flow steps={[{ title: '前向计算', detail: 'X → fθ(X)' }, { title: '计算损失', detail: '重建目标与模型约束' }, { title: '反向传播', detail: 'loss.backward()' }, { title: '更新参数', detail: 'optimizer.step()' }]} /></>;
   if (id === 48) return <History data={data} />;
   if (id === 49) return <Checkpoint data={data} />;
   throw new Error(`Unhandled method page ${id}`);
