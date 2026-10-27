@@ -3,7 +3,7 @@ export type Metrics = { tp: number; fp: number; fn: number; tn: number; precisio
 export type Model = { id: string; name: string; threshold: number; thresholdSource: string; scores: number[]; history: {epoch: number; loss: number; lr: number}[]; recon: Asset; errors: Asset; metrics: {point_wise: Metrics; point_adjusted: Metrics; continuous_score_auc: number} };
 export type Feature = { index: number; key: string; label: string; description: string };
 export type Journey = {
-  schemaVersion: number; dataset: string; window: number; features: Feature[]; times: string[]; labels: number[];
+  datasets: Record<string,Asset & {keys:string[];times:string[]}>; schemaVersion: number; dataset: string; window: number; features: Feature[]; times: string[]; labels: number[];
   segments: {start: number; end: number}[]; models: Model[]; input: Asset; cleanTest: Asset; labelMatrix: Asset; assets: Asset[];
   summary: {rawRows: number; rawFeatures: number; emptyFeatures: number; emptyRows: number; cleanRows: number; features: number; trainRows: number; testRows: number; anomalousRows: number; trainStart: string; trainEnd: string; testStart: string; testEnd: string; omittedTimes: string[]; cleanStart: string; cleanEnd: string};
   removedFeatures: string[]; missingExample: {feature: number; times: string[]; before: (number|null)[]; after: number[]; selected: number};
@@ -21,7 +21,7 @@ export const stages = [
 ];
 const content = [
  ['认识原始文件','测点说明与监测记录通过测点编号对应。','raw'],
- ['查看一条监测记录','每一行记录一个时刻，每一列记录一个测点。','raw'],
+ ['浏览原始监测记录','每一行记录一个时刻，每一列记录一个测点。','raw'],
  ['移除全缺失测点','136个测点中，11个测点没有有效数值。','raw'],
  ['整理有效时间记录','沿时间排列有效记录，保留每条记录的时间。','cleaning'],
  ['填补缺失记录','查看原始缺失位置与整理表中的对应数值。','cleaning'],
@@ -29,7 +29,7 @@ const content = [
  ['形成研究数据集','整理后的数据包含7,992个时刻、125个测点。','clean'],
  ['划分训练集与测试集','前段用于训练，后段用于测试，保持时间先后顺序。','mapping'],
  ['统一数值尺度','把不同量级的测点转换到统一的数值尺度。','normalization'],
- ['建立异常标签','标签与数据逐格对应：0表示正常，1表示插入异常。','results'],
+ ['查看异常标签','标签与数据逐格对应：0表示正常，1表示插入异常。','results'],
  ['选定异常位置','先选一段时间和一个测点，再改变对应的数据。','results'],
  ['混入另一段变化','软替换将参考片段与原片段按比例混合。','anomaly'],
  ['替换为固定值','均匀替换把选中区间变成一段恒定数值。','anomaly'],
@@ -50,7 +50,7 @@ const content = [
  ['完成一次参数更新','输入样本、计算重建与损失，再更新模型参数。','training'],
  ['查看训练过程','曲线来自模型检查点保存的训练记录。','training'],
  ['保存训练完成的模型','训练结果包含网络参数与推理所需的配置和状态。','training'],
- ['重建测试窗口','查看一段真实测试输入及其已保存的重建结果。','reconstruction'],
+ ['查看测试重建结果','查看一段真实测试输入及其已保存的重建结果。','reconstruction'],
  ['合并重叠窗口的误差','同一时刻被多个窗口覆盖，将对应误差取平均。','reconstruction'],
  ['汇总为异常分数','对同一时刻125个测点的平均误差再取平均。','reconstruction'],
  ['用阈值划分异常','异常分数超过该模型的阈值时，标记为异常。','threshold'],
@@ -58,8 +58,8 @@ const content = [
  ['比较三种模型结果','在同一份测试数据上，查看各模型的归档评估结果。','threshold'],
  ['选择一段测试数据','选择模型和真实片段，开始查看一次检测过程。','window'],
  ['跟随窗口完成检测','依次查看输入、模型重建、误差、分数和判定。','reconstruction'],
- ['比较同一段数据','保持时间片段不变，对比三种模型的异常分数。','threshold'],
- ['查看本次检测结果','对选中片段逐点统计，定位检出、误报和漏检的位置。','results'],
+ ['比较完整测试结果','保持时间片段不变，对比三种模型的异常分数。','threshold'],
+ ['查看完整检测结果','对选中片段逐点统计，定位检出、误报和漏检的位置。','results'],
 ];
 export const lessons = content.map(([title,description,source],i)=>({id:i+1,title,description,source,stage:stages.findIndex(s=>i+1>=s.range[0]&&i+1<=s.range[1])}));
 export function pageFromHash(hash:string){const m=/^#[/]step[/]([0-9]+)$/.exec(hash);return m&&Number(m[1])>=1&&Number(m[1])<=40?Number(m[1]):0;}

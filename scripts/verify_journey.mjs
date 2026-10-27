@@ -20,18 +20,35 @@ try{
   for(let id=1;id<=40;id++){
    await page.evaluate(n=>location.hash='#/step/'+String(n).padStart(2,'0'),id);
    await page.waitForFunction(n=>document.querySelector('main')?.getAttribute('data-step')===String(n)&&document.querySelector('.lesson-content'),id);
-   await page.locator('.lesson-content').waitFor();
+   await page.locator('.lesson-content').waitFor();if([2,4,5,7,9].includes(id))await page.getByRole('combobox',{name:'完整数据测点'}).waitFor();
    const content=await page.locator('.lesson-content').innerText();
-   assert.ok(content.length>30,'empty page '+id);assert.doesNotMatch(content,/NaN|undefined|Infinity/);
+   assert.ok(content.length>30,'empty page '+id);assert.doesNotMatch(content,/NaN|undefined|Infinity|·/);const sizes=await page.locator('main').evaluate(el=>[...new Set([...el.querySelectorAll('*')].filter(e=>e.getClientRects().length&&[...e.childNodes].some(n=>n.nodeType===3&&n.textContent.trim())).map(e=>getComputedStyle(e).fontSize))]);assert.ok(sizes.every(s=>['12px','16px','32px'].includes(s)),'font sizes '+id+': '+sizes);
    const dims=await page.evaluate(()=>({width:document.documentElement.scrollWidth,invalid:[...document.querySelectorAll('svg path')].some(p=>/NaN|Infinity/.test(p.getAttribute('d')||''))}));
    assert.ok(dims.width<=width,'overflow '+id+' at '+width+': '+dims.width);assert.equal(dims.invalid,false);
-   if([1,5,9,20,29,33,38,39].includes(id))await page.screenshot({path:'.qa/journey/'+width+'-'+id+'.png',fullPage:true});
+   if([1,2,5,9,20,29,33,38,39,40].includes(id))await page.screenshot({path:'.qa/journey/'+width+'-'+id+'.png',fullPage:true});
   }
   await page.close();console.log('[PASS] 40 pages and home at '+width+'px');
  }
  const page=await browser.newPage({viewport:{width:1366,height:900}});
  page.on('pageerror',e=>errors.push(e.message));
- const go=async id=>{await page.goto(base+'#/step/'+String(id).padStart(2,'0'));await page.locator('.lesson-content').waitFor();};
+ const go=async id=>{await page.goto(base+'#/step/'+String(id).padStart(2,'0'));await page.locator('.lesson-content').waitFor();if([2,4,5,7,9].includes(id))await page.getByRole('combobox',{name:'完整数据测点'}).waitFor();};
+ await go(2);
+ await page.getByRole('combobox',{name:'完整数据测点'}).waitFor();
+ await page.getByText('完整数据表',{exact:true}).click();
+ assert.equal(await page.locator('.data-browser thead th').count(),137);
+ await page.getByRole('spinbutton',{name:'数据页码'}).fill('292');
+ assert.equal(await page.locator('.data-browser tbody tr').count(),30);
+ assert.equal(await page.getByRole('button',{name:'下一页',exact:true}).isDisabled(),true);
+ await page.getByRole('combobox',{name:'数据查看范围'}).selectOption('detail');
+ await page.getByRole('slider',{name:'完整序列起点'}).fill('8504');
+ assert.match(await page.locator('.range-row output').innerText(),/8505/);
+ await page.getByRole('combobox',{name:'完整数据测点'}).selectOption({index:135});
+ assert.doesNotMatch(await page.locator('main').innerText(),/NaN|Infinity/);
+ await go(9);await page.getByRole('combobox',{name:'完整数据测点'}).waitFor();
+ assert.match(await page.locator('.data-summary').innerText(),/5,593/);
+ await go(40);await page.getByRole('spinbutton',{name:'结果页码'}).fill('80');
+ assert.equal(await page.locator('.results-table tbody tr').count(),27);
+ assert.match(await page.locator('.results-table tbody').innerText(),/2022-11-30 23:00/);
  await go(38);
  for(let i=0;i<4;i++)await page.getByRole('button',{name:'单步',exact:true}).click();
  assert.equal(await page.getByTestId('demo-outcome').count(),1);
@@ -70,7 +87,7 @@ try{
  assert.notEqual(await page.locator('.chart-svg path[stroke]').last().getAttribute('d'),curve);
  await go(36);await page.getByRole('radio',{name:'区间点调整'}).click();
  assert.match(await page.locator('.comparison-table').innerText(),/89.87%/);
- await go(39);assert.equal(await page.getByRole('radio',{name:'区间点调整'}).count(),0);
+ await go(39);assert.equal(await page.getByRole('radio',{name:'区间点调整'}).count(),1);assert.match(await page.locator('.data-summary').innerText(),/2,397/);
  await go(37);await page.getByRole('button',{name:'末段片段'}).click();
  await page.getByRole('button',{name:'查看检测过程'}).click();
  await page.locator('.detection-demo').waitFor();
