@@ -22,7 +22,7 @@ function FeatureScore() {
 }
 
 function Threshold() {
-  return <><Flow steps={[{ title: '训练分数', detail: '用于估计正常分数分布' }, { title: '初始阈值', detail: '选择分布尾部' }, { title: 'SPOT', detail: '拟合尾部极值分布' }, { title: '最终阈值', detail: '平均阈值与修正系数' }]} /><Formula>τ = mean(τ<sub>SPOT</sub>) × lm[1]</Formula><Note>SPOT 根据训练分数的尾部分布估计阈值。</Note></>;
+  return <><Flow steps={[{ title: '训练分数', detail: '用于估计正常分数分布' }, { title: '初始阈值', detail: '选择分布尾部' }, { title: 'SPOT', detail: '拟合尾部极值分布' }, { title: '最终阈值', detail: '平均阈值与修正系数' }]} /><Formula>τ = mean(τ<sub>SPOT</sub>) × lm[1]</Formula></>;
 }
 
 function Decision() {
@@ -31,7 +31,7 @@ function Decision() {
 
 function LabelComparison({ data }: Pick<ViewProps, 'data'>) {
   const [start, setStart] = useState(0);
-  return <><div className="section-heading"><h2>7 维实验测试标签</h2><span>任一变量异常，该时刻记为异常</span></div><LabelStrip labels={data.old.inserted_labels.slice(start, start + 160)} /><div className="range-control"><label htmlFor="compare-labels">标签片段</label><input id="compare-labels" type="range" min={0} max={1592} value={start} onChange={e => setStart(Number(e.target.value))} /><output>t{start}—t{start + 159}</output></div><div className="label-comparison"><div><strong>y<sub>t</sub></strong><span>异常标签 y</span></div><Icon name="arrow" size={28} /><div><strong>ŷ<sub>t</sub></strong><span>检测判定 ŷ</span></div><Icon name="arrow" size={28} /><div><strong>TP · FP · FN · TN</strong><span>逐点对照与统计</span></div></div><Note>橙色表示异常时刻。将检测判定与对应标签逐点比较。</Note></>;
+  return <><div className="section-heading"><h2>7 维实验测试标签</h2><span>任一变量异常，该时刻记为异常</span></div><LabelStrip labels={data.old.inserted_labels.slice(start, start + 160)} /><div className="range-control"><label htmlFor="compare-labels">标签片段</label><input id="compare-labels" type="range" min={0} max={1592} value={start} onChange={e => setStart(Number(e.target.value))} /><output>t{start}—t{start + 159}</output></div><div className="label-comparison"><div><strong>y<sub>t</sub></strong><span>异常标签 y</span></div><Icon name="arrow" size={28} /><div><strong>ŷ<sub>t</sub></strong><span>检测判定 ŷ</span></div><Icon name="arrow" size={28} /><div><strong>TP · FP · FN · TN</strong><span>逐点对照与统计</span></div></div><Note>橙色表示异常时刻。</Note></>;
 }
 
 function Confusion() {
@@ -52,7 +52,7 @@ function Sources({ provenance }: ViewProps) {
 
 export function ResultPages(props: ViewProps) {
   const { id, data } = props;
-  if (id === 50) return <><Flow steps={[{ title: '测试输入', detail: '2,628 行 × 28 维' }, { title: '固定窗口', detail: '按时间顺序读取' }, { title: '固定模型', detail: '参数保持不变' }, { title: '窗口重建', detail: '与输入逐位置对齐' }]} /><Note>测试时使用训练后的模型参数。</Note></>;
+  if (id === 50) return <Flow steps={[{ title: '测试输入', detail: '2,628 行 × 28 维' }, { title: '固定窗口', detail: '按时间顺序读取' }, { title: '固定模型', detail: '参数保持不变' }, { title: '窗口重建', detail: '与输入逐位置对齐' }]} />;
   if (id === 51) return <ErrorMatrix />;
   if (id === 52) return <Overlap />;
   if (id === 53) return <FeatureScore />;
