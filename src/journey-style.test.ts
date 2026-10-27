@@ -1,19 +1,9 @@
 import {readFileSync} from 'node:fs';
 import {describe,it,expect} from 'vitest';
-const css=readFileSync('src/journey.css','utf8');
-describe('showcase design constraints',()=>{
- it('uses three type sizes with a twelve pixel minimum',()=>{
-  const sizes=[...css.matchAll(/font-size:([0-9]+)px/g)].map(m=>Number(m[1]));
-  expect([...new Set(sizes)].sort((a,b)=>a-b)).toEqual([12,16,32]);
- });
- it('uses Radix colors without custom hex values',()=>{
-  for(const file of ['src/journey.css','src/JourneyLessons.tsx','src/JourneyVisuals.tsx','src/DatasetBrowser.tsx','src/FullResults.tsx'])expect(readFileSync(file,'utf8')).not.toMatch(/#[0-9a-fA-F]{3,8}/);
- });
- it('removes middle dots from active interface copy',()=>{
-  for(const file of ['src/App.tsx','src/journey.ts','src/JourneyLessons.tsx','src/JourneyVisuals.tsx','src/DatasetBrowser.tsx','src/FullResults.tsx','index.html'])expect(readFileSync(file,'utf8')).not.toContain('·');
- });
- it('keeps CSS borders at half a pixel',()=>{
-  const widths=[...css.matchAll(/border(?:-top|-bottom|-left|-right)?:([0-9.]+)px/g)].map(m=>Number(m[1]));
-  expect(widths.length).toBeGreaterThan(10);expect(widths.every(w=>w===0.5)).toBe(true);
- });
+const css=readFileSync('src/report/report.css','utf8');
+describe('chapter report design constraints',()=>{
+ it('uses shared type and color tokens across chapters',()=>{expect(css).toContain('--paper:#f8f7f3');expect(css).toContain('--serif:');expect(css).toContain('--sans:');expect(css).toContain('font-family:var(--serif)');});
+ it('supports reduced motion, keyboard focus and responsive navigation',()=>{expect(css).toContain('prefers-reduced-motion:reduce');expect(css).toContain(':focus-visible');expect(css).toContain('.site-nav.open');});
+ it('loads one active stylesheet for the new site',()=>{const main=readFileSync('src/main.tsx','utf8');expect(main).toContain('report/report.css');expect(main).not.toContain('journey.css');});
+ it('keeps fonts local for static deployment',()=>{expect(readFileSync('src/report/fonts.css','utf8')).toContain('/fonts/NotoSerifSC-Subset.ttf');expect(css).toContain('/fonts/InstrumentSerif-Regular.ttf');});
 });
