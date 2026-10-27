@@ -16,6 +16,10 @@ export const clamp=(n:number,min:number,max:number)=>Math.max(min,Math.min(max,n
 export const fmt=(n:number,digits=0)=>n.toLocaleString('zh-CN',{maximumFractionDigits:digits});
 export const pct=(n:number|null)=>n===null?'—':`${(n*100).toFixed(2)}%`;
 export function series(values:Float64Array,feature:number,start:number,length=64){return Array.from({length:Math.min(length,values.length/125-start)},(_,i)=>values[(start+i)*125+feature]);}
+export function meanSeries(values:Float64Array|Float32Array,start=0,length=64,features=125){
+ return Array.from({length:Math.min(length,values.length/features-start)},(_,i)=>{let sum=0;for(let f=0;f<features;f++)sum+=values[(start+i)*features+f];return sum/features});
+}
+export function rmsSeries(errors:Float64Array,start=0,length=64){return meanSeries(errors,start,length).map(v=>Math.sqrt(Math.max(0,v)))}
 export function countMetrics(labels:number[],scores:number[],threshold:number,start=0,end=labels.length):Metrics{
  let tp=0,fp=0,fn=0,tn=0;
  for(let i=start;i<end;i++){const y=labels[i]>0,p=scores[i]>threshold;if(y&&p)tp++;else if(p)fp++;else if(y)fn++;else tn++;}

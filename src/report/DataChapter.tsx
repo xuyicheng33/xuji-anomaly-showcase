@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {loadAsset,type Journey} from '../journey';
-import {Heading,Section,Note,Next,colors} from './ReportUI';
+import {Heading,Section,Note,colors} from './ReportUI';
 import Curve from './Curve';
 import './chapters.css';
 
@@ -88,6 +88,6 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
    </>:<p className="chapter-loading" role="status">正在读取训练样本…</p>}
    <Note title="归一化公式"><p>归一化值 =（原值 − 训练最小值）÷（训练最大值 − 训练最小值）。测试数据沿用训练统计量，低于 0 的结果取 0，高于 1 的结果取 1。</p></Note>
   </Section>
-  <Next to="anomalies" title="构造异常与标签"/>
+
  </div>;
 }

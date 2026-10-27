@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {loadAsset,type Journey,type Arrays,type Model} from '../journey';
-import {Heading,Section,Note,Next,ModelSelect,colors} from './ReportUI';
+import {Heading,Section,Note,ModelSelect,colors} from './ReportUI';
 import Curve from './Curve';
 import './chapters.css';
 
@@ -22,7 +22,7 @@ export function ModelsChapter({data,model,setModel}:{data:Journey;model:Model;se
    <div className="model-comparison"><div><span>STAM-AD</span><h3>局部 + 全局时间</h3></div><div><span>SMST-AD</span><h3>多尺度时间 + 空间注意力约束</h3></div></div>
 
   </Section>
-  <Next to="training" title="模型训练过程"/>
+
  </div>;
 }
 
@@ -57,6 +57,6 @@ export function TrainingChapter({data,model,setModel,feature:sharedFeature,setFe
 
   </Section>
 
-  <Next to="detection" title="数据片段检测"/>
+
  </div>;
 }

@@ -32,7 +32,7 @@ function metricValue(metrics: Metrics, key: keyof Metrics) {
 
 function MetricComparison({pointWise, pointAdjusted: adjusted}: {pointWise: Metrics; pointAdjusted: Metrics}) {
   return <table className="metrics-comparison" aria-label="示例的逐点和点调整指标对照">
-    <thead><tr><th scope="col">计算项</th><th scope="col">逐点 <span>PW</span></th><th scope="col">点调整 <span>PA</span></th></tr></thead>
+    <thead><tr><th scope="col">计算项</th><th scope="col">逐点</th><th scope="col">区间点调整</th></tr></thead>
     <tbody>{metricRows.map(row => <tr key={row.key} className={row.key === 'f1' ? 'metrics-f1-row' : undefined}>
       <th scope="row">{row.label}{row.formula && <small>{row.formula}</small>}</th>
       <td data-testid={'pw-' + row.key}>{metricValue(pointWise, row.key)}</td>
@@ -87,24 +87,24 @@ export default function MetricsChapter({data}: {data: Journey}) {
       <p className="reading-copy">同一测试集、统一阈值规则，分别统计逐点与区间点调整指标。</p>
       <div className="metrics-archive-scroll" role="region" aria-label="两种方法的检测指标" tabIndex={0}>
         <table className="metrics-archive">
-          <thead><tr><th scope="col">模型</th><th scope="col">口径</th><th scope="col">TP</th><th scope="col">FP</th><th scope="col">FN</th><th scope="col">P</th><th scope="col">R</th><th scope="col">F1</th></tr></thead>
+          <thead><tr><th scope="col">模型</th><th scope="col">口径</th><th scope="col">检出</th><th scope="col">误报</th><th scope="col">漏检</th><th scope="col">精确率</th><th scope="col">召回率</th><th scope="col">F1</th></tr></thead>
           {models.map(model => <tbody key={model.id}>
             {(['point_wise', 'point_adjusted'] as const).map((mode, index) => <tr key={mode}>
               {index === 0 && <th scope="rowgroup" rowSpan={2}>{model.name}</th>}
-              <th scope="row">{index === 0 ? '逐点 PW' : '点调整 PA'}</th>
+              <th scope="row">{index === 0 ? '逐点' : '区间点调整'}</th>
               {metricRows.map(row => <td key={row.key} className={row.key === 'f1' ? 'metrics-archive-f1' : undefined}>{metricValue(model.metrics[mode], row.key)}</td>)}
             </tr>)}
           </tbody>)}
         </table>
       </div>
-      <p className="metrics-definition"><span className="mobile-table-hint">左右滑动查看全部指标。 </span>PW：逐点 · PA：区间点调整</p>
+
     </Section>
 
-    <Section title="实验阈值设置">
+    <Note title="阈值与评估规则">
       <p className="reading-copy">事后回看评估：对照测试标签，选取区间点调整 F1 最高的阈值。</p>
       <div className="evaluation-thresholds">{models.map(model=><div key={model.id}><h3>{model.name}</h3><dl><div><dt>完整序列阈值</dt><dd>{model.threshold.toFixed(6)}</dd></div><div><dt>独立窗口阈值</dt><dd>{model.windowThreshold.toFixed(6)}</dd></div></dl></div>)}</div>
       <p className="metrics-definition">序列阈值基于合并分数；窗口阈值基于全部 2,334 个独立窗口。</p>
-      <Note title="阈值选取规则"><p>遍历全部分数对应的报警划分。PA-F1 并列时，依次选择逐点 F1 更高、阈值更高的结果。各独立窗口分别计算区间点调整。</p></Note>
-    </Section>
+      <p>遍历全部分数对应的报警划分。PA-F1 并列时，依次选择逐点 F1 更高、阈值更高的结果。各独立窗口分别计算区间点调整。</p>
+    </Note>
   </div>;
 }

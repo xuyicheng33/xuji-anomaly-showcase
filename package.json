@@ -10,10 +10,11 @@
     "test": "vitest run",
     "test:browser": "npm run build && node scripts/verify_report.mjs",
     "typecheck": "tsc -b",
-    "verify:data": "node scripts/verify_journey_data.mjs && npm run verify:windows",
+    "verify:data": "node scripts/verify_journey_data.mjs && npm run verify:windows && npm run verify:cases",
     "export:data": "python -X utf8 -B scripts/export_journey.py",
     "verify": "npm run verify:data && npm test && npm run test:browser",
-    "verify:windows": "python -X utf8 -B scripts/verify_windows.py"
+    "verify:windows": "python -X utf8 -B scripts/verify_windows.py",
+    "verify:cases": "python -X utf8 -B scripts/verify_anomaly_cases.py"
   },
   "dependencies": {
     "react": "19.3.1",

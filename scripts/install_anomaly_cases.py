@@ -79,4 +79,3 @@ if __name__ == '__main__':
     p.add_argument('--journey', default='public/data/journey/manifest.json')
     a = p.parse_args()
     install(a.source, a.target, a.journey)
-

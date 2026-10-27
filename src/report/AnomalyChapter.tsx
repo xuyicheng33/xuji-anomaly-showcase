@@ -1,28 +1,81 @@
-import {useState} from 'react';
-import {series,type Journey,type Arrays} from '../journey';
-import {Heading,Section,Note,Next,FeatureSelect,colors} from './ReportUI';
+import {useEffect,useRef,useState} from 'react';
+import {series,meanSeries,type Journey,type Model} from '../journey';
+import {loadCases,loadCaseArrays,type AnomalyCase,type CaseArrays,type Insertion,type Construction} from '../anomalyCases';
+import {Heading,Note,ModelSelect,Confusion,Rates,colors} from './ReportUI';
 import Curve from './Curve';
-const types=[{name:'软替换',desc:'按设定比例融合参考片段与原始片段。',image:'anomaly-soft.png'},{name:'均匀替换',desc:'将连续记录替换为固定值，形成平台异常。',image:'anomaly-uniform.png'},{name:'峰值噪声',desc:'改变局部数值形成尖峰，并标记邻域。',image:'anomaly-peak.png'},{name:'长度调整',desc:'压缩或拉长局部片段，改变变化速率。',image:'anomaly-length.png'}];
-export default function AnomalyChapter({data,arrays,feature,setFeature,setStart}:{data:Journey;arrays:Arrays;feature:number;setFeature:(n:number)=>void;setStart:(n:number)=>void}){
- const [localFeature,setLocalFeature]=useState(4);const selectedFeature=localFeature;
- const [type,setType]=useState(0),[mode,setMode]=useState('static'),[round,setRound]=useState(1),[enabled,setEnabled]=useState(false),[amount,setAmount]=useState(65),[point,setPoint]=useState(24);
- const base=series(arrays.clean,selectedFeature,175),a=mode==='static'?18:10+((round-1)*7)%22,b=a+20;
- const labels=base.map((_,i)=>enabled?Number(type===2?Math.abs(i-(a+10))<=4:i>=a&&i<b):0);
- const after=base.map((v,i)=>{if(!enabled||i<a||i>=b)return v;if(type===0){const taper=Math.min(1,(i-a)/2,(b-1-i)/2);return v*(1-amount/100*taper)+base[(i+24+round)%64]*amount/100*taper}if(type===1)return amount/100;if(type===2)return i===a+10?v+amount/100:v;const pos=a+(i-a)*(amount>50?.5:1.8),j=Math.min(b-1,Math.floor(pos)),k=Math.min(b-1,j+1);return base[j]+(base[k]-base[j])*(pos-j)});
- const reset=()=>{setEnabled(false);setRound(1)};
- return <div className="anomaly-page"><Heading number="02" title="异常样本构造">在指定位置构造异常并生成标签，用于模型训练与检测评估。</Heading>
- <div className="anomaly-tabs" role="tablist" aria-label="异常类型">{types.map((t,i)=><button role="tab" aria-selected={type===i} key={t.name} onClick={()=>{setType(i);reset()}}><span>0{i+1}</span>{t.name}</button>)}</div>
- <div className="anomaly-intro"><h2>{types[type].name}</h2><p>{types[type].desc}</p></div>
- <div className="experiment"><div className="toolbar"><FeatureSelect data={data} value={selectedFeature} onChange={n=>{setLocalFeature(n);reset()}}/><div className="segmented" aria-label="插入方式"><button aria-pressed={mode==='static'} onClick={()=>{setMode('static');reset()}}>静态插入</button><button aria-pressed={mode==='dynamic'} onClick={()=>{setMode('dynamic');reset()}}>动态插入</button></div></div>
- <Curve title="插入前后" lines={[{name:'插入前',values:base,color:colors.muted},{name:'插入后',values:after,color:colors.input}]} labels={labels} selected={enabled?point:undefined} onSelect={setPoint} height={220}/>
- <div className="label-track"><span>当前测点标签 <small>0 未插入 · 1 插入异常</small></span><div aria-label={'异常标签共'+labels.reduce((s,v)=>s+v,0)+'点'}>{labels.map((v,i)=><button key={i} className={v?'marked':''} style={{left:(i/63*100)+'%'}} aria-label={'查看第'+(i+1)+'点，标签'+v} aria-pressed={point===i} onClick={()=>setPoint(i)}/>)}</div></div>
- <div className="toolbar experiment-controls"><label className="slider-label">{['混合比例','替换数值','尖峰幅度','变化速度'][type]}<input type="range" min="10" max="90" value={amount} aria-label="异常参数" onChange={e=>{setAmount(+e.target.value);reset()}}/><span>{type===3?(amount>50?'放慢':'加快'):amount/100}</span></label><button className="primary" disabled={enabled&&mode==='static'} onClick={()=>{setEnabled(true);setPoint(type===2?a+10:a+5);if(enabled&&mode==='dynamic')setRound(n=>n+1)}}>{!enabled?'插入异常':mode==='dynamic'?'生成下一轮':'已固定'} →</button><button className="text-button" onClick={reset}>还原</button></div>
- <p className="quiet">{mode==='static'?'固定插入位置':'动态插入 · 第 '+round+' 轮'}</p>
-</div>
- <Section title="数据与标签对照"><div className="anomaly-point" aria-live="polite"><div><span>片段位置</span><strong>第 {point+1} 点</strong></div><div><span>插入前</span><strong>{base[point].toFixed(4)}</strong></div><div><span>插入后</span><strong>{after[point].toFixed(4)}</strong></div><div><span>当前测点标签</span><strong>{labels[point]}</strong></div></div>
- <p className="reading-copy">任一测点标签为 1，该时刻记为异常。</p>
- <Note title="局部记录明细"><div className="table-scroll"><table><thead><tr><th>片段位置</th><th>插入前</th><th>插入后</th><th>当前测点标签</th><th>相邻测点标签</th></tr></thead><tbody>{Array.from({length:6},(_,j)=>Math.max(0,Math.min(58,point-2))+j).map(i=><tr key={i} className={labels[i]?'changed-row':''}><td>第{i+1}点</td><td>{base[i].toFixed(4)}</td><td>{after[i].toFixed(4)}</td><td>{labels[i]}</td><td>0</td></tr>)}</tbody></table></div></Note></Section>
- <Section title="训练与测试样本"><div className="editorial-grid"><div><h3>训练异常</h3><p>每轮动态构造不同位置和形态的异常。</p></div><div><h3>测试异常</h3><p>固定输入与标签，统一评估两种方法。</p></div></div><div className="inline-facts"><strong>2,397 <span>测试时刻</span></strong><strong>490 <span>异常时刻</span></strong><strong>125 <span>测点标签列</span></strong></div>
- <a className="inline-link" href="#/detection" onClick={()=>{const e=data.models[0].examples?.find(e=>e.code==='tp');if(e){setStart(e.start);setFeature(e.feature)}}}>固定测试样本检测 →</a>
-</Section><Next to="models" title="异常检测模型"/></div>
+import './anomalies.css';
+
+const methods = [
+ {id:'replace' as const,name:'替换',copy:'用异常素材替代局部原值。',formula:'结果 = 异常素材'},
+ {id:'blend' as const,name:'混合',copy:'保留原始变化，按权重融入异常素材。',formula:'结果 = 原始值 × (1 − 权重) + 素材 × 权重'},
+];
+const kinds = [
+ {id:'reference' as const,name:'参考片段',copy:'从真实记录中取出一段序列，翻转时间顺序与数值方向，形成不同的变化形态。',detail:'参考片段取自同一清洁测试集。先沿时间反转，再以 1 − 数值翻转幅值。'},
+ {id:'uniform' as const,name:'均匀值',copy:'为选定测点构造一个固定值，使局部波动形成持续平台。',detail:'区间内使用同一个构造值；替换形成平台，混合保留原曲线的部分波动。'},
+ {id:'peak' as const,name:'峰值噪声',copy:'在一个时刻构造方向相反的极值，并为相邻时刻生成异常标签。',detail:'原值较高时取接近 0 的值，原值较低时取接近 1 的值；前后各 4 点一并标记。'},
+ {id:'length' as const,name:'长度调整',copy:'将 8 个采样点各重复 3 次，拉长为 24 点，改变局部变化速率。',detail:'只调整选定区间和测点，区间外保持原值；标签覆盖拉长后的 24 个时刻。'},
+];
+const steps=['原始片段','异常素材','插入过程','标签结果'];
+export default function AnomalyChapter({data,model,setModel}:{data:Journey;model:Model;setModel:(id:string)=>void}){
+ const [cases,setCases]=useState<AnomalyCase[]>([]),[insertion,setInsertion]=useState<Insertion>('replace'),[kind,setKind]=useState<Construction>('reference');
+ const [bundle,setBundle]=useState<{key:string;arrays:CaseArrays}|null>(null),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);
+ const [progress,setProgress]=useState(0),[playing,setPlaying]=useState(false),[point,setPoint]=useState(30),[showResult,setShowResult]=useState(false);
+ const [selectedFeature,setSelectedFeature]=useState<number|null>(null);
+ const resultRef=useRef<HTMLDivElement>(null);
+ const selected=cases.find(c=>c.insertion===insertion&&c.kind===kind),cm=selected?.models.find(m=>m.id===model.id),key=selected?selected.id+':'+model.id:'';
+ const arrays=bundle?.key===key?bundle.arrays:null;
+ useEffect(()=>{let active=true;setError('');loadCases().then(d=>{if(active)setCases(d.cases)}).catch(e=>{if(active)setError(e.message)});return()=>{active=false}},[attempt]);
+ useEffect(()=>{if(!selected||!cm)return;let active=true;setError('');loadCaseArrays(selected,cm).then(arrays=>{if(active)setBundle({key,arrays})}).catch(e=>{if(active)setError(e.message)});return()=>{active=false}},[key,selected,cm,attempt]);
+ useEffect(()=>{setProgress(0);setPlaying(false);setShowResult(false);setPoint(30);setSelectedFeature(null)},[selected?.id]);
+ useEffect(()=>{setPlaying(false)},[model.id]);
+ useEffect(()=>{if(!playing)return;let frame=0,last:number|undefined;const tick=(now:number)=>{if(last!==undefined&&!document.hidden){const delta=now-last;setProgress(p=>Math.min(1,p+delta/8000));}last=now;frame=requestAnimationFrame(tick)};frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame)},[playing]);
+ useEffect(()=>{if(progress>=1)setPlaying(false)},[progress]);
+ const method=methods.find(m=>m.id===insertion)!,construction=kinds.find(k=>k.id===kind)!;
+ const feature=selectedFeature??selected?.feature??4;
+ const phase=progress<.2?0:progress<.4?1:progress<.82?2:3;
+ const blend=Math.max(0,Math.min(1,(progress-.4)/.42));
+ const material=arrays?series(arrays.material,feature,0):[];
+ const materialProgress=Math.max(0,Math.min(1,(progress-.2)/.2));
+ const base=arrays?series(arrays.original,feature,0):[],candidate=arrays?series(arrays.candidate,feature,0):[],after=arrays?series(arrays.input,feature,0):[];
+ const visible=base.map((v,i)=>v+(after[i]-v)*blend);
+ const labels=arrays?series(arrays.labels,feature,0):[],visibleLabels=labels.map(v=>phase===3?v:0);
+ const weights=arrays?series(arrays.weights,feature,0):[];
+ const shownCandidate=candidate.map((v,i)=>material[i]+(v-material[i])*materialProgress);
+ const animatedWeight=(weights[point]??0)*blend;
+ const low=Math.min(0,...base,...candidate),high=Math.max(1,...base,...candidate);
+ const startPlaying=()=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches){setProgress(1);setPlaying(false);return}if(progress>=1)setProgress(0);setPlaying(v=>!v)};
+ const jump=(n:number)=>{setPlaying(false);setProgress([0,.399,.65,1][n])};
+ return <div className="anomaly-page case-page">
+  <Heading title="异常样本构造"/>
+  <div className="case-layout">
+   <aside className="case-navigation" aria-label="异常案例导航">
+    <div className="case-nav-group"><h2>插入方式</h2><div className="case-methods">{methods.map(m=><button key={m.id} aria-pressed={insertion===m.id} onClick={()=>setInsertion(m.id)}><strong>{m.name}</strong><span>{m.copy}</span></button>)}</div></div>
+    <div className="case-nav-group"><h2>构造方法</h2><div className="case-kinds">{kinds.map((k,i)=><button key={k.id} aria-pressed={kind===k.id} onClick={()=>setKind(k.id)}><span>0{i+1}</span><strong>{k.name}</strong><span aria-hidden="true">→</span></button>)}</div><p className="case-kind-copy">{construction.copy}</p></div>
+    <p className="case-formula">{method.formula}</p>
+   </aside>
+   <div className="case-content">
+    <div className="case-title"><div><p>{method.name} · {construction.name}</p><h2>{kind==='reference'?'局部形态的改变':kind==='uniform'?'持续平台的形成':kind==='peak'?'单点突变与邻域标签':'局部变化的放慢'}</h2></div><span className="case-count">{insertion==='replace'?kinds.findIndex(k=>k.id===kind)+1:kinds.findIndex(k=>k.id===kind)+5} / 8</span></div>
+    {error?<div role="alert" className="state-panel"><p>{error}</p><button onClick={()=>setAttempt(v=>v+1)}>重新读取案例</button></div>:!selected||!arrays||!cm?<div role="status" className="state-panel">正在读取案例…</div>:<>
+     <div className="case-stage" data-case={selected.id} data-phase={phase}>
+      <div className="case-stage-toolbar"><div className="case-steps" role="group" aria-label="构造步骤">{steps.map((s,i)=><button key={s} aria-pressed={phase===i} onClick={()=>jump(i)}>{s}</button>)}</div><button className="primary" onClick={startPlaying}>{playing?'暂停':progress>=1?'重播构造':'播放构造'}</button></div>
+      <div className="case-context"><label>测点<select aria-label="案例测点" value={feature} onChange={e=>setSelectedFeature(+e.target.value)}>{selected.features.map(f=><option key={f} value={f}>{data.features[f].label} · {data.features[f].key}</option>)}</select></label><span>{selected.times[0]} — {selected.times[63]}</span></div>
+      <Curve title="片段构造" lines={[{name:'原始片段',values:base,color:colors.muted,dash:true},...(phase>=1?[{name:'异常素材',values:shownCandidate.map((v,i)=>weights[i]>0||labels[i]?v:null),color:colors.ink,dash:true,opacity:phase===1?1:.65}]:[]),{name:'插入结果',values:visible,color:colors.input}]} labels={visibleLabels} selected={point} onSelect={setPoint} height={260} range={[low-.06,high+.06]}/>
+      <div className="case-material-strip"><span>{phase===0?'目标区间':'素材构造'}</span><p>{phase===0?(kind==='peak'?'第 31 点改变数值 · 第 27—35 点生成标签':'第 19—42 点 · 24 个时刻'):kind==='reference'?'真实参考 24 点 → 时间反转 → 1 − 数值':kind==='uniform'?'固定构造值 → 填充 24 个时刻':kind==='peak'?'当前值 → 相反方向极值':'原片段 8 点 → 每点重复 3 次 → 24 点'}</p></div>
+      <div className="case-labels"><div><span>测点标签</span><small>0 正常 · 1 异常</small></div><div className="case-label-cells">{visibleLabels.map((v,i)=><button key={i} aria-label={`第 ${i+1} 点，标签 ${v}`} aria-pressed={point===i} className={v?'marked':''} onClick={()=>setPoint(i)}/>)}</div></div>
+      <div className="case-point" aria-live="polite"><span>第 {point+1} 点</span><div><span>原始值</span><strong>{base[point]?.toFixed(4)}</strong></div><span className="case-arrow">→</span><div><span>插入结果</span><strong data-testid="case-after">{visible[point]?.toFixed(4)}</strong></div><div><span>标签</span><strong data-testid="case-label">{visibleLabels[point]}</strong></div></div>
+      {phase>=1&&<div className="case-composition"><span>素材值 <strong>{shownCandidate[point]?.toFixed(4)}</strong></span><span>{phase===3?'插入权重':'演示进度'} <strong>{phase===3?weights[point]?.toFixed(2):Math.round(blend*100)+'%'}</strong></span><span>{phase<2?'先构造素材，原始片段保持不变。':phase===3&&insertion==='replace'?(weights[point]?'结果取对应素材值':'区间外保留原始值'):'原始值 × '+(1-animatedWeight).toFixed(2)+' + 素材 × '+animatedWeight.toFixed(2)}</span></div>}
+      <p className="case-stage-copy" aria-live="polite">{phase===0?'先观察真实清洁片段，定位将要改变的时刻。':phase===1?construction.detail:phase===2?(insertion==='replace'?'将构造素材逐步替代对应原值，区间外保持原样。':'按保存的权重将素材融入原片段，中央权重为 0.7。'):kind==='peak'?'极值改变一个时刻，标签覆盖该点及前后各 4 个时刻。':'选定测点的目标区间标记为 1，其余位置保持为 0。'}</p>
+     </div>
+     <div className="case-result-action"><p>同一片段 · 64 个时刻 · 125 个测点</p><button className="inline-link" onClick={()=>{setPlaying(false);setProgress(1);setShowResult(true);requestAnimationFrame(()=>resultRef.current?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'}))}}>查看该片段检测 →</button></div>
+     {showResult&&<div className="case-detection result-reveal" ref={resultRef} data-testid="case-detection"><div className="case-result-heading"><h2>案例检测结果</h2><ModelSelect data={data} value={model.id} onChange={setModel}/></div>
+      <Curve title="插入结果与重建" lines={[{name:'插入结果',values:after,color:colors.input},{name:'模型重建',values:series(arrays.recon,feature,0),color:colors.recon}]} labels={labels} selected={point} onSelect={setPoint} height={230}/>
+      <Curve title="125 测点异常分数" lines={[{name:'平均平方误差',values:cm.scores,color:colors.score}]} labels={meanSeries(arrays.labels).map(v=>Number(v>0))} threshold={cm.threshold} selected={point} onSelect={setPoint} height={190}/>
+      <div className="case-score-pair"><span>当前分数 <strong data-testid="case-score">{cm.scores[point].toFixed(6)}</strong></span><span>判定阈值 <strong>{cm.threshold.toFixed(6)}</strong></span><span>当前测点误差 <strong>{((after[point]-arrays.recon[point*125+feature])**2).toFixed(6)}</strong></span></div>
+      <div className="statistics"><Confusion metrics={cm.metrics}/><Rates metrics={cm.metrics}/></div>
+     </div>}
+     <Note title="构造与数据说明"><p>{construction.detail} 同一时刻任一测点标签为 1，该时刻即标记为异常。</p><p>八个案例使用真实清洁记录离线构造，并由已训练模型生成各自的重建结果。案例沿用窗口判定阈值，独立于完整测试集评估。</p>{insertion==='blend'&&<p>融合区间两端权重渐变，边界原值可能保持不变；标签按构造区间生成。</p>}</Note>
+    </>}
+   </div>
+  </div>
+ </div>;
 }
