@@ -1,130 +1,20 @@
-import { useEffect, useState } from 'react';
-import type { ConverterShowcaseData } from './types';
-import { HomePortal } from './HomePortal';
-import { DataOverview } from './DataOverview';
-import { AnomalyStudio } from './AnomalyStudio';
-import { ModelBenchmark } from './ModelBenchmark';
-import { LiveDashboard } from './LiveDashboard';
-
-type TabType = 'home' | 'data' | 'anomaly' | 'models' | 'playback';
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>(() => {
-    const hash = window.location.hash.replace('#', '') as TabType;
-    if (['home', 'data', 'anomaly', 'models', 'playback'].includes(hash)) {
-      return hash;
-    }
-    return 'home';
-  });
-
-  const [data, setData] = useState<ConverterShowcaseData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>('');
-
-  useEffect(() => {
-    const onHashChange = () => {
-      const h = window.location.hash.replace('#', '') as TabType;
-      if (['home', 'data', 'anomaly', 'models', 'playback'].includes(h)) {
-        setActiveTab(h);
-      }
-    };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
-
-  const navigateTo = (tab: TabType) => {
-    setActiveTab(tab);
-    window.location.hash = tab === 'home' ? '' : tab;
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  };
-
-  useEffect(() => {
-    fetch('./data/converter_showcase.json')
-      .then(res => {
-        if (!res.ok) throw new Error(`数据读取异常 (HTTP ${res.status})`);
-        return res.json();
-      })
-      .then((json: ConverterShowcaseData) => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch(err => {
-        setError(err.message || '未知错误');
-        setLoading(false);
-      });
-  }, []);
-
-  return (
-    <div>
-      {/* 顶部主导航栏 */}
-      <header className="site-header">
-        <button className="brand-wrapper" onClick={() => navigateTo('home')}>
-          <span className="brand-title">许继电气 · 换流设备时序异常检测</span>
-          <span className="brand-tag">2022 真机数据</span>
-        </button>
-
-        <nav className="nav-links" aria-label="全局导航">
-          <button
-            className={`nav-btn ${activeTab === 'home' ? 'active' : ''}`}
-            onClick={() => navigateTo('home')}
-          >
-            首页目录
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'data' ? 'active' : ''}`}
-            onClick={() => navigateTo('data')}
-          >
-            01 数据与测点
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'anomaly' ? 'active' : ''}`}
-            onClick={() => navigateTo('anomaly')}
-          >
-            02 异常样本构造
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'models' ? 'active' : ''}`}
-            onClick={() => navigateTo('models')}
-          >
-            03 模型架构与指标
-          </button>
-          <button
-            className={`nav-btn ${activeTab === 'playback' ? 'active' : ''}`}
-            onClick={() => navigateTo('playback')}
-          >
-            04 时序检测回放
-          </button>
-        </nav>
-      </header>
-
-      {/* 主展示区域 */}
-      <main className="layout-container">
-        {loading && (
-          <div style={{ padding: '120px 0', textAlign: 'center', color: 'var(--text-muted)' }}>
-            <p style={{ fontSize: '16px', color: 'var(--text-main)', marginBottom: '8px' }}>
-              正在加载特高压换流设备时序监测数据…
-            </p>
-            <span style={{ fontSize: '13px' }}>包含 125 维全测点与三模型推演基准</span>
-          </div>
-        )}
-
-        {error && (
-          <div style={{ background: 'var(--state-alert-bg)', border: '1px solid var(--state-alert-border)', padding: '24px', borderRadius: '8px', color: 'var(--state-alert)', maxWidth: '640px', margin: '60px auto' }}>
-            <strong style={{ display: 'block', marginBottom: '6px' }}>数据载入失败</strong>
-            <p style={{ fontSize: '13px' }}>{error}。请核验 public/data/converter_showcase.json 数据文件。</p>
-          </div>
-        )}
-
-        {!loading && !error && data && (
-          <>
-            {activeTab === 'home' && <HomePortal data={data} onNavigate={navigateTo} />}
-            {activeTab === 'data' && <DataOverview data={data} onBack={() => navigateTo('home')} />}
-            {activeTab === 'anomaly' && <AnomalyStudio data={data} onBack={() => navigateTo('home')} />}
-            {activeTab === 'models' && <ModelBenchmark data={data} onBack={() => navigateTo('home')} />}
-            {activeTab === 'playback' && <LiveDashboard data={data} onBack={() => navigateTo('home')} />}
-          </>
-        )}
-      </main>
-    </div>
-  );
+import {useEffect,useRef,useState} from 'react';
+import {Button,Dialog,Theme} from '@radix-ui/themes';
+import JourneyLessons from './JourneyLessons';
+import {Icon} from './JourneyVisuals';
+import {lessons,loadArrays,pageFromHash,stages,stepHref,type Arrays,type Journey} from './journey';
+function remembered(){try{return Math.max(1,Math.min(40,Math.floor(Number(localStorage.getItem('xuji-journey-step')))||1));}catch{return 1;}}
+function Home({go,resume}:{go:(n:number)=>void;resume:number}){return <main className="home-page" id="main" tabIndex={-1}><div className="home-intro"><div><h1>看懂每一步，<br/><span>从数据到异常判定。</span></h1><p>以第一批换流设备数据为例，查看数据整理、模型训练与检测结果。</p></div><div className="home-actions"><Button size="3" onClick={()=>go(1)}>从数据开始<Icon name="arrow" size={18}/></Button>{resume>1&&<Button variant="ghost" onClick={()=>go(resume)}>继续第 {resume} 步</Button>}</div></div><nav className="chapter-grid" aria-label="六个展示阶段">{stages.map((stage,i)=><a href={stepHref(stage.range[0])} className="chapter-link" key={stage.name}><span className="chapter-number">0{i+1}</span><div><h2>{stage.name}</h2><p>{stage.desc}</p><span className="chapter-count">{stage.range[1]-stage.range[0]+1} 个步骤</span></div><Icon name="arrow"/></a>)}</nav><div className="home-bottom"><p>2022年监测记录 <span>·</span> 125个测点 <span>·</span> 三种研究模型</p><a href={stepHref(37)}>直接查看检测演示<Icon name="arrow" size={16}/></a></div></main>;}
+export default function App(){
+ const [id,setId]=useState(()=>pageFromHash(location.hash)),[resume,setResume]=useState(remembered),[data,setData]=useState<Journey|null>(null),[arrays,setArrays]=useState<Arrays|null>(null),[modelId,setModel]=useState('model1'),[feature,setFeature]=useState(4),[start,setStart]=useState(175),[error,setError]=useState(''),[attempt,setAttempt]=useState(0),[menu,setMenu]=useState(false);const heading=useRef<HTMLHeadingElement>(null);
+ const go=(n:number)=>{location.hash=stepHref(n).slice(1);setMenu(false);};
+ useEffect(()=>{const f=()=>setId(pageFromHash(location.hash));window.addEventListener('hashchange',f);return()=>window.removeEventListener('hashchange',f);},[]);
+ useEffect(()=>{let active=true;setError('');fetch(import.meta.env.BASE_URL+'data/journey/manifest.json').then(r=>{if(!r.ok)throw Error('资料读取失败');return r.json();}).then((d:Journey)=>{if(d.schemaVersion!==2||d.features.length!==125||d.times.length!==2397)throw Error('资料版本不匹配');if(active)setData(d);}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[attempt]);
+ useEffect(()=>{if(!data||!id)return;let active=true;setError('');loadArrays(data,data.models.find(m=>m.id===modelId)!).then(a=>{if(active)setArrays(a);}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[data,modelId,id>0,attempt]);
+ useEffect(()=>{document.title=(id?lessons[id-1].title:'从数据到异常判定')+' · 许继电气';window.scrollTo({top:0,behavior:'instant'});if(id){setResume(id);try{localStorage.setItem('xuji-journey-step',String(id));}catch{}heading.current?.focus({preventScroll:true});}},[id]);
+ useEffect(()=>{const onKey=(e:KeyboardEvent)=>{const el=e.target as HTMLElement;if(menu||el.closest('input,select,textarea,button,[role="dialog"],.table-wrap')||e.ctrlKey||e.metaKey||e.altKey)return;if(e.key==='ArrowRight'&&id>0&&id<40){e.preventDefault();go(id+1);}if(e.key==='ArrowLeft'&&id>0){e.preventDefault();go(id-1);}};window.addEventListener('keydown',onKey);return()=>window.removeEventListener('keydown',onKey);},[id,menu]);
+ const lesson=id?lessons[id-1]:null,stage=lesson?stages[lesson.stage]:null,model=data?.models.find(m=>m.id===modelId);
+ return <Theme accentColor="blue" grayColor="slate" radius="medium" scaling="100%"><a className="skip-link" href="#main" onClick={e=>{e.preventDefault();document.getElementById('main')?.focus();}}>跳到正文</a><header className="site-header"><a className="brand" href="#/"><span className="brand-mark"><i/><i/><i/></span><strong>许继电气</strong><span>异常检测</span></a><div className="header-right"><span className="dataset-label">第一批 · 换流设备</span><Dialog.Root open={menu} onOpenChange={setMenu}><Dialog.Trigger><Button variant="ghost"><Icon name="menu" size={18}/>目录</Button></Dialog.Trigger><Dialog.Content maxWidth="940px" className="contents-dialog"><div className="dialog-top"><Dialog.Title>展示目录</Dialog.Title><Dialog.Close><button className="icon-button" aria-label="关闭目录"><Icon name="close"/></button></Dialog.Close></div><Dialog.Description>选择阶段或步骤，继续查看。</Dialog.Description><nav className="all-steps">{stages.map((s,i)=><section key={s.name}><h2>{s.name}</h2>{lessons.filter(p=>p.stage===i).map(p=><a key={p.id} href={stepHref(p.id)} aria-current={p.id===id?'page':undefined} onClick={()=>setMenu(false)}><span>{String(p.id).padStart(2,'0')}</span>{p.title}</a>)}</section>)}</nav></Dialog.Content></Dialog.Root></div></header>
+ {!id?<Home go={go} resume={resume}/>:<><nav className="stage-navigation" aria-label="阶段导航">{stages.map((s,i)=><a key={s.name} href={stepHref(s.range[0])} aria-current={i===lesson!.stage?'step':undefined}><span>0{i+1}</span>{s.name}</a>)}</nav><main id="main" className="lesson-page" tabIndex={-1}><div className="lesson-heading"><h1 ref={heading} tabIndex={-1}>{lesson!.title}</h1><p>{lesson!.description}</p></div>{error?<section className="state-panel" role="alert"><h2>{error}</h2><p>请重试读取展示资料。</p><Button onClick={()=>setAttempt(n=>n+1)}>重新加载</Button></section>:data&&arrays&&arrays.modelId===modelId&&model?<><section className="lesson-content" aria-label={lesson!.title}><JourneyLessons key={id} id={id} data={data} arrays={arrays} model={model} setModel={setModel} feature={feature} setFeature={setFeature} start={start} setStart={setStart} go={go}/></section><details className="source-details"><summary>资料与计算说明</summary><p>{data.provenance[lesson!.source]||({models:'模型原理依据异常检测报告第四章及归档模型代码。',anomaly:'四类异常依据研究代码 demoNew03.py。交互构造图展示方法，测试统计读取归档固定样本。'}[lesson!.source as 'models'|'anomaly'])}</p><p>来源：{lesson!.stage<1?data.provenance.raw+'；'+data.provenance.clean:data.provenance.results}。</p></details></>:<section className="state-panel" role="status"><div className="loading-line"/><p>正在读取实验数据…</p></section>}</main><footer className="step-footer"><a href={stepHref(id-1)} className="previous"><Icon name="back" size={18}/><span>{id===1?'首页':'上一步'}</span></a><div className="step-progress"><span>{stage!.name} · {id-stage!.range[0]+1} / {stage!.range[1]-stage!.range[0]+1}</span><div><i style={{width:(id-stage!.range[0]+1)/(stage!.range[1]-stage!.range[0]+1)*100+'%'}}/></div></div><a className="next" href={stepHref(id===40?0:id+1)}><span>{id===40?'返回目录':id===stage!.range[1]?'进入'+stages[lesson!.stage+1].name:'下一步'}</span><Icon name="arrow" size={18}/></a></footer></>}
+ </Theme>;
 }

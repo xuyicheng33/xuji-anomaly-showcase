@@ -13,6 +13,7 @@
     "verify:data": "python -B scripts/verify_showcase.py"
   },
   "dependencies": {
+    "@radix-ui/themes": "^3.3.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
