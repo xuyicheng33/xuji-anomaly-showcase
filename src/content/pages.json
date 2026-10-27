@@ -14,13 +14,13 @@
   {
     "id": 3,
     "stage": 1,
-    "title": "实测天气数据",
+    "title": "实测气象数据",
     "description": "介绍 `weatherdata`。展示时间、站点、温度、湿度、气压、不同高度风速和风向等字段片段。"
   },
   {
     "id": 4,
     "stage": 1,
-    "title": "天气预报数据",
+    "title": "气象预报数据",
     "description": "介绍 `weatherforecast`。展示目标时间对应的预报气象字段片段。"
   },
   {
@@ -44,7 +44,7 @@
   {
     "id": 8,
     "stage": 1,
-    "title": "五类数据的使用范围",
+    "title": "合并三类数据的变量",
     "description": "将五类数据放入同一条数据流。`weatherdata`、`weatherforecast`、`short` 流向合并步骤；`powerstat`、`ultrashort` 在本页结束。"
   },
   {
@@ -56,7 +56,7 @@
   {
     "id": 10,
     "stage": 2,
-    "title": "保留参与建模的三类数据",
+    "title": "提取功率与气象变量",
     "description": "从 41 号电站记录中取 `short`、`weatherdata`、`weatherforecast` 三类表，展示三类表的行结构和字段结构。"
   },
   {

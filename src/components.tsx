@@ -52,19 +52,20 @@ export function DataChart({ data, field, onField, start, onStart, compact = fals
   const count = 192;
   const slice = chartWindow(data, splitOnly ? data.split : start, count, field);
   const feature = data.features[field];
-  const series = [{ name: feature.label + (field >= 15 ? ' · 预报' : ''), values: slice.values }, ...(field === 0 ? [{ name: '短期功率预测', values: data.values.slice(slice.from, slice.from + count).map(row => row[1]), dashed: true }] : [])];
-  return <div className="data-chart">{controls && <div className="controls"><label htmlFor={fieldId}>字段</label><select id={fieldId} value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option value={i} key={f.key}>{f.group} · {f.label}</option>)}</select><span className="control-tail">{data.times[slice.from]}</span></div>}
+  const series = [{ name: (field >= 2 ? feature.group + ' · ' : '') + feature.label, values: slice.values }, ...(field === 0 ? [{ name: '短期功率预测', values: data.values.slice(slice.from, slice.from + count).map(row => row[1]), dashed: true }] : [])];
+  return <div className="data-chart">{controls && <div className="controls"><label htmlFor={fieldId}>变量</label><select id={fieldId} value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option value={i} key={f.key}>{f.group} · {f.label}</option>)}</select><span className="control-tail">{data.times[slice.from]}</span></div>}
     <LineChart series={series} labels={slice.times} unit={feature.unit} compact={compact} />
     {controls && <div className="range-control"><label htmlFor={rangeId}>时间范围</label><input id={rangeId} type="range" min={0} max={data.times.length - count} step={1} value={start} onChange={e => onStart(Number(e.target.value))} /><output htmlFor={rangeId}>{data.times[slice.from].slice(5, 10)}—{data.times[slice.from + count - 1].slice(5, 10)}</output></div>}
   </div>;
 }
 
-export function StreamOverview({ data, usedOnly = false }: { data: Research; usedOnly?: boolean }) {
-  return <div className="stream-overview">{data.streams.map(s => <div className={`stream-row ${usedOnly && !s.used ? 'muted-row' : ''}`} key={s.id}><div className="stream-name"><strong>{s.name}</strong><code>{s.id}</code></div><div className="stream-volume"><span>{number(s.files)} 份</span><div className="stream-track"><div style={{ width: `${Math.max(4, s.rawRows / 206400 * 100)}%` }} /></div><span>{number(s.rawRows)} 条原始记录</span></div><span className={s.used ? 'used-tag' : 'unused-tag'}>{s.used ? '进入合并' : '保留原表'}</span></div>)}<div className="stream-total"><span>817 份原始文件</span><span>三类进入 28 维数据集</span></div></div>;
+export function StreamOverview({ data }: { data: Research }) {
+  const maxRows = Math.max(...data.streams.map(s => s.rawRows));
+  return <div className="stream-overview"><div className="stream-columns"><span>数据类别</span><span>文件数</span><span>原始记录数 · 条形按比例</span></div>{data.streams.map(s => <div className="stream-row" key={s.id}><div className="stream-name"><strong>{s.name}</strong></div><span className="stream-files">{number(s.files)} 份</span><div className="stream-volume"><div className="stream-track" role="img" aria-label={`${s.name}，${number(s.rawRows)} 条原始记录`}><div style={{ width: `${s.rawRows / maxRows * 100}%` }} /></div><span>{number(s.rawRows)} 条</span></div></div>)}<div className="stream-total"><span>817 份原始文件</span><span>2024 年 10 月至 2025 年 7 月</span></div></div>;
 }
 
 export function FeatureMap({ data, field, onField }: { data: Research; field: number; onField: (n: number) => void }) {
-  return <div className="feature-map"><div className="feature-summary"><span><strong>42</strong> 合并列</span><Icon name="arrow" size={28} /><span><strong>28</strong> 模型字段</span><span className="feature-rows">8,759 行 × 15 分钟</span></div><div className="feature-groups">{['功率', '实测气象', '预报气象'].map(group => <section key={group}><h2>{group}<span>{data.features.filter(f => f.group === group).length}</span></h2><div>{data.features.map((f, i) => f.group === group && <button key={f.key} className={`feature-button ${i === field ? 'selected' : ''}`} aria-pressed={i === field} onClick={() => onField(i)}><span>{f.label}</span><span>{f.unit}</span></button>)}</div></section>)}</div><div className="feature-selected"><code>{data.features[field].key}</code><span>训练段范围 {number(data.features[field].min, 3)} — {number(data.features[field].max, 3)} {data.features[field].unit}</span></div></div>;
+  return <div className="feature-map"><div className="feature-summary"><span><strong>42</strong> 合并列</span><Icon name="arrow" size={28} /><span><strong>28</strong> 研究变量</span><span className="feature-rows">8,759 行 · 间隔 15 分钟</span></div><div className="feature-groups">{['功率', '实测气象', '预报气象'].map(group => <section key={group}><h2>{group}<span>{data.features.filter(f => f.group === group).length}</span></h2><div>{data.features.map((f, i) => f.group === group && <button key={f.key} className={`feature-button ${i === field ? 'selected' : ''}`} aria-pressed={i === field} onClick={() => onField(i)}><span>{f.label}</span>{f.unit && <span>{f.unit}</span>}</button>)}</div></section>)}</div><div className="feature-selected"><code>{data.features[field].key}</code><span>训练段范围 {number(data.features[field].min, 3)} — {number(data.features[field].max, 3)} {data.features[field].unit}</span></div></div>;
 }
 
 export function ModelOverview() {
@@ -78,5 +79,5 @@ export function MetricsTable({ data, full = false }: { data: Research; full?: bo
 }
 
 export function Outcomes({ data, field, onField, start, onStart }: { data: Research; field: number; onField: (n: number) => void; start: number; onStart: (n: number) => void }) {
-  return <div className="outcomes"><DataChart data={data} field={field} onField={onField} start={start} onStart={onStart} compact /><div className="outcomes-results"><div className="section-heading"><h2>三种模型，报告结果</h2><span>28 维 · 窗口 96</span></div><MetricsTable data={data} /></div><Note>曲线为融合表中的实际功率与上游短期预测；指标来自报告第 5.4 节。</Note></div>;
+  return <div className="outcomes"><DataChart data={data} field={field} onField={onField} start={start} onStart={onStart} compact /><div className="outcomes-results"><div className="section-heading"><h2>三模型检测结果</h2><span>28 维 · 窗口 96</span></div><MetricsTable data={data} /></div><Note>风电实验 · 28 维输入 · 报告第 5.4 节</Note></div>;
 }

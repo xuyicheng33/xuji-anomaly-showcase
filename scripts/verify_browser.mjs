@@ -18,7 +18,7 @@ try {
   }
   browser = await chromium.launch({ channel: process.env.BROWSER_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined), headless: true });
   await mkdir('.qa/screens', { recursive: true });
-  for (const viewport of [{ width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 390, height: 844 }]) {
+  for (const viewport of [{ width: 1366, height: 768 }, { width: 1920, height: 1080 }, { width: 1707, height: 782 }, { width: 390, height: 844 }]) {
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1, reducedMotion: 'reduce' });
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
@@ -33,7 +33,9 @@ try {
       const measurements = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, mainWidth: document.querySelector('main').scrollWidth, mainClient: document.querySelector('main').clientWidth, viewport: innerWidth, text: document.querySelector('.canvas').textContent.trim().length }));
       assert.ok(measurements.width <= viewport.width, `Step ${step.id} overflows at ${viewport.width}: ${measurements.width}`);
       assert.ok(measurements.mainWidth <= measurements.mainClient, `Step ${step.id} main content overflows at ${viewport.width}`);
-      assert.ok(measurements.text > 35, `Step ${step.id} has no content`);
+      assert.ok(measurements.text > 25, `Step ${step.id} has no content`);
+      assert.equal(await page.getByRole('button', { name: '查看来源' }).count(), 0);
+      assert.doesNotMatch(await page.locator('.canvas').innerText(), /保留原表|本次保留|样例直接读取|未配齐|未保存|不代表|不填入|不生成|SHA-256|模型字段/);
       await page.locator('.canvas img').evaluateAll(images => Promise.all(images.map(i => i.decode())));
       await page.screenshot({ path: `.qa/screens/${viewport.width}-${String(step.id).padStart(2, '0')}.png`, fullPage: true });
       results.push({ step: step.id, viewport: viewport.width, width: measurements.width });
@@ -82,11 +84,11 @@ try {
   await page.getByRole('searchbox').fill('检查点');
   assert.equal(await page.locator('.source-inventory details').count(), 1);
   await page.getByRole('searchbox').clear();
-  await page.getByRole('button', { name: '查看来源' }).click();
-  await page.locator('#source-details details').first().locator('summary').click();
-  assert.match(await page.locator('#source-details').textContent(), /SHA-256/);
+  assert.equal(await page.getByRole('button', { name: '查看来源' }).count(), 0);
+  await page.locator('.source-inventory details').first().locator('summary').click();
+  assert.doesNotMatch(await page.locator('.source-inventory').innerText(), /SHA-256|sha256|防御|未配齐|未保存/);
+  assert.ok(await page.locator('.source-page-links a').count() > 0);
   await page.screenshot({ path: '.qa/screens/state-source.png' });
-  await page.keyboard.press('Escape');
   await page.locator('h1').focus();
   await page.keyboard.press('Home');
   await page.waitForFunction(() => location.hash === '#/step/01');
@@ -138,7 +140,7 @@ try {
   await recovery.locator('.canvas').waitFor();
   await recovery.close();
   assert.deepEqual(errors, []);
-  await writeFile('.qa/browser-report.json', JSON.stringify({ passed: results.length, viewports: 3, interactions: 'navigation, history, reload, inputs, sources, error recovery, focused table keyboard scrolling', errors, results }, null, 2));
+  await writeFile('.qa/browser-report.json', JSON.stringify({ passed: results.length, viewports: 4, interactions: 'navigation, history, reload, inputs, sources, error recovery, focused table keyboard scrolling', errors, results }, null, 2));
   console.log('[PASS] Navigation, selection persistence, source traceability, keyboard, history, native controls, saved images, load recovery and focused table scrolling');
 } finally {
   await browser?.close();

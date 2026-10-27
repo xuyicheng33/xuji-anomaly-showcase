@@ -1,28 +1,24 @@
-.journey { display: grid; grid-template-columns: 1fr 32px 1.1fr 32px 1fr; gap: 32px; align-items: center; padding: 25px 0; }
+.journey { display: grid; grid-template-columns: .9fr 26px 1.4fr 26px 1fr; gap: 32px; align-items: center; padding: 25px 0; }
 .journey > svg { color: #9999a1; }
 .journey h2 { font-size: 18px; margin-bottom: 24px; }
-.journey-sources > div { display: flex; justify-content: space-between; gap: 20px; padding: 15px 0; font-size: 15px; border-bottom: 1px solid var(--line); }
-.journey-sources > div span { color: var(--accent); font-size: 11px; }
-.journey-sources .secondary-source, .journey-sources .secondary-source span { color: var(--muted); }
-.journey-dataset { text-align: center; }
-.dataset-symbol { display: grid; grid-template-columns: repeat(8,1fr); gap: 4px; width: 190px; margin: 0 auto 30px; }
-.dataset-symbol i { aspect-ratio: 1.3; background: #d5e6f8; border-radius: 2px; }
-.dataset-symbol i.power-cell { background: #4b88c8; }
-.journey-dataset > strong { font-size: 32px; font-weight: 600; display: block; letter-spacing: -.03em; }
-.journey-dataset > span { display: block; color: var(--muted); font-size: 13px; margin-top: 12px; }
+.journey-sources > div { padding: 15px 0; font-size: 15px; border-bottom: 1px solid var(--line); }
+.journey-dataset { text-align: left; padding: 0 8px; }
+.journey-dataset p { font-size: 16px; line-height: 1.95; margin-top: 16px; }
+.journey-dataset strong { font-weight: 600; }
+.journey-dataset .dataset-period { font-size: 12px; color: var(--muted); margin-top: 24px; }
 .journey-models > div { padding: 16px 0; font-weight: 550; font-size: 19px; border-bottom: 1px solid var(--line); }
-.journey-models > span { display: block; color: var(--muted); font-size: 12px; margin-top: 22px; }
+.journey-models > p { color: var(--muted); font-size: 13px; margin-top: 22px; line-height: 1.9; }
+.dataset-intro { font-size: 15px; line-height: 1.9; max-width: 78ch; color: var(--ink); margin: 0 0 28px; }
 .data-heading { display: flex; justify-content: space-between; gap: 18px; padding: 0 0 24px; font-size: 13px; color: var(--muted); }
-.blue-text { color: var(--accent); }
-.merge-map { display: grid; grid-template-columns: 1fr 100px 1fr; padding: 24px 12%; align-items: center; }
+.merge-map { display: grid; grid-template-columns: 1.4fr 80px 1fr; padding: 10px 7%; align-items: center; }
 .merge-branches > div { padding: 24px 0; border-bottom: 1px solid var(--line); }
-.merge-branches strong { font-size: 19px; font-weight: 550; }
-.merge-branches span { display: block; color: var(--muted); font-size: 13px; margin-top: 10px; }
+.merge-branches h2 { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; font-size: 19px; }
+.merge-branches h2 span { font-weight: 400; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.merge-branches p { font-size: 13px; color: var(--muted); margin-top: 12px; max-width: 32ch; }
 .merge-connector { text-align: center; color: #92929b; }
 .merge-destination { background: var(--accent-soft); border-radius: 14px; padding: 50px 25px; text-align: center; }
-.merge-destination strong { font-size: 48px; font-weight: 550; display: block; color: var(--accent); }
+.merge-destination strong { font-size: 35px; font-weight: 550; display: block; color: var(--accent); }
 .merge-destination span { font-size: 13px; color: var(--muted); display: block; margin-top: 18px; }
-.merge-excluded { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 18px; margin-top: 32px; color: var(--muted); font-size: 12px; }
 .time-band-row { padding: 23px 0; display: grid; grid-template-columns: 310px 1fr 145px; gap: 30px; align-items: center; border-bottom: 1px solid var(--line); }
 .time-band-row strong { font-size: 17px; font-weight: 550; display: block; }
 .time-band-row > div > span { color: var(--muted); font-size: 12px; display: block; margin-top: 8px; }
@@ -213,21 +209,14 @@
 .source-tools > span { margin-left: auto; color: var(--muted); }
 .source-inventory { max-height: 350px; overflow-y: auto; padding-right: 10px; }
 .source-inventory summary { cursor: pointer; font-size: 13px; padding: 15px 0; border-bottom: 1px solid var(--line); }
-.source-inventory summary code { float: right; color: var(--muted); }
+.source-inventory summary span + span { float: right; color: var(--muted); font-size: 12px; }
 .source-inventory details > div { padding: 12px; background: #f8f8fa; font-size: 12px; line-height: 1.8; }
 .source-inventory details p + code { display: block; overflow-wrap: anywhere; margin: 8px 0; }
-.page-bindings { border-top: 1px solid var(--line); margin-top: 25px; }
-.page-bindings > summary { cursor: pointer; font-size: 14px; padding-top: 20px; }
-.page-bindings ol { list-style: none; margin: 20px 0 0; padding: 0; }
-.page-bindings li { padding: 12px 0; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 300px 1fr; gap: 25px; font-size: 13px; }
-.page-bindings li > span { color: var(--muted); line-height: 1.7; font-size: 12px; }
-.page-bindings li a { color: var(--accent); }
-.page-bindings > p { font-size: 13px; margin: 20px 0; color: var(--muted); }
-.page-bindings > code { display: block; overflow-wrap: anywhere; line-height: 1.8; color: var(--muted); }
+.source-page-links { display: flex; gap: 8px 20px; flex-wrap: wrap; padding-top: 12px; }
+.source-page-links a { color: var(--accent); font-size: 12px; }
 @media (max-width: 1100px) {
   .journey { gap: 20px; }
   .journey-sources > div { font-size: 13px; }
-  .journey-sources > div span { display: none; }
   .journey-models > div { font-size: 17px; }
   .time-band-row { grid-template-columns: 280px 1fr; gap: 20px; }
   .time-band-row > span { grid-column: 2; }
@@ -241,17 +230,20 @@
   .journey { grid-template-columns: 1fr; gap: 26px; padding: 5px 0; }
   .journey > svg { transform: rotate(90deg); margin: auto; }
   .journey-sources > div { font-size: 14px; padding: 13px 0; }
-  .journey-sources > div span { display: inline; }
   .journey h2 { margin-bottom: 18px; }
-  .journey-models { text-align: center; }
+  .journey-models { text-align: left; }
+  .journey-dataset { padding: 0; }
+  .journey-dataset p { font-size: 15px; }
+  .dataset-intro { font-size: 14px; margin-bottom: 24px; }
   .data-heading { flex-wrap: wrap; font-size: 12px; gap: 10px; }
-  .merge-map { padding: 0; grid-template-columns: 1fr 40px 1fr; }
-  .merge-branches strong { font-size: 15px; }
-  .merge-branches span { font-size: 11px; }
+  .merge-map { padding: 0; grid-template-columns: 1fr; gap: 24px; }
+  .merge-branches h2 { font-size: 16px; }
+  .merge-branches h2 span { font-size: 12px; }
+  .merge-branches p { font-size: 13px; max-width: none; }
+  .merge-connector { transform: rotate(90deg); }
   .merge-destination { padding: 32px 12px; }
   .merge-destination strong { font-size: 32px; }
   .merge-destination span { font-size: 11px; line-height: 1.8; }
-  .merge-excluded { flex-wrap: wrap; font-size: 11px; gap: 12px; }
   .time-band-row { grid-template-columns: 1fr; gap: 14px; padding: 20px 0; }
   .time-band-row > span { grid-column: 1; text-align: left; }
   .time-band-row > div > span { font-size: 11px; }
@@ -349,6 +341,5 @@
   .source-tools { flex-wrap: wrap; gap: 12px; }
   .source-tools input { width: 100%; max-width: 100%; }
   .source-tools > span { margin: 0; }
-  .source-inventory summary code { float: none; display: block; margin: 8px 0 0 16px; font-size: 10px; overflow-wrap: anywhere; }
-  .page-bindings li { grid-template-columns: 1fr; gap: 10px; }
+  .source-inventory summary span + span { float: none; display: block; margin: 8px 0 0 16px; font-size: 11px; }
 }

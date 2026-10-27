@@ -11,8 +11,8 @@ export function pageFromHash(hash: string) {
 }
 export const stepHash = (id: number) => `#/step/${String(clamp(id, 1, pages.length)).padStart(2, '0')}`;
 export function sourceIds(id: number): string[] {
-  if (id === 1) return ['final', 'report', 'weather', 'forecast', 'short', 'powerstat', 'ultrashort'];
-  if (id <= 10) return id >= 3 && id <= 7 ? [['weather'], ['forecast'], ['powerstat'], ['short'], ['ultrashort']][id - 3] : ['weather', 'forecast', 'short', 'powerstat', 'ultrashort', 'review'];
+  if (id === 1) return ['final', 'report', 'data-report', 'weather', 'forecast', 'short', 'powerstat', 'ultrashort'];
+  if (id <= 10) return id >= 3 && id <= 7 ? [...[['weather'], ['forecast'], ['powerstat'], ['short'], ['ultrashort']][id - 3], 'data-report'] : ['weather', 'forecast', 'short', 'powerstat', 'ultrashort', 'data-report', 'review'];
   if (id <= 20) return ['raw-merge', 'lineage', 'review', ...(id === 19 ? ['report'] : [])];
   if (id === 21) return ['changes', 'final', 'raw-merge'];
   if (id <= 25 || id >= 27 && id <= 29) return ['final', 'new-train', 'new-test', 'new-labels'];

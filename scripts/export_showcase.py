@@ -21,7 +21,6 @@ METEO = ["temperature", "humidity", "pressure", "ws_10", "wd_10", "ws_30", "wd_3
 FEATURES = ["actualvalue", "forecastvalue"] + [prefix + name for prefix in ["weather_", "forecast_"] for name in METEO]
 OLD_FEATURES = ["actualvalue", "forecastvalue", "weather_temperature", "weather_ws_10", "weather_ws_30", "weather_ws_50", "weather_ws_70"]
 LABELS = {"temperature": "温度", "humidity": "湿度", "pressure": "气压", "actualvalue": "实际功率", "forecastvalue": "预测功率"}
-UNITS = {"temperature": "°C", "humidity": "%", "pressure": "hPa", "actualvalue": "MW", "forecastvalue": "MW"}
 
 
 def digest(path: Path) -> str:
@@ -44,7 +43,7 @@ def export(supplement: Path) -> None:
         if path.is_relative_to(ROOT):
             entry["path"] = path.relative_to(ROOT).as_posix()
         else:
-            entry["path"] = "补充工作目录/" + path.relative_to(supplement).as_posix()
+            entry["path"] = "补充工作目录/" + path.relative_to(supplement.parents[1]).as_posix()
         if excerpt:
             lines = path.read_text(encoding="utf-8-sig").splitlines()
             start, end = excerpt
@@ -66,7 +65,7 @@ def export(supplement: Path) -> None:
     source("lineage", lineage_path, "逐行分片来源", "8,759 条来源映射")
     changes_path = supplement / "03_复核生成/05_观察到的数值修改.csv"
     changes = pd.read_csv(changes_path).fillna("")
-    source("changes", changes_path, "已有数值修改记录", "62 处保存修改", "边界值来自既有最终表；原始阈值推导未保存。")
+    source("changes", changes_path, "气象数值调整记录", "62 处数值调整", "边界值来自既有最终表；原始阈值推导未保存。")
     review_path = supplement / "03_复核生成/复核结果.json"
     review = json.loads(review_path.read_text(encoding="utf-8"))
     source("review", review_path, "融合复核记录", "只读对照", "复核统计不代表新增检测实验。")
@@ -84,7 +83,14 @@ def export(supplement: Path) -> None:
         table = pd.read_csv(path, low_memory=False)
         selected = table[table.stationid == 41]
         dates = pd.to_datetime(selected[timecol], format="mixed", errors="coerce")
-        sample = selected.head(7).fillna("")
+        sample_candidates = selected[(dates >= pd.Timestamp('2025-04-02')) & (dates < pd.Timestamp('2025-04-05'))]
+        if key == 'weather':
+            sample_candidates = sample_candidates[pd.to_datetime(sample_candidates[timecol], format='mixed') >= pd.Timestamp('2025-04-02 18:15')]
+        if 'forecast_fromtime' in sample_candidates and key in ['forecast', 'short']:
+            batch = pd.to_datetime(sample_candidates.forecast_fromtime, format='mixed', errors='coerce')
+            sample_candidates = sample_candidates[batch == pd.Timestamp('2025-04-02')]
+            sample_candidates = sample_candidates[pd.to_datetime(sample_candidates[timecol], format='mixed') >= pd.Timestamp('2025-04-02 18:15')]
+        sample = (sample_candidates if len(sample_candidates) else selected).head(7).fillna("")
         source(key, path, title + "平台原表", "原始平台表", "按实际保存范围统计；批次截断与站点筛选分开。")
         streams.append({"id": key, "name": title, "files": files, "rawRows": count, "platformRows": len(table), "stationRows": len(selected), "used": used,
                         "start": str(dates.min()), "end": str(dates.max()), "timeColumn": timecol, "columns": table.columns.tolist(), "sample": sample.to_dict("records")})
@@ -108,8 +114,9 @@ def export(supplement: Path) -> None:
         label = LABELS.get(bare)
         if label is None:
             kind, height = bare.split("_")
-            label = ("轮毂" if height == "hub" else height + " m") + ("风速" if kind == "ws" else "风向")
-        unit = UNITS.get(bare, "m/s" if bare.startswith("ws_") else "°")
+            label = ("轮毂" if height == "hub" else height + " 米") + ("风速" if kind == "ws" else "风向")
+        # Supplied table headers and report do not define physical units.
+        unit = ""
         features.append({"key": key, "label": label, "unit": unit, "group": "功率" if i < 2 else "实测气象" if i < 15 else "预报气象", "min": float(values[:6131, i].min()), "max": float(values[:6131, i].max())})
 
     old = {}
@@ -138,6 +145,7 @@ def export(supplement: Path) -> None:
 
     report = ROOT / "materials/异常检测报告.docx"
     source("report", report, "异常检测报告", "第二批风电 · 第 5.4 节", "报告 28 维成绩与旧版检查点分别登记；第 5.3 节换流设备曲线不用于风电。")
+    source('data-report', supplement.parents[1] / '01_报告/新版本报告/异常检测报告_第一章.md', '数据整理与异常检测数据集构建', '第一章 · 数据介绍与提取规则')
     figures = {"anomalies": "image5.png", "stam": "image6.png", "smst": "image62.png", "stmem": "image89.png", "overlap": "image141.png"}
     with zipfile.ZipFile(report) as archive:
         for key, name in figures.items():
