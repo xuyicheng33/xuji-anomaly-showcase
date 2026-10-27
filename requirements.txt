@@ -3,3 +3,4 @@ scipy>=1.12
 paramiko>=3.4
 pandas>=2.2
 Pillow>=10.4
+openpyxl>=3.1

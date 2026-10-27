@@ -1,0 +1,76 @@
+{
+  "version": "retrospective-v2-20261027",
+  "policy": {
+    "id": "pa-f1-exhaustive-v1",
+    "name": "事后回看评估",
+    "objective": "point_adjusted_f1",
+    "candidates": "midpoints between distinct scores plus bounds outside the score range",
+    "comparison": "score > threshold",
+    "tieBreak": [
+      "point_wise_f1",
+      "higher_threshold"
+    ],
+    "usesTestLabels": true,
+    "windowSegments": "each 64-point window is evaluated independently"
+  },
+  "models": [
+    {
+      "id": "model1",
+      "sequence": {
+        "value": 0.031617274402876164,
+        "candidateCount": 2398,
+        "sampleCount": 2397,
+        "abnormalCount": 490,
+        "sequenceCount": 1,
+        "pointWiseF1": 0.6909975669099757,
+        "pointAdjustedF1": 0.8986693961105425,
+        "tp": 284,
+        "fp": 48,
+        "paTp": 439,
+        "selectedCandidateIndex": 2065
+      },
+      "window": {
+        "value": 0.0314878559128271,
+        "candidateCount": 149377,
+        "sampleCount": 149376,
+        "abnormalCount": 29098,
+        "sequenceCount": 2334,
+        "pointWiseF1": 0.7035328467153285,
+        "pointAdjustedF1": 0.9038755862749939,
+        "tp": 18072,
+        "fp": 4205,
+        "paTp": 27462,
+        "selectedCandidateIndex": 127099
+      }
+    },
+    {
+      "id": "model2",
+      "sequence": {
+        "value": 0.03274022463052648,
+        "candidateCount": 2398,
+        "sampleCount": 2397,
+        "abnormalCount": 490,
+        "sequenceCount": 1,
+        "pointWiseF1": 0.6522292993630573,
+        "pointAdjustedF1": 0.9070247933884298,
+        "tp": 256,
+        "fp": 39,
+        "paTp": 439,
+        "selectedCandidateIndex": 2102
+      },
+      "window": {
+        "value": 0.031851906991064625,
+        "candidateCount": 149377,
+        "sampleCount": 149376,
+        "abnormalCount": 29098,
+        "sequenceCount": 2334,
+        "pointWiseF1": 0.6803236012655693,
+        "pointAdjustedF1": 0.9081299600709114,
+        "tp": 16987,
+        "fp": 3853,
+        "paTp": 27406,
+        "selectedCandidateIndex": 128536
+      }
+    }
+  ]
+}

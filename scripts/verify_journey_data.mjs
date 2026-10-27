@@ -27,4 +27,4 @@ for(const model of data.models){
  for(const [key,value] of Object.entries({tp,fp,fn,tn}))assert.equal(value,model.metrics.point_wise[key],model.id+' '+key);
  assert.ok(model.history.every(h=>Number.isFinite(h.loss)&&Number.isFinite(h.lr)));
 }
-console.log('[PASS] 12 asset hashes, 7,191 model scores, labels and archived metrics');
+console.log('[PASS] '+arrays.size+' asset hashes, '+(data.models.length*data.times.length)+' model scores, labels and metrics');

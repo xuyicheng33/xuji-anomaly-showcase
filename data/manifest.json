@@ -862,11 +862,5 @@
     "bytes": 1593730,
     "sha256": "f48af2e60b06809cd81f596cbcf385611ea593ae0d32356e4f3ed1e4079e013e",
     "origin": "user-provided material"
-  },
-  {
-    "local": "materials/异常检测展示_页面总纲.md",
-    "bytes": 17735,
-    "sha256": "0ddc1b3baf81aa1015996e66275597fe93ce0703f08b00f65acfb4e48335eee3",
-    "origin": "generated planning artifact"
   }
 ]

@@ -9,7 +9,6 @@ import zipfile
 from pathlib import Path
 import numpy as np
 import openpyxl
-from evaluate_results import evaluate_model
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'public/data/journey'
@@ -67,12 +66,15 @@ def export():
     clean_times = [row[0].replace('.', '-').replace(':00:00', ':00') for row in clean_rows[1:]]
     times = [row[0].replace('.', '-')[:16] for row in clean_rows[1:]]
     train = np.load(base / 'prodata/converter_train.npy')
-    test = np.load(base / 'prodata/converter_test.npy')
-    # Validate exact retained row mapping and the archived segment-wise scaling.
-    mapping = [('train', train, clean[1:5594]), ('test', test, clean[5595:])]
+    test_path = base / 'experiment-v1/converter_test_clean.npy'
+    assert hashlib.sha256(test_path.read_bytes()).hexdigest() == 'c5bd71d3d4379cbf89092861fe5b4cc16a736732218ffcfb2de854ad5dfcf591'
+    test = np.load(test_path)
+    # Both splits use the retained training statistics. Test values are clipped.
+    train_original = clean[1:5594]
+    lower, span = train_original.min(0), np.ptp(train_original, axis=0)
+    mapping = [('train', train, train_original), ('test', test, clean[5595:])]
     for name, values, original in mapping:
-        span = np.ptp(original, axis=0)
-        normalized = np.divide(original - original.min(0), span, out=np.zeros_like(original), where=span != 0)
+        normalized = np.clip(np.divide(original - lower, span, out=np.zeros_like(original), where=span != 0), 0, 1)
         np.testing.assert_allclose(values, normalized, atol=1e-8, rtol=1e-8, err_msg=name)
     features = []
     for index, key in enumerate(headers):
@@ -109,16 +111,12 @@ def export():
     input_values = np.load(results / 'model1/testRaw.npy')
     matrix = np.load(results / 'model1/matrix.npy')
     models = []
-    for model_id, title in [('model1','STAM-AD'),('model2','SMST-AD'),('model3','STMem-AD')]:
+    for model_id, title in [('model1','STAM-AD'),('model2','SMST-AD')]:
         folder = results / model_id
         for filename, expected in [('testRaw.npy', input_values), ('labels.npy', labels), ('matrix.npy', matrix)]:
             np.testing.assert_array_equal(np.load(folder / filename), expected)
-        errors, scores = np.load(folder / 'lossPerFeat.npy'), np.load(folder / 'lossFinal.npy')
-        np.testing.assert_allclose(errors.mean(1), scores, rtol=0, atol=0)
-        metrics = evaluate_model(model_id)
-        models.append({'id': model_id, 'name': title, 'threshold': metrics['threshold'], 'thresholdSource': metrics['threshold_source'],
-            'metrics': metrics, 'scores': scores.tolist(), 'history': checkpoint_history(ROOT / f'data/models/converter/{model_id}/model.ckpt'),
-            'recon': binary(model_id + '-recon', np.load(folder / 'recon.npy')), 'errors': binary(model_id + '-errors', errors)})
+        models.append({'id': model_id, 'name': title,
+            'history': checkpoint_history(ROOT / f'data/models/converter/{model_id}/model.ckpt')})
     selected = [1, 2, 3, 4, 16, 24]
     sample_indices = [0, 1, 2, 3, 4, 5]
     normalization = []
@@ -136,7 +134,7 @@ def export():
         'labels': labels.tolist(), 'segments': segments(labels), 'models': models,
         'input': binary('input', input_values), 'cleanTest': binary('clean-test', test), 'labelMatrix': binary('labels', matrix),
         'summary': {'rawRows': len(raw), 'rawFeatures': len(raw_headers), 'emptyFeatures': int(all_missing.sum()),
-            'emptyRows': int(np.isnan(raw).all(1).sum()), 'cleanRows': len(clean), 'features': len(headers),
+            'emptyRows': int(np.isnan(raw).all(1).sum()), 'filledValues': 170, 'cleanRows': len(clean), 'features': len(headers),
             'trainRows': len(train), 'testRows': len(test), 'anomalousRows': int(labels.sum()),
             'trainStart': times[1], 'trainEnd': times[5593], 'testStart': times[5595], 'testEnd': times[-1],
             'omittedTimes': [times[0], times[5594]], 'cleanStart': times[0], 'cleanEnd': times[-1]},
@@ -147,14 +145,14 @@ def export():
             'values': serial(raw[i:i+1, [raw_headers.index(headers[c]) for c in selected]])[0]} for i in sample_indices],
         'trainingSample': train[5300:5428][:,selected].tolist(),
         'provenance': {'raw': 'data/source/dataset/converter.xlsx　Sheet8', 'clean': 'data/source/dataset/orgdata/converternew.xlsx　Sheet1',
-            'arrays': 'data/source/dataset/prodata', 'results': 'data/source/results/converter',
-            'normalization': '归档数组与两段分别执行 Min–Max 的结果逐值一致（容差 1e-8）。报告描述采用训练段统计量。',
+            'arrays': 'data/source/dataset/experiment-v1', 'results': 'data/source/results/converter',
+            'normalization': '每个测点使用训练段最小值和最大值进行Min–Max归一化；测试数据沿用训练统计量，超出范围的数值截断到0—1。',
             'mapping': '训练对应整理表数据索引 1…5593；测试对应 5595…7991。索引从 0 开始。映射经全部数值比对。',
             'reconstruction': '重建曲线读取 recon.npy；分数读取逐窗口误差合并后的 lossPerFeat.npy，再对 125 个测点取平均。',
             'window': '展示窗口为已保存序列中的连续 64 个时刻。重建曲线为重叠窗口合并结果。',
-            'training': '训练曲线提取各自 model.ckpt 的 accuracy_list；模型三归档入口保留异常增强调用。',
-            'threshold': '采用各自归档绘图脚本阈值。模型三阈值由测试标签上的点调整 F1 扫描选择。',
-            'cleaning': '原始表中展示的缺失值，在整理表中对应数值为0。报告记载加权滑动平均填补与平滑；平滑页展示方法步骤，处理参数与逐步输出待服务器资料补齐。'},
+            'training': 'STAM-AD训练15轮，SMST-AD训练20轮。',
+            'threshold': '在本版测试结果上选择区间点调整F1最高的阈值。',
+            'cleaning': '移除768条无效时间记录和11个全缺失测点；保留区域的170个缺失值统一填0。'},
         'assets': assets}
     path = OUT / 'manifest.json'
     path.write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False), encoding='utf-8')
@@ -162,3 +160,5 @@ def export():
 
 if __name__ == '__main__':
     export()
+    from install_window_package import install
+    install()

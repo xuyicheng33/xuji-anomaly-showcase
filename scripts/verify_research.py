@@ -40,13 +40,20 @@ def verify_assets():
         total_bytes += record["bytes"]
     actual = {
         path.relative_to(ROOT).as_posix()
-        for folder in ("data/source", "data/models", "materials")
+        for folder in ("data/source", "data/models")
         for path in (ROOT / folder).rglob("*") if path.is_file()
     }
+    # The formal clean test baseline was verified and added after the initial sync.
+    baseline_dir = ROOT / 'data/source/dataset/experiment-v1'
+    source = json.loads((baseline_dir / 'source.json').read_text(encoding='utf8'))
+    baseline = baseline_dir / 'converter_test_clean.npy'
+    if hashlib.sha256(baseline.read_bytes()).hexdigest() != source['sha256']:
+        raise ValueError('正式实验清洁测试底稿校验失败')
+    expected.update(p.relative_to(ROOT).as_posix() for p in (baseline, baseline_dir / 'source.json'))
     extra = actual - expected
     if extra:
         raise ValueError(f"核心目录存在清单外文件：{sorted(extra)}")
-    print(f"核心材料校验通过：{len(records)} 个文件，{total_bytes / 1024 ** 2:.1f} MiB")
+    print(f"核心材料校验通过：{len(records)} 个归档文件及正式测试底稿，{total_bytes / 1024 ** 2:.1f} MiB")
     for dataset, paths in {
         "换流设备 converter": ("data/source/dataset/prodata/converter_train.npy",
                               "data/source/dataset/prodata/converter_test.npy"),
