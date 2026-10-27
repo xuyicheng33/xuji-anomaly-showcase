@@ -42,5 +42,12 @@ class JourneyExportTests(unittest.TestCase):
         np.testing.assert_array_equal(a.max(1),self.data['labels'])
         self.assertTrue(any(v is None for v in self.data['missingExample']['before']))
 
+    def test_raw_samples_and_missing_value_evidence(self):
+        self.assertEqual(len(self.data['rawSampleRows']), 6)
+        self.assertEqual(self.data['rawSampleRows'][0]['time'], '2022-01-01 00:00')
+        ex = self.data['missingExample']
+        self.assertIsNone(ex['before'][ex['selected']])
+        self.assertEqual(ex['after'][ex['selected']], 0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -137,6 +137,8 @@ def export():
         'removedFeatures': [str(k) for k, empty in zip(raw_headers, all_missing) if empty],
         'missingExample': example, 'normalization': normalization, 'sampleFeatures': selected,
         'sampleRows': [{'time': times[i], 'values': clean[i,selected].tolist()} for i in sample_indices],
+        'rawSampleRows': [{'time': str(raw_rows[i + 1][0]).replace('.', '-')[:16],
+            'values': serial(raw[i:i+1, [raw_headers.index(headers[c]) for c in selected]])[0]} for i in sample_indices],
         'trainingSample': train[5300:5428][:,selected].tolist(),
         'provenance': {'raw': 'data/source/dataset/converter.xlsx · Sheet8', 'clean': 'data/source/dataset/orgdata/converternew.xlsx · Sheet1',
             'arrays': 'data/source/dataset/prodata', 'results': 'data/source/results/converter',
@@ -146,7 +148,7 @@ def export():
             'window': '展示窗口为已保存序列中的连续 64 个时刻。重建曲线为重叠窗口合并结果。',
             'training': '训练曲线提取各自 model.ckpt 的 accuracy_list；模型三归档入口保留异常增强调用。',
             'threshold': '采用各自归档绘图脚本阈值。模型三阈值由测试标签上的点调整 F1 扫描选择。',
-            'cleaning': '缺失处理与平滑方法依据报告；数值对比取原始表和整理后表，未补造中间处理记录。'},
+            'cleaning': '原始表中展示的缺失值，在整理表中对应数值为0。报告记载加权滑动平均填补与平滑；平滑页展示方法步骤，处理参数与逐步输出待服务器资料补齐。'},
         'assets': assets}
     path = OUT / 'manifest.json'
     path.write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False), encoding='utf-8')
