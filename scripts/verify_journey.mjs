@@ -19,7 +19,7 @@ try{
   await page.screenshot({path:'.qa/journey/'+width+'-home.png',fullPage:true});
   for(let id=1;id<=40;id++){
    await page.evaluate(n=>location.hash='#/step/'+String(n).padStart(2,'0'),id);
-   await page.waitForFunction(n=>document.title!==''&&location.hash.endsWith(String(n).padStart(2,'0'))&&document.querySelector('.lesson-content')&&document.querySelector('.step-progress')?.textContent?.includes(' / '),id);
+   await page.waitForFunction(n=>document.querySelector('main')?.getAttribute('data-step')===String(n)&&document.querySelector('.lesson-content'),id);
    await page.locator('.lesson-content').waitFor();
    const content=await page.locator('.lesson-content').innerText();
    assert.ok(content.length>30,'empty page '+id);assert.doesNotMatch(content,/NaN|undefined|Infinity/);
@@ -51,6 +51,19 @@ try{
   assert.equal(await page.getByTestId('computed-score').innerText(),model.scores[175].toFixed(6));
  }
  await page.screenshot({path:'.qa/journey/demo-score.png',fullPage:true});
+ await go(38);
+ await page.getByRole('button',{name:/判定结果.*比较阈值/}).click();
+ await page.getByRole('slider',{name:'演示时刻'}).fill('61');
+ await page.getByRole('combobox',{name:'播放速度'}).selectOption('4');
+ await page.getByRole('button',{name:'播放演示',exact:true}).click();
+ await page.waitForFunction(()=>document.querySelector('.range-row output')?.textContent==='64 / 64');
+ await page.waitForFunction(()=>[...document.querySelectorAll('button')].some(b=>b.textContent==='播放演示'&&b.disabled));
+ await go(40);
+ await page.getByRole('combobox',{name:'筛选检测结果'}).selectOption('误报');
+ assert.ok((await page.locator('.results-table tbody tr').allTextContents()).every(t=>t.includes('误报')));
+ await go(20);
+ await page.getByText('查看完整研究架构图',{exact:true}).click();
+ await page.locator('.research-figure').evaluate(img=>img.decode());
  await go(14);
  const curve=await page.locator('.chart-svg path[stroke]').last().getAttribute('d');
  await page.getByRole('slider',{name:'异常构造参数'}).fill('20');

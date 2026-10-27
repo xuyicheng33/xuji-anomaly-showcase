@@ -10,3 +10,5 @@
 .chapter-number,.chapter-count,.stage-navigation a span,.all-steps a span{color:#65758a}
 *{scrollbar-color:#a4b5cc #f5f7fa;scrollbar-width:thin}input,select{caret-color:#2164c4}
 @media(max-width:540px){.detection-demo .process{flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px}.detection-demo .process-step{flex:0 0 133px}.detection-demo .process-step>button{min-height:84px;padding:12px}.detection-demo .process-step button>span:last-child{font-size:10px}.chart-svg{min-height:0}.stage-navigation{scrollbar-width:thin}.chart-svg text{font-size:11px}}
+
+.metric-explanations small{display:block;margin-top:10px;font-size:12px;line-height:1.7}.process{position:relative}

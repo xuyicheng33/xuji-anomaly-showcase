@@ -8,9 +8,11 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
-    "test:browser": "node scripts/verify_browser.mjs",
+    "test:browser": "npm run build && node scripts/verify_journey.mjs",
     "typecheck": "tsc -b",
-    "verify:data": "python -B scripts/verify_showcase.py"
+    "verify:data": "node scripts/verify_journey_data.mjs",
+    "export:data": "python -X utf8 -B scripts/export_journey.py",
+    "verify": "npm run verify:data && npm test && npm run test:browser"
   },
   "dependencies": {
     "@radix-ui/themes": "^3.3.0",
