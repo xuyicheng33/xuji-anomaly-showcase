@@ -1,66 +1,128 @@
-import { useEffect, useRef, useState } from 'react';
-import { Icon } from './components';
-import { PageView } from './PageView';
-import { pageFromHash, pages, stages, stepHash } from './model';
-import type { Provenance, Research } from './types';
+import { useEffect, useState } from 'react';
+import type { ConverterShowcaseData } from './types';
+import { LiveDashboard } from './LiveDashboard';
+import { AnomalyStudio } from './AnomalyStudio';
+import { ModelBenchmark } from './ModelBenchmark';
 
 export default function App() {
-  const [id, setId] = useState(() => pageFromHash(window.location.hash));
-  const [data, setData] = useState<Research | null>(null);
-  const [provenance, setProvenance] = useState<Provenance | null>(null);
-  const [error, setError] = useState('');
-  const [attempt, setAttempt] = useState(0);
-  const [contents, setContents] = useState(false);
-  const [field, setField] = useState(0);
-  const [start, setStart] = useState(0);
-  const heading = useRef<HTMLHeadingElement>(null);
-  const main = useRef<HTMLElement>(null);
-  const menuButton = useRef<HTMLButtonElement>(null);
-  const firstRender = useRef(true);
-  const page = pages[id - 1];
-  const go = (next: number) => { if (next >= 1 && next <= 61) { window.location.hash = stepHash(next); setContents(false); } };
+  const [activeTab, setActiveTab] = useState<'live' | 'studio' | 'benchmark'>(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash === 'studio' || hash === 'benchmark') return hash;
+    return 'live';
+  });
+
+  const [data, setData] = useState<ConverterShowcaseData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    const controller = new AbortController();
-    Promise.all(['research', 'provenance'].map(async name => {
-      const response = await fetch(`./data/${name}.json`, { signal: controller.signal });
-      if (!response.ok) throw new Error(`数据文件读取失败（${response.status}）`);
-      return response.json();
-    })).then(([research, provenance]) => {
-      if (research.schemaVersion !== 1 || provenance.schemaVersion !== 1 || research.features.length !== 28 || research.values.length !== 8759) throw new Error('数据版本不匹配');
-      setData(research); setProvenance(provenance); setError('');
-    }).catch(reason => { if (reason.name !== 'AbortError') setError(reason.message); });
-    return () => controller.abort();
-  }, [attempt]);
-  useEffect(() => {
-    const hash = () => { setId(pageFromHash(window.location.hash)); };
-    window.addEventListener('hashchange', hash);
-    if (window.location.hash !== stepHash(id)) history.replaceState(null, '', stepHash(id));
-    return () => window.removeEventListener('hashchange', hash);
-  }, []);
-  useEffect(() => {
-    document.title = `${page.title} · 许继电气异常检测`;
-    if (firstRender.current) firstRender.current = false;
-    else { heading.current?.focus({ preventScroll: true }); main.current?.scrollTo({ top: 0, behavior: 'instant' }); }
-  }, [id, page.title]);
-  useEffect(() => {
-    const keyboard = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement;
-      if (event.key === 'Escape') { setContents(false); menuButton.current?.focus(); return; }
-      if (contents || /INPUT|SELECT|TEXTAREA/.test(target.tagName) || target.isContentEditable || target.closest('.table-scroll') || event.metaKey || event.ctrlKey || event.altKey) return;
-      if (event.key === 'ArrowRight') { event.preventDefault(); go(id + 1); }
-      if (event.key === 'ArrowLeft') { event.preventDefault(); go(id - 1); }
-      if (event.key === 'Home') { event.preventDefault(); go(1); }
-      if (event.key === 'End') { event.preventDefault(); go(61); }
+    const onHashChange = () => {
+      const h = window.location.hash.replace('#', '');
+      if (h === 'live' || h === 'studio' || h === 'benchmark') {
+        setActiveTab(h);
+      }
     };
-    window.addEventListener('keydown', keyboard);
-    return () => window.removeEventListener('keydown', keyboard);
-  }, [id, contents]);
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
-  return <><a className="skip-link" href="#main" onClick={event => { event.preventDefault(); heading.current?.focus(); }}>跳到页面内容</a><header className="site-header"><div className="header-inner"><a className="brand" href={stepHash(1)}><span>许继电气</span><span>异常检测</span></a><button className="menu-button" ref={menuButton} onClick={() => setContents(!contents)} aria-expanded={contents} aria-controls="contents"><Icon name={contents ? 'close' : 'menu'} />{contents ? '收起目录' : '全部页面'}</button></div></header>
-    {contents && <nav id="contents" className="contents" aria-label="全部 61 页"><div className="contents-inner">{stages.map((stage, index) => <section key={stage}><h2>{stage}</h2><ol>{pages.filter(p => p.stage === index).map(p => <li key={p.id}><a href={stepHash(p.id)} aria-current={p.id === id ? 'page' : undefined} onClick={() => setContents(false)}><span>{String(p.id).padStart(2, '0')}</span>{p.title}</a></li>)}</ol></section>)}</div></nav>}
-    <nav className="stage-nav" aria-label="展示阶段">{stages.map((stage, i) => <a key={stage} href={stepHash(pages.find(p => p.stage === i)!.id)} aria-current={page.stage === i ? 'step' : undefined}>{stage}</a>)}</nav>
-    <main id="main" className="main" ref={main}><div className="page-heading"><h1 ref={heading} tabIndex={-1}>{page.title}</h1></div>
-      {error ? <section className="error-state" role="alert"><h2>展示数据未能载入</h2><p>{error}。请检查本地服务后重试。</p><button onClick={() => { setError(''); setAttempt(attempt + 1); }}>重新载入</button></section> : data && provenance ? <section className={`canvas page-${id}`} aria-label={page.title}><PageView key={id} id={id} data={data} provenance={provenance} field={field} onField={setField} start={start} onStart={setStart} /></section> : <div className="loading-state" role="status">正在载入数据…</div>}
-    </main><footer className="site-footer"><div className="footer-inner"><button className="previous-button" disabled={id === 1} onClick={() => go(id - 1)}><Icon name="left" /><span>上一页</span></button><div className="page-position"><span aria-live="polite">{String(id).padStart(2, '0')}<span> / 61</span></span><div className="progress-track"><div style={{ width: `${id / 61 * 100}%` }} /></div></div><button className="next-button" disabled={id === 61} onClick={() => go(id + 1)}><span>{id === 1 ? '开始展示' : '下一页'}</span><Icon name="right" /></button></div></footer></>;
+  const switchTab = (tab: 'live' | 'studio' | 'benchmark') => {
+    setActiveTab(tab);
+    window.location.hash = tab;
+  };
+
+  useEffect(() => {
+    fetch('./data/converter_showcase.json')
+      .then(res => {
+        if (!res.ok) throw new Error(`数据加载失败 (HTTP ${res.status})`);
+        return res.json();
+      })
+      .then((json: ConverterShowcaseData) => {
+        setData(json);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message || '未知错误');
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <div className="app-container">
+      {/* 顶部主导航栏 */}
+      <header className="top-header">
+        <div className="brand-section">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span className="brand-title">许继电气 · 换流设备时序异常检测工作台</span>
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+              验收交付演示系统 · 特高压换流站 125 维真机监测资产
+            </span>
+          </div>
+          <span className="brand-badge">2022 真机数据</span>
+        </div>
+
+        {/* 核心主功能导航 */}
+        <nav className="nav-tabs" aria-label="核心功能区导航">
+          <button
+            className={`nav-tab-btn ${activeTab === 'live' ? 'active' : ''}`}
+            onClick={() => switchTab('live')}
+          >
+            <span>⚡ 实时时序推演大厅</span>
+          </button>
+          <button
+            className={`nav-tab-btn ${activeTab === 'studio' ? 'active' : ''}`}
+            onClick={() => switchTab('studio')}
+          >
+            <span>🧪 8类异常构造工坊</span>
+          </button>
+          <button
+            className={`nav-tab-btn ${activeTab === 'benchmark' ? 'active' : ''}`}
+            onClick={() => switchTab('benchmark')}
+          >
+            <span>📊 三模型基准与消融</span>
+          </button>
+        </nav>
+
+        {/* 右侧数据规格摘要 */}
+        <div className="header-meta">
+          <span>测点: <strong>125 维</strong></span>
+          <span>测试样本: <strong>2,397 时刻</strong></span>
+          <span>故障点: <strong style={{ color: 'var(--status-alert)' }}>490 (20.4%)</strong></span>
+          <span>正常训练比: <strong>70%</strong></span>
+        </div>
+      </header>
+
+      {/* 主工作区 */}
+      <main className="main-content">
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '100px 0', color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+              正在初始化特高压换流设备时序资产…
+            </div>
+            <span>加载 2,397 测试时刻与三模型前向重构波形数据…</span>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ background: 'var(--status-alert-bg)', border: '1px solid rgba(220, 38, 38, 0.2)', padding: '24px', borderRadius: 'var(--radius-lg)', color: 'var(--status-alert)', maxWidth: '600px', margin: '40px auto' }}>
+            <strong style={{ fontSize: '16px', display: 'block', marginBottom: '8px' }}>时序数据加载异常</strong>
+            <p style={{ fontSize: '13px' }}>{error}。请检查 public/data/converter_showcase.json 是否正常构建。</p>
+          </div>
+        )}
+
+        {!loading && !error && data && (
+          <>
+            {activeTab === 'live' && <LiveDashboard data={data} />}
+            {activeTab === 'studio' && <AnomalyStudio data={data} />}
+            {activeTab === 'benchmark' && <ModelBenchmark data={data} />}
+          </>
+        )}
+      </main>
+
+      {/* 底部信息栏 */}
+      <footer style={{ borderTop: '1px solid var(--border-light)', padding: '14px 24px', textAlign: 'center', fontSize: '12px', color: 'var(--text-muted)', background: 'var(--bg-card)' }}>
+        许继电气换流设备异常检测展示系统 · 基于 TCN-Transformer 双分支、自适应掩码对比学习与正常模式时空记忆
+      </footer>
+    </div>
+  );
 }
