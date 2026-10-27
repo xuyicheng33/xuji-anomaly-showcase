@@ -1,4 +1,4 @@
-import { useId, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { chartWindow, number } from './model';
 import type { Cell, Research } from './types';
 
@@ -24,9 +24,12 @@ export function Formula({ children, label }: { children: ReactNode; label?: stri
 
 export function Note({ children }: { children: ReactNode }) { return <p className="source-note">{children}</p>; }
 
-export function LineChart({ series, labels, unit = '', compact = false, axis = true }: { series: { name: string; values: number[]; color?: string; dashed?: boolean }[]; labels: string[]; unit?: string; compact?: boolean; axis?: boolean }) {
+export function LineChart({ series, labels, unit = '', compact = false, axis = true, selection }: { series: { name: string; values: number[]; color?: string; dashed?: boolean }[]; labels: string[]; unit?: string; compact?: boolean; axis?: boolean; selection?: [number, number] }) {
   const id = useId();
-  const width = 1000, height = compact ? 220 : 310, left = 58, right = 22, top = 20, bottom = 42;
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(1000);
+  useEffect(() => { const observer = new ResizeObserver(entries => setWidth(Math.max(260, entries[0].contentRect.width))); if (ref.current) observer.observe(ref.current); return () => observer.disconnect(); }, []);
+  const height = compact ? 220 : 310, left = 58, right = 22, top = 20, bottom = 42;
   const flat = series.flatMap(s => s.values).filter(Number.isFinite);
   if (!flat.length) return <p role="status">此范围没有保存数值。</p>;
   let min = Math.min(...flat), max = Math.max(...flat);
@@ -35,11 +38,12 @@ export function LineChart({ series, labels, unit = '', compact = false, axis = t
   const x = (i: number, n: number) => left + i / Math.max(1, n - 1) * (width - left - right);
   const y = (n: number) => top + (max - n) / (max - min) * (height - top - bottom);
   const ticks = [0, 1, 2, 3];
-  return <div className="chart"><div className="chart-legend">{series.map((s, i) => <span key={s.name}><i style={{ background: s.color || (i ? 'var(--forecast)' : 'var(--accent)') }} className={s.dashed ? 'dashed' : ''} />{s.name}</span>)}<span className="chart-unit">{unit}</span></div>
+  return <div className="chart" ref={ref}><div className="chart-legend">{series.map((s, i) => <span key={s.name}><i style={{ background: s.color || (i ? 'var(--forecast)' : 'var(--accent)') }} className={s.dashed ? 'dashed' : ''} />{s.name}</span>)}<span className="chart-unit">{unit}</span></div>
     <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby={id}><title id={id}>{series.map(s => s.name).join('、')}，{labels[0]} 至 {labels.at(-1)}</title>
       {axis && ticks.map(t => { const value = min + (max - min) * t / 3; return <g key={t}><line x1={left} x2={width - right} y1={y(value)} y2={y(value)} className="grid-line" /><text x={left - 12} y={y(value) + 5} textAnchor="end">{number(value, max - min < .1 ? 4 : max - min < 2 ? 2 : 0)}</text></g>; })}
+      {selection && <rect x={x(selection[0], labels.length)} y={top} width={x(selection[1], labels.length) - x(selection[0], labels.length)} height={height - top - bottom} fill="#0066cc" fillOpacity=".07" stroke="#0066cc" strokeOpacity=".5" />}
       {series.map((s, i) => <path key={s.name} d={s.values.map((v, n) => `${n ? 'L' : 'M'}${x(n, s.values.length).toFixed(2)},${y(v).toFixed(2)}`).join(' ')} stroke={s.color || (i ? 'var(--forecast)' : 'var(--accent)')} strokeWidth={2.3} strokeDasharray={s.dashed ? '6 5' : undefined} fill="none" vectorEffect="non-scaling-stroke" />)}
-      {[0, Math.floor((labels.length - 1) / 2), labels.length - 1].filter((v, i, a) => a.indexOf(v) === i).map((i, n) => <text key={i} x={x(i, labels.length)} y={height - 10} textAnchor={n === 0 ? 'start' : n === 2 ? 'end' : 'middle'}>{labels[i]?.replace('2025-', '')}</text>)}
+      {(width < 600 ? [0, labels.length - 1] : [0, Math.floor((labels.length - 1) / 2), labels.length - 1]).filter((v, i, a) => a.indexOf(v) === i).map(i => <text key={i} x={x(i, labels.length)} y={height - 10} textAnchor={i === 0 ? 'start' : i === labels.length - 1 ? 'end' : 'middle'}>{labels[i]?.replace('2025-', '')}</text>)}
     </svg></div>;
 }
 

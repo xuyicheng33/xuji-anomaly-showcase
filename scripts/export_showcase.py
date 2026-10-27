@@ -12,6 +12,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from PIL import Image
+from PIL.PngImagePlugin import PngInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_SUPPLEMENT = Path(r"D:\Desktop\学习\许继电气续\02_核心数据\第二批_电站41融合数据")
@@ -130,6 +132,9 @@ def export(supplement: Path) -> None:
     source("checkpoint", checkpoint_path, "STMem-AD 历史风电检查点", "7 维 · 窗口 64", "保存 epoch、参数、优化器、调度器和训练记录。")
     old["checkpoint"] = meta
     old["history"] = meta["history"]
+    graph_path = captured / 'old7-training.png'
+    source('old-training-graph', graph_path, '历史风电训练原图', '7 维 · 服务器保存图', 'DTAAD_64_n_method_3/plots/DTAAD_xuji/training-graph.png')
+    (assets / 'old7-training.png').write_bytes(graph_path.read_bytes())
 
     report = ROOT / "materials/异常检测报告.docx"
     source("report", report, "异常检测报告", "第二批风电 · 第 5.4 节", "报告 28 维成绩与旧版检查点分别登记；第 5.3 节换流设备曲线不用于风电。")
@@ -137,6 +142,17 @@ def export(supplement: Path) -> None:
     with zipfile.ZipFile(report) as archive:
         for key, name in figures.items():
             (assets / (key + ".png")).write_bytes(archive.read("word/media/" + name))
+    # Crop only the already-saved report panels; do not construct new anomalies.
+    image = Image.open(assets / 'anomalies.png')
+    for key, bounds in {'original': (0, 175, 410, 510), 'soft': (550, 18, 904, 327), 'uniform': (906, 18, 1267, 327), 'peak': (550, 332, 904, 654), 'length': (906, 332, 1267, 654)}.items():
+        image.crop(bounds).save(assets / ('anomaly-' + key + '.png'))
+    for path in assets.glob('*.png'):
+        origin = {'source': 'DTAAD_64_n_method_3/plots/DTAAD_xuji/training-graph.png', 'sha256': digest(graph_path)} if path.name == 'old7-training.png' else {'source': 'materials/异常检测报告.docx', 'sha256': digest(report), 'figure': '3-2' if path.name.startswith('anomal') else {'stam.png': '4-1', 'smst.png': '4-3', 'stmem.png': '4-4', 'overlap.png': '4-5'}[path.name]}
+        origin['operation'] = 'Existing saved image; report panel crop only where named. No image generation.'
+        metadata = PngInfo()
+        metadata.add_text('impeccable:prompt', json.dumps(origin, ensure_ascii=True))
+        with Image.open(path) as saved:
+            saved.save(path, pnginfo=metadata)
 
     code_specs = [
         ("model1", "model1/src/models.py", "STAM-AD 模型", (720, 760)),
@@ -148,7 +164,14 @@ def export(supplement: Path) -> None:
         ("pot-code", "model3/src/pot.py", "阈值与检测评价", (1, 90)),
     ]
     for key, relative, title, excerpt in code_specs:
-        source(key, ROOT / "data/source/research" / relative, title, "服务器原始代码", "用于结构与公式展示；本次未执行研究计算。", excerpt)
+        path = ROOT / "data/source/research" / relative
+        if key.startswith('model'):
+            lines = path.read_text(encoding='utf-8-sig').splitlines()
+            start = next((i + 1 for i, line in enumerate(lines) if line.startswith('class DTAAD(')), 1)
+            excerpt = (start, start + 45)
+        elif key == 'pot-code':
+            excerpt = (140, 177)
+        source(key, path, title, "服务器原始代码", "用于结构与公式展示；本次未执行研究计算。", excerpt)
 
     report_metrics = [
         {"model": "STAM-AD", "features": 28, "window": 96, "rate": .65, "precision": .8795, "recall": .8475, "f1": .8632, "auc": .9084},
@@ -165,7 +188,7 @@ def export(supplement: Path) -> None:
     write_json(output / "research.json", data)
     asset_entries = [{"file": "data/research.json", "bytes": (output / "research.json").stat().st_size, "sha256": digest(output / "research.json")}]
     for path in sorted(assets.glob("*.png")):
-        asset_entries.append({"file": "assets/" + path.name, "bytes": path.stat().st_size, "sha256": digest(path)})
+        asset_entries.append({"file": "assets/" + path.name, "bytes": path.stat().st_size, "sha256": digest(path), "sourceId": 'old-training-graph' if path.name == 'old7-training.png' else 'report'})
     write_json(output / "provenance.json", {"schemaVersion": 1, "exportedOn": "2026-10-27", "sources": sources, "assets": asset_entries})
     print(f"Exported {len(frame):,} × {len(FEATURES)} input values, {len(sources)} sources, {len(asset_entries)} assets. No research executed.")
 

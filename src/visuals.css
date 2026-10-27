@@ -5,7 +5,7 @@ th { font-weight: 500; color: var(--muted); background: #fafafa; }
 td { color: var(--ink); }
 tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
 td.highlight, th.highlight { background: var(--accent-soft); color: var(--accent); }
-.empty-value { font-size: 12px; color: #76767c; }
+.empty-value { font-size: 12px; color: var(--muted); }
 .chart { width: 100%; }
 .chart svg { display: block; width: 100%; max-height: 340px; overflow: visible; }
 .chart text { font-family: inherit; font-size: 13px; fill: var(--muted); font-variant-numeric: tabular-nums; }
@@ -17,7 +17,7 @@ td.highlight, th.highlight { background: var(--accent-soft); color: var(--accent
 .chart-legend .chart-unit { margin-left: auto; }
 .controls { display: flex; gap: 12px; align-items: center; margin-bottom: 22px; font-size: 13px; }
 .controls label { color: var(--muted); }
-select { border: 1px solid #d2d2d7; background: #fff; color: var(--ink); border-radius: 8px; padding: 8px 34px 8px 12px; max-width: 100%; font-size: 13px; }
+select { border: 1px solid #8c8c94; background: #fff; color: var(--ink); border-radius: 8px; padding: 8px 34px 8px 12px; max-width: 100%; font-size: 13px; }
 .control-tail { margin-left: auto; color: var(--muted); font-size: 12px; }
 .range-control { display: flex; align-items: center; gap: 16px; margin-top: 14px; font-size: 12px; color: var(--muted); }
 .range-control label, .range-control output { flex-shrink: 0; }

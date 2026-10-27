@@ -15,6 +15,7 @@ export default function App() {
   const [field, setField] = useState(0);
   const [start, setStart] = useState(0);
   const heading = useRef<HTMLHeadingElement>(null);
+  const main = useRef<HTMLElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const firstRender = useRef(true);
@@ -42,7 +43,7 @@ export default function App() {
   useEffect(() => {
     document.title = `${page.title} · 许继电气异常检测`;
     if (firstRender.current) firstRender.current = false;
-    else { heading.current?.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }); }
+    else { heading.current?.focus({ preventScroll: true }); main.current?.scrollTo({ top: 0, behavior: 'instant' }); }
   }, [id, page.title]);
   useEffect(() => {
     const keyboard = (event: KeyboardEvent) => {
@@ -59,10 +60,10 @@ export default function App() {
   }, [id, contents]);
   useEffect(() => { if (details) detailsRef.current?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'nearest' }); }, [details]);
 
-  return <><a className="skip-link" href="#main">跳到页面内容</a><header className="site-header"><div className="header-inner"><a className="brand" href={stepHash(1)}><span>许继电气</span><span>异常检测</span></a><button className="menu-button" ref={menuButton} onClick={() => setContents(!contents)} aria-expanded={contents} aria-controls="contents"><Icon name={contents ? 'close' : 'menu'} />{contents ? '收起目录' : '全部页面'}</button></div></header>
+  return <><a className="skip-link" href="#main" onClick={event => { event.preventDefault(); heading.current?.focus(); }}>跳到页面内容</a><header className="site-header"><div className="header-inner"><a className="brand" href={stepHash(1)}><span>许继电气</span><span>异常检测</span></a><button className="menu-button" ref={menuButton} onClick={() => setContents(!contents)} aria-expanded={contents} aria-controls="contents"><Icon name={contents ? 'close' : 'menu'} />{contents ? '收起目录' : '全部页面'}</button></div></header>
     {contents && <nav id="contents" className="contents" aria-label="全部 61 页"><div className="contents-inner">{stages.map((stage, index) => <section key={stage}><h2>{stage}</h2><ol>{pages.filter(p => p.stage === index).map(p => <li key={p.id}><a href={stepHash(p.id)} aria-current={p.id === id ? 'page' : undefined} onClick={() => setContents(false)}><span>{String(p.id).padStart(2, '0')}</span>{p.title}</a></li>)}</ol></section>)}</div></nav>}
     <nav className="stage-nav" aria-label="展示阶段">{stages.map((stage, i) => <a key={stage} href={stepHash(pages.find(p => p.stage === i)!.id)} aria-current={page.stage === i ? 'step' : undefined}>{stage}</a>)}</nav>
-    <main id="main" className="main"><div className="page-heading"><h1 ref={heading} tabIndex={-1}>{page.title}</h1><button className="source-button" onClick={() => setDetails(!details)} aria-expanded={details} aria-controls="source-details">{details ? '收起来源' : '查看来源'}<span aria-hidden="true">{details ? '−' : '+'}</span></button></div>
+    <main id="main" className="main" ref={main}><div className="page-heading"><h1 ref={heading} tabIndex={-1}>{page.title}</h1><button className="source-button" onClick={() => setDetails(!details)} aria-expanded={details} aria-controls="source-details">{details ? '收起来源' : '查看来源'}<span aria-hidden="true">{details ? '−' : '+'}</span></button></div>
       {error ? <section className="error-state" role="alert"><h2>展示数据未能载入</h2><p>{error}。请检查本地服务后重试。</p><button onClick={() => { setError(''); setAttempt(attempt + 1); }}>重新载入</button></section> : data && provenance ? <section className={`canvas page-${id}`} aria-label={page.title}><PageView key={id} id={id} data={data} provenance={provenance} field={field} onField={setField} start={start} onStart={setStart} /></section> : <div className="loading-state" role="status">正在读取保存的展示数据…</div>}
       {details && provenance && <section id="source-details" ref={detailsRef} className="source-details"><h2>本页来源</h2><p>{page.description}</p>{provenance.sources.filter(s => sourceIds(id).includes(s.id)).map(s => <details key={s.id}><summary><span>{s.title}</span><span>{s.version}</span></summary><div className="source-body"><code>{s.path}</code>{s.note && <p>{s.note}</p>}<p className="hash">SHA-256 · {s.sha256}</p>{s.excerpt && <pre>{s.excerpt}</pre>}</div></details>)}</section>}
     </main><footer className="site-footer"><div className="footer-inner"><button className="previous-button" disabled={id === 1} onClick={() => go(id - 1)}><Icon name="left" /><span>上一页</span></button><div className="page-position"><span aria-live="polite">{String(id).padStart(2, '0')}<span> / 61</span></span><div className="progress-track"><div style={{ width: `${id / 61 * 100}%` }} /></div></div><button className="next-button" disabled={id === 61} onClick={() => go(id + 1)}><span>{id === 1 ? '开始展示' : '下一页'}</span><Icon name="right" /></button></div></footer></>;

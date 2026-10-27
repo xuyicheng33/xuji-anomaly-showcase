@@ -11,16 +11,19 @@ export function pageFromHash(hash: string) {
 }
 export const stepHash = (id: number) => `#/step/${String(clamp(id, 1, pages.length)).padStart(2, '0')}`;
 export function sourceIds(id: number): string[] {
-  if (id === 1) return ['final', 'report'];
+  if (id === 1) return ['final', 'report', 'weather', 'forecast', 'short', 'powerstat', 'ultrashort'];
   if (id <= 10) return id >= 3 && id <= 7 ? [['weather'], ['forecast'], ['powerstat'], ['short'], ['ultrashort']][id - 3] : ['weather', 'forecast', 'short', 'powerstat', 'ultrashort', 'review'];
   if (id <= 20) return ['raw-merge', 'lineage', 'review', ...(id === 19 ? ['report'] : [])];
   if (id === 21) return ['changes', 'final', 'raw-merge'];
   if (id <= 25 || id >= 27 && id <= 29) return ['final', 'new-train', 'new-test', 'new-labels'];
-  if (id === 26) return ['old-data', 'old-processed', 'train-code'];
+  if (id === 26) return ['old-data', 'old-processed', 'report'];
   if (id <= 39) return ['anomaly-code', 'window-code', 'report', 'old-inserted-values', 'old-inserted-labels'];
-  if (id <= 42) return ['train-code', 'window-code', 'report'];
+  if (id === 40) return ['final', 'train-code', 'report'];
+  if (id <= 42) return ['train-code', 'window-code', 'report', 'checkpoint'];
   if (id === 43) return ['model1', 'model2', 'model3', 'report'];
-  if (id === 48 || id === 49) return ['checkpoint', 'train-code'];
+  if (id === 48) return ['checkpoint', 'old-training-graph', 'train-code'];
+  if (id === 49) return ['checkpoint', 'train-code'];
+  if (id === 50) return ['new-test', 'new-labels', 'train-code'];
   if (id <= 53) return ['train-code', 'model3', 'report'];
   if (id === 56) return ['old-inserted-labels', 'pot-code'];
   if (id === 57) return ['final', 'report'];

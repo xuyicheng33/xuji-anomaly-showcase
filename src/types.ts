@@ -12,5 +12,5 @@ export interface Research {
   old: { data: number[][]; processed: number[][]; features: string[]; inserted_values: number[][]; inserted_labels: number[][]; positiveCells: number; positiveTimes: number; history: [number, number][]; checkpoint: { keys: string[]; epoch: number; state_entries: number } };
 }
 export interface Source { id: string; title: string; file: string; path: string; version: string; bytes: number; sha256: string; note: string; excerpt?: string }
-export interface Provenance { schemaVersion: number; exportedOn: string; sources: Source[]; assets: { file: string; bytes: number; sha256: string }[] }
+export interface Provenance { schemaVersion: number; exportedOn: string; sources: Source[]; assets: { file: string; bytes: number; sha256: string; sourceId?: string }[] }
 export interface Page { id: number; stage: number; title: string; description: string }
