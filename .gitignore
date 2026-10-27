@@ -7,3 +7,8 @@ __pycache__/
 *.pyc
 *.log
 .env
+dist/
+.qa/
+test-results/
+playwright-report/
+*.tsbuildinfo
