@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { DataChart, DataTable, FeatureMap, Flow, Formula, Icon, LineChart, Note, StreamOverview } from './components';
+import { DataChart, DataTable, FeatureMap, Formula, Icon, LineChart, Note, StreamOverview } from './components';
 import { number } from './model';
 import type { Cell, Research } from './types';
 import type { ViewProps } from './PageView';
@@ -9,7 +9,7 @@ const col = (key: string, label = key) => ({ key, label });
 const sampledRows = (data: Research, indices: number[], fields: number[]) => indices.map(i => Object.fromEntries([['time', data.times[i]], ...fields.map(f => [data.features[f].key, data.values[i][f]])])) as Record<string, Cell>[];
 
 function Overview() {
-  return <div className="journey"><div className="journey-sources"><h2>五类原始数据</h2>{['实测气象', '气象预报', '功率统计', '短期功率预测', '超短期功率预测'].map(v => <div key={v}>{v}</div>)}</div><Icon name="arrow" size={30} /><div className="journey-dataset"><h2>合并后的数据集</h2><p>41 号电站，共 <strong>8,759 条记录</strong>，每 15 分钟一条。</p><p>包含实际功率、预测功率、13 项实测气象和 13 项气象预报，共 <strong>28 个变量</strong>。</p><p className="dataset-period">2025 年 4 月 2 日至 7 月 2 日</p></div><Icon name="arrow" size={30} /><div className="journey-models"><h2>三种异常检测模型</h2><div>STAM-AD</div><div>SMST-AD</div><div>STMem-AD</div><p>重建时间窗口，计算重建误差，依据异常分数与阈值识别异常。</p></div></div>;
+  return <div className="journey"><div className="journey-sources"><h2>五类原始数据</h2>{['实测气象', '气象预报', '功率统计', '短期功率预测', '超短期功率预测'].map(v => <div key={v}>{v}</div>)}</div><Icon name="arrow" size={30} /><div className="journey-dataset"><h2>合并后的数据集</h2><p>41 号电站在 2025 年 4 月 2 日至 7 月 2 日期间，共 <strong>8,759 条记录</strong>，每 15 分钟一条。</p><p>包含实际功率、预测功率、13 项实测气象和 13 项气象预报，共 <strong>28 个变量</strong>。</p></div><Icon name="arrow" size={30} /><div className="journey-models"><h2>三种异常检测模型</h2><div>STAM-AD</div><div>SMST-AD</div><div>STMem-AD</div><p>重建时间窗口，计算重建误差，依据异常分数与阈值识别异常。</p></div></div>;
 }
 
 function RawTable({ data, id }: { data: Research; id: number }) {
@@ -17,26 +17,27 @@ function RawTable({ data, id }: { data: Research; id: number }) {
   const choices: Record<string, ReturnType<typeof col>[]> = {
     weather: [col('datatime', '实测时间'), col('stationid', '电站'), col('temperature', '温度'), col('humidity', '湿度'), col('pressure', '气压'), col('ws_10', '10 米风速'), col('ws_hub', '轮毂风速')],
     forecast: [col('forecast_fromtime', '预报批次'), col('datatime', '目标时间'), col('temperature', '温度'), col('humidity', '湿度'), col('ws_10', '10 米风速'), col('ws_hub', '轮毂风速')],
-    powerstat: [col('statistictime', '统计时间'), col('stationid', '电站'), col('forecasttype', '预测类别'), col('actualpower', '实际功率'), col('forecastpower', '预测功率'), col('pointnum', '点数')],
+    powerstat: [col('statistictime', '统计时间'), col('actualpower', '实际功率'), col('forecastpower', '预测功率'), col('ermse', '均方根误差指标'), col('accuracyrate', '预测准确率'), col('qualifyrate', '合格率')],
     short: [col('forecast_fromtime', '预报批次'), col('forecastvaluetime', '目标时间'), col('actualvaluetime', '实际时间'), col('forecastvalue', '预测功率'), col('actualvalue', '实际功率')],
-    ultrashort: [col('forecast_fromtime', '预报起点'), col('forecast_totime', '预报终点'), col('forecastvalue_01', '第 1 点'), col('forecastvalue_02', '第 2 点'), col('actualvalue', '实际功率')],
+    ultrashort: [col('forecast_fromtime', '预报起点'), col('forecast_totime', '预报终点'), col('forecastvalue_01', '首位预测值'), col('forecastvalue_16', '末位预测值'), col('actualvalue', '末位对应实际功率')],
   };
-  return <><p className="dataset-intro">{datasetIntroductions[stream.id]}</p><div className="data-heading"><span>{number(stream.files)} 份文件</span><span>{number(stream.platformRows)} 条汇总记录{stream.id === 'powerstat' ? ' · 各电站' : ' · 41 号电站'}</span></div><DataTable columns={choices[stream.id]} rows={stream.sample.slice(0, 6)} highlight={[stream.timeColumn]} caption={stream.name + '数据样例'} /><Note>{stream.start.slice(0, 10)} — {stream.end.slice(0, 10)}</Note></>;
+  return <><p className="dataset-intro">{datasetIntroductions[stream.id]}</p><DataTable columns={choices[stream.id]} rows={stream.sample.slice(0, 6)} highlight={[stream.timeColumn]} caption={stream.name + '数据样例'} /><Note>{number(stream.files)} 份文件 · {number(stream.platformRows)} 条汇总记录 · {stream.id === 'powerstat' ? '样例：41 号电站' : '41 号电站'} · {stream.start.slice(0, 10)} 至 {stream.end.slice(0, 10)}</Note></>;
 }
 
 function SourceUse() {
-  return <div className="merge-map"><div className="merge-branches">{[{ name: '短期功率预测', fields: '实际功率、预测功率', count: '2 个变量' }, { name: '实测气象', fields: '温度、湿度、气压、5 个高度的风速与风向', count: '13 个变量' }, { name: '气象预报', fields: '对应 13 项气象指标的预报值', count: '13 个变量' }].map(s => <div key={s.name}><h2>{s.name}<span>{s.count}</span></h2><p>{s.fields}</p></div>)}</div><div className="merge-connector"><Icon name="arrow" size={34} /></div><div className="merge-destination"><strong>28 个变量</strong><span>同一目标时刻，合并为一行</span></div></div>;
+  return <DataTable columns={[col('source', '数据来源'), col('fields', '选取内容'), col('count', '变量数')]} rows={[{ source: '短期功率预测', fields: '实际功率、原系统预测功率', count: 2 }, { source: '实测气象', fields: '温度、湿度、气压，以及五个高度的风速和风向', count: 13 }, { source: '气象预报', fields: '与实测气象对应的 13 项指标预报值', count: 13 }]} caption="三类数据的变量组成" />;
 }
 
 function TimeBands({ data, candidates = false }: { data: Research; candidates?: boolean }) {
-  const rows = candidates ? data.candidates.map((c, i) => ({ name: `区间 ${i + 1}`, ...c, detail: `${number(c.rows)} 条原始样本` })) : data.streams.filter(s => s.used).map(s => ({ name: s.name, start: s.start, end: s.end, detail: `${s.start.slice(0, 10)} — ${s.end.slice(0, 10)}` }));
-  const asTime = (s: string) => new Date(s.replace(' ', 'T')).getTime();
-  const min = Math.min(...rows.map(r => asTime(r.start))), max = Math.max(...rows.map(r => asTime(r.end)));
-  return <div className="time-bands">{rows.map((r, i) => <div className="time-band-row" key={r.name}><div><strong>{r.name}</strong><span>{r.start.slice(0, 16)} — {r.end.slice(0, 16)}</span></div><div className="time-band-track"><div className={candidates && i === 3 ? 'selected-band' : ''} style={{ left: `${(asTime(r.start) - min) / (max - min) * 100}%`, width: `${(asTime(r.end) - asTime(r.start)) / (max - min) * 100}%` }} /></div><span>{candidates ? r.detail : ''}</span></div>)}{!candidates && <div className="intersection"><span>最终共同使用范围</span><strong>{data.times[0]} — {data.times.at(-1)}</strong></div>}{candidates && <Note>第四段覆盖时间最长，按 15 分钟网格整理后得到 8,759 条记录。</Note>}</div>;
+  const rows = candidates ? data.candidates.map((c, i) => ({ name: `候选区间 ${i + 1}`, ...c, segments: [c], detail: `${number(c.rows)} 条原始样本` })) : [...data.streams.filter(s => s.used).map(s => ({ name: s.name, start: s.start, end: s.end, segments: s.coverage, detail: `${s.coverage.length - 1} 处时间缺口` })), { name: '最终连续区间', start: data.times[0], end: data.times.at(-1)!, segments: [{ start: data.times[0], end: data.times.at(-1)! }], detail: '8,759 个目标时刻' }];
+  const stamp = (s: string) => Date.parse(s.replace(' ', 'T') + 'Z');
+  const min = Date.UTC(2024, 10, 1), max = Date.UTC(2025, 7, 1);
+  const position = (s: string) => (stamp(s) - min) / (max - min) * 100;
+  return <div className="coverage-view">{rows.map((row, i) => <div className="coverage-row" key={row.name}><div className="coverage-label"><strong>{row.name}</strong><span>{row.start.slice(0, 10)} 至 {row.end.slice(0, 10)}</span></div><div className={`coverage-track ${i === 3 ? 'coverage-final' : ''}`} role="img" aria-label={`${row.name}，${row.detail}`}>{row.segments.map((segment, j) => <span key={j} title={`${segment.start} 至 ${segment.end}`} style={{ left: `${position(segment.start)}%`, width: `${(stamp(segment.end) - stamp(segment.start)) / (max - min) * 100}%` }} />)}</div><span className="coverage-detail">{row.detail}</span></div>)}<div className="coverage-axis"><div /> <div>{Array.from({ length: 9 }, (_, i) => { const date = new Date(Date.UTC(2024, 10 + i, 1)); return <span key={i} style={{ left: `${(date.getTime() - min) / (max - min) * 100}%` }}>{date.getUTCMonth() === 0 ? '2025 年 1 月' : `${date.getUTCMonth() + 1} 月`}</span>; })}</div><div /></div></div>;
 }
 
 function TimeGrid({ data, continuous = false }: { data: Research; continuous?: boolean }) {
-  return <><div className="grid-timeline">{data.times.slice(0, 12).map((t, i) => <div key={t}><span>{t.slice(11)}</span><i /><small>{continuous && i ? '+15 min' : i === 0 ? '起点' : '15 min'}</small></div>)}</div><div className="grid-matching">{continuous ? <><strong>8,759 个时刻连续</strong><span>缺失网格点 0 · 重复时间 0</span></> : <><strong>short.forecastvaluetime</strong><span>功率目标时刻 → 匹配实测气象与预报气象</span></>}</div><DataTable columns={[col('time', '目标时刻'), col('weather', '实测气象时刻'), col('forecast', '预报目标时刻')]} rows={data.rawSample.slice(0, 4).map(row => ({ time: row.forecastvaluetime, weather: row.weather_datatime, forecast: row.forecast_datatime }))} highlight={['time']} caption="三类数据的对齐时刻" /></>;
+  return continuous ? <DataTable columns={[col('time', '目标时刻'), col('next', '下一个目标时刻'), col('interval', '相邻间隔')]} rows={data.times.slice(0, 5).map((time, i) => ({ time, next: data.times[i + 1], interval: '15 分钟' }))} caption="相邻记录的时间连续性" /> : <DataTable columns={[col('time', '功率目标时刻'), col('weather', '实测气象时刻'), col('forecast', '气象预报目标时刻')]} rows={data.rawSample.slice(0, 5).map(row => ({ time: row.forecastvaluetime, weather: row.weather_datatime, forecast: row.forecast_datatime }))} highlight={['time']} caption="三类数据的时刻匹配" />;
 }
 
 function ChangeRecords({ data }: { data: Research }) {
@@ -45,20 +46,26 @@ function ChangeRecords({ data }: { data: Research }) {
   return <><div className="controls"><label htmlFor="changed-field">变量</label><select id="changed-field" value={field} onChange={e => setField(e.target.value)}><option value="weather_pressure">气压 · 4 处</option><option value="weather_ws_hub">轮毂风速 · 58 处</option></select><span className="control-tail">62 处数值调整</span></div><DataTable columns={[col('目标时间'), col('原值', '调整前'), col('复现值', '调整后')]} rows={rows.slice(0, 7)} highlight={['复现值']} caption="气象数值调整对照" /><Note>{rows.length > 7 ? `前 7 处修改，共 ${rows.length} 处。` : '气压下界调整为 950.81。'}</Note></>;
 }
 
+function DuplicateRecords({ data }: { data: Research }) {
+  const times = [...new Set(data.duplicateWeather.map(row => String(row.datatime)))];
+  const [time, setTime] = useState(times[0]);
+  return <><div className="controls"><label htmlFor="duplicate-time">重复时刻</label><select id="duplicate-time" value={time} onChange={event => setTime(event.target.value)}>{times.map(value => <option key={value}>{value}</option>)}</select></div><DataTable columns={[col('id', '记录编号'), col('savetime', '保存时间'), col('temperature', '温度'), col('humidity', '湿度'), col('pressure', '气压'), col('ws_hub', '轮毂风速')]} rows={data.duplicateWeather.filter(row => row.datatime === time)} caption="同一时刻的重复气象记录" /></>;
+}
+
 function Split({ data }: { data: Research }) {
-  return <div className="split-view"><div className="split-top"><div><strong>训练集</strong><span>6,131 行</span></div><div><strong>测试集</strong><span>2,628 行</span></div></div><div className="split-band"><div style={{ flex: data.split }}>70%</div><div style={{ flex: data.times.length - data.split }}>30%</div></div><div className="split-dates"><span>{data.times[0]}</span><span>{data.times[data.split - 1]}<br />{data.times[data.split]}</span><span>{data.times.at(-1)}</span></div><div className="split-principle">保留时间顺序<span>训练段先于测试段</span></div></div>;
+  return <div className="split-view"><div className="split-top"><div><strong>训练集</strong><span>6,131 行</span></div><div><strong>测试集</strong><span>2,628 行</span></div></div><div className="split-band"><div style={{ flex: data.split }}>70%</div><div style={{ flex: data.times.length - data.split }}>30%</div></div><div className="split-dates"><span>{data.times[0]}</span><span>{data.times[data.split - 1]}<br />{data.times[data.split]}</span><span>{data.times.at(-1)}</span></div></div>;
 }
 
 function Statistics({ data, field, onField }: ViewProps) {
   const uid = useId();
   const f = data.features[field];
-  return <><div className="controls"><label htmlFor={uid}>变量</label><select id={uid} value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option key={f.key} value={i}>{f.group} · {f.label}</option>)}</select><span className="control-tail">仅使用前 6,131 行</span></div><div className="minmax"><div><span>训练段最小值</span><strong>{number(f.min, 3)}{f.unit && <small>{f.unit}</small>}</strong></div><div className="minmax-line" /><div><span>训练段最大值</span><strong>{number(f.max, 3)}{f.unit && <small>{f.unit}</small>}</strong></div></div><div className="statistics-table"><DataTable columns={[col('group', '分组'), col('field', '变量'), col('min', '训练最小值'), col('max', '训练最大值')]} rows={data.features.filter(v => v.group === f.group).map(v => ({ group: v.group, field: v.label, min: v.min, max: v.max }))} caption="训练段变量统计" /></div></>;
+  return <><div className="controls"><label htmlFor={uid}>变量</label><select id={uid} value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option key={f.key} value={i}>{f.group} · {f.label}</option>)}</select></div><DataTable columns={[col('field', '变量'), col('min', '训练段最小值'), col('max', '训练段最大值')]} rows={data.features.filter(v => v.group === f.group).map(v => ({ field: v.label, min: v.min, max: v.max }))} pageSize={5} caption="训练段变量统计" /></>;
 }
 
 function Normalization({ data }: { data: Research }) {
   const [field, setField] = useState(0);
   const labels = data.old.data.map((_, i) => String(i));
-  return <><div className="controls"><label htmlFor="normalization-field">7 维实验变量</label><select id="normalization-field" value={field} onChange={e => setField(Number(e.target.value))}>{data.old.features.map((key, i) => <option value={i} key={key}>{data.features.find(f => f.key === key)?.label}</option>)}</select></div><div className="normalization-charts"><LineChart compact series={[{ name: '原始数值', values: data.old.data.map(row => row[field]) }]} labels={labels} /><LineChart compact series={[{ name: '处理后数值', values: data.old.processed.map(row => row[field]) }]} labels={labels} /></div><Formula label="训练段统计量用于统一数值尺度">x′ = (x − min<sub>train</sub>) / (max<sub>train</sub> − min<sub>train</sub>)</Formula><Note>7 维实验 · 前 160 个训练点</Note></>;
+  return <><div className="controls"><label htmlFor="normalization-field">7 维实验变量</label><select id="normalization-field" value={field} onChange={e => setField(Number(e.target.value))}>{data.old.features.map((key, i) => <option value={i} key={key}>{data.features.find(f => f.key === key)?.label}</option>)}</select></div><div className="normalization-charts"><LineChart compact series={[{ name: '原始数值', values: data.old.data.map(row => row[field]) }]} labels={labels} /><LineChart compact series={[{ name: '处理后数值', values: data.old.processed.map(row => row[field]) }]} labels={labels} /></div><Formula>x′ = (x − min<sub>train</sub>) / (max<sub>train</sub> − min<sub>train</sub>)</Formula><Note>7 维实验 · 前 160 个训练点</Note></>;
 }
 
 function Labels({ data, field, onField, values = false }: { data: Research; field: number; onField: (n: number) => void; values?: boolean }) {
@@ -71,17 +78,17 @@ export function DataPages(props: ViewProps) {
   if (id === 2) return <StreamOverview data={data} />;
   if (id >= 3 && id <= 7) return <RawTable data={data} id={id} />;
   if (id === 8) return <SourceUse />;
-  if (id === 9) return <><DataTable columns={[col('name', '资料'), col('raw', '原始分片记录'), col('platform', '平台表记录'), col('selected', '平台内电站 41')]} rows={data.streams.map(s => ({ name: s.name, raw: s.rawRows, platform: s.platformRows, selected: s.stationRows }))} highlight={['selected']} caption="来源范围与站点筛选" /><Note>短期汇总从 2024-11-21 批次开始，超短期汇总从 2024-11-19 批次开始。</Note></>;
-  if (id === 10) return <><DataTable columns={[col('source', '资料'), col('time', '合并时间键'), col('features', '研究变量'), col('role', '变量组成')]} rows={[{ source: 'short', time: 'forecastvaluetime', features: 2, role: 'actualvalue · forecastvalue' }, { source: 'weatherdata', time: 'datatime', features: 13, role: '温度 · 湿度 · 气压 · 风速 · 风向' }, { source: 'weatherforecast', time: 'datatime + 预报批次', features: 13, role: '对应的 13 个预报气象变量' }]} highlight={['features']} caption="进入合并的三种行结构" /><div className="grid-matching"><strong>2 + 13 + 13 = 28</strong><span>同一目标时间横向拼接</span></div></>;
-  if (id === 11) return <><DataTable columns={[col('forecastvaluetime', '目标网格时间'), col('actualvaluetime', '原始实际时间'), col('actualvalue', '实际功率'), col('forecastvalue', '预测功率')]} rows={data.rawSample.slice(0, 6)} highlight={['actualvaluetime']} caption="保留秒值的实际记录" /><Note>实际功率在 18:15:04 记录，对应 18:15 的预测目标时刻。</Note></>;
-  if (id === 12) return <><Flow steps={[{ title: '目标时间', detail: '2025-04-02 18:15' }, { title: '目标日批次', detail: '2025-04-02 00:00' }, { title: '对应预报', detail: '功率 + 气象' }]} /><DataTable columns={[col('forecastvaluetime', '目标时间'), col('forecast_fromtime', '功率批次'), col('forecast_forecast_fromtime', '气象预报批次')]} rows={data.rawSample.slice(0, 4)} highlight={['forecast_fromtime', 'forecast_forecast_fromtime']} caption="目标日批次匹配" /></>;
-  if (id === 13) return <><Flow steps={[{ title: '实测气象匹配', detail: '8,763 条匹配记录' }, { title: '去除额外重复', detail: '4 条数值相同记录' }, { title: '一时刻一行', detail: '8,759 条最终记录' }]} /><div className="check-line"><Icon name="check" /><span>28 个变量缺失值</span><strong>0</strong></div></>;
+  if (id === 9) return <DataTable columns={[col('name', '数据类别'), col('scope', '汇总表的电站范围'), col('platform', '汇总表记录数'), col('selected', '41 号电站记录数')]} rows={data.streams.map(s => ({ name: s.name, scope: s.id === 'powerstat' ? '各电站' : '41 号电站', platform: s.platformRows, selected: s.stationRows }))} highlight={['selected']} caption="汇总表中的电站范围" />;
+  if (id === 10) return <DataTable columns={[col('source', '来源表'), col('time', '时间字段'), col('role', '提取内容')]} rows={[{ source: '短期功率预测', time: 'forecastvaluetime（预测目标时间）', role: 'actualvalue（实际功率）、forecastvalue（预测功率）' }, { source: '实测气象', time: 'datatime（观测时间）', role: '温度、湿度、气压，以及五个高度的风速和风向' }, { source: '气象预报', time: 'datatime（预报目标时间）', role: '对应的 13 项气象指标预报值' }]} caption="字段选择与中文含义" />;
+  if (id === 11) return <DataTable columns={[col('forecastvaluetime', '预测目标时间'), col('actualvaluetime', '实际功率记录时间'), col('actualvalue', '实际功率'), col('forecastvalue', '预测功率')]} rows={data.rawSample.slice(0, 5)} highlight={['actualvaluetime']} caption="预测目标与实际功率记录时间" />;
+  if (id === 12) return <DataTable columns={[col('forecastvaluetime', '预测目标时间'), col('forecast_fromtime', '短期功率预报批次'), col('forecast_forecast_fromtime', '气象预报批次'), col('forecastvalue', '功率预测值')]} rows={data.rawSample.slice(0, 5)} highlight={['forecast_fromtime', 'forecast_forecast_fromtime']} caption="目标日预报批次匹配" />;
+  if (id === 13) return <DuplicateRecords data={data} />;
   if (id === 14) return <TimeBands data={data} />;
   if (id === 15 || id === 18) return <TimeGrid data={data} continuous={id === 18} />;
-  if (id === 16) return <><div className="midnight-boundary"><span>前一日预报批次</span><Icon name="arrow" size={28} /><strong>00:00</strong><Icon name="arrow" size={28} /><span>91 个跨日时刻</span></div><DataTable columns={[col('forecastvaluetime', '目标时间'), col('forecast_forecast_fromtime', '气象预报批次'), col('forecast_temperature', '预报温度'), col('forecast_ws_hub', '预报轮毂风速')]} rows={data.midnight} highlight={['forecast_forecast_fromtime']} caption="跨日预报记录" /></>;
-  if (id === 17) return <><div className="data-heading"><span>每一行对应一个目标时刻</span><span>功率 + 实测气象 + 预报气象</span></div><DataTable columns={[col('forecastvaluetime', '目标时间'), col('actualvalue', '实际功率'), col('forecastvalue', '预测功率'), col('weather_temperature', '实测温度'), col('forecast_temperature', '预报温度'), col('weather_ws_hub', '实测轮毂风速'), col('forecast_ws_hub', '预报轮毂风速')]} rows={data.rawSample.slice(0, 6)} highlight={['forecastvaluetime']} caption="对齐后的宽表" /></>;
+  if (id === 16) return <DataTable columns={[col('forecastvaluetime', '午夜目标时间'), col('forecast_forecast_fromtime', '采用的气象预报批次'), col('forecast_temperature', '预报温度'), col('forecast_ws_hub', '预报轮毂风速')]} rows={data.midnight} highlight={['forecast_forecast_fromtime']} caption="午夜时刻采用前一日预报" />;
+  if (id === 17) return <DataTable columns={[col('forecastvaluetime', '目标时间'), col('actualvalue', '实际功率'), col('forecastvalue', '预测功率'), col('weather_temperature', '实测温度'), col('forecast_temperature', '预报温度'), col('weather_ws_hub', '实测轮毂风速'), col('forecast_ws_hub', '预报轮毂风速')]} rows={data.rawSample.slice(0, 5)} highlight={['forecastvaluetime']} caption="合并后的功率与气象记录" />;
   if (id === 19) return <TimeBands data={data} candidates />;
-  if (id === 20) return <><div className="date-range"><span>{data.times[0]}</span><Icon name="arrow" size={28} /><span>{data.times.at(-1)}</span></div><DataChart {...props} compact /><Note>每 15 分钟一条，共 8,759 条记录。</Note></>;
+  if (id === 20) return <><DataChart {...props} compact /></>;
   if (id === 21) return <ChangeRecords data={data} />;
   if (id === 22) return <FeatureMap data={data} field={field} onField={onField} />;
   if (id === 23) return <Split data={data} />;

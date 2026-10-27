@@ -8,12 +8,12 @@ export function LabelStrip({ labels, field = -1 }: { labels: number[][]; field?:
   return <div className="label-strip" role="img" aria-label="异常标签，橙色表示标签为 1">{labels.map((row, i) => <i key={i} className={(field < 0 ? row.some(Boolean) : row[field] > 0) ? 'anomalous' : ''} />)}</div>;
 }
 
-export function SavedAnomalies({ data, timing = false }: { data: Research; timing?: boolean }) {
+export function SavedAnomalies({ data }: { data: Research }) {
   const [field, setField] = useState(0), [start, setStart] = useState(0);
   const uid = useId();
   const values = data.old.inserted_values.slice(start, start + 160);
   const labels = data.old.inserted_labels.slice(start, start + 160);
-  return <>{timing && <div className="timing-summary"><span>测试前插入一次</span><Icon name="arrow" /><span>固定数值与标签</span><Icon name="arrow" /><span>固定测试输入</span></div>}<div className="controls"><label htmlFor={uid}>7 维实验变量</label><select id={uid} value={field} onChange={e => setField(Number(e.target.value))}>{data.old.features.map((f, i) => <option key={f} value={i}>{data.features.find(v => v.key === f)?.label}</option>)}</select><span className="control-tail">7 维实验 · 测试集 1,752 行</span></div><LineChart compact series={[{ name: '插入异常后的序列', values: values.map(row => row[field]) }]} labels={values.map((_, i) => `t${i + start}`)} /><LabelStrip labels={labels} field={field} /><div className="range-control"><label htmlFor={`${uid}-range`}>时间片段</label><input id={`${uid}-range`} type="range" min={0} max={data.old.inserted_values.length - 160} value={start} onChange={e => setStart(Number(e.target.value))} /><output>t{start}—t{start + 159}</output></div><Note>橙色表示异常标签。全测试集含 {data.old.positiveTimes} 个异常时刻、{data.old.positiveCells} 个异常变量位置。</Note></>;
+  return <><div className="controls"><label htmlFor={uid}>7 维实验变量</label><select id={uid} value={field} onChange={e => setField(Number(e.target.value))}>{data.old.features.map((f, i) => <option key={f} value={i}>{data.features.find(v => v.key === f)?.label}</option>)}</select><span className="control-tail">7 维实验 · 测试集 1,752 行</span></div><LineChart compact series={[{ name: '插入异常后的序列', values: values.map(row => row[field]) }]} labels={values.map((_, i) => `t${i + start}`)} /><LabelStrip labels={labels} field={field} /><div className="range-control"><label htmlFor={`${uid}-range`}>时间片段</label><input id={`${uid}-range`} type="range" min={0} max={data.old.inserted_values.length - 160} value={start} onChange={e => setStart(Number(e.target.value))} /><output>t{start}—t{start + 159}</output></div><Note>橙色表示异常标签。全测试集含 {data.old.positiveTimes} 个异常时刻、{data.old.positiveCells} 个异常变量位置。</Note></>;
 }
 
 function AnomalyFigure({ id }: { id: number }) {
@@ -23,8 +23,8 @@ function AnomalyFigure({ id }: { id: number }) {
   return <><p className="dataset-intro">{introductions[id - 32]}</p><div className="anomaly-pair"><figure><img src="./assets/anomaly-original.png" alt="原报告中的原始时间窗口" /><figcaption>原始窗口</figcaption></figure><span><Icon name="arrow" size={30} /></span><figure><img src={`./assets/anomaly-${keys[id - 32]}.png`} alt={`原报告中的${['软替换', '均匀替换', '峰值噪声', '长度调整'][id - 32]}示例`} /><figcaption>{formulas[id - 32]}</figcaption></figure></div><Note>红色标记异常位置 · 报告图 3-2</Note></>;
 }
 
-function Blocks({ merge = false }: { merge?: boolean }) {
-  return <div className="blocks-view"><div className="blocks-line"><strong>时间序列</strong><div>{Array.from({ length: 24 }, (_, i) => <i key={i} />)}</div></div><div className="blocks-down"><Icon name="arrow" /></div><div className="block-groups">{['块 1', '块 2', '…', '最后一块'].map((v, i) => <div key={v}><span>{v}</span><div className={i === 1 ? 'chosen-block' : ''}>{Array.from({ length: 8 }, (_, j) => <i key={j} />)}</div></div>)}</div><div className="block-caption">{merge ? '按原顺序拼接；末块补齐后裁回原长度' : '块内选择位置、变量、长度与异常类型'}</div><Formula>Y<sub>final</sub> = Y<sub>saved</sub> ∨ Y<sub>inserted</sub></Formula><Note>原有标签与插入标签按位取或。</Note></div>;
+function Blocks() {
+  return <><DataTable columns={[{ key: 'item', label: '处理内容' }, { key: 'rule', label: '规则' }]} rows={[{ item: '块内取样', rule: '选择异常起点、变量、持续长度与替换类型' }, { item: '边界补齐', rule: '末块不足指定长度时重复末值，拼接后裁回原长' }, { item: '序列拼接', rule: '按原时间顺序连接各块，保持数值与标签位置一致' }, { item: '标签合并', rule: '原有标签或新增标签为 1，该位置的最终标签即为 1' }]} caption="不重叠块的异常处理规则" /><Formula>Y<sub>final</sub> = Y<sub>saved</sub> ∨ Y<sub>inserted</sub></Formula></>;
 }
 
 function WindowReader({ data, field, onField }: ViewProps) {
@@ -32,7 +32,7 @@ function WindowReader({ data, field, onField }: ViewProps) {
   const uid = useId();
   const times = data.times.slice(0, 192);
   const feature = data.features[field];
-  return <><div className="controls"><label htmlFor={uid}>窗口位置</label><input id={uid} type="range" min={96} max={191} value={position} onChange={e => setPosition(Number(e.target.value))} /><output>t{position - 95}—t{position}</output></div><div className="window-chart"><LineChart series={[{ name: feature.label, values: data.values.slice(0, 192).map(row => row[field]) }]} labels={times} unit={feature.unit} compact selection={[position - 95, position]} /></div><div className="window-summary"><strong>96 × 28</strong><span>{times[position - 95]} — {times[position]}</span><select aria-label="滑窗变量" value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option key={f.key} value={i}>{f.group} · {f.label}</option>)}</select></div><Note>每个窗口包含 96 个连续时刻和 28 个变量。</Note></>;
+  return <><div className="controls"><label htmlFor={uid}>窗口位置</label><input id={uid} type="range" min={96} max={191} value={position} onChange={e => setPosition(Number(e.target.value))} /><output>t{position - 95}—t{position}</output></div><div className="window-chart"><LineChart series={[{ name: feature.label, values: data.values.slice(0, 192).map(row => row[field]) }]} labels={times} unit={feature.unit} compact selection={[position - 95, position]} /></div><div className="window-summary"><strong>96 × 28</strong><span>{times[position - 95]} — {times[position]}</span><select aria-label="滑窗变量" value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option key={f.key} value={i}>{f.group} · {f.label}</option>)}</select></div></>;
 }
 
 function Padding() {
@@ -53,11 +53,11 @@ function Losses() {
 
 function History({ data }: { data: Research }) {
   const [image, setImage] = useState(false);
-  return <><div className="section-heading"><h2>STMem-AD · 7 维实验</h2><button className="text-button" onClick={() => setImage(!image)} aria-expanded={image}>{image ? '收起原图' : '训练原图'}</button></div>{image ? <figure className="report-figure"><img src="./assets/old7-training.png" alt="服务器保存的旧版 7 维风电训练图" /><figcaption>STMem-AD · 7 维实验</figcaption></figure> : <div className="history-layout"><LineChart compact series={[{ name: '训练损失', values: data.old.history.map(row => row[0]) }]} labels={data.old.history.map((_, i) => `epoch ${i}`)} /><DataTable columns={[{ key: 'epoch', label: 'Epoch' }, { key: 'loss', label: '训练损失' }, { key: 'lr', label: '学习率' }]} rows={data.old.history.map((row, i) => ({ epoch: i, loss: row[0].toFixed(8), lr: row[1].toExponential(1) }))} caption="7 维实验训练记录" /></div>}<Note>5 轮训练 · Epoch 0–4</Note></>;
+  return <><div className="section-heading"><h2>STMem-AD · 7 维实验</h2><button className="text-button" onClick={() => setImage(!image)} aria-expanded={image}>{image ? '收起原图' : '训练原图'}</button></div>{image ? <figure className="report-figure"><img src="./assets/old7-training.png" alt="服务器保存的旧版 7 维风电训练图" /><figcaption>STMem-AD · 7 维实验</figcaption></figure> : <div className="history-layout"><LineChart compact series={[{ name: '训练损失', values: data.old.history.map(row => row[0]) }]} labels={data.old.history.map((_, i) => `第 ${i + 1} 轮`)} /><DataTable columns={[{ key: 'epoch', label: '轮次（Epoch）' }, { key: 'loss', label: '训练损失' }, { key: 'lr', label: '学习率' }]} rows={data.old.history.map((row, i) => ({ epoch: i + 1, loss: row[0].toFixed(8), lr: row[1].toExponential(1) }))} caption="7 维实验训练记录" /></div>}</>;
 }
 
 function Checkpoint({ data }: { data: Research }) {
-  return <div className="checkpoint-view"><div className="checkpoint-file"><svg width="70" height="86" viewBox="0 0 70 86" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M9 2h32l20 20v60H9zM41 2v21h20M22 43h26M22 53h26M22 63h17" /></svg><h2>model.ckpt</h2><p>STMem-AD · 7 维风电实验</p><span>7 维 · 窗口 64</span></div><dl className="checkpoint-fields">{data.old.checkpoint.keys.map(key => <div key={key}><dt>{key}</dt><dd>{key === 'epoch' ? data.old.checkpoint.epoch : key === 'accuracy_list' ? '5 轮损失与学习率' : key === 'model_state_dict' ? `${number(data.old.checkpoint.state_entries)} 个参数与状态项` : key === 'optimizer_state_dict' ? '优化器状态' : '学习率调度状态'}</dd></div>)}</dl></div>;
+  return <div className="checkpoint-view"><div className="checkpoint-file"><svg width="70" height="86" viewBox="0 0 70 86" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M9 2h32l20 20v60H9zM41 2v21h20M22 43h26M22 53h26M22 63h17" /></svg><h2>model.ckpt</h2><p>STMem-AD · 7 维风电实验</p><span>7 维 · 窗口 64</span></div><dl className="checkpoint-fields">{data.old.checkpoint.keys.map(key => <div key={key}><dt>{key}（{{ epoch: '训练轮次', model_state_dict: '模型参数', optimizer_state_dict: '优化器状态', scheduler_state_dict: '学习率调度状态', accuracy_list: '训练记录' }[key] || '保存状态'}）</dt><dd>{key === 'epoch' ? data.old.checkpoint.epoch : key === 'accuracy_list' ? '5 轮损失与学习率' : key === 'model_state_dict' ? `${number(data.old.checkpoint.state_entries)} 个参数与状态项` : key === 'optimizer_state_dict' ? '优化器状态' : '学习率调度状态'}</dd></div>)}</dl></div>;
 }
 
 export function MethodPages(props: ViewProps) {
@@ -66,9 +66,9 @@ export function MethodPages(props: ViewProps) {
   if (id === 31) return <Blocks />;
   if (id >= 32 && id <= 35) return <AnomalyFigure id={id} />;
   if (id === 36) return <SavedAnomalies data={data} />;
-  if (id === 37) return <><Flow steps={[{ title: 'Epoch 开始', detail: '读取当前训练序列' }, { title: '重新插入', detail: '选择块、位置、变量与类型' }, { title: '读取窗口', detail: '同步使用本轮标签' }, { title: '参数更新', detail: '进入下一轮' }]} /><div className="epoch-loop"><span>本轮训练结束</span><span>→</span><strong>下一 Epoch 刷新</strong></div><Note>7 维实验训练流程</Note></>;
-  if (id === 38) return <SavedAnomalies data={data} timing />;
-  if (id === 39) return <><DataTable columns={[{ key: 'type', label: '异常类型' }, { key: 'train', label: '训练阶段' }, { key: 'test', label: '测试阶段' }]} rows={['软替换', '均匀替换', '峰值噪声', '长度调整'].map(type => ({ type, train: '随 Epoch 刷新', test: '测试前固定一次' }))} caption="四类异常与两种插入时机" /></>;
+  if (id === 37) return <><Flow steps={[{ title: '本轮开始', detail: '读取当前训练序列' }, { title: '重新插入', detail: '选择块、位置、变量与类型' }, { title: '读取窗口', detail: '同步使用本轮标签' }, { title: '参数更新', detail: '进入下一轮' }]} /></>;
+  if (id === 38) return <SavedAnomalies data={data} />;
+  if (id === 39) return <><DataTable columns={[{ key: 'type', label: '异常类型' }, { key: 'train', label: '训练阶段' }, { key: 'test', label: '测试阶段' }]} rows={['软替换', '均匀替换', '峰值噪声', '长度调整'].map(type => ({ type, train: '每轮训练前刷新', test: '测试前固定一次' }))} caption="四类异常与两种插入时机" /></>;
   if (id === 40) return <WindowReader {...props} />;
   if (id === 41) return <Padding />;
   if (id === 42) return <Tensor />;

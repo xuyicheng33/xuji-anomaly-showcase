@@ -30,9 +30,13 @@ try {
       await page.locator('.canvas').waitFor();
       await page.evaluate(() => document.fonts.ready);
       assert.equal(await page.locator('h1').textContent(), step.title);
-      const measurements = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, mainWidth: document.querySelector('main').scrollWidth, mainClient: document.querySelector('main').clientWidth, viewport: innerWidth, text: document.querySelector('.canvas').textContent.trim().length }));
+      const measurements = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, mainWidth: document.querySelector('main').scrollWidth, mainClient: document.querySelector('main').clientWidth, mainHeight: document.querySelector('main').scrollHeight, mainClientHeight: document.querySelector('main').clientHeight, tableOverflow: [...document.querySelectorAll('.table-scroll')].filter(element => element.scrollWidth > element.clientWidth + 1).length, viewport: innerWidth, text: document.querySelector('.canvas').textContent.trim().length }));
       assert.ok(measurements.width <= viewport.width, `Step ${step.id} overflows at ${viewport.width}: ${measurements.width}`);
       assert.ok(measurements.mainWidth <= measurements.mainClient, `Step ${step.id} main content overflows at ${viewport.width}`);
+      if (viewport.width >= 1366) {
+        assert.ok(measurements.mainHeight <= measurements.mainClientHeight + 1, `Step ${step.id} needs vertical scrolling at ${viewport.width}: ${measurements.mainHeight - measurements.mainClientHeight}px`);
+        assert.equal(measurements.tableOverflow, 0, `Step ${step.id} needs horizontal table scrolling at ${viewport.width}`);
+      }
       assert.ok(measurements.text > 25, `Step ${step.id} has no content`);
       assert.equal(await page.getByRole('button', { name: '查看来源' }).count(), 0);
       assert.doesNotMatch(await page.locator('.canvas').innerText(), /保留原表|本次保留|样例直接读取|未配齐|未保存|不代表|不填入|不生成|SHA-256|模型字段/);
@@ -46,6 +50,25 @@ try {
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 }, reducedMotion: 'reduce' });
   page.on('pageerror', error => errors.push(error.message));
   const go = async id => { await page.goto(`${base}#/step/${String(id).padStart(2, '0')}`); await page.locator('.canvas').waitFor(); };
+  await go(13);
+  assert.equal(await page.locator('#duplicate-time option').count(), 4);
+  const firstPair = await page.locator('tbody').innerText();
+  await page.locator('#duplicate-time').selectOption({ index: 3 });
+  assert.notEqual(await page.locator('tbody').innerText(), firstPair);
+  assert.equal(await page.locator('tbody tr').count(), 2);
+  assert.equal(await page.locator('.empty-value').count(), 0);
+  await go(25);
+  await page.locator('.controls select').selectOption('2');
+  assert.equal(await page.locator('tbody tr').count(), 5);
+  const firstGroup = await page.locator('tbody').innerText();
+  await page.getByRole('button', { name: '下一组记录' }).click();
+  assert.notEqual(await page.locator('tbody').innerText(), firstGroup);
+  await page.getByRole('button', { name: '下一组记录' }).click();
+  assert.equal(await page.locator('tbody tr').count(), 3);
+  assert.equal(await page.getByRole('button', { name: '下一组记录' }).isDisabled(), true);
+  await page.locator('.controls select').selectOption('0');
+  assert.equal(await page.locator('tbody tr').count(), 2);
+  assert.equal(await page.locator('.table-pagination').count(), 0);
   await go(22);
   await page.locator('.feature-groups section').nth(2).getByRole('button').nth(3).click();
   const selected = await page.locator('.feature-selected code').textContent();

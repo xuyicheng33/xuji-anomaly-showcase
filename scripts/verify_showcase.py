@@ -40,6 +40,13 @@ def verify() -> None:
     assert sum(any(row) for row in old['inserted_labels']) == old['positiveTimes']
     assert len(data['old']['history']) == 5
     assert [row['f1'] for row in data['metrics']] == [.8632, .8347, .8237]
+    assert len(data['duplicateWeather']) == 8
+    assert len({row['datatime'] for row in data['duplicateWeather']}) == 4
+    for stream in (s for s in data['streams'] if s['used']):
+        segments = stream['coverage']
+        assert segments[0]['start'] == stream['start'] and segments[-1]['end'] == stream['end']
+        assert all(segment['points'] > 0 for segment in segments)
+        assert all(datetime.fromisoformat(a['end']) < datetime.fromisoformat(b['start']) for a, b in zip(segments, segments[1:]))
     assert len({source['id'] for source in provenance['sources']}) == len(provenance['sources'])
     sources = {source['id']: source for source in provenance['sources']}
     for entry in provenance['assets']:

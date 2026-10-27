@@ -71,6 +71,7 @@ def export(supplement: Path) -> None:
     source("review", review_path, "融合复核记录", "只读对照", "复核统计不代表新增检测实验。")
 
     streams = []
+    duplicate_weather = []
     definitions = [
         ("weather", "实测气象", "xuji_station41_304_weather_actual.csv", "datatime", 211, 61365, True),
         ("forecast", "气象预报", "xuji_station41_305_weather_forecast.csv", "datatime", 187, 193920, True),
@@ -83,6 +84,17 @@ def export(supplement: Path) -> None:
         table = pd.read_csv(path, low_memory=False)
         selected = table[table.stationid == 41]
         dates = pd.to_datetime(selected[timecol], format="mixed", errors="coerce")
+        coverage = []
+        if used:
+            unique_times = pd.Series(dates.dropna().sort_values().unique())
+            interval = 5 if key == 'weather' else 15
+            groups = unique_times.diff().gt(pd.Timedelta(minutes=interval)).cumsum()
+            coverage = [{"start": str(g.min()), "end": str(g.max()), "points": len(g)} for _, g in unique_times.groupby(groups)]
+        if key == 'weather':
+            candidates = selected[pd.to_datetime(selected.datatime, format='mixed').isin(times)]
+            duplicates = candidates[candidates.duplicated(['datatime'] + METEO, keep=False)].sort_values(['datatime', 'id'])
+            assert len(duplicates) == 8 and duplicates.datatime.nunique() == 4
+            duplicate_weather = duplicates.fillna('').to_dict('records')
         sample_candidates = selected[(dates >= pd.Timestamp('2025-04-02')) & (dates < pd.Timestamp('2025-04-05'))]
         if key == 'weather':
             sample_candidates = sample_candidates[pd.to_datetime(sample_candidates[timecol], format='mixed') >= pd.Timestamp('2025-04-02 18:15')]
@@ -93,7 +105,7 @@ def export(supplement: Path) -> None:
         sample = (sample_candidates if len(sample_candidates) else selected).head(7).fillna("")
         source(key, path, title + "平台原表", "原始平台表", "按实际保存范围统计；批次截断与站点筛选分开。")
         streams.append({"id": key, "name": title, "files": files, "rawRows": count, "platformRows": len(table), "stationRows": len(selected), "used": used,
-                        "start": str(dates.min()), "end": str(dates.max()), "timeColumn": timecol, "columns": table.columns.tolist(), "sample": sample.to_dict("records")})
+                        "start": str(dates.min()), "end": str(dates.max()), "timeColumn": timecol, "columns": table.columns.tolist(), "sample": sample.to_dict("records"), "coverage": coverage})
 
     captured = ROOT / ".runtime/captured"
     arrays = {}
@@ -188,7 +200,7 @@ def export(supplement: Path) -> None:
     ]
     data = {"schemaVersion": 1, "version": "wind-second-batch-28", "features": features, "times": times.dt.strftime("%Y-%m-%d %H:%M").tolist(), "values": values.tolist(),
             "columns": frame.columns.tolist(), "split": 6131, "labelShape": list(arrays["labels"].shape), "initialPositiveLabels": int(np.count_nonzero(arrays["labels"])),
-            "streams": streams, "review": review, "rawSample": raw.head(12).fillna("").to_dict("records"), "lineage": lineage.head(12).to_dict("records"),
+            "streams": streams, "duplicateWeather": duplicate_weather, "review": review, "rawSample": raw.head(12).fillna("").to_dict("records"), "lineage": lineage.head(12).to_dict("records"),
             "midnight": raw[pd.to_datetime(raw.forecastvaluetime, format="mixed").dt.time.astype(str) == "00:00:00"].head(5).fillna("").to_dict("records"),
             "changes": changes.to_dict("records"), "old": old, "metrics": report_metrics,
             "candidates": [{"start": "2024-12-03 20:50", "end": "2024-12-17 11:15", "rows": 1330}, {"start": "2025-01-24 00:00", "end": "2025-02-28 23:20", "rows": 3506}, {"start": "2025-02-28 23:30", "end": "2025-03-10 17:30", "rows": 1373}, {"start": "2025-04-02 18:10", "end": "2025-07-02 23:45", "rows": 8941}],

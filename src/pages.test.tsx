@@ -52,4 +52,38 @@ describe('complete static presentation', () => {
     expect(render(21)).not.toContain('empty-value');
     expect(render(21)).toContain('949.810');
   });
+  it('explains each page before presenting data or methods', () => {
+    for (const page of pages) {
+      const html = renderToStaticMarkup(<PageView id={page.id} data={data} provenance={provenance} field={0} onField={() => {}} start={0} onStart={() => {}} />);
+      expect(html).toMatch(/journey-dataset|dataset-intro|page-intro/);
+      expect(html).not.toMatch(/grid-timeline|merge-destination|条形按比例|stream-total|flow-node/);
+    }
+  });
+  it('shows business quality metrics and explains source field names', () => {
+    const render = (id: number) => renderToStaticMarkup(<PageView id={id} data={data} provenance={provenance} field={0} onField={() => {}} start={0} onStart={() => {}} />);
+    expect(render(5)).toMatch(/预测准确率/);
+    expect(render(5)).toMatch(/合格率/);
+    expect(render(5)).not.toMatch(/预测类别|点数/);
+    expect(render(10)).toContain('forecastvaluetime（预测目标时间）');
+    expect(render(7)).toContain('最后一个预测值对应的实际功率');
+  });
+  it('uses the four genuine duplicate pairs and observed time coverage', () => {
+    const meteo = ['temperature', 'humidity', 'pressure', 'ws_10', 'wd_10', 'ws_30', 'wd_30', 'ws_50', 'wd_50', 'ws_70', 'wd_70', 'ws_hub', 'wd_hub'];
+    expect(data.duplicateWeather).toHaveLength(8);
+    const times = [...new Set(data.duplicateWeather.map(row => row.datatime))];
+    expect(times).toHaveLength(4);
+    for (const time of times) {
+      const pair = data.duplicateWeather.filter(row => row.datatime === time);
+      expect(pair).toHaveLength(2);
+      expect(pair[0].id).not.toBe(pair[1].id);
+      expect(meteo.map(field => pair[0][field])).toEqual(meteo.map(field => pair[1][field]));
+    }
+    const used = data.streams.filter(stream => stream.used);
+    expect(used.map(stream => stream.coverage.length)).toEqual([24, 2, 2]);
+    expect(used.map(stream => stream.coverage.reduce((sum, segment) => sum + segment.points, 0))).toEqual([57526, 20064, 21120]);
+    for (const stream of used) {
+      expect(stream.coverage[0].start).toBe(stream.start);
+      expect(stream.coverage.at(-1)!.end).toBe(stream.end);
+    }
+  });
 });

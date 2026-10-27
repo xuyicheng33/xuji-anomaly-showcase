@@ -13,7 +13,7 @@ export const stepHash = (id: number) => `#/step/${String(clamp(id, 1, pages.leng
 export function sourceIds(id: number): string[] {
   if (id === 1) return ['final', 'report', 'data-report', 'weather', 'forecast', 'short', 'powerstat', 'ultrashort'];
   if (id <= 10) return id >= 3 && id <= 7 ? [...[['weather'], ['forecast'], ['powerstat'], ['short'], ['ultrashort']][id - 3], 'data-report'] : ['weather', 'forecast', 'short', 'powerstat', 'ultrashort', 'data-report', 'review'];
-  if (id <= 20) return ['raw-merge', 'lineage', 'review', ...(id === 19 ? ['report'] : [])];
+  if (id <= 20) return ['raw-merge', 'lineage', 'review', 'data-report', ...(id === 13 ? ['weather'] : []), ...(id === 14 ? ['weather', 'forecast', 'short'] : []), ...(id === 19 ? ['report'] : [])];
   if (id === 21) return ['changes', 'final', 'raw-merge'];
   if (id <= 25 || id >= 27 && id <= 29) return ['final', 'new-train', 'new-test', 'new-labels'];
   if (id === 26) return ['old-data', 'old-processed', 'report'];

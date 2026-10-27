@@ -6,7 +6,7 @@ import type { ViewProps } from './PageView';
 import { sourceDescriptions } from './content/copy';
 
 function ErrorMatrix() {
-  return <><Formula label="逐窗口、逐时间点、逐特征">e<sub>w,t,c</sub> = (x<sub>t,c</sub> − x̂<sub>w,t,c</sub>)²</Formula><div className="symbolic-matrix" role="img" aria-label="窗口误差符号矩阵，行代表时间，列代表特征"><div className="matrix-column-label">特征 c →</div>{Array.from({ length: 4 }, (_, i) => <div key={i}>{Array.from({ length: 7 }, (_, j) => <span key={j}>e<sub>{i + 1},{j + 1}</sub></span>)}</div>)}<p>时间 t ↓</p></div><Note>每个单元对应一个时间点、一个变量的平方误差。</Note></>;
+  return <div className="error-layout"><Formula label="窗口内的平方误差">e<sub>w,t,c</sub> = (x<sub>t,c</sub> − x̂<sub>w,t,c</sub>)²</Formula><div className="symbolic-matrix" role="img" aria-label="窗口误差符号矩阵，行代表时间，列代表特征"><div className="matrix-column-label">变量 c</div>{Array.from({ length: 4 }, (_, i) => <div key={i}>{Array.from({ length: 7 }, (_, j) => <span key={j}>e<sub>{i + 1},{j + 1}</sub></span>)}</div>)}<p>时间 t</p></div></div>;
 }
 
 function Overlap() {
@@ -22,7 +22,7 @@ function FeatureScore() {
 }
 
 function Threshold() {
-  return <><Flow steps={[{ title: '训练分数', detail: '用于估计正常分数分布' }, { title: '初始阈值', detail: '选择分布尾部' }, { title: 'SPOT', detail: '拟合尾部极值分布' }, { title: '最终阈值', detail: '平均阈值与修正系数' }]} /><Formula>τ = mean(τ<sub>SPOT</sub>) × lm[1]</Formula></>;
+  return <><Flow steps={[{ title: '训练分数', detail: '读取训练段的重建异常分数，确定分布尾部' }, { title: '尾部建模', detail: 'SPOT 拟合极值分布，计算对应阈值' }, { title: '阈值修正', detail: '阈值取平均后，乘以配置中的修正系数' }]} /><Formula>τ = mean(τ<sub>SPOT</sub>) × lm[1]</Formula></>;
 }
 
 function Decision() {
@@ -41,13 +41,13 @@ function Confusion() {
 }
 
 function MetricDefinitions() {
-  return <div className="metric-definitions"><section><h2>Precision</h2><Formula>TP / (TP + FP)</Formula><p>判为异常的时刻中，有多少确为异常。</p></section><section><h2>Recall</h2><Formula>TP / (TP + FN)</Formula><p>真实异常时刻中，有多少被检出。</p></section><section><h2>F1</h2><Formula>2PR / (P + R)</Formula><p>Precision 与 Recall 的调和平均。</p></section><section><h2>AUC</h2><Formula>Area under ROC</Formula><p>ROC 曲线下面积，衡量检测结果的区分能力。</p></section></div>;
+  return <div className="metric-definitions"><section><h2>精确率（Precision）</h2><Formula>TP / (TP + FP)</Formula><p>判为异常的时刻中，有多少确为异常。</p></section><section><h2>召回率（Recall）</h2><Formula>TP / (TP + FN)</Formula><p>真实异常时刻中，有多少被检出。</p></section><section><h2>F1</h2><Formula>2PR / (P + R)</Formula><p>Precision 与 Recall 的调和平均。</p></section><section><h2>曲线下面积（AUC）</h2><Formula>ROC 曲线下面积</Formula><p>ROC 曲线下面积，衡量检测结果的区分能力。</p></section></div>;
 }
 
 function Sources({ provenance }: ViewProps) {
   const [query, setQuery] = useState('');
   const sources = provenance.sources.filter(s => `${s.title} ${s.file} ${s.version}`.toLowerCase().includes(query.toLowerCase()));
-  return <><div className="version-rows"><div><strong>28 维数据集</strong><span>8,759 行 · 训练 6,131 行 / 测试 2,628 行</span><span>功率与气象数据</span></div><div><strong>28 维实验结果</strong><span>3 种模型 · 窗口 96</span><span>报告第 5.4 节</span></div><div><strong>7 维实验记录</strong><span>训练 7,007 行 / 测试 1,752 行 · 窗口 64</span><span>STMem-AD 参数与训练记录</span></div></div><div className="source-tools"><label htmlFor="source-query">查找材料</label><input id="source-query" type="search" placeholder="报告、数据或模型" value={query} onChange={e => setQuery(e.target.value)} /><span>{sources.length} 项</span></div><div className="source-inventory">{sources.length === 0 ? <p role="status">没有匹配材料。请更换关键词。</p> : sources.map(s => <details key={s.id}><summary><span>{s.title}</span><span>{s.version}</span></summary><div><p>{sourceDescriptions[s.id] || s.title}</p><code>{s.file}</code><div className="source-page-links">{pages.filter(p => sourceIds(p.id).includes(s.id)).map(p => <a key={p.id} href={stepHash(p.id)}>{String(p.id).padStart(2, '0')} {p.title}</a>)}</div></div></details>)}</div></>;
+  return <div className="materials-layout"><div className="version-rows"><div><strong>28 维数据集</strong><span>8,759 行 · 训练 6,131 行 / 测试 2,628 行</span><span>功率与气象数据</span></div><div><strong>28 维实验结果</strong><span>3 种模型 · 窗口 96</span><span>报告第 5.4 节</span></div><div><strong>7 维实验记录</strong><span>训练 7,007 行 / 测试 1,752 行 · 窗口 64</span><span>STMem-AD 参数与训练记录</span></div></div><div className="materials-browser"><div className="source-tools"><label htmlFor="source-query">查找材料</label><input id="source-query" type="search" placeholder="报告、数据或模型" value={query} onChange={e => setQuery(e.target.value)} /><span>{sources.length} 项</span></div><div className="source-inventory">{sources.length === 0 ? <p role="status">没有匹配材料。请更换关键词。</p> : sources.map(s => <details key={s.id}><summary><span>{s.title}</span><span>{s.version}</span></summary><div><p>{sourceDescriptions[s.id] || s.title}</p><code>{s.file}</code><div className="source-page-links">{pages.filter(p => sourceIds(p.id).includes(s.id)).map(p => <a key={p.id} href={stepHash(p.id)}>{String(p.id).padStart(2, '0')} {p.title}</a>)}</div></div></details>)}</div></div></div>;
 }
 
 export function ResultPages(props: ViewProps) {
@@ -62,7 +62,7 @@ export function ResultPages(props: ViewProps) {
   if (id === 57) return <Outcomes {...props} />;
   if (id === 58) return <Confusion />;
   if (id === 59) return <MetricDefinitions />;
-  if (id === 60) return <><MetricsTable data={data} full /><div className="ablation-results"><h2>报告中的维度消融</h2><DataTable columns={[{ key: 'model', label: '模型' }, { key: 'f7', label: '7 维 F1' }, { key: 'f28', label: '28 维 F1' }]} rows={[{ model: 'SMST-AD', f7: '0.6235', f28: '0.8347' }, { model: 'STMem-AD', f7: '0.5855', f28: '0.8237' }]} caption="报告 7 维与 28 维消融记录" /></div><Note>第二批风电实验 · 报告第 5.4 节</Note></>;
+  if (id === 60) return <><MetricsTable data={data} full /><div className="ablation-results"><h2>报告中的维度消融</h2><DataTable columns={[{ key: 'model', label: '模型' }, { key: 'f7', label: '7 维 F1' }, { key: 'f28', label: '28 维 F1' }]} rows={[{ model: 'SMST-AD', f7: '0.6235', f28: '0.8347' }, { model: 'STMem-AD', f7: '0.5855', f28: '0.8237' }]} caption="报告 7 维与 28 维消融记录" /></div></>;
   if (id === 61) return <Sources {...props} />;
   throw new Error(`Unhandled result page ${id}`);
 }

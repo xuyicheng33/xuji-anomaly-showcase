@@ -8,14 +8,15 @@ export function Icon({ name, size = 20 }: { name: 'left' | 'right' | 'menu' | 'c
 }
 
 export function Flow({ steps, active = -1, vertical = false }: { steps: { title: string; detail?: string }[]; active?: number; vertical?: boolean }) {
-  return <ol className={`flow ${vertical ? 'flow-vertical' : ''}`}>{steps.map((step, i) => <li key={i} className={active === i ? 'active' : ''}>
-    <div className="flow-node"><span className="flow-index">{String(i + 1).padStart(2, '0')}</span><strong>{step.title}</strong>{step.detail && <span className="flow-detail">{step.detail}</span>}</div>
-    {i < steps.length - 1 && <span className="flow-arrow"><Icon name="arrow" /></span>}
-  </li>)}</ol>;
+  return <ol className={`process-list ${vertical ? 'process-vertical' : ''}`}>{steps.map((step, i) => <li key={step.title} className={active === i ? 'active' : ''}><strong>{step.title}</strong>{step.detail && <p>{step.detail}</p>}</li>)}</ol>;
 }
 
-export function DataTable({ columns, rows, highlight = [], caption }: { columns: { key: string; label: string }[]; rows: Record<string, Cell>[]; highlight?: string[]; caption?: string }) {
-  return <div className="table-scroll" tabIndex={0} role="region" aria-label={caption || '数据表'}><table><caption className="sr-only">{caption || '数据表'}</caption><thead><tr>{columns.map(col => <th key={col.key} className={highlight.includes(col.key) ? 'highlight' : ''} scope="col">{col.label}</th>)}</tr></thead><tbody>{rows.map((row, i) => <tr key={i}>{columns.map(col => <td key={col.key} className={highlight.includes(col.key) ? 'highlight' : ''}>{typeof row[col.key] === 'number' ? number(row[col.key] as number, Number.isInteger(row[col.key]) ? 0 : 3) : row[col.key] === '' || row[col.key] == null ? <span className="empty-value">空值</span> : row[col.key]}</td>)}</tr>)}</tbody></table></div>;
+export function DataTable({ columns, rows, highlight = [], caption, pageSize = 6 }: { columns: { key: string; label: string }[]; rows: Record<string, Cell>[]; highlight?: string[]; caption?: string; pageSize?: number }) {
+  const [page, setPage] = useState(0);
+  useEffect(() => setPage(0), [rows]);
+  const current = Math.min(page, Math.max(0, Math.ceil(rows.length / pageSize) - 1));
+  const from = current * pageSize;
+  return <div className="data-table"><div className="table-scroll" tabIndex={0} role="region" aria-label={caption || '数据表'}><table><caption className="sr-only">{caption || '数据表'}</caption><thead><tr>{columns.map(col => <th key={col.key} className={highlight.includes(col.key) ? 'highlight' : ''} scope="col">{col.label}</th>)}</tr></thead><tbody>{rows.slice(from, from + pageSize).map((row, i) => <tr key={i}>{columns.map(col => <td key={col.key} className={highlight.includes(col.key) ? 'highlight' : ''}>{typeof row[col.key] === 'number' ? number(row[col.key] as number, Number.isInteger(row[col.key]) ? 0 : 3) : row[col.key] === '' || row[col.key] == null ? <span className="empty-value">空值</span> : row[col.key]}</td>)}</tr>)}</tbody></table></div>{rows.length > pageSize && <div className="table-pagination"><span aria-live="polite">{from + 1}–{Math.min(from + pageSize, rows.length)} / {rows.length} 条</span><button aria-label="上一组记录" disabled={current === 0} onClick={() => setPage(current - 1)}><Icon name="left" size={16} /></button><button aria-label="下一组记录" disabled={from + pageSize >= rows.length} onClick={() => setPage(current + 1)}><Icon name="right" size={16} /></button></div>}</div>;
 }
 
 export function Formula({ children, label }: { children: ReactNode; label?: string }) {
@@ -53,7 +54,7 @@ export function DataChart({ data, field, onField, start, onStart, compact = fals
   const slice = chartWindow(data, splitOnly ? data.split : start, count, field);
   const feature = data.features[field];
   const series = [{ name: (field >= 2 ? feature.group + ' · ' : '') + feature.label, values: slice.values }, ...(field === 0 ? [{ name: '短期功率预测', values: data.values.slice(slice.from, slice.from + count).map(row => row[1]), dashed: true }] : [])];
-  return <div className="data-chart">{controls && <div className="controls"><label htmlFor={fieldId}>变量</label><select id={fieldId} value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option value={i} key={f.key}>{f.group} · {f.label}</option>)}</select><span className="control-tail">{data.times[slice.from]}</span></div>}
+  return <div className="data-chart">{controls && <div className="controls"><label htmlFor={fieldId}>变量</label><select id={fieldId} value={field} onChange={e => onField(Number(e.target.value))}>{data.features.map((f, i) => <option value={i} key={f.key}>{f.group} · {f.label}</option>)}</select></div>}
     <LineChart series={series} labels={slice.times} unit={feature.unit} compact={compact} />
     {controls && <div className="range-control"><label htmlFor={rangeId}>时间范围</label><input id={rangeId} type="range" min={0} max={data.times.length - count} step={1} value={start} onChange={e => onStart(Number(e.target.value))} /><output htmlFor={rangeId}>{data.times[slice.from].slice(5, 10)}—{data.times[slice.from + count - 1].slice(5, 10)}</output></div>}
   </div>;
@@ -61,11 +62,11 @@ export function DataChart({ data, field, onField, start, onStart, compact = fals
 
 export function StreamOverview({ data }: { data: Research }) {
   const maxRows = Math.max(...data.streams.map(s => s.rawRows));
-  return <div className="stream-overview"><div className="stream-columns"><span>数据类别</span><span>文件数</span><span>原始记录数 · 条形按比例</span></div>{data.streams.map(s => <div className="stream-row" key={s.id}><div className="stream-name"><strong>{s.name}</strong></div><span className="stream-files">{number(s.files)} 份</span><div className="stream-volume"><div className="stream-track" role="img" aria-label={`${s.name}，${number(s.rawRows)} 条原始记录`}><div style={{ width: `${s.rawRows / maxRows * 100}%` }} /></div><span>{number(s.rawRows)} 条</span></div></div>)}<div className="stream-total"><span>817 份原始文件</span><span>2024 年 10 月至 2025 年 7 月</span></div></div>;
+  return <div className="stream-overview"><div className="stream-columns"><span>数据类别</span><span>文件数</span><span>原始记录数</span></div>{data.streams.map(s => <div className="stream-row" key={s.id}><div className="stream-name"><strong>{s.name}</strong></div><span className="stream-files">{number(s.files)} 份</span><div className="stream-volume"><div className="stream-track" role="img" aria-label={`${s.name}，${number(s.rawRows)} 条原始记录`}><div style={{ width: `${s.rawRows / maxRows * 100}%` }} /></div><span>{number(s.rawRows)} 条</span></div></div>)}</div>;
 }
 
 export function FeatureMap({ data, field, onField }: { data: Research; field: number; onField: (n: number) => void }) {
-  return <div className="feature-map"><div className="feature-summary"><span><strong>42</strong> 合并列</span><Icon name="arrow" size={28} /><span><strong>28</strong> 研究变量</span><span className="feature-rows">8,759 行 · 间隔 15 分钟</span></div><div className="feature-groups">{['功率', '实测气象', '预报气象'].map(group => <section key={group}><h2>{group}<span>{data.features.filter(f => f.group === group).length}</span></h2><div>{data.features.map((f, i) => f.group === group && <button key={f.key} className={`feature-button ${i === field ? 'selected' : ''}`} aria-pressed={i === field} onClick={() => onField(i)}><span>{f.label}</span>{f.unit && <span>{f.unit}</span>}</button>)}</div></section>)}</div><div className="feature-selected"><code>{data.features[field].key}</code><span>训练段范围 {number(data.features[field].min, 3)} — {number(data.features[field].max, 3)} {data.features[field].unit}</span></div></div>;
+  return <div className="feature-map"><div className="feature-groups">{['功率', '实测气象', '预报气象'].map(group => <section key={group}><h2>{group}<span>{data.features.filter(f => f.group === group).length}</span></h2><div>{data.features.map((f, i) => f.group === group && <button key={f.key} className={`feature-button ${i === field ? 'selected' : ''}`} aria-pressed={i === field} onClick={() => onField(i)}><span>{f.label}</span>{f.unit && <span>{f.unit}</span>}</button>)}</div></section>)}</div><div className="feature-selected"><code>{data.features[field].key}（{data.features[field].label}）</code><span>训练段范围 {number(data.features[field].min, 3)} — {number(data.features[field].max, 3)} {data.features[field].unit}</span></div></div>;
 }
 
 export function ModelOverview() {
@@ -75,7 +76,7 @@ export function ModelOverview() {
 }
 
 export function MetricsTable({ data, full = false }: { data: Research; full?: boolean }) {
-  return <div className="table-scroll" tabIndex={0} role="region" aria-label="三模型报告指标"><table className="metrics-table"><caption className="sr-only">报告第 5.4 节，28 维风电结果</caption><thead><tr><th scope="col">模型</th>{full && <><th scope="col">维度 / 窗口</th><th scope="col">注入比例</th></>}<th scope="col">Precision</th><th scope="col">Recall</th><th scope="col">F1</th><th scope="col">AUC</th></tr></thead><tbody>{data.metrics.map(m => <tr key={m.model}><th scope="row">{m.model}</th>{full && <><td>{m.features} / {m.window}</td><td>{m.rate.toFixed(2)}</td></>}<td>{m.precision.toFixed(4)}</td><td>{m.recall.toFixed(4)}</td><td className="f1-value">{m.f1.toFixed(4)}</td><td>{m.auc.toFixed(4)}</td></tr>)}</tbody></table></div>;
+  return <div className="table-scroll" tabIndex={0} role="region" aria-label="三模型报告指标"><table className="metrics-table"><caption className="sr-only">报告第 5.4 节，28 维风电结果</caption><thead><tr><th scope="col">模型</th>{full && <><th scope="col">维度 / 窗口</th><th scope="col">注入比例</th></>}<th scope="col">精确率</th><th scope="col">召回率</th><th scope="col">F1</th><th scope="col">AUC</th></tr></thead><tbody>{data.metrics.map(m => <tr key={m.model}><th scope="row">{m.model}</th>{full && <><td>{m.features} / {m.window}</td><td>{m.rate.toFixed(2)}</td></>}<td>{m.precision.toFixed(4)}</td><td>{m.recall.toFixed(4)}</td><td className="f1-value">{m.f1.toFixed(4)}</td><td>{m.auc.toFixed(4)}</td></tr>)}</tbody></table></div>;
 }
 
 export function Outcomes({ data, field, onField, start, onStart }: { data: Research; field: number; onField: (n: number) => void; start: number; onStart: (n: number) => void }) {
