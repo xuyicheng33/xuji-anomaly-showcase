@@ -48,7 +48,7 @@
 
 ## 工程、加载与验证
 
-React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote；.git是唯一当地历史。预览http://127.0.0.1:5176/，启动npm run dev -- --port 5176 --strictPort。
+React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote；.git是唯一本地历史。预览http://127.0.0.1:5176/，启动npm run dev -- --port 5176 --strictPort。
 
 - src/App.tsx管理路由/返回，src/report/notes.tsx管理编号，ScoreCalculation.tsx负责演算，ExplanationChapter.tsx负责说明，DetectionChapters.tsx负责片段/回放。
 - useCurveData.ts按需读取float64测点列与128行输入块，绘图数值逐值一致。平均曲线按原浏览器顺序累加。初始二进制请求：数据134016字节、训练44744、片段19176、回放38352；完整125列仅计算时读取每块最多128000字节。
@@ -93,3 +93,11 @@ React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote�
 16前端、13 Python测试通过；两模型4668窗口、8案例×2输出及144原件哈希通过。1440/768/390与200%浏览器检查通过；125项真实计算、64窗口/首尾覆盖、11条深链接/刷新、正文往返、播放暂停往返3轮、延迟模型隔离3轮和失败重试均通过。
 
 oil-ui独立视觉评审visual_review一轮，已修正手机覆盖窗口身份及说明断词。独立UX走查ux_review一轮：首页→数据→异常案例→两模型检测走通；建议页尾下一章入口，与用户已确认删除通用章节尾跳转冲突，本轮保持已有导航。静态截图工具100%/200%无lint，动画探针不适配，使用真实浏览器播放/暂停验证，不声明工具录屏成功。
+
+## 最终发布记录
+
+2026-10-28北京时间13:11部署release 6b0f1f0（生产代码bec846a，派生数据202e19b），前一release 89f1d98保留。全部1089个生产文件SHA256核对通过，上传792个变更文件；只上传生产资源并在服务器生成预压缩，已清理上传临时包。专属Nginx配置检查与reload通过，gzip_static及一年版本缓存生效。
+
+同一公网、1440×900新浏览器会话，从进入页面到真实曲线可见的单次测量：数据24.00→2.11秒、训练11.37→1.24秒、片段8.84→1.80秒、回放9.83→0.57秒。受网络波动影响，不作固定耗时保证。原始/合并曲线与评分数值保持不变。细节在.qa/calculation-20261028/before和after/loading-times.json。
+
+公网计算/角标/返回/首尾覆盖/按需加载/失败重试检查通过；最终完整页面矩阵检查结果见当前会话与.qa/unified/shots。分批提交：202e19b数据、bec846a功能性能、6b0f1f0文档清理；后续只有验收记录提交，不影响线上生产文件。
