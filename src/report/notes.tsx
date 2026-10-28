@@ -13,6 +13,7 @@ export const notes = [
   {id:'thresholds', title:'阈值与评估规则', page:'detection'},
   {id:'point-metrics', title:'逐点指标与区间点调整', page:'detection'},
   {id:'window-aggregation', title:'连续回放与跨窗口合并', page:'playback'},
+  {id:'model-design', title:'模型设计与归档实现', page:'models'},
 ] as const;
 export type NoteId = typeof notes[number]['id'];
 export type NoteOrigin = {hash:string; y:number; reference:string};

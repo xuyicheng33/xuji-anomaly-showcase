@@ -17,7 +17,7 @@ function modelInScope(data:Journey,model:Model){return model.id==='model1'||mode
 export function ModelsChapter({data,model,setModel}:{data:Journey;model:Model;setModel:(value:string)=>void}){
  const current=modelInScope(data,model),multi=current.id==='model2',description=descriptions[multi?'model2':'model1'];
  return <div className="chapter-refined models-chapter">
-  <Heading title="异常检测模型">以窗口重建为基础，识别偏离正常模式的时间片段。</Heading>
+  <Heading title={<>异常检测模型<Footnote note="model-design"/></>}>以窗口重建为基础，识别偏离正常模式的时间片段。</Heading>
   <div className="model-selection-row"><ModelSelect data={data} value={current.id} onChange={setModel}/></div>
   <div className="model-intro"><span>{current.name}</span><h2>{description.title}</h2><p>{description.intro}</p></div>
   <div className="model-details">{description.details.map(([title,text],i)=><section key={title}><span>0{i+1}</span><h3>{title}</h3><p>{text}</p></section>)}</div>
