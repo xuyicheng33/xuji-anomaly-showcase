@@ -1,0 +1,113 @@
+{
+  "source": {
+    "rawSHA256": "c26d37c2bc80c257dded7599584870eb0ef1f051c6c3aafe00df8cbec2a04f4e",
+    "cleanSHA256": "59d12164b1547215873755317cc98f08e8e61e7654bd4790a5215aaacd5e2ea7"
+  },
+  "invalidBlocks": [
+    {
+      "start": 3432,
+      "end": 3456,
+      "count": 24,
+      "previousTime": "2022-05-23 23:00",
+      "nextTime": "2022-05-25 00:00"
+    },
+    {
+      "start": 8016,
+      "end": 8760,
+      "count": 744,
+      "previousTime": "2022-11-30 23:00",
+      "nextTime": null
+    }
+  ],
+  "removedSensors": [
+    "21T21_L1_BOTTOM_OIL_TEMP_a",
+    "21T21_L3_BOTTOM_OIL_TEMP_a",
+    "21T22_L1_BOTTOM_OIL_TEMP_a",
+    "21T22_L2_BOTTOM_OIL_TEMP_a",
+    "21T22_L3_BOTTOM_OIL_TEMP_a",
+    "22T21_L1_BOTTOM_OIL_TEMP_a",
+    "22T21_L2_BOTTOM_OIL_TEMP_a",
+    "22T21_L3_BOTTOM_OIL_TEMP_a",
+    "22T22_L1_BOTTOM_OIL_TEMP_a",
+    "22T22_L2_BOTTOM_OIL_TEMP_a",
+    "22T22_L3_BOTTOM_OIL_TEMP_a"
+  ],
+  "missingCells": 170,
+  "affectedSensors": 13,
+  "missingExamples": [
+    {
+      "key": "22T11_L2_LINE_TEMP_a",
+      "label": "单点缺失",
+      "feature": 98,
+      "from": 2092,
+      "rows": [
+        {
+          "time": "2022-03-29 04:00",
+          "before": 39.8652,
+          "after": 39.8652
+        },
+        {
+          "time": "2022-03-29 05:00",
+          "before": 38.8118,
+          "after": 38.8118
+        },
+        {
+          "time": "2022-03-29 06:00",
+          "before": null,
+          "after": 0.0
+        },
+        {
+          "time": "2022-03-29 07:00",
+          "before": 39.0235,
+          "after": 39.0235
+        },
+        {
+          "time": "2022-03-29 08:00",
+          "before": 47.0955,
+          "after": 47.0955
+        }
+      ]
+    },
+    {
+      "key": "22T12_L1_LINE_TEMP_a",
+      "label": "连续缺失",
+      "feature": 104,
+      "from": 1570,
+      "rows": [
+        {
+          "time": "2022-03-07 10:00",
+          "before": 64.1494,
+          "after": 64.1494
+        },
+        {
+          "time": "2022-03-07 11:00",
+          "before": null,
+          "after": 0.0
+        },
+        {
+          "time": "2022-03-07 12:00",
+          "before": null,
+          "after": 0.0
+        },
+        {
+          "time": "2022-03-07 13:00",
+          "before": null,
+          "after": 0.0
+        },
+        {
+          "time": "2022-03-07 14:00",
+          "before": 60.7556,
+          "after": 60.7556
+        }
+      ]
+    }
+  ],
+  "split": {
+    "trainCount": 5594,
+    "testCount": 2398,
+    "trainStart": "2022-01-01 00:00",
+    "trainEnd": "2022-08-23 01:00",
+    "testStart": "2022-08-23 02:00",
+    "testEnd": "2022-11-30 23:00"
+  }
+}
