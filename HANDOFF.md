@@ -57,7 +57,7 @@ React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote�
 
 命令：npm ci；npm run typecheck；npm test；python -X utf8 -B -m unittest discover -s tests；npm run verify:data；python -X utf8 -B scripts/verify_research.py；npm run export:views；npm run build；npm run precompress。
 
-浏览器验证使用系统Edge：scripts/verify_report.mjs（全页/数值/回放）、verify_acceptance.mjs（案例/缩放）、verify_loading.mjs（加载/失败）、verify_calculation.mjs（125项/覆盖/角标）。SHOWCASE_URL可指定公网。measure_loading.mjs记录冷启动真实曲线耗时。当前证据统一.qa/calculation-20261028/。
+浏览器验证使用系统Edge：scripts/verify_report.mjs（全页/数值/回放）、verify_acceptance.mjs（案例/缩放）、verify_loading.mjs（加载/失败）、verify_calculation.mjs（125项/覆盖/角标）。SHOWCASE_URL可指定公网。measure_loading.mjs记录冷启动真实曲线耗时。功能与性能证据在.qa/calculation-20261028/；全站文字排版验收在.qa/site-polish-20261028/。
 
 ## 部署与恢复
 
@@ -96,8 +96,10 @@ oil-ui独立视觉评审visual_review一轮，已修正手机覆盖窗口身份�
 
 ## 最终发布记录
 
-2026-10-28北京时间13:11部署release 6b0f1f0（生产代码bec846a，派生数据202e19b），前一release 89f1d98保留。全部1089个生产文件SHA256核对通过，上传792个变更文件；只上传生产资源并在服务器生成预压缩，已清理上传临时包。专属Nginx配置检查与reload通过，gzip_static及一年版本缓存生效。
+2026-10-28北京时间14:04完成全站微调，当前release a400cb7（生产界面948022d、文案60fbcae），/var/www/xuji-showcase/current已切换。部署时间以服务器deployment.json及.qa/site-polish-20261028/deploy-result.json为准。每次核对1089个生产文件SHA256，主体增量3文件109941字节，元信息补丁1文件670字节；预压缩与一年版本缓存继续生效，上传临时包已清理。前一release 948022d及本轮前6b0f1f0均保留。
 
-同一公网、1440×900新浏览器会话，从进入页面到真实曲线可见的单次测量：数据24.00→2.11秒、训练11.37→1.24秒、片段8.84→1.80秒、回放9.83→0.57秒。受网络波动影响，不作固定耗时保证。原始/合并曲线与评分数值保持不变。细节在.qa/calculation-20261028/before和after/loading-times.json。
+本轮按oil-ui沿用暖纸、衬线标题、蓝色数据与开放排版，独立视觉审阅site_visual_audit查看全部22张基线及11条说明。清理冗余和防御性措辞，保留阈值事后标定、案例独立评估、完整精度与离线合并规则。优化角标与引用文字关联、手机紧凑返回、明细时间列、横向滚动提示、计算入口及混淆矩阵四位数排版；说明与操作小字至少12px，图表刻度与角标沿用原设计。HTML摘要对齐两种方法，浏览器主题色对齐暖纸背景。正文、模型、指标及数据口径保持既有范围。
 
-公网计算/角标/返回/首尾覆盖/按需加载/失败重试检查通过；最终完整页面矩阵检查结果见当前会话与.qa/unified/shots。分批提交：202e19b数据、bec846a功能性能、6b0f1f0文档清理；后续只有验收记录提交，不影响线上生产文件。
+本地8页与相关案例/模型状态已检查1440/768/390，补查320/360/1920及200%。类型检查、生产构建、verify_report、verify_acceptance、verify_calculation、verify_loading通过；异步模型隔离、播放暂停往返与自动播放定位均各3轮。公网verify_report与verify_calculation通过，最终元信息及JS/CSS gzip、长期缓存验证通过。manifest/evaluation哈希保持本文记录。没有新增维护文档，仍只维护本说明；过程截图与机器记录留在忽略的.qa目录。
+
+上一轮性能发布6b0f1f0于13:11完成。同一公网、1440×900新浏览器会话，从进入页面到真实曲线可见的单次测量：数据24.00→2.11秒、训练11.37→1.24秒、片段8.84→1.80秒、回放9.83→0.57秒。原始记录在.qa/calculation-20261028/before和after/loading-times.json。本轮保留该加载路径；这些历史测量不代表固定耗时。
