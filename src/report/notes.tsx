@@ -8,12 +8,12 @@ export const notes = [
   {id:'normalization', title:'归一化公式与边界', page:'data'},
   {id:'anomaly-cases', title:'异常构造与标签规则', page:'anomalies'},
   {id:'length-sampling', title:'长度调整与采样', page:'anomalies'},
-  {id:'window-settings', title:'窗口设置与结果来源', page:'training'},
+  {id:'window-settings', title:'窗口、训练批次与结果来源', page:'training'},
   {id:'score-calculation', title:'单窗口异常分数计算', page:'detection'},
   {id:'thresholds', title:'阈值与评估规则', page:'detection'},
   {id:'point-metrics', title:'逐点指标与区间点调整', page:'detection'},
   {id:'window-aggregation', title:'连续回放与跨窗口合并', page:'playback'},
-  {id:'model-design', title:'模型设计与归档实现', page:'models'},
+  {id:'model-design', title:'两种模型的设计与结果', page:'models'},
 ] as const;
 export type NoteId = typeof notes[number]['id'];
 export type NoteOrigin = {hash:string; y:number; reference:string};

@@ -53,7 +53,7 @@ export function TrainingChapter({data,model,setModel,feature:sharedFeature,setFe
  const values=training&&stats?Array.from({length:contextLength},(_,i)=>{const value=training[contextStart+i];return stats.max===stats.min?0:(value-stats.min)/(stats.max-stats.min)}):[];
  const activeEpoch=Math.min(epoch,current.history.length-1),record=current.history[activeEpoch];
  return <div className="chapter-refined training-chapter">
-  <Heading number="04" title="模型训练过程">以 64 × 125 数据窗口为输入，通过重建损失优化模型参数。</Heading>
+  <Heading number="04" title="模型训练过程">以 <span className="note-anchor">64 × 125 数据窗口<Footnote note="window-settings" reference="ref-training-window-shape"/></span>为输入，通过重建损失优化模型参数。</Heading>
   <Section title={<>训练数据窗口<Footnote note="window-settings"/></>}>
    <div className="training-window-header"><label className="field">显示测点<select aria-label="训练测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label}（{f.key}）</option>)}</select></label><span>训练集，{length.toLocaleString('zh-CN')} 个时刻</span></div>
    <div className="chapter-chart-panel">

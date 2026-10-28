@@ -12,17 +12,72 @@ export default function ExplanationChapter({data,address}:{data:Journey;address:
   return <div className="explanation-page"><Heading title="数据与评估说明">数据来源、计算过程与评估规则。</Heading>
     <nav className="explanation-index" aria-label="说明目录">{notes.map((note,i)=><a key={note.id} href={'#/metrics?'+new URLSearchParams({...Object.fromEntries(params),note:note.id})} aria-current={requested===note.id?'location':undefined}><span>{String(i+1).padStart(2,'0')}</span>{note.title}</a>)}</nav>
     <NoteSection id="data-records"><RecordExamples data={data}/></NoteSection>
-    <NoteSection id="data-source"><p>原始记录：converter.xlsx / Sheet8，共8,760条记录、136个测点。整理结果：converternew.xlsx / Sheet1，共7,992个时刻、125个测点。</p><p>移除768条无效时间记录与11个全缺失测点，保留范围中的170个缺失单元格填0。这些单元格分布在13个测点。</p><p>无效记录位于原始数据第3433—3456条与第8017—8760条，不含表头。前段位于2022-05-23 23:00与2022-05-25 00:00之间，后段位于2022-11-30 23:00之后，两段的时间与测点值均为“---”。记录条带按原始顺序排列，短缺失段放大至可辨识宽度；删除行后仍保留实际时间缺口。</p><p>移除测点：{data.removedFeatures.join('、')}。</p><div className="reference-table-scroll sensor-list" tabIndex={0} role="region" aria-label="保留的125个测点" aria-describedby="sensor-table-hint"><table><thead><tr><th>序号</th><th>测点名称</th><th>测点编号</th></tr></thead><tbody>{data.features.map((f,i)=><tr key={f.key}><td>{i+1}</td><th>{f.label}</th><td>{f.key}</td></tr>)}</tbody></table></div><p className="reference-table-hint" id="sensor-table-hint">左右滑动查看测点名称与编号。</p></NoteSection>
-    <NoteSection id="data-split"><p>按时间顺序以70% / 30%划分完整的7,992条整理记录，训练段5,594条，测试段2,398条。</p><p>训练段：{cleaning.split.trainStart} 至 {cleaning.split.trainEnd}；测试段：{cleaning.split.testStart} 至 {cleaning.split.testEnd}。</p><p>当前归档训练数组5,593条，测试数组2,397条。整理表7,992条记录中，训练段与测试段各自首条未进入实验数组，对应{data.summary.omittedTimes.join('、')}。现有模型结果对应这7,990条输入记录。</p></NoteSection>
-    <NoteSection id="normalization"><p className="reference-equation"><span>归一化值 =</span><Fraction numerator="原值 − 训练最小值" denominator="训练最大值 − 训练最小值"/></p><p>每个测点分别使用训练段的最小值与最大值。测试集沿用同一统计量，低于0的结果取0，高于1的结果取1。训练段为常量的测点归一化为0。</p><p>重建误差与异常分数使用归一化后的输入值计算。</p></NoteSection>
-    <NoteSection id="anomaly-cases"><p>八个案例来自真实清洁记录，按“替换 / 混合 × 四种素材”离线构造，各自配有已训练模型的重建结果。案例使用64×125完整输入，在32个选定测点上构造变化，沿用窗口判定阈值。案例与完整测试集分别评估。</p><ul><li>参考片段：取同一清洁测试集的片段，反转时间顺序，再以“1 − 数值”翻转幅值。</li><li>均匀值：区间内使用同一个构造值，形成持续平台。</li><li>峰值噪声：在第31点构造相反方向极值，标签覆盖第27—35点。</li><li>长度调整：第19—26点的8个值各重复3次，形成24点素材，写入第19—42点。</li></ul><p>替换直接使用素材值；混合使用“原值 ×（1 − 权重）+ 素材 × 权重”，中央权重为0.7，两端渐变。标签按构造规则生成，部分带有异常标签的边界位置保留原值。</p><p>标签矩阵与输入矩阵同形状。同一时刻任一测点标签为1，该时刻的真实标签即为异常；模型是否报警由异常分数和阈值决定。</p></NoteSection>
-    <NoteSection id="length-sampling"><p>拉长按逐点重复：A、B、C → A、A、A、B、B、B、C、C、C。当前案例将8点变为24点，写入64点窗口的第19—42点，第43—64点保留原来的位置与数值。</p><p>缩短可按间隔采样：A、B、C、D、E、F、G、H → A、C、E、G，将8点中的变化压缩到4个位置，再写入预先选定的4点区间。</p></NoteSection>
-    <NoteSection id="window-settings"><p>窗口长度64、步长1，每个窗口包含125个测点。2,397个测试时刻对应2,334个完整窗口。</p><p>当前完整窗口结果于2026年10月27日使用已有模型权重与正式测试输入导出。每个窗口保存64×125重建值及固定掩码，Global分支每个测点遮蔽16个位置，Local分支使用完整输入。</p><p>历史训练过程在序列开头重复首个观测值补齐窗口；页面训练窗口演示与测试评估遍历完整窗口。</p></NoteSection>
-    <NoteSection id="score-calculation"><p className="reference-equation"><span>时刻分数 =</span><Fraction numerator="Σ（该时刻输入 − 该窗口重建）²" denominator="125"/></p><p>先对同一时刻125个测点逐项相减、平方，再将125项求和并除以125，得到均方误差MSE。一个64点窗口得到64个分数，每个时刻一个。</p><p>输入值来自包含构造异常的测试数据。选择测点可查看对应曲线，各时刻的评分均使用全部125个测点。平均输入与平均重建曲线呈现整体形态；评分先对各测点误差平方，再取平均。</p><p>求和、平均与阈值判定均使用完整精度，表格数值四舍五入至9位小数。</p></NoteSection>
-    <NoteSection id="thresholds"><p>分数大于阈值时报警，否则不报警。</p><div className="evaluation-thresholds">{data.models.map(model=><div key={model.id}><h3>{model.name}</h3><dl><div><dt>独立窗口阈值</dt><dd>{model.windowThreshold.toFixed(9)}</dd></div><div><dt>完整序列阈值</dt><dd>{model.threshold.toFixed(9)}</dd></div></dl></div>)}</div><p>采用事后回看评估：对照测试标签，遍历全部可区分报警划分，选择区间点调整F1最高的阈值；并列时依次选择逐点F1更高、阈值更高的结果。</p><p>完整序列与独立窗口分别标定。窗口阈值统一基于全部2,334个窗口，各窗口单独进行区间点调整后汇总。</p></NoteSection>
-    <NoteSection id="point-metrics"><p>检出、误报、漏检与正确正常均按时间点统计。回放的混淆矩阵与逐点F1累计已查看范围内的实际报警。</p><p>区间点调整规则：真实异常段内出现一次报警，该段全部时间点计为检出；整段未报警则计为漏检。此规则用于评估计分，保留原始报警结果。</p><MetricsChapter data={data}/></NoteSection>
-    <NoteSection id="window-aggregation"><p className="reference-equation"><span>回放时刻分数 =</span><Fraction numerator="覆盖该时刻的窗口分数合计" denominator="实际覆盖窗口数"/></p><p>每个窗口先对该时刻的125项平方误差取平均，再平均各覆盖窗口的分数。这与先平均各测点的窗口平方误差、再平均125个测点完全等价。</p><p>中间时刻最多被64个窗口覆盖，首尾按实际数量合并。重建曲线独立平均各窗口重建值；评分平均的是平方误差。</p><p>回放依次呈现已保存的完整序列结果。“完整测试集”与“选定片段”两种播放范围均使用完整序列的合并分数与序列阈值。全覆盖合并包含后续窗口，属于离线回看。</p></NoteSection>
-
-    <NoteSection id="model-design"><p>STAM-AD采用局部与全局双分支结构。SMST-AD在此基础上引入多尺度时间编码，并设计空间分支与时空融合，表达测点之间的关联。</p><p>当前归档实现中，空间分支及空间约束存在，重建解码器接收时间特征z_time，融合特征z_final未进入重建输出。现有结果对应这一实现。</p></NoteSection>
+    <NoteSection id="data-source">
+      <p>原始数据来自converter.xlsx的Sheet8：8,760条记录、136个测点。整理后的converternew.xlsx / Sheet1包含7,992个时刻、125个测点。</p>
+      <p>整理时删除768条无效记录和11个全缺失测点，将13个保留测点中的170个缺失单元格填为0。</p>
+      <p>无效记录是原表第3433—3456条和第8017—8760条，行号从表头下一行开始计数。这两段的时间与测点值均为“---”。中间一段位于2022-05-23 23:00与2022-05-25 00:00之间，末尾一段位于2022-11-30 23:00之后。删除后，其余记录按原来的时间顺序保留。</p>
+      <p>删除的测点：{data.removedFeatures.join('、')}。</p>
+      <div className="reference-table-scroll sensor-list" tabIndex={0} role="region" aria-label="保留的125个测点" aria-describedby="sensor-table-hint"><table><thead><tr><th>序号</th><th>测点名称</th><th>测点编号</th></tr></thead><tbody>{data.features.map((f,i)=><tr key={f.key}><td>{i+1}</td><th>{f.label}</th><td>{f.key}</td></tr>)}</tbody></table></div>
+      <p className="reference-table-hint" id="sensor-table-hint">左右滑动查看测点名称与编号。</p>
+    </NoteSection>
+    <NoteSection id="data-split">
+      <p>整理后的7,992条记录按时间顺序划分：前70%为训练集，共5,594条；后30%为测试集，共2,398条。</p>
+      <p>训练集：{cleaning.split.trainStart} 至 {cleaning.split.trainEnd}。测试集：{cleaning.split.testStart} 至 {cleaning.split.testEnd}。</p>
+      <p>模型实际使用的数组为5,593条训练记录和2,397条测试记录。两段各从第二条开始，跳过的首条时间为{data.summary.omittedTimes.join('、')}。</p>
+    </NoteSection>
+    <NoteSection id="normalization">
+      <p className="reference-equation"><span>归一化值 =</span><Fraction numerator="原值 − 训练最小值" denominator="训练最大值 − 训练最小值"/></p>
+      <p>每个测点单独计算训练集的最大值和最小值，训练集与测试集都使用这两个值归一化。结果低于0时取0，高于1时取1；训练集数值始终相同的测点取0。</p>
+      <p>模型输入、重建值和平方误差均使用归一化后的数值。</p>
+    </NoteSection>
+    <NoteSection id="anomaly-cases">
+      <p>八个案例由“替换、混合”两种插入方式与四种素材组合而成。每个案例从清洁测试数据中取64个时刻，在32个选定测点上构造异常，再由两个模型分别重建和评估。</p>
+      <ul><li>参考片段：取一段真实记录，先反转时间顺序，再用“1 − 数值”翻转幅值。</li><li>均匀值：在目标区间内写入同一个值，形成平台。</li><li>峰值噪声：改变第31点的数值，将第27—35点标为异常。</li><li>长度调整：将第19—26点的8个值各重复3次，写入第19—42点。</li></ul>
+      <p>替换直接写入素材值；混合按“原值 ×（1 − 权重）+ 素材 × 权重”计算，中央权重为0.7，两端逐渐降低。异常标签标记构造区间，也包括规则指定的边缘或邻近时刻。</p>
+      <p><strong>标签对应一个时刻、一个测点。</strong>0表示正常，1表示异常。例如“第133点的直流电流标签异常”，说的是这个单元格。</p>
+      <p>同一时刻只要有一个测点的标签为1，这个时刻的真实状态就是异常。模型再根据该时刻的异常分数与阈值作出判断。</p>
+    </NoteSection>
+    <NoteSection id="length-sampling">
+      <p>拉长是重复采样：A、B、C → A、A、A、B、B、B、C、C、C。当前案例将8点变成24点，写入第19—42点，其余位置保留原值。</p>
+      <p>缩短是间隔采样：A、B、C、D、E、F、G、H → A、C、E、G，将原来的8点变化压缩到4个位置。</p>
+    </NoteSection>
+    <NoteSection id="window-settings">
+      <p><strong>64×125是一个窗口的形状：</strong>64个时刻，每个时刻125个测点。步长1表示下一个窗口向后移动一个时刻，例如第1—64点、第2—65点。2,397个测试时刻共形成2,334个完整窗口。</p>
+      <p>训练时把多个窗口组成一批，整批形状是B×64×125，B表示窗口数量。当前训练配置每批128个窗口，最后一批按剩余数量组成；各窗口分别重建，整批计算损失并更新一次参数。</p>
+      <p>页面使用2026年10月27日由已有权重导出的窗口结果。每个窗口保存64×125个重建值，Global分支每个测点遮蔽16个位置，Local分支接收完整窗口。</p>
+      <p>历史训练在序列开头重复首个观测值补齐窗口。页面的窗口演示和测试结果从完整窗口开始展示。</p>
+    </NoteSection>
+    <NoteSection id="score-calculation">
+      <p><strong>片段页展示当前选中窗口的重建结果。</strong>选择直流电流和第1—64点，就显示这个窗口重建出的直流电流64个值。选择“全部测点平均”时，曲线取125个测点的平均值。</p>
+      <p>输入来自送入模型的测试数据，其中包含构造异常。上方曲线随测点选择变化，下方异常分数始终汇总全部125个测点。</p>
+      <p className="reference-equation"><span>该时刻的窗口分数 =</span><Fraction numerator="125个测点的平方误差合计" denominator="125"/></p>
+      <p>对同一时刻的各测点分别计算“（输入 − 该窗口重建）²”，将125项相加再除以125。一个窗口有64个时刻，因此得到64个分数。</p>
+      <p>计算与阈值比较使用完整精度，明细表显示9位小数。</p>
+    </NoteSection>
+    <NoteSection id="thresholds">
+      <p><strong>分数大于阈值时报警，等于或低于阈值时判为正常。</strong></p>
+      <div className="evaluation-thresholds">{data.models.map(model=><div key={model.id}><h3>{model.name}</h3><dl><div><dt>独立窗口阈值</dt><dd>{model.windowThreshold.toFixed(9)}</dd></div><div><dt>完整序列阈值</dt><dd>{model.threshold.toFixed(9)}</dd></div></dl></div>)}</div>
+      <p>当前阈值通过扫描选择：对照测试标签，逐一比较不同阈值的报警结果，选择区间点调整F1最高的值。并列时先比较逐点F1，再选择较高的阈值。</p>
+      <p>片段检测和连续回放分别选取阈值。片段页的阈值统一依据全部2,334个窗口选出，各窗口分别进行区间点调整后汇总；回放阈值依据完整序列的合并分数选出。</p>
+    </NoteSection>
+    <NoteSection id="point-metrics">
+      <p>每个时刻比较真实标签与模型报警，得到检出、漏检、误报或正确正常。回放中的混淆矩阵和逐点F1累计统计已经查看的时刻。</p>
+      <p>区间点调整用于评估计分：一个真实异常段内只要出现一次报警，就将整段计为检出；整段都没有报警则计为漏检。图中的报警点按模型实际判断显示。</p>
+      <MetricsChapter data={data}/>
+    </NoteSection>
+    <NoteSection id="window-aggregation">
+      <p><strong>“当前时刻分数”是当前选中时间点的异常分数。</strong>同一时刻出现在多个窗口中，每个窗口都会给它一个重建结果和一个分数。</p>
+      <ul><li>重建曲线：同一测点、同一时刻的各窗口重建值取平均。</li><li>异常分数：每个窗口先平均该时刻125项平方误差，再平均各窗口的分数。</li></ul>
+      <p className="reference-equation"><span>回放时刻分数 =</span><Fraction numerator="覆盖该时刻的窗口分数合计" denominator="实际覆盖窗口数"/></p>
+      <p>例如第48点出现在第1—64点至第48—111点这48个窗口中，“48个覆盖窗口”就是这48份结果。序列中间最多有64份，首尾按实际数量取平均。</p>
+      <p>两次平均可以交换顺序：先平均各窗口的平方误差，再平均125个测点，结果相同。48个窗口时，也就是将48×125项平方误差相加，除以48×125。</p>
+      <p>重建值平均和误差平均是两项计算。例如输入0.5，两个窗口重建为0.4和0.6：平均重建值是0.5；两个平方误差均为0.01，平均误差仍为0.01。</p>
+      <p>回放读取整条测试序列保存的结果，覆盖窗口包括当前时刻之后的观测。“完整测试集”和“选定片段”两种范围共用这份结果与回放阈值。</p>
+    </NoteSection>
+    <NoteSection id="model-design">
+      <p>STAM-AD通过Local和Global两个时间分支学习短期变化与较长范围的规律，再融合特征重建窗口。</p>
+      <p>报告中的SMST-AD增加多尺度时间建模和空间分支。这里的“空间”是测点之间的关联：在测点维度计算注意力，用相关性掩码与空间正则约束关联，再融合时间和空间特征重建。</p>
+      <p>页面的模型介绍采用报告设计。当前保存的SMST-AD结果由时间特征生成重建；对应代码同时计算空间注意力和空间正则。</p>
+    </NoteSection>
   </div>;
 }
