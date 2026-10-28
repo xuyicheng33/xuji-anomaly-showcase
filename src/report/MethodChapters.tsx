@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from 'react';
-import {loadAsset,type Journey,type Arrays,type Model} from '../journey';
+import {loadAsset,type Journey,type Model} from '../journey';
 import {Heading,Section,Note,ModelSelect,colors} from './ReportUI';
 import Curve from './Curve';
 import './chapters.css';
@@ -39,7 +39,7 @@ export function ModelsChapter({data,model,setModel}:{data:Journey;model:Model;se
  </div>;
 }
 
-type TrainingProps={data:Journey;arrays?:Arrays;model:Model;setModel:(value:string)=>void;feature?:number;setFeature?:(value:number)=>void};
+type TrainingProps={data:Journey;model:Model;setModel:(value:string)=>void;feature?:number;setFeature?:(value:number)=>void};
 export function TrainingChapter({data,model,setModel,feature:sharedFeature,setFeature:shareFeature}:TrainingProps){
  const [localFeature,setLocalFeature]=useState(4),[windowStart,setWindowStart]=useState(Math.min(5299,data.datasets.train.shape[0]-64)),[epoch,setEpoch]=useState(0);
  const [training,setTraining]=useState<Float64Array|null>(null),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);

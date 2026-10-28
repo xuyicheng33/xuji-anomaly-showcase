@@ -21,3 +21,23 @@
 @media(max-width:360px){.length-source{grid-template-columns:repeat(4,minmax(0,1fr))}.length-destination{grid-template-columns:repeat(12,minmax(0,1fr))}.length-window{grid-template-columns:1fr}.length-window>span br{display:none}.length-window strong{margin-left:10px}}
 
 .case-stage{scroll-margin-top:18px}
+
+@media(max-width:550px){
+ .site-main .case-page>.chapter-heading{padding:20px 0 22px}
+ .case-methods button{padding:10px 13px;min-height:46px}
+ .case-methods strong{font-size:18px;margin:0}
+ .case-methods span{display:none}
+ .case-nav-group h2{margin-bottom:9px}
+ .case-nav-group+.case-nav-group{margin-top:16px}
+ .case-kind-copy{display:none}
+ .case-layout{gap:18px}
+ .case-title{align-items:center;margin-bottom:12px}
+ .case-title p{margin-bottom:4px;font-size:12px}
+ .case-title h2{font-size:21px}
+ .case-stage-toolbar:before{content:none}
+ .case-stage-toolbar{grid-template-columns:1fr;gap:10px;margin-bottom:12px}
+ .case-stage-toolbar .primary{grid-row:2;grid-column:1;min-height:42px}
+ .case-steps{grid-row:1;grid-column:1}
+ .case-context{margin-bottom:10px}
+ .case-point{padding-top:16px}
+}

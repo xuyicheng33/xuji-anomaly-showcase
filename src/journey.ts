@@ -11,7 +11,6 @@ export type Journey = {
   normalization: {feature: number; trainMin: number; trainMax: number; testMin: number; testMax: number; raw: number[]; normalized: number[]}[];
   rawSampleRows: {time:string; values:(number|null)[]}[]; sampleFeatures: number[]; sampleRows: {time: string; values: number[]}[]; trainingSample: number[][]; provenance: Record<string,string>;
 };
-export type Arrays = { input: Float64Array; clean: Float64Array; labels: Float64Array; recon: Float64Array; errors: Float64Array; modelId: string };
 export const clamp=(n:number,min:number,max:number)=>Math.max(min,Math.min(max,n));
 export const fmt=(n:number,digits=0)=>n.toLocaleString('zh-CN',{maximumFractionDigits:digits});
 export const pct=(n:number|null)=>n===null?'—':`${(n*100).toFixed(2)}%`;
@@ -19,7 +18,6 @@ export function series(values:Float64Array,feature:number,start:number,length=64
 export function meanSeries(values:Float64Array|Float32Array,start=0,length=64,features=125){
  return Array.from({length:Math.min(length,values.length/features-start)},(_,i)=>{let sum=0;for(let f=0;f<features;f++)sum+=values[(start+i)*features+f];return sum/features});
 }
-export function rmsSeries(errors:Float64Array,start=0,length=64){return meanSeries(errors,start,length).map(v=>Math.sqrt(Math.max(0,v)))}
 export function countMetrics(labels:number[],scores:number[],threshold:number,start=0,end=labels.length):Metrics{
  let tp=0,fp=0,fn=0,tn=0;
  for(let i=start;i<end;i++){const y=labels[i]>0,p=scores[i]>threshold;if(y&&p)tp++;else if(p)fp++;else if(y)fn++;else tn++;}
@@ -33,7 +31,6 @@ export function loadAsset(asset:Asset){
  const request=fetch(`${import.meta.env.BASE_URL}data/journey/${asset.file}`).then(async r=>{if(!r.ok)throw Error('数据读取失败');const b=await r.arrayBuffer();if(b.byteLength!==asset.bytes)throw Error('数据文件长度不匹配');return new Float64Array(b);}).catch(e=>{assetCache.delete(asset.file);throw e;});
  assetCache.set(asset.file,request);return request;
 }
-export async function loadArrays(d:Journey,m:Model):Promise<Arrays>{const [input,clean,labels,recon,errors]=await Promise.all([loadAsset(d.input),loadAsset(d.cleanTest),loadAsset(d.labelMatrix),loadAsset(m.recon),loadAsset(m.errors)]);return{input,clean,labels,recon,errors,modelId:m.id};}
 const windowCache=new Map<string,Promise<ArrayBuffer>>();
 async function windowFile(file:string,bytes:number){
  let request=windowCache.get(file);if(request)return request;

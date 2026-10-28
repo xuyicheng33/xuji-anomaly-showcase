@@ -1,0 +1,23 @@
+.curve-loading{min-height:270px;display:flex;align-items:center;justify-content:center;gap:18px;color:var(--muted);font-size:14px;border-block:1px solid var(--line)}
+.curve-loading.compact{min-height:185px}.curve-loading button,.feature-location button{font-size:13px}
+.feature-location{display:flex;align-items:center;justify-content:flex-end;gap:16px;margin-top:14px;color:var(--muted);font-size:13px}
+
+/* Compact only narrow screens; the accepted desktop grid stays in place. */
+@media(max-width:680px){
+ .site-main .detection-page>.chapter-heading{padding:20px 0 24px}
+ .detection-page>.chapter-heading p{margin-top:8px}
+ .site-main .detection-page>.toolbar{margin-bottom:16px;gap:12px}
+ .detection-page .toolbar>.field{flex-direction:row;align-items:center;gap:10px}
+ .detection-page .toolbar>.field select{flex:1;min-width:0;width:0;margin-top:0}
+ .detection-page .example-picker{gap:6px;margin-bottom:14px}
+ .detection-page .example-picker>span{flex-basis:auto;margin-right:4px}
+ .detection-page .example-picker button{padding:8px;font-size:12px;min-height:38px}
+ .detection-page .selection-panel{padding:14px;gap:12px}
+ .detection-page .selection-panel .primary{min-height:42px;padding-block:10px}
+ .detection-page .time-range{margin-block:12px;font-size:12px;line-height:1.7}
+ .detection-page .detection-summary{gap:8px 16px;padding-block:12px;margin-block:12px}
+ .detection-page .chart-label-key{margin-block:12px 5px}
+ .curve-loading{min-height:220px;flex-wrap:wrap;gap:10px}.curve-loading.compact{min-height:180px}
+ .training-chapter .training-steps p{max-width:none;text-wrap:pretty}
+ .training-chapter .training-steps>li{padding-right:0}
+}

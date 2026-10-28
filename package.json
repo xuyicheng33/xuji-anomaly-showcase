@@ -14,7 +14,8 @@
     "export:data": "python -X utf8 -B scripts/export_journey.py",
     "verify": "npm run verify:data && npm test && npm run test:browser",
     "verify:windows": "python -X utf8 -B scripts/verify_windows.py",
-    "verify:cases": "python -X utf8 -B scripts/verify_anomaly_cases.py"
+    "verify:cases": "python -X utf8 -B scripts/verify_anomaly_cases.py",
+    "verify:loading": "node scripts/verify_loading.mjs"
   },
   "dependencies": {
     "react": "19.3.1",
