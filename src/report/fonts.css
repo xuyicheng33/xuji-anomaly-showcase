@@ -2,5 +2,5 @@
   font-family: 'Noto Serif SC';
   font-style: normal; font-display: swap;
   font-weight: 500;
-  src: url(/fonts/NotoSerifSC-Subset.ttf) format('truetype');
+  src: url(/fonts/NotoSerifSC-Subset.ttf?v=60106cb167b6) format('truetype');
 }
