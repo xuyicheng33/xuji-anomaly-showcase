@@ -3,6 +3,7 @@ import type {Journey, Metrics} from '../journey';
 import {countMetrics, fmt, pct, pointAdjusted} from '../journey';
 import {Section} from './ReportUI';
 import './metrics.css';
+import Fraction from './Fraction';
 
 // Twenty teaching points: the inclusive interval 6–13 is anomalous.
 export const exampleLabels = Array.from({length: 20}, (_, i) => i >= 5 && i <= 12 ? 1 : 0);
@@ -34,7 +35,7 @@ function MetricComparison({pointWise, pointAdjusted: adjusted}: {pointWise: Metr
   return <table className="metrics-comparison" aria-label="示例的逐点和点调整指标对照">
     <thead><tr><th scope="col">计算项</th><th scope="col">逐点</th><th scope="col">区间点调整</th></tr></thead>
     <tbody>{metricRows.map(row => <tr key={row.key} className={row.key === 'f1' ? 'metrics-f1-row' : undefined}>
-      <th scope="row">{row.label}{row.formula && <small>{row.formula}</small>}</th>
+      <th scope="row">{row.label}{row.formula && <small><Fraction numerator={row.formula.split(' / ')[0]} denominator={row.formula.split(' / ')[1]}/></small>}</th>
       <td data-testid={'pw-' + row.key}>{metricValue(pointWise, row.key)}</td>
       <td data-testid={'pa-' + row.key}>{metricValue(adjusted, row.key)}</td>
     </tr>)}</tbody>

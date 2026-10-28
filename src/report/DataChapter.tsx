@@ -5,6 +5,7 @@ import {Heading,Section,colors} from './ReportUI';
 import Curve from './Curve';
 import {Footnote} from './notes';
 import DataCleaning from './DataCleaning';
+import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
 import './chapters.css';
 import './data-preparation.css';
@@ -57,11 +58,11 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
   </Section>
 
   <div ref={normalizationRef} className="normalization-section"><Section title={<>测点数值归一化<Footnote note="normalization"/></>}>
-   <div className="normalization-heading"><p className="reading-copy">每个测点的训练集与测试集共用训练集的最小值和最大值，归一化至 0-1。</p><label className="field">测点<select aria-label="归一化测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label}（{f.key}）</option>)}</select></label></div>
+   <div className="normalization-heading"><p className="reading-copy">每个测点均使用训练集的最大值和最小值，归一化至0-1。</p><label className="field">测点<select aria-label="归一化测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label}（{f.key}）</option>)}</select></label></div>
    {norm?<><div className="normalization-facts"><div><span>训练段最小值</span><strong>{number(norm.min,4)}</strong></div><div><span>训练段最大值</span><strong>{number(norm.max,4)}</strong></div><div><span>当前样本时间</span><strong className="sample-time">{train.times[norm.start+sampleIndex]}</strong></div></div>
     <div className="normalization-plots"><Curve title="原始单位" lines={[{name:point.label,values:norm.values,color:colors.input}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} range={chartRange(norm.values)} height={205} onSelect={setSample}/><Curve title="归一化后" lines={[{name:point.label,values:norm.normalized,color:colors.recon}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} height={205} onSelect={setSample}/></div>
     <label className="slider-label">选择样本<input aria-label="归一化样本" type="range" min="0" max={norm.values.length-1} value={sampleIndex} onChange={e=>setSample(+e.target.value)}/><span>{sampleIndex+1} / {norm.values.length}</span></label>
-    <div className="normalization-equation" aria-label="当前样本归一化计算">{norm.min===norm.max?<span className="constant-equation">训练段为常量 {number(norm.min,4)}，归一化取值</span>:<span className="fraction"><span>{operand(norm.values[sampleIndex])} − {operand(norm.min)}</span><span>{operand(norm.max)} − {operand(norm.min)}</span></span>}<span>=</span><strong>{norm.normalized[sampleIndex].toFixed(4)}</strong></div>
+    <div className="normalization-equation" aria-label="当前样本归一化计算">{norm.min===norm.max?<span className="constant-equation">训练段为常量 {number(norm.min,4)}，归一化取值</span>:<Fraction numerator={<>{operand(norm.values[sampleIndex])} − {operand(norm.min)}</>} denominator={<>{operand(norm.max)} − {operand(norm.min)}</>}/>}<span className="equation-result"><span>=</span><strong>{norm.normalized[sampleIndex].toFixed(4)}</strong></span></div>
    </>:trainAsset.error?<div className="chapter-loading" role="alert"><p>{trainAsset.error}</p><button onClick={trainAsset.retry}>重新读取训练样本</button></div>:<p className="chapter-loading" role="status">正在读取训练样本…</p>}
   </Section></div>
 

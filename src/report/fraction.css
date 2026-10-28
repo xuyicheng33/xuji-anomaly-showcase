@@ -1,0 +1,8 @@
+.math-fraction{display:inline-grid;grid-template-rows:auto auto;align-items:center;text-align:center;vertical-align:middle;line-height:1.45;font-family:var(--sans);font-weight:400;font-variant-numeric:tabular-nums;color:inherit;flex-shrink:0}
+.math-fraction>span{padding:5px 10px;white-space:nowrap}
+.math-fraction>span+span{border-top:1px solid currentColor}
+.equation-result{display:inline-flex;align-items:center;gap:8px;white-space:nowrap;color:var(--muted)}
+.window-scope{white-space:nowrap}
+.reference-equation{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.metrics-comparison .math-fraction{font-size:12px;margin-top:6px}
+@media(max-width:680px){.math-fraction>span{padding:4px 6px}}
