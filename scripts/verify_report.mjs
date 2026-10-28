@@ -8,6 +8,7 @@ for(let attempt=0;attempt<50;attempt++){try{if((await fetch(base)).ok)break}catc
 const data=JSON.parse(await readFile('public/data/journey/manifest.json','utf8'));
 const cases=JSON.parse(await readFile('public/data/journey/anomaly-cases-v1/manifest.json','utf8')).cases;
 const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
+const originalNewPage=browser.newPage.bind(browser);browser.newPage=async(...args)=>{const page=await originalNewPage(...args);page.setDefaultTimeout(Number(process.env.BROWSER_TIMEOUT||60000));return page};
 const errors=[];await mkdir('.qa/unified/shots',{recursive:true});
 async function go(page,name){await page.goto(base+'#/'+name);await page.locator('h1').waitFor();if(['data','anomalies','training','detection','playback'].includes(name))await page.locator('.curve').first().waitFor();if(name==='data'){await page.locator('.normalization-section').scrollIntoViewIfNeeded();await page.locator('.normalization-equation strong').waitFor();await page.evaluate(()=>window.scrollTo(0,0));}if(name==='playback')await page.locator('.reconstruction-view').waitFor();await page.evaluate(()=>document.fonts.ready);}
 function expected(m,from,to,th=m.threshold){const v={tp:0,fp:0,fn:0,tn:0};for(let i=from;i<to;i++)v[data.labels[i]?(m.scores[i]>th?'tp':'fn'):(m.scores[i]>th?'fp':'tn')]++;return v}
