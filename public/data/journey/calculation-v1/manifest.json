@@ -1,0 +1,27 @@
+{
+  "resultVersion": "retrospective-v2-20261027",
+  "window": 64,
+  "features": 125,
+  "models": {
+    "model1": {
+      "file": "calculation-v1/model1-scores.bin",
+      "shape": [
+        2334,
+        64
+      ],
+      "bytes": 1195008,
+      "sha256": "7cef281ac505e66fac8db780b1bcfc2f9dfddee623b9d73039e6846a318f1796",
+      "maxAggregateDifference": 5.551115123125783e-17
+    },
+    "model2": {
+      "file": "calculation-v1/model2-scores.bin",
+      "shape": [
+        2334,
+        64
+      ],
+      "bytes": 1195008,
+      "sha256": "adff597d74ac115d596b28e9d69e2d5c091bbd3ea2dc126a49aded21da8659f4",
+      "maxAggregateDifference": 5.551115123125783e-17
+    }
+  }
+}
