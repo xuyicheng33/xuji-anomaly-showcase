@@ -8,7 +8,7 @@ export default function LengthConstruction({values,insertion}:{values:number[];i
   <h3 id="length-title">采样与写入位置<Footnote note="length-sampling"/></h3>
   <p>取第 19—26 点的 8 个值，每个值重复 3 次，得到 24 点素材，写入第 19—42 点。</p>
   <div className="length-sampling">
-   <div className="length-row-label"><span>来源 · 第19—26点</span><span>8 个值</span></div>
+   <div className="length-row-label"><span>来源：第19—26点</span><span>8 个值</span></div>
    <div className="length-source">{values.map((v,i)=><button key={i} aria-label={`查看来源第 ${19+i} 点`} aria-pressed={sample===i} onClick={()=>setSample(i)}><strong>{String.fromCharCode(65+i)}</strong><span>{v.toFixed(3)}</span></button>)}</div>
    <div className="length-repeat">每点重复 3 次 <span aria-hidden="true">↓</span></div>
    <div className="length-destination" aria-label="8个值重复为24个值">{Array.from({length:24},(_,i)=><button key={i} aria-label={`素材第 ${i+1} 点来自 ${String.fromCharCode(65+Math.floor(i/3))}`} aria-pressed={sample===Math.floor(i/3)} onClick={()=>setSample(Math.floor(i/3))}>{String.fromCharCode(65+Math.floor(i/3))}</button>)}</div>

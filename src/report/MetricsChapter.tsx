@@ -18,11 +18,11 @@ export function compareMetrics(labels: number[], alarms: number[]) {
 }
 
 const metricRows: {key: keyof Metrics; label: string; formula?: string}[] = [
-  {key: 'tp', label: 'TP · 检出'},
-  {key: 'fp', label: 'FP · 误报'},
-  {key: 'fn', label: 'FN · 漏检'},
-  {key: 'precision', label: 'P · 精确率', formula: 'TP / (TP + FP)'},
-  {key: 'recall', label: 'R · 召回率', formula: 'TP / (TP + FN)'},
+  {key: 'tp', label: 'TP 检出'},
+  {key: 'fp', label: 'FP 误报'},
+  {key: 'fn', label: 'FN 漏检'},
+  {key: 'precision', label: 'P 精确率', formula: 'TP / (TP + FP)'},
+  {key: 'recall', label: 'R 召回率', formula: 'TP / (TP + FN)'},
   {key: 'f1', label: 'F1', formula: '2TP / (2TP + FP + FN)'},
 ];
 
@@ -72,7 +72,7 @@ export default function MetricsChapter({data}: {data: Journey}) {
       <div className="metrics-track-key"><span>0 = 正常 / 未报警　1 = 异常 / 报警</span><span><i className="is-added"/>虚线格 = 点调整补齐</span></div>
 
       <p className="metrics-effect" aria-live="polite" aria-atomic="true">
-        逐点检出 <strong>{pointWise.tp} / 8</strong> · 点调整检出 <strong>{adjustedMetrics.tp} / 8</strong> · 误报 <strong>{pointWise.fp}</strong>
+        逐点检出 <strong>{pointWise.tp} / 8</strong>，点调整检出 <strong>{adjustedMetrics.tp} / 8</strong>，误报 <strong>{pointWise.fp}</strong>
       </p>
 
       <MetricComparison pointWise={pointWise} pointAdjusted={adjustedMetrics}/>

@@ -57,7 +57,7 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
   <Section title={<>原始记录与处理结果<Footnote note="data-records" context={{feature:point.index,from}}/></>}>
    <div className="data-controls">
     <div className="segmented" aria-label="记录版本">{([['raw','原始记录'],['clean','整理结果']] as const).map(([id,label])=><button key={id} aria-pressed={view===id} onClick={()=>setView(id)}>{label}</button>)}</div>
-    <label className="field">测点<select value={point.index} aria-label="数据测点" onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label} · {f.key}</option>)}</select></label>
+    <label className="field">测点<select value={point.index} aria-label="数据测点" onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label}（{f.key}）</option>)}</select></label>
     <label className="field">时间范围<select value={month} aria-label="数据时间范围" onChange={e=>{const value=e.target.value;setMonth(value);if(value!=='all')setOffset(clean.times.findIndex(time=>time.startsWith(value)))}}><option value="all">全部有效时刻</option>{months.map(value=><option key={value} value={value}>{value.replace('-',' 年 ')} 月</option>)}</select></label>
    </div>
    <div className="chapter-chart-panel">
@@ -81,7 +81,7 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
   </Section>
 
   <div ref={normalizationRef} className="normalization-section"><Section title={<>测点数值归一化<Footnote note="normalization"/></>}>
-   <div className="normalization-heading"><p className="reading-copy">训练集与测试集共用训练段的最小值和最大值，归一化至 0—1。</p><label className="field">测点<select aria-label="归一化测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label} · {f.key}</option>)}</select></label></div>
+   <div className="normalization-heading"><p className="reading-copy">训练集与测试集共用训练段的最小值和最大值，归一化至 0—1。</p><label className="field">测点<select aria-label="归一化测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label}（{f.key}）</option>)}</select></label></div>
    {norm?<><div className="normalization-facts"><div><span>训练段最小值</span><strong>{number(norm.min,4)}</strong></div><div><span>训练段最大值</span><strong>{number(norm.max,4)}</strong></div><div><span>当前样本时间</span><strong className="sample-time">{train.times[norm.start+sampleIndex]}</strong></div></div>
     <div className="normalization-plots"><Curve title="原始单位" lines={[{name:point.label,values:norm.values,color:colors.input}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} range={chartRange(norm.values)} height={205} onSelect={setSample}/><Curve title="归一化后" lines={[{name:point.label,values:norm.normalized,color:colors.recon}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} height={205} onSelect={setSample}/></div>
     <label className="slider-label">选择样本<input aria-label="归一化样本" type="range" min="0" max={norm.values.length-1} value={sampleIndex} onChange={e=>setSample(+e.target.value)}/><span>{sampleIndex+1} / {norm.values.length}</span></label>

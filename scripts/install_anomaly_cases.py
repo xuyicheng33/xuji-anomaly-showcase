@@ -47,7 +47,7 @@ def install(source, target, journey):
         material = np.asarray(c['original']).copy()
         if c['kind'] == 'reference':
             material[c['begin']:c['end'], c['features']] = clean[175:199, c['features']]
-        rec.update(name=('替换' if c['insertion'] == 'replace' else '混合') + ' · ' + names[c['kind']],
+        rec.update(name=('替换' if c['insertion'] == 'replace' else '混合') + '：' + names[c['kind']],
                    times=data['times'][c['start']:c['start'] + 64], original=original, mask=mask,
                    material=asset(cid + '-material', material),
                    **{k: asset(cid + '-' + k, c[k]) for k in ['candidate', 'weights', 'input', 'labels']})
