@@ -9,8 +9,8 @@ import './chapters.css';
 const descriptions={
  model1:{title:'双分支自监督重建',intro:'STAM-AD以TCN与Transformer为主体，结合异常增强、时间掩码和有界异常损失，学习正常模式与异常变化之间的差异。',
  details:[['局部时间依赖','Local分支接收完整窗口，通过因果卷积提取短期变化，再由Transformer组织窗口内的时间关联。'],['全局时间依赖','Global分支接收部分遮蔽的窗口，通过空洞卷积扩大感受野，结合Transformer提取较长范围的规律。'],['融合与重建','拼接局部与全局特征，由共享解码器还原窗口。重建结果与输入逐点比较，形成异常评分。']]},
- model2:{title:'多尺度时间依赖建模',intro:'SMST-AD在双分支框架上扩展局部时间建模，以多个感受野并行观察序列，兼顾突发波动、局部节奏与较长范围的趋势。',
- details:[['多尺度局部编码','空洞率为1、2、4的Local TCN并行提取特征，每个尺度配置独立Transformer，保留不同时间粒度的信息。'],['时间特征融合','先融合各个局部尺度，再与Global分支的特征拼接，形成兼顾局部与整体的窗口表示。'],['自监督区分学习','沿用异常增强、时间掩码与有界异常损失，通过构造标签引导模型区分正常与异常。']]}
+ model2:{title:'多尺度时空依赖建模',intro:'SMST-AD在STAM-AD基础上，将多尺度时间依赖与显式空间依赖协同建模，同时观察不同时间范围的变化和测点之间的关联。',
+ details:[['多尺度时间分支','不同空洞率的Local TCN并行提取短期波动、周期模式与中期趋势，再与Global分支共同形成时间表示。'],['显式空间分支','Transformer在测点维度计算注意力，利用皮尔逊相关性引导空间掩码，并以异常感知空间正则抑制异常测点对正常测点的过度影响。'],['时空融合与重建','拼接时间与空间特征后重建窗口，训练时联合优化有界异常损失与空间正则，测试时以重建误差形成异常评分。']]}
 };
 function modelInScope(data:Journey,model:Model){return model.id==='model1'||model.id==='model2'?model:data.models.find(m=>m.id==='model1')!}
 
@@ -23,7 +23,7 @@ export function ModelsChapter({data,model,setModel}:{data:Journey;model:Model;se
   <div className="model-details">{description.details.map(([title,text],i)=><section key={title}><span>0{i+1}</span><h3>{title}</h3><p>{text}</p></section>)}</div>
 
   <Section title="从输入到异常评分">
-   <div className="model-flow" aria-label="模型处理流程">{[['输入窗口','64个时刻 × 125个测点'],[multi?'多尺度与全局编码':'局部与全局编码','TCN提取变化，Transformer学习关联'],['特征融合与重建','还原各时刻的测点数值'],['误差聚合与判定','平方误差聚合为时刻分数']].map(([title,copy],i)=><div key={title}><span>0{i+1}</span><h3>{title}</h3><p>{copy}</p></div>)}</div>
+   <div className="model-flow" aria-label="模型处理流程">{[['输入窗口','64个时刻 × 125个测点'],[multi?'时间与空间编码':'局部与全局编码',multi?'多尺度时间建模，测点间注意力':'TCN提取变化，Transformer学习关联'],[multi?'时空融合与重建':'特征融合与重建','还原各时刻的测点数值'],['误差聚合与判定','平方误差聚合为时刻分数']].map(([title,copy],i)=><div key={title}><span>0{i+1}</span><h3>{title}</h3><p>{copy}</p></div>)}</div>
   </Section>
 
   <Section title="时间掩码与上下文学习">
@@ -36,7 +36,7 @@ export function ModelsChapter({data,model,setModel}:{data:Journey;model:Model;se
   </Section>
 
   <Section title="两种方法的侧重点">
-   <div className="model-comparison"><div><span>STAM-AD</span><h3>局部与全局互补</h3><p>用两个时间分支分别捕捉短期变化与窗口整体规律。</p></div><div><span>SMST-AD</span><h3>多个时间尺度协同</h3><p>将局部建模细分为多个尺度，再与全局信息融合。</p></div></div>
+   <div className="model-comparison"><div><span>STAM-AD</span><h3>局部与全局互补</h3><p>用两个时间分支分别捕捉短期变化与窗口整体规律。</p></div><div><span>SMST-AD</span><h3>多尺度时间与空间协同</h3><p>在多尺度时间建模之外，显式学习测点之间的依赖，并融合时空特征。</p></div></div>
   </Section>
  </div>;
 }
