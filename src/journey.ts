@@ -28,13 +28,13 @@ export function pointAdjusted(labels:number[],scores:number[],threshold:number){
 const assetCache=new Map<string,Promise<Float64Array>>();
 export function loadAsset(asset:Asset){
  const existing=assetCache.get(asset.file);if(existing)return existing;
- const request=fetch(`${import.meta.env.BASE_URL}data/journey/${asset.file}`).then(async r=>{if(!r.ok)throw Error('数据读取失败');const b=await r.arrayBuffer();if(b.byteLength!==asset.bytes)throw Error('数据文件长度不匹配');return new Float64Array(b);}).catch(e=>{assetCache.delete(asset.file);throw e;});
+ const request=fetch(`${import.meta.env.BASE_URL}data/journey/${asset.file}?v=${asset.sha256}`).then(async r=>{if(!r.ok)throw Error('数据读取失败');const b=await r.arrayBuffer();if(b.byteLength!==asset.bytes)throw Error('数据文件长度不匹配');return new Float64Array(b);}).catch(e=>{assetCache.delete(asset.file);throw e;});
  assetCache.set(asset.file,request);return request;
 }
 const windowCache=new Map<string,Promise<ArrayBuffer>>();
 async function windowFile(file:string,bytes:number){
  let request=windowCache.get(file);if(request)return request;
- request=fetch(`${import.meta.env.BASE_URL}data/journey/${file}`).then(async r=>{if(!r.ok)throw Error('窗口结果读取失败');const b=await r.arrayBuffer();if(b.byteLength!==bytes)throw Error('窗口文件长度不匹配');return b}).catch(e=>{windowCache.delete(file);throw e});
+ request=fetch(`${import.meta.env.BASE_URL}data/journey/${file}?v=windows-v1-20261027`).then(async r=>{if(!r.ok)throw Error('窗口结果读取失败');const b=await r.arrayBuffer();if(b.byteLength!==bytes)throw Error('窗口文件长度不匹配');return b}).catch(e=>{windowCache.delete(file);throw e});
  windowCache.set(file,request);if(windowCache.size>10)windowCache.delete(windowCache.keys().next().value!);return request;
 }
 export async function loadWindow(m:Model,start:number){

@@ -13,12 +13,12 @@ try{
   const bounds=await p.locator('.case-stage .curve').evaluate(e=>[e.dataset.yMin,e.dataset.yMax]);
   for(const step of ['原始片段','异常素材','插入过程','标签结果']){await p.getByRole('button',{name:step,exact:true}).click();assert.deepEqual(await p.locator('.case-stage .curve').evaluate(e=>[e.dataset.yMin,e.dataset.yMax]),bounds)}
   await p.getByRole('button',{name:'查看来源第 26 点',exact:true}).click();assert.match(await p.locator('.length-mapping').innerText(),/40—42/);assert.equal(await p.locator('.length-destination button[aria-pressed=true]').count(),3);assert.equal(await p.locator('.length-destination button').count(),24);
-  await p.locator('.length-construction summary').click();assert.match(await p.locator('.length-construction .report-note').innerText(),/A、C、E、G/);
+  await p.getByRole('link',{name:'注 6：长度调整与采样',exact:true}).click();assert.match(await p.locator('#note-length-sampling').innerText(),/A、C、E、G/);await p.locator('#note-length-sampling .note-return').click();await p.locator('.length-construction').waitFor();
   await p.evaluate(()=>document.fonts.ready);await p.screenshot({path:folder+'/'+width+'-length.png',fullPage:true});
   if(width===390){await p.locator('.length-construction').screenshot({path:folder+'/390-sampling.png'});await p.evaluate(()=>document.documentElement.style.zoom='2');assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.evaluate(()=>document.documentElement.style.zoom='1')}
   checks.push({width,lengthSourceH:'40—42',materialCount:24,stableDomain:bounds});
   for(const route of ['models','training','detection']){
-   await p.goto(base+'#/'+route);await p.locator('h1').waitFor();
+   await p.goto(base+'#/'+route);await p.locator('h1:visible').waitFor();
    if(route==='training')await p.getByRole('img',{name:'归一化训练数据',exact:true}).waitFor();
    if(route==='detection'){await p.getByRole('button',{name:'查看模型结果 →',exact:true}).click();await p.getByTestId('calculated-score').waitFor();assert.equal(await p.locator('.reconstruction-view .legend .line-dashed').count(),1);}
    await p.evaluate(()=>document.fonts.ready);await p.screenshot({path:folder+'/'+width+'-'+route+'.png',fullPage:true});

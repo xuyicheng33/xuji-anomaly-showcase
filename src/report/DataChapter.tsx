@@ -1,8 +1,9 @@
 import {useEffect,useMemo,useRef,useState} from 'react';
 import {type Journey} from '../journey';
-import {useDataAsset} from './useDataAsset';
-import {Heading,Section,Note,colors} from './ReportUI';
+import {useCurveData} from './useCurveData';
+import {Heading,Section,colors} from './ReportUI';
 import Curve from './Curve';
+import {Footnote} from './notes';
 import './chapters.css';
 
 type Props={data:Journey;feature?:number;setFeature?:(feature:number)=>void};
@@ -20,7 +21,7 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
  const normalizationRef=useRef<HTMLDivElement>(null),[normalizationVisible,setNormalizationVisible]=useState(false);
  const [offset,setOffset]=useState(Math.min(5300,data.summary.cleanRows-64)),[month,setMonth]=useState('all'),[sample,setSample]=useState(0);
  const {raw,clean,train}=data.datasets;
- const rawAsset=useDataAsset(raw),cleanAsset=useDataAsset(clean),trainAsset=useDataAsset(normalizationVisible?train:null);
+ const rawAsset=useCurveData(raw,raw.keys.indexOf(point.key)),cleanAsset=useCurveData(clean,clean.keys.indexOf(point.key)),trainAsset=useCurveData(normalizationVisible?train:null,train.keys.indexOf(point.key));
  const loaded=rawAsset.data&&cleanAsset.data?{raw:rawAsset.data,clean:cleanAsset.data}:null,error=rawAsset.error||cleanAsset.error;
  useEffect(()=>{if(!normalizationRef.current)return;const observer=new IntersectionObserver(([entry])=>{if(entry.isIntersecting){setNormalizationVisible(true);observer.disconnect()}},{rootMargin:'300px'});observer.observe(normalizationRef.current);return()=>observer.disconnect()},[]);
  const rawByTime=useMemo(()=>new Map(raw.times.map((time,i)=>[time,i])),[raw.times]);
@@ -29,16 +30,16 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
  const monthStart=month==='all'?0:clean.times.findIndex(time=>time.startsWith(month));
  const monthEnd=month==='all'?clean.shape[0]:clean.times.reduce((last,time,index)=>time.startsWith(month)?index+1:last,0);
  const maxStart=Math.max(monthStart,monthEnd-64),from=Math.min(Math.max(offset,monthStart),maxStart),times=clean.times.slice(from,from+64);
- const rawCol=raw.keys.indexOf(point.key),cleanCol=clean.keys.indexOf(point.key),trainCol=train.keys.indexOf(point.key);
- const rawLine=times.map(time=>{const row=rawByTime.get(time);const value=row===undefined||!loaded?NaN:loaded.raw[row*raw.keys.length+rawCol];return Number.isFinite(value)?value:null});
- const cleanLine=times.map(time=>{const row=cleanByTime.get(time);const value=row===undefined||!loaded?NaN:loaded.clean[row*clean.keys.length+cleanCol];return Number.isFinite(value)?value:null});
+ const trainCol=train.keys.indexOf(point.key);
+ const rawLine=times.map(time=>{const row=rawByTime.get(time);const value=row===undefined||!loaded?NaN:loaded.raw[row];return Number.isFinite(value)?value:null});
+ const cleanLine=times.map(time=>{const row=cleanByTime.get(time);const value=row===undefined||!loaded?NaN:loaded.clean[row];return Number.isFinite(value)?value:null});
  const line=view==='raw'?rawLine:cleanLine;
  const norm=useMemo(()=>{
   if(!trainAsset.data)return null;
   let min=Infinity,max=-Infinity;
-  for(let i=0;i<train.shape[0];i++){const value=trainAsset.data[i*train.keys.length+trainCol];if(Number.isFinite(value)){min=Math.min(min,value);max=Math.max(max,value)}}
+  for(let i=0;i<train.shape[0];i++){const value=trainAsset.data[i];if(Number.isFinite(value)){min=Math.min(min,value);max=Math.max(max,value)}}
   const start=Math.min(5299,Math.max(0,train.shape[0]-64));
-  const values=Array.from({length:Math.min(64,train.shape[0])},(_,i)=>trainAsset.data![(start+i)*train.keys.length+trainCol]);
+  const values=Array.from({length:Math.min(64,train.shape[0])},(_,i)=>trainAsset.data![start+i]);
   return {min,max,start,values,normalized:values.map(value=>max===min?0:(value-min)/(max-min))};
  },[trainAsset.data,train,trainCol]);
  const sampleIndex=Math.min(sample,(norm?.values.length??1)-1),missing=data.missingExample;
@@ -53,7 +54,7 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
   </div>
   <p className="ledger-caption">整理后保留 7,992 个时刻，本次实验使用其中 7,990 条记录。</p>
 
-  <Section title="原始记录与处理结果">
+  <Section title={<>原始记录与处理结果<Footnote note="data-records" context={{feature:point.index,from}}/></>}>
    <div className="data-controls">
     <div className="segmented" aria-label="记录版本">{([['raw','原始记录'],['clean','整理结果']] as const).map(([id,label])=><button key={id} aria-pressed={view===id} onClick={()=>setView(id)}>{label}</button>)}</div>
     <label className="field">测点<select value={point.index} aria-label="数据测点" onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label} · {f.key}</option>)}</select></label>
@@ -67,29 +68,25 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
      <p className="chart-footnote">曲线断点表示原始值缺失。</p>
     </>:<p className="chapter-loading" role="status">正在读取监测记录…</p>}
    </div>
-   {loaded&&<Note title="数据明细"><div className="table-scroll"><table><thead><tr><th>时间</th><th>测点编号</th><th>原始记录</th><th>整理结果</th></tr></thead><tbody>{times.map((time,i)=><tr key={time}><td>{time}</td><td>{point.key}</td><td>{rawLine[i]===null?'缺失':number(rawLine[i]!,4)}</td><td>{cleanLine[i]===null?'缺失':number(cleanLine[i]!,4)}</td></tr>)}</tbody></table></div></Note>}
   </Section>
 
-  <Section title="无效记录与缺失值处理">
+  <Section title={<>无效记录与缺失值处理<Footnote note="data-source"/></>}>
    <div className="editorial-grid data-cleaning-copy"><div><span className="small-step">01 / 测点</span><h3>136 → 125</h3><p>移除 11 个全缺失测点及 768 条无效时间记录。</p></div><div><span className="small-step">02 / 缺失值</span><h3>170 个缺失值填 0</h3></div></div>
    <div className="missing-proof"><div><span>原始记录</span><strong>缺失</strong></div><span className="proof-arrow" aria-hidden="true">→</span><div><span>整理文件</span><strong>{missing.after[missing.selected]}</strong></div><div className="missing-proof-caption"><span>{missing.times[missing.selected]}</span><p>{missingPoint.label}<br/><small>{missingPoint.key}</small></p></div></div>
-   <Note title="数据来源与测点清单"><p>原始记录：converter.xlsx / Sheet8；整理结果：converternew.xlsx / Sheet1。</p><p>移除测点：{data.removedFeatures.join('、')}。</p></Note>
   </Section>
 
-  <Section title="训练集与测试集划分">
+  <Section title={<>训练集与测试集划分<Footnote note="data-split"/></>}>
    <p className="reading-copy">按时间顺序划分训练集与测试集，均包含 125 个测点。</p>
    <div className="balanced-split"><div><span>01 / 训练集</span><strong>{number(data.summary.trainRows,0)}<small> 个时刻</small></strong><p>{data.summary.trainStart}<br/>— {data.summary.trainEnd}</p></div><div><span>02 / 测试集</span><strong>{number(data.summary.testRows,0)}<small> 个时刻</small></strong><p>{data.summary.testStart}<br/>— {data.summary.testEnd}</p></div></div>
-   <Note title="数据划分明细"><p>整理表按约 70% / 30% 分段。训练段与测试段各自首条记录未进入实验数组，对应 {data.summary.omittedTimes.join('、')}。</p></Note>
   </Section>
 
-  <div ref={normalizationRef} className="normalization-section"><Section title="测点数值归一化">
+  <div ref={normalizationRef} className="normalization-section"><Section title={<>测点数值归一化<Footnote note="normalization"/></>}>
    <div className="normalization-heading"><p className="reading-copy">训练集与测试集共用训练段的最小值和最大值，归一化至 0—1。</p><label className="field">测点<select aria-label="归一化测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label} · {f.key}</option>)}</select></label></div>
    {norm?<><div className="normalization-facts"><div><span>训练段最小值</span><strong>{number(norm.min,4)}</strong></div><div><span>训练段最大值</span><strong>{number(norm.max,4)}</strong></div><div><span>当前样本时间</span><strong className="sample-time">{train.times[norm.start+sampleIndex]}</strong></div></div>
     <div className="normalization-plots"><Curve title="原始单位" lines={[{name:point.label,values:norm.values,color:colors.input}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} range={chartRange(norm.values)} height={205} onSelect={setSample}/><Curve title="归一化后" lines={[{name:point.label,values:norm.normalized,color:colors.recon}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} height={205} onSelect={setSample}/></div>
     <label className="slider-label">选择样本<input aria-label="归一化样本" type="range" min="0" max={norm.values.length-1} value={sampleIndex} onChange={e=>setSample(+e.target.value)}/><span>{sampleIndex+1} / {norm.values.length}</span></label>
     <div className="normalization-equation"><span>{norm.min===norm.max?`训练段为常量 ${number(norm.min,4)}，按常量列规则取值`:`（${number(norm.values[sampleIndex],4)} − ${number(norm.min,4)}）÷（${number(norm.max,4)} − ${number(norm.min,4)}）`}</span><span aria-hidden="true">=</span><strong>{norm.normalized[sampleIndex].toFixed(4)}</strong></div>
    </>:trainAsset.error?<div className="chapter-loading" role="alert"><p>{trainAsset.error}</p><button onClick={trainAsset.retry}>重新读取训练样本</button></div>:<p className="chapter-loading" role="status">正在读取训练样本…</p>}
-   <Note title="归一化公式"><p>归一化值 =（原值 − 训练最小值）÷（训练最大值 − 训练最小值）。测试数据沿用训练统计量，低于 0 的结果取 0，高于 1 的结果取 1。</p></Note>
   </Section></div>
 
  </div>;

@@ -1,10 +1,11 @@
 import {useEffect,useRef,useState} from 'react';
 import {series,meanSeries,type Journey,type Model} from '../journey';
 import {loadCases,loadCaseArrays,type AnomalyCase,type CaseArrays,type Insertion,type Construction} from '../anomalyCases';
-import {Heading,Note,ModelSelect,Confusion,Rates,colors} from './ReportUI';
+import {Heading,ModelSelect,Confusion,Rates,colors} from './ReportUI';
 import Curve from './Curve';
 import {curveDomain} from './curveScale';
 import './anomalies.css';
+import {Footnote,usePauseOnNavigation} from './notes';
 import LengthConstruction from './LengthConstruction';
 
 const methods = [
@@ -23,6 +24,7 @@ export default function AnomalyChapter({data,model,setModel}:{data:Journey;model
  const [bundle,setBundle]=useState<{key:string;arrays:CaseArrays}|null>(null),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);
  const [progress,setProgress]=useState(0),[playing,setPlaying]=useState(false),[point,setPoint]=useState(30),[showResult,setShowResult]=useState(false);
  const [selectedFeature,setSelectedFeature]=useState<number|null>(null);
+ usePauseOnNavigation(()=>setPlaying(false));
  const resultRef=useRef<HTMLDivElement>(null),stageRef=useRef<HTMLDivElement>(null);
  const selected=cases.find(c=>c.insertion===insertion&&c.kind===kind),cm=selected?.models.find(m=>m.id===model.id),key=selected?selected.id+':'+model.id:'';
  const arrays=bundle?.key===key?bundle.arrays:null;
@@ -51,7 +53,7 @@ export default function AnomalyChapter({data,model,setModel}:{data:Journey;model
   <Heading title="异常样本构造"/>
   <div className="case-layout">
    <aside className="case-navigation" aria-label="异常案例导航">
-    <div className="case-nav-group"><h2>插入方式</h2><div className="case-methods">{methods.map(m=><button key={m.id} aria-pressed={insertion===m.id} onClick={()=>setInsertion(m.id)}><strong>{m.name}</strong><span>{m.copy}</span></button>)}</div></div>
+    <div className="case-nav-group"><h2>插入方式<Footnote note="anomaly-cases"/></h2><div className="case-methods">{methods.map(m=><button key={m.id} aria-pressed={insertion===m.id} onClick={()=>setInsertion(m.id)}><strong>{m.name}</strong><span>{m.copy}</span></button>)}</div></div>
     <div className="case-nav-group"><h2>构造方法</h2><div className="case-kinds">{kinds.map((k,i)=><button key={k.id} aria-pressed={kind===k.id} onClick={()=>setKind(k.id)}><span>0{i+1}</span><strong>{k.name}</strong><span aria-hidden="true">→</span></button>)}</div><p className="case-kind-copy">{construction.copy}</p></div>
     <p className="case-formula">{method.formula}</p>
    </aside>
@@ -76,7 +78,6 @@ export default function AnomalyChapter({data,model,setModel}:{data:Journey;model
       <div className="case-score-pair"><span>当前分数 <strong data-testid="case-score">{cm.scores[point].toFixed(6)}</strong></span><span>判定阈值 <strong>{cm.threshold.toFixed(6)}</strong></span><span>当前测点误差 <strong>{((after[point]-arrays.recon[point*125+feature])**2).toFixed(6)}</strong></span></div>
       <div className="statistics"><Confusion metrics={cm.metrics}/><Rates metrics={cm.metrics}/></div>
      </div>}
-     <Note title="构造与数据说明"><p>{construction.detail} 同一时刻任一测点标签为 1，该时刻即标记为异常。</p><p>八个案例使用真实清洁记录离线构造，并由已训练模型生成各自的重建结果。案例沿用窗口判定阈值，独立于完整测试集评估。</p>{insertion==='blend'&&<p>融合区间两端权重渐变，边界原值可能保持不变；标签按构造区间生成。</p>}</Note>
     </>}
    </div>
   </div>

@@ -1,11 +1,11 @@
 import {useState} from 'react';
-import {Note} from './ReportUI';
+import {Footnote} from './notes';
 
 /** The eight source samples are mapped onto existing destination positions. */
 export default function LengthConstruction({values,insertion}:{values:number[];insertion:'replace'|'blend'}){
  const [sample,setSample]=useState(0);
  return <section className="length-construction" aria-labelledby="length-title">
-  <h3 id="length-title">采样与写入位置</h3>
+  <h3 id="length-title">采样与写入位置<Footnote note="length-sampling"/></h3>
   <p>取第 19—26 点的 8 个值，每个值重复 3 次，得到 24 点素材，写入第 19—42 点。</p>
   <div className="length-sampling">
    <div className="length-row-label"><span>来源 · 第19—26点</span><span>8 个值</span></div>
@@ -16,6 +16,5 @@ export default function LengthConstruction({values,insertion}:{values:number[];i
   </div>
   <div className="length-window" aria-label="64点窗口的写入范围"><span>第1—18点<br/><strong>保持原值</strong></span><span>第19—42点<br/><strong>{insertion==='replace'?'覆盖原来的24个值':'与原来的24个值混合'}</strong></span><span>第43—64点<br/><strong>位置不变</strong></span></div>
   <p className="length-total">时间轴仍为 64 点。增加的是素材中的重复采样，写入区间已有的位置，不向序列末尾追加数据。</p>
-  <Note title="缩短：8 点取为 4 点"><p>也可以每隔一个点保留一个值：A、B、C、D、E、F、G、H → A、C、E、G。8 点中的变化被压缩到 4 个位置，再写入一个预先选定的 4 点区间。</p></Note>
  </section>;
 }

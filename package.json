@@ -15,7 +15,10 @@
     "verify": "npm run verify:data && npm test && npm run test:browser",
     "verify:windows": "python -X utf8 -B scripts/verify_windows.py",
     "verify:cases": "python -X utf8 -B scripts/verify_anomaly_cases.py",
-    "verify:loading": "node scripts/verify_loading.mjs"
+    "verify:loading": "node scripts/verify_loading.mjs",
+    "export:views": "python -X utf8 -B scripts/export_calculation_index.py && python -X utf8 -B scripts/export_curve_data.py",
+    "verify:calculation": "node scripts/verify_calculation.mjs",
+    "precompress": "python -X utf8 -B scripts/precompress.py"
   },
   "dependencies": {
     "react": "19.3.1",

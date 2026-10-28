@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import type {Journey, Metrics} from '../journey';
 import {countMetrics, fmt, pct, pointAdjusted} from '../journey';
-import {Heading, Note, Section} from './ReportUI';
+import {Section} from './ReportUI';
 import './metrics.css';
 
 // Twenty teaching points: the inclusive interval 6–13 is anomalous.
@@ -48,9 +48,7 @@ export default function MetricsChapter({data}: {data: Journey}) {
   const toggle = (index: number) => setAlarms(previous => previous.map((alarm, i) => i === index ? 1 - alarm : alarm));
 
   return <div className="metrics-page">
-    <Heading title="检测评估指标">
-      逐点统计报警结果，区间点调整补齐已命中的异常段。
-    </Heading>
+
 
     <section className="metrics-example" aria-labelledby="metrics-example-title">
       <div className="metrics-example-heading">
@@ -81,7 +79,7 @@ export default function MetricsChapter({data}: {data: Journey}) {
       <p className="metrics-definition">F1 为精确率与召回率的调和平均。</p>
     </section>
 
-    <Note title="区间点调整规则"><p>真实异常段内出现一次报警，该段全部时间点计为检出；整段未报警则计为漏检。统计单位为时间点。</p></Note>
+
 
     <Section title="两种方法的评估结果">
       <p className="reading-copy">同一测试集、统一阈值规则，分别统计逐点与区间点调整指标。</p>
@@ -100,11 +98,6 @@ export default function MetricsChapter({data}: {data: Journey}) {
 
     </Section>
 
-    <Note title="阈值与评估规则">
-      <p className="reading-copy">事后回看评估：对照测试标签，选取区间点调整 F1 最高的阈值。</p>
-      <div className="evaluation-thresholds">{models.map(model=><div key={model.id}><h3>{model.name}</h3><dl><div><dt>完整序列阈值</dt><dd>{model.threshold.toFixed(6)}</dd></div><div><dt>独立窗口阈值</dt><dd>{model.windowThreshold.toFixed(6)}</dd></div></dl></div>)}</div>
-      <p className="metrics-definition">序列阈值基于合并分数；窗口阈值基于全部 2,334 个独立窗口。</p>
-      <p>遍历全部分数对应的报警划分。PA-F1 并列时，依次选择逐点 F1 更高、阈值更高的结果。各独立窗口分别计算区间点调整。</p>
-    </Note>
+
   </div>;
 }
