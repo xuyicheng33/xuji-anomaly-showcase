@@ -14,7 +14,7 @@ export default function LengthConstruction({values,insertion}:{values:number[];i
    <div className="length-destination" aria-label="8个值重复为24个值">{Array.from({length:24},(_,i)=><button key={i} aria-label={`素材第 ${i+1} 点来自 ${String.fromCharCode(65+Math.floor(i/3))}`} aria-pressed={sample===Math.floor(i/3)} onClick={()=>setSample(Math.floor(i/3))}>{String.fromCharCode(65+Math.floor(i/3))}</button>)}</div>
    <p className="length-mapping" aria-live="polite">{String.fromCharCode(65+sample)} = {values[sample]?.toFixed(4)}，对应写入第 {19+sample*3}—{21+sample*3} 点。</p>
   </div>
-  <div className="length-window" aria-label="64点窗口的写入范围"><span>第1—18点<br/><strong>保持原值</strong></span><span>第19—42点<br/><strong>{insertion==='replace'?'覆盖原来的24个值':'与原来的24个值混合'}</strong></span><span>第43—64点<br/><strong>位置不变</strong></span></div>
-  <p className="length-total">时间轴仍为 64 点。增加的是素材中的重复采样，写入区间已有的位置，不向序列末尾追加数据。</p>
+  <div className="length-window" aria-label="64点窗口的写入范围"><span>第1—18点<br/><strong>保留原值</strong></span><span>第19—42点<br/><strong>{insertion==='replace'?'覆盖原来的24个值':'与原来的24个值混合'}</strong></span><span>第43—64点<br/><strong>保留原值</strong></span></div>
+  <p className="length-total">写入后，窗口长度为 64 点。</p>
  </section>;
 }

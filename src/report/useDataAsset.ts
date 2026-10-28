@@ -10,7 +10,7 @@ export function useDataAsset(asset:Asset|null){
   if(!asset)return;
   let active=true;
   setState(previous=>({key,data:previous.key===key?previous.data:null,error:''}));
-  loadAsset(asset).then(data=>{if(active)setState({key,data,error:''})}).catch(()=>{if(active)setState({key,data:null,error:'数据暂未读取成功。'})});
+  loadAsset(asset).then(data=>{if(active)setState({key,data,error:''})}).catch(()=>{if(active)setState({key,data:null,error:'数据读取失败。'})});
   return()=>{active=false};
  },[key,attempt]);
  return {data:state.key===key?state.data:null,error:state.key===key?state.error:'',retry:()=>setAttempt(n=>n+1)};

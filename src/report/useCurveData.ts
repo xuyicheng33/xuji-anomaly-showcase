@@ -19,7 +19,7 @@ export function useWindowInput(asset:Asset,start:number,enabled:boolean){
       const result=new Float64Array(64*125);
       for(let i=0;i<64;i++){const row=start+i,chunk=Math.floor(row/128)*128,part=parts[chunks.indexOf(chunk)],offset=(row-chunk)*125;result.set(part.subarray(offset,offset+125),i*125)}
       if(active)setState({key,data:result,error:''});
-    }).catch(()=>{if(active)setState({key,data:null,error:'窗口输入暂未读取成功。'})});
+    }).catch(()=>{if(active)setState({key,data:null,error:'窗口输入读取失败。'})});
     return()=>{active=false};
   },[key,enabled,attempt]);
   return {data:state.key===key?state.data:null,error:state.key===key?state.error:'',retry:()=>setAttempt(n=>n+1)};

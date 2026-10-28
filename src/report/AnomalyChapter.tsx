@@ -16,7 +16,7 @@ const kinds = [
  {id:'reference' as const,name:'参考片段',copy:'从真实记录中取出一段序列，翻转时间顺序与数值方向，形成不同的变化形态。',detail:'参考片段取自同一清洁测试集。先沿时间反转，再以 1 − 数值翻转幅值。'},
  {id:'uniform' as const,name:'均匀值',copy:'为选定测点构造一个固定值，使局部波动形成持续平台。',detail:'区间内使用同一个构造值；替换形成平台，混合保留原曲线的部分波动。'},
  {id:'peak' as const,name:'峰值噪声',copy:'在一个时刻构造方向相反的极值，并为相邻时刻生成异常标签。',detail:'原值较高时取接近 0 的值，原值较低时取接近 1 的值；前后各 4 点一并标记。'},
- {id:'length' as const,name:'长度调整',copy:'将 8 个采样点各重复 3 次，形成 24 点素材，写入固定区间。',detail:'来源为第 19—26 点，重复采样后写入第 19—42 点，覆盖或混合该区间原值；第 43 点以后的位置与数值不变。'},
+ {id:'length' as const,name:'长度调整',copy:'将 8 个采样点各重复 3 次，形成 24 点素材，写入固定区间。',detail:'来源为第 19—26 点，重复采样后写入第 19—42 点，覆盖或混合该区间原值；第 43—64 点保留原来的位置与数值。'},
 ];
 const steps=['原始片段','异常素材','插入过程','标签结果'];
 export default function AnomalyChapter({data,model,setModel}:{data:Journey;model:Model;setModel:(id:string)=>void}){
@@ -67,8 +67,8 @@ export default function AnomalyChapter({data,model,setModel}:{data:Journey;model
       <div className="case-material-strip"><span>{phase===0?'目标区间':'素材构造'}</span><p>{phase===0?(kind==='peak'?'第 31 点改变数值 · 第 27—35 点生成标签':'第 19—42 点 · 24 个时刻'):kind==='reference'?'真实参考 24 点 → 时间反转 → 1 − 数值':kind==='uniform'?'固定构造值 → 填充 24 个时刻':kind==='peak'?'当前值 → 相反方向极值':'原片段 8 点 → 每点重复 3 次 → 24 点'}</p></div>
       <div className="case-labels"><div><span>测点标签</span><small>0 正常 · 1 异常</small></div><div className="case-label-cells">{visibleLabels.map((v,i)=><button key={i} aria-label={`第 ${i+1} 点，标签 ${v}`} aria-pressed={point===i} className={v?'marked':''} onClick={()=>setPoint(i)}/>)}</div></div>
       <div className="case-point" aria-live="polite"><span>第 {point+1} 点</span><div><span>原始值</span><strong>{base[point]?.toFixed(4)}</strong></div><span className="case-arrow">→</span><div><span>插入结果</span><strong data-testid="case-after">{visible[point]?.toFixed(4)}</strong></div><div><span>标签</span><strong data-testid="case-label">{visibleLabels[point]}</strong></div></div>
-      {phase>=1&&<div className="case-composition"><span>素材值 <strong>{shownCandidate[point]?.toFixed(4)}</strong></span><span>{phase===3?'插入权重':'演示进度'} <strong>{phase===3?weights[point]?.toFixed(2):Math.round(blend*100)+'%'}</strong></span><span>{phase<2?'先构造素材，原始片段保持不变。':phase===3&&insertion==='replace'?(weights[point]?'结果取对应素材值':'区间外保留原始值'):'原始值 × '+(1-animatedWeight).toFixed(2)+' + 素材 × '+animatedWeight.toFixed(2)}</span></div>}
-      <p className="case-stage-copy" aria-live="polite">{phase===0?'先观察真实清洁片段，定位将要改变的时刻。':phase===1?construction.detail:phase===2?(insertion==='replace'?'将构造素材逐步替代对应原值，区间外保持原样。':'按保存的权重将素材融入原片段，中央权重为 0.7。'):kind==='peak'?'极值改变一个时刻，标签覆盖该点及前后各 4 个时刻。':'选定测点的目标区间标记为 1，其余位置保持为 0。'}</p>
+      {phase>=1&&<div className="case-composition"><span>素材值 <strong>{shownCandidate[point]?.toFixed(4)}</strong></span><span>{phase===3?'插入权重':'演示进度'} <strong>{phase===3?weights[point]?.toFixed(2):Math.round(blend*100)+'%'}</strong></span><span>{phase<2?'构造素材，准备写入目标区间。':phase===3&&insertion==='replace'?(weights[point]?'结果取对应素材值':'区间外保留原始值'):'原始值 × '+(1-animatedWeight).toFixed(2)+' + 素材 × '+animatedWeight.toFixed(2)}</span></div>}
+      <p className="case-stage-copy" aria-live="polite">{phase===0?'观察清洁片段与目标时刻。':phase===1?construction.detail:phase===2?(insertion==='replace'?'用构造素材逐步替代目标区间原值。':'按保存的权重将素材融入原片段，中央权重为 0.7。'):kind==='peak'?'极值改变一个时刻，标签覆盖该点及前后各 4 个时刻。':'选定测点的目标区间标记为 1，其余位置保持为 0。'}</p>
      </div>
      {kind==='length'&&<LengthConstruction key={selected.id+':'+feature} values={base.slice(18,26)} insertion={insertion}/>}
      <div className="case-result-action"><p>同一片段 · 64 个时刻 · 125 个测点</p><button className="inline-link" onClick={()=>{setPlaying(false);setProgress(1);setShowResult(true);requestAnimationFrame(()=>resultRef.current?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'}))}}>查看该片段检测 →</button></div>

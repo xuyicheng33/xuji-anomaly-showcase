@@ -12,7 +12,7 @@ export type CaseArrays = {original:Float64Array;material:Float64Array;candidate:
 let manifest:Promise<{version:string;cases:AnomalyCase[]}>|undefined;
 export function loadCases(){
   return manifest ??= fetch(import.meta.env.BASE_URL+'data/journey/anomaly-cases-v1/manifest.json')
-    .then(async r=>{if(!r.ok)throw Error('案例暂未读取成功');const d=await r.json();if(d.cases?.length!==8)throw Error('案例资料不完整');return d})
+    .then(async r=>{if(!r.ok)throw Error('案例读取失败');const d=await r.json();if(d.cases?.length!==8)throw Error('案例资料不完整');return d})
     .catch(e=>{manifest=undefined;throw e});
 }
 export async function loadCaseArrays(c:AnomalyCase,m:CaseModel):Promise<CaseArrays>{
