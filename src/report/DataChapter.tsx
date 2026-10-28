@@ -45,19 +45,19 @@ export default function DataChapter({data,feature:sharedFeature,setFeature:share
    <div><span>训练集</span><strong>{number(split.trainCount,0)}</strong><small>前 70%</small></div>
    <div><span>测试集</span><strong>{number(split.testCount,0)}</strong><small>后 30%</small></div>
   </div>
-  <div className="data-page-intro"><p>按原始记录的时间顺序整理数据。</p><span>原始记录与完整曲线<Footnote note="data-records"/></span></div>
+  <div className="data-page-intro"><p>按原始记录的时间顺序整理数据。</p><span>原始数据与处理例子<Footnote note="data-records"/></span></div>
 
   <Section title={<>无效记录与缺失值处理<Footnote note="data-source"/></>}>
    <DataCleaning data={data}/>
   </Section>
 
   <Section title={<>训练集与测试集划分<Footnote note="data-split"/></>}>
-   <p className="reading-copy">按时间顺序取前 70% 为训练集，后 30% 为测试集，均包含 125 个测点。</p>
-   <div className="balanced-split"><div><span>01 / 训练集<span className="split-ratio">70%</span></span><strong>{number(split.trainCount,0)}<small> 个时刻</small></strong><p>{split.trainStart}<br/>— {split.trainEnd}</p></div><div><span>02 / 测试集<span className="split-ratio">30%</span></span><strong>{number(split.testCount,0)}<small> 个时刻</small></strong><p>{split.testStart}<br/>— {split.testEnd}</p></div></div>
+   <p className="reading-copy">按时间顺序取前 70% 为训练集，后 30% 为测试集。</p>
+   <div className="balanced-split">{([['01 / 训练集','70%',split.trainCount,split.trainStart,split.trainEnd],['02 / 测试集','30%',split.testCount,split.testStart,split.testEnd]] as const).map(([title,ratio,total,begin,end])=><div key={title}><span>{title}<span className="split-ratio">{ratio}</span></span><strong>{number(total,0)}<small> 个时刻</small></strong><p className="split-dates"><time dateTime={begin.replace(' ','T')}>{begin}</time><span>—</span><time dateTime={end.replace(' ','T')}>{end}</time></p></div>)}</div>
   </Section>
 
   <div ref={normalizationRef} className="normalization-section"><Section title={<>测点数值归一化<Footnote note="normalization"/></>}>
-   <div className="normalization-heading"><p className="reading-copy">训练集与测试集共用训练段的最小值和最大值，归一化至 0—1。</p><label className="field">测点<select aria-label="归一化测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label}（{f.key}）</option>)}</select></label></div>
+   <div className="normalization-heading"><p className="reading-copy">每个测点的训练集与测试集共用训练集的最小值和最大值，归一化至 0-1。</p><label className="field">测点<select aria-label="归一化测点" value={point.index} onChange={e=>chooseFeature(+e.target.value)}>{data.features.map(f=><option key={f.index} value={f.index}>{f.label}（{f.key}）</option>)}</select></label></div>
    {norm?<><div className="normalization-facts"><div><span>训练段最小值</span><strong>{number(norm.min,4)}</strong></div><div><span>训练段最大值</span><strong>{number(norm.max,4)}</strong></div><div><span>当前样本时间</span><strong className="sample-time">{train.times[norm.start+sampleIndex]}</strong></div></div>
     <div className="normalization-plots"><Curve title="原始单位" lines={[{name:point.label,values:norm.values,color:colors.input}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} range={chartRange(norm.values)} height={205} onSelect={setSample}/><Curve title="归一化后" lines={[{name:point.label,values:norm.normalized,color:colors.recon}]} times={train.times.slice(norm.start,norm.start+64)} selected={sampleIndex} height={205} onSelect={setSample}/></div>
     <label className="slider-label">选择样本<input aria-label="归一化样本" type="range" min="0" max={norm.values.length-1} value={sampleIndex} onChange={e=>setSample(+e.target.value)}/><span>{sampleIndex+1} / {norm.values.length}</span></label>

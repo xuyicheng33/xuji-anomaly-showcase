@@ -102,6 +102,130 @@
       ]
     }
   ],
+  "rawExample": {
+    "keys": [
+      "21V00_UD_CONV_a",
+      "22T11_L2_LINE_TEMP_a",
+      "21T21_L1_BOTTOM_OIL_TEMP_a"
+    ],
+    "rows": [
+      {
+        "number": 2093,
+        "time": "2022-03-29 04:00",
+        "values": [
+          771.714,
+          39.8652,
+          null
+        ]
+      },
+      {
+        "number": 2094,
+        "time": "2022-03-29 05:00",
+        "values": [
+          771.847,
+          38.8118,
+          null
+        ]
+      },
+      {
+        "number": 2095,
+        "time": "2022-03-29 06:00",
+        "values": [
+          775.526,
+          null,
+          null
+        ]
+      },
+      {
+        "number": 2096,
+        "time": "2022-03-29 07:00",
+        "values": [
+          772.504,
+          39.0235,
+          null
+        ]
+      },
+      {
+        "number": 2097,
+        "time": "2022-03-29 08:00",
+        "values": [
+          772.232,
+          47.0955,
+          null
+        ]
+      }
+    ]
+  },
+  "cropExamples": [
+    {
+      "key": "21V00_UD_CONV_a",
+      "count": 24,
+      "rows": [
+        {
+          "start": 3431,
+          "end": 3431,
+          "time": "2022-05-23 22:00",
+          "value": 775.153,
+          "removed": false
+        },
+        {
+          "start": 3432,
+          "end": 3432,
+          "time": "2022-05-23 23:00",
+          "value": 772.946,
+          "removed": false
+        },
+        {
+          "start": 3433,
+          "end": 3456,
+          "time": null,
+          "value": null,
+          "removed": true
+        },
+        {
+          "start": 3457,
+          "end": 3457,
+          "time": "2022-05-25 00:00",
+          "value": 773.334,
+          "removed": false
+        },
+        {
+          "start": 3458,
+          "end": 3458,
+          "time": "2022-05-25 01:00",
+          "value": 775.567,
+          "removed": false
+        }
+      ]
+    },
+    {
+      "key": "21V00_UD_CONV_a",
+      "count": 744,
+      "rows": [
+        {
+          "start": 8015,
+          "end": 8015,
+          "time": "2022-11-30 22:00",
+          "value": 780.359,
+          "removed": false
+        },
+        {
+          "start": 8016,
+          "end": 8016,
+          "time": "2022-11-30 23:00",
+          "value": 796.878,
+          "removed": false
+        },
+        {
+          "start": 8017,
+          "end": 8760,
+          "time": null,
+          "value": null,
+          "removed": true
+        }
+      ]
+    }
+  ],
   "split": {
     "trainCount": 5594,
     "testCount": 2398,

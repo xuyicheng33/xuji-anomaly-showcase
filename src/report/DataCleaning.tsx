@@ -3,15 +3,18 @@ import type {Journey} from '../journey';
 import cleaning from './cleaning-data.json';
 
 const count=(n:number)=>n.toLocaleString('zh-CN');
+export function MissingExample({data,example}:{data:Journey;example:number}){
+ const sample=cleaning.missingExamples[example],point=data.features[sample.feature];
+ return <div className="missing-example" key={sample.key}><div className="missing-context"><strong>{point.label}</strong><code>{point.key}</code><span>{sample.rows[0].time.slice(0,10)}</span></div><table aria-label="缺失值填零前后对照"><thead><tr><th scope="col">时间</th><th scope="col">处理前</th><th scope="col">处理后</th></tr></thead><tbody>{sample.rows.map(row=><tr key={row.time} className={row.before===null?'filled-row':undefined}><th scope="row">{row.time.slice(11)}</th><td>{row.before===null?<span className="missing-value">缺失</span>:row.before.toFixed(4)}</td><td>{row.before===null?<strong className="filled-value">0<span>已填补</span></strong>:row.after.toFixed(4)}</td></tr>)}</tbody></table></div>;
+}
 export default function DataCleaning({data}:{data:Journey}){
  const [trimmed,setTrimmed]=useState(false),[example,setExample]=useState(0);
- const sample=cleaning.missingExamples[example],point=data.features[sample.feature];
  const blocks=cleaning.invalidBlocks;
  const spans=[{count:blocks[0].start,invalid:false},{count:blocks[0].count,invalid:true},{count:blocks[1].start-blocks[0].end,invalid:false},{count:blocks[1].count,invalid:true}];
  return <div className="cleaning-steps">
   <article className="cleaning-step">
-   <div className="cleaning-intro"><span className="small-step">01 / 测点筛选</span><h3>剔除 11 个全缺失测点</h3><p>这些底部油温测点没有有效观测值，删除对应列，保留 125 个测点。</p><div className="cleaning-count"><strong>136</strong><span aria-hidden="true">→</span><strong>125</strong><small>个测点</small></div></div>
-   <div className="removed-sensors"><div className="cleaning-caption"><span>全缺失测点清单</span><span>缺失率 100%</span></div><ul>{cleaning.removedSensors.map(key=><li key={key}><code>{key}</code><span>剔除</span></li>)}</ul></div>
+   <div className="cleaning-intro"><span className="small-step">01 / 测点筛选</span><h3>剔除 11 个全缺失测点</h3><div className="cleaning-count"><strong>136</strong><span aria-hidden="true">→</span><strong>125</strong><small>个测点</small></div></div>
+   <div className="removed-sensors"><div className="cleaning-caption"><span>全缺失测点清单</span></div><ul>{cleaning.removedSensors.map(key=><li key={key}><code>{key}</code></li>)}</ul></div>
   </article>
   <article className="cleaning-step record-cleaning">
    <div className="cleaning-intro"><span className="small-step">02 / 记录筛选</span><h3>剔除 768 条无效记录</h3><p>两段记录的时间与测点值全部缺失，删除对应行，保留其余记录的时间顺序。</p></div>
@@ -26,7 +29,7 @@ export default function DataCleaning({data}:{data:Journey}){
   </article>
   <article className="cleaning-step missing-cleaning">
    <div className="cleaning-intro"><span className="small-step">03 / 缺失填补</span><h3>170 个缺失值填 0</h3><p>在保留的记录中，13 个测点仍有零散缺失。将缺失单元格填为 0，其他观测值保留。</p><div className="segmented missing-switch" aria-label="缺失片段">{cleaning.missingExamples.map((entry,i)=><button key={entry.key} aria-pressed={example===i} onClick={()=>setExample(i)}>{entry.label}</button>)}</div></div>
-   <div className="missing-example" key={sample.key}><div className="missing-context"><strong>{point.label}</strong><code>{point.key}</code><span>{sample.rows[0].time.slice(0,10)}</span></div><table aria-label="缺失值填零前后对照"><thead><tr><th scope="col">时间</th><th scope="col">处理前</th><th scope="col">处理后</th></tr></thead><tbody>{sample.rows.map(row=><tr key={row.time} className={row.before===null?'filled-row':undefined}><th scope="row">{row.time.slice(11)}</th><td>{row.before===null?<span className="missing-value">缺失</span>:row.before.toFixed(4)}</td><td>{row.before===null?<strong className="filled-value">0<span>已填补</span></strong>:row.after.toFixed(4)}</td></tr>)}</tbody></table></div>
+   <MissingExample data={data} example={example}/>
   </article>
  </div>;
 }

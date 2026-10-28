@@ -2,7 +2,7 @@ import {useEffect, type ReactNode} from 'react';
 
 // Stable reading order. Repeated references reuse the same number.
 export const notes = [
-  {id:'data-records', title:'原始记录与处理明细', page:'data'},
+  {id:'data-records', title:'原始数据与处理例子', page:'data'},
   {id:'data-source', title:'数据来源与测点清单', page:'data'},
   {id:'data-split', title:'训练集与测试集划分', page:'data'},
   {id:'normalization', title:'归一化公式与边界', page:'data'},

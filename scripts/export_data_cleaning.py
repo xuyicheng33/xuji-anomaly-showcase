@@ -51,11 +51,34 @@ def export():
                  'before': float(valid_raw[i, col]) if np.isfinite(valid_raw[i, col]) else None,
                  'after': float(clean[i, col])} for i in range(row-2, row+3)]
         examples.append({'key': key, 'label': label, 'feature': col, 'from': row-2, 'rows': rows})
+    def raw_value(row, key):
+        value = raw[row, raw_meta['keys'].index(key)]
+        return float(value) if np.isfinite(value) else None
+    raw_keys = ['21V00_UD_CONV_a', '22T11_L2_LINE_TEMP_a', removed[0]]
+    raw_start = raw_meta['times'].index('2022-03-29 04:00')
+    raw_example = {'keys': raw_keys, 'rows': [
+        {'number': i+1, 'time': raw_meta['times'][i],
+         'values': [raw_value(i, key) for key in raw_keys]}
+        for i in range(raw_start, raw_start+5)]}
+    crop_key = '21V00_UD_CONV_a'
+    crop_examples = []
+    for block in blocks:
+        before = [{'start': i+1, 'end': i+1, 'time': raw_meta['times'][i],
+                   'value': raw_value(i, crop_key), 'removed': False}
+                  for i in range(max(0, block['start']-2), block['start'])]
+        omitted = {'start': block['start']+1, 'end': block['end'], 'time': None,
+                   'value': None, 'removed': True}
+        after = [{'start': i+1, 'end': i+1, 'time': raw_meta['times'][i],
+                  'value': raw_value(i, crop_key), 'removed': False}
+                 for i in range(block['end'], min(len(raw), block['end']+2))]
+        crop_examples.append({'key': crop_key, 'count': block['count'],
+                              'rows': before+[omitted]+after})
     split = int(len(clean)*.7)
     result = {'source': {'rawSHA256': raw_meta['sha256'], 'cleanSHA256': clean_meta['sha256']},
               'invalidBlocks': blocks, 'removedSensors': removed,
               'missingCells': int(missing.sum()), 'affectedSensors': int(missing.any(axis=0).sum()),
-              'missingExamples': examples,
+              'missingExamples': examples, 'rawExample': raw_example,
+              'cropExamples': crop_examples,
               'split': {'trainCount': split, 'testCount': len(clean)-split,
                         'trainStart': clean_meta['times'][0], 'trainEnd': clean_meta['times'][split-1],
                         'testStart': clean_meta['times'][split], 'testEnd': clean_meta['times'][-1]}}

@@ -27,7 +27,7 @@ for(const width of [1440,768,390]){
  await page.close();console.log('PASS 8 pages '+width+'px');
 }
 const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});page.on('pageerror',e=>errors.push(String(e)));
-await go(page,'data');await page.getByRole('link',{name:'注 1：原始记录与处理明细',exact:true}).click();await page.locator('.record-explorer .curve').waitFor();const time=await page.locator('.record-explorer .chart-context').innerText();await page.getByRole('button',{name:'整理结果',exact:true}).click();assert.equal(await page.locator('.record-explorer .chart-context').innerText(),time);console.log('PASS same timestamp preserved across raw/clean in explanations');
+await go(page,'data');await page.getByRole('link',{name:'注 1：原始数据与处理例子',exact:true}).click();await page.getByRole('table',{name:'原始数据片段'}).waitFor();assert.equal(await page.locator('#note-data-records input[type=range]').count(),0);await page.getByRole('button',{name:'缺失值填补',exact:true}).click();await page.getByRole('table',{name:'缺失值填零前后对照'}).waitFor();assert.equal(await page.locator('#note-data-records .filled-row').count(),1);await page.getByRole('button',{name:'无效记录裁剪',exact:true}).click();assert.match(await page.locator('#note-data-records .removed-record-row').innerText(),/3,433—3,456.*删除 24 条/s);console.log('PASS raw, missing-value and crop examples in explanations');
 await go(page,'anomalies');
 const kindNames={reference:'参考片段',uniform:'均匀值',peak:'峰值噪声',length:'长度调整'};
 const values=async asset=>{const buf=await readFile('public/data/journey/'+asset.file);return new Float64Array(buf.buffer.slice(buf.byteOffset,buf.byteOffset+buf.length))};
