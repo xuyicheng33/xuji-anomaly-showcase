@@ -3,6 +3,7 @@ import type {Journey} from '../journey';
 import {useCurveData} from './useCurveData';
 import Curve from './Curve';
 import {colors} from './ReportUI';
+import {Footnote} from './notes';
 import './chapters.css';
 import './data-preparation.css';
 
@@ -38,6 +39,7 @@ export default function RecordExplorer({data,initialFeature,initialFrom,requeste
  const finite=[...rawLine,...cleanLine].filter((n):n is number=>n!==null),lo=finite.length?Math.min(...finite):0,hi=finite.length?Math.max(...finite):1,pad=(hi-lo)*.12||Math.max(Math.abs(hi)*.02,.1);
  const detailRows=indices.slice(offset,offset+64);
  return <div ref={ref} className="record-explorer">
+  <p className="record-alignment">曲线按 7,992 条有效时间记录对齐。768 条无时间记录的剔除位置见数据来源说明<Footnote note="data-source" reference="ref-record-explorer-source"/>。</p>
   <div className="data-controls">
    <label className="field">测点<select aria-label="数据测点" value={selection.key} onChange={e=>change({key:e.target.value})}><optgroup label="保留的125个测点">{data.features.map(f=><option key={f.key} value={f.key}>{f.label}（{f.key}）</option>)}</optgroup><optgroup label="剔除的11个全缺失测点">{data.removedFeatures.map(key=><option key={key} value={key}>底部油温（{key}）</option>)}</optgroup></select></label>
    <label className="field">时间范围<select aria-label="数据时间范围" value={selection.month} onChange={e=>change({month:e.target.value,offset:0})}><option value="all">全部时间范围</option>{months.map(month=><option key={month} value={month}>{month.replace('-',' 年 ')} 月</option>)}<option value="custom">自定义时间范围</option></select></label>

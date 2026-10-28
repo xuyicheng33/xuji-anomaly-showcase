@@ -10,7 +10,7 @@ const cases=JSON.parse(await readFile('public/data/journey/anomaly-cases-v1/mani
 const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
 const originalNewPage=browser.newPage.bind(browser);browser.newPage=async(...args)=>{const page=await originalNewPage(...args);page.setDefaultTimeout(Number(process.env.BROWSER_TIMEOUT||60000));return page};
 const errors=[];await mkdir('.qa/unified/shots',{recursive:true});
-async function go(page,name){await page.goto(base+'#/'+name);await page.locator('h1:visible').waitFor();if(['data','anomalies','training','detection','playback'].includes(name))await page.locator('.curve').first().waitFor();if(name==='data'){await page.locator('.normalization-section').scrollIntoViewIfNeeded();await page.locator('.normalization-equation strong').waitFor();await page.evaluate(()=>window.scrollTo(0,0));}if(name==='playback')await page.locator('.reconstruction-view').waitFor();await page.evaluate(()=>document.fonts.ready);}
+async function go(page,name){await page.goto(base+'#/'+name);await page.locator('h1:visible').waitFor();if(name==='data'){await page.locator('.normalization-section').scrollIntoViewIfNeeded();await page.locator('.normalization-equation strong').waitFor();await page.evaluate(()=>window.scrollTo(0,0));}if(['anomalies','training','detection','playback'].includes(name))await page.locator('.curve').first().waitFor();if(name==='playback')await page.locator('.reconstruction-view').waitFor();await page.evaluate(()=>document.fonts.ready);}
 function expected(m,from,to,th=m.threshold){const v={tp:0,fp:0,fn:0,tn:0};for(let i=from;i<to;i++)v[data.labels[i]?(m.scores[i]>th?'tp':'fn'):(m.scores[i]>th?'fp':'tn')]++;return v}
 async function matrix(page,m){for(const [key,value] of Object.entries(m))await page.waitForFunction(({key,value})=>document.querySelector('[data-testid=count-'+key+'] strong')?.textContent===String(value),{key,value})}
 try{
@@ -27,7 +27,7 @@ for(const width of [1440,768,390]){
  await page.close();console.log('PASS 8 pages '+width+'px');
 }
 const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});page.on('pageerror',e=>errors.push(String(e)));
-await go(page,'data');await page.locator('.chart-context').first().waitFor();const time=await page.locator('.chart-context').first().innerText();await page.getByRole('button',{name:'整理结果',exact:true}).click();assert.equal(await page.locator('.chart-context').first().innerText(),time);console.log('PASS same timestamp preserved across raw/clean');
+await go(page,'data');await page.getByRole('link',{name:'注 1：原始记录与处理明细',exact:true}).click();await page.locator('.record-explorer .curve').waitFor();const time=await page.locator('.record-explorer .chart-context').innerText();await page.getByRole('button',{name:'整理结果',exact:true}).click();assert.equal(await page.locator('.record-explorer .chart-context').innerText(),time);console.log('PASS same timestamp preserved across raw/clean in explanations');
 await go(page,'anomalies');
 const kindNames={reference:'参考片段',uniform:'均匀值',peak:'峰值噪声',length:'长度调整'};
 const values=async asset=>{const buf=await readFile('public/data/journey/'+asset.file);return new Float64Array(buf.buffer.slice(buf.byteOffset,buf.byteOffset+buf.length))};
