@@ -83,7 +83,7 @@ export default function MetricsChapter({data}: {data: Journey}) {
 
     <Section title="两种方法的评估结果">
       <p className="reading-copy">同一测试集、统一阈值规则，分别统计逐点与区间点调整指标。</p>
-      <div className="metrics-archive-scroll" role="region" aria-label="两种方法的检测指标" tabIndex={0}>
+      <div className="metrics-archive-scroll" role="region" aria-label="两种方法的检测指标" tabIndex={0} aria-describedby="metrics-table-hint">
         <table className="metrics-archive">
           <thead><tr><th scope="col">模型</th><th scope="col">口径</th><th scope="col">检出</th><th scope="col">误报</th><th scope="col">漏检</th><th scope="col">精确率</th><th scope="col">召回率</th><th scope="col">F1</th></tr></thead>
           {models.map(model => <tbody key={model.id}>
@@ -95,7 +95,7 @@ export default function MetricsChapter({data}: {data: Journey}) {
           </tbody>)}
         </table>
       </div>
-
+      <p className="reference-table-hint" id="metrics-table-hint">左右滑动查看全部指标。</p>
     </Section>
 
 
