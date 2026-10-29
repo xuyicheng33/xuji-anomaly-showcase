@@ -168,3 +168,5 @@ React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote�
 本地恢复命令npm run backup：打包Git全部refs、当前受跟踪文件、data/source、data/models、materials和两模型原始案例JSON，逐文件SHA256回读校验，输出至.qa/backups；恢复时先从repository.bundle克隆历史，再覆盖workspace内容。备份不含node_modules或SSH私钥，依赖按package-lock.json与requirements.txt安装。fonttools已纳入Python依赖以支持现有字体校验。
 
 2026-10-29连续回放纵轴微调：功能提交bbe8098，仅改变回放两张图的坐标定域与过渡。真实数据、曲线连线、单窗/跨窗汇总、阈值与UI样式保留。已查看1440/390实际画面，并以浏览器时钟验证扩展和收紧的中间帧、逐点坐标一致性及快速打断。专项连续三轮通过（两轮开发预览、一轮生产构建）；完整npm run verify通过18项前端、13项Python、4668窗口、8案例×2模型、144归档、496字覆盖及六组浏览器检查。小范围修改由主Agent自检。过程证据在.qa/playback-scale-20261029；发布脚本增加--scope以记录每轮实际改动范围。
+
+2026-10-29北京时间16:11:39发布a502b68（回放功能bbe8098与验证/发布记录a502b68）。1088个生产文件SHA256及全部gzip解压一致，增量2文件98125字节；Nginx检查、current原子切换、reload及HTTP200通过，前一release 69a1aa3保留。公网1440/390专项回归、减少动态效果和触控选择通过；入口、JS/CSS、manifest/evaluation与dist逐字节一致。记录见.qa/playback-scale-20261029/deploy/deploy-result.json与production/。重建平滑成因及研究模型调整按用户要求留待后续。
