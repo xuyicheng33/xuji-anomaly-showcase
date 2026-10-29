@@ -319,7 +319,8 @@
     font-size: 12px;
   }
   .detection-page .selection-panel > .field input {
-    width: 56px;
+    width: 64px;
+    padding-inline: 4px;
   }
   .detection-page .selection-panel .primary {
     font-size: 12px;
