@@ -182,6 +182,7 @@ try {
       featureInput,
       featureRecon,
     ]);
+    await page.getByRole('button', { name: '查看末尾', exact: true }).click();
     await page.getByRole('combobox', { name: '播放范围' }).selectOption('window');
     assert.equal(await progress.inputValue(), '0');
     await page.getByRole('button', { name: '查看末尾', exact: true }).click();

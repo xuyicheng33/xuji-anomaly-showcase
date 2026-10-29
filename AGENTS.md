@@ -4,5 +4,5 @@
 - 原始材料保留在 `materials/`、`data/source/`、`data/models/`；复核数据在 `data/reference/`，网站只发布 `public/` 中实际使用的资源。历史过程查 Git，不新增累计交接文档。
 - 样式由 `src/report/styles.css` 导入，按基础、共用组件、页面职责组织。修改对应规则和断点，不追加 overrides、patch、refinements 等补丁层。
 - 日常检查 `npm run check`；交付前运行 `npm run verify`。数据变更需验证来源、全部窗口及派生载荷；界面整理需检查桌面和手机实际画面。
-- `npm run deploy -- --scope "改动范围"` 发布已验证的构建到专属 9010 站点，保留前版可回滚。凭据不进入项目。
+- `npm run deploy`（指定范围时用 `python -X utf8 -B scripts/deploy_release.py --scope "改动范围"`） 发布已验证的构建到专属 9010 站点，保留前版可回滚。凭据不进入项目。
 - `npm run backup` 保存当前代码、Git 历史和本地来源材料，回读校验后输出到 `.qa/backups/`。恢复时克隆包内 `repository.bundle`，再覆盖 `workspace/` 内容。

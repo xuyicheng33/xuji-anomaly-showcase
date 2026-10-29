@@ -25,7 +25,7 @@ export function PlaybackChapter(p: DetectionProps) {
   useEffect(() => {
     setCount(0);
     setPlaying(false);
-  }, [scope, start]);
+  }, [start]);
   useEffect(() => {
     setPlaying(false);
   }, [model.id]);
@@ -60,7 +60,7 @@ export function PlaybackChapter(p: DetectionProps) {
     reveal = count ? Math.max(0, idx - viewStart + 1) : 0,
     scores = model.scores.slice(viewStart, viewStart + len),
     labs = data.labels.slice(viewStart, viewStart + len),
-    stats = prefixes[Math.min(count, total)],
+    stats = prefixes[count],
     actual = data.labels[idx] > 0,
     pred = model.scores[idx] > threshold,
     active = count ? (actual ? (pred ? 'tp' : 'fn') : pred ? 'fp' : 'tn') : undefined;
@@ -136,7 +136,14 @@ export function PlaybackChapter(p: DetectionProps) {
         </label>
         <label>
           范围
-          <select aria-label="播放范围" value={scope} onChange={(e) => setScope(e.target.value)}>
+          <select
+            aria-label="播放范围"
+            value={scope}
+            onChange={(e) => {
+              seek(0);
+              setScope(e.target.value);
+            }}
+          >
             <option value="all">完整测试集，2,397点</option>
             <option value="window">选定片段，64点</option>
           </select>
