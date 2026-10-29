@@ -33,7 +33,14 @@ try {
     }
     if (!ready) throw new Error('Preview server did not become ready.');
   }
-  for (const name of ['report', 'calculation', 'loading', 'acceptance', 'usability']) {
+  for (const name of [
+    'report',
+    'calculation',
+    'loading',
+    'acceptance',
+    'usability',
+    'playback_scale',
+  ]) {
     await new Promise((resolve, reject) => {
       const child = spawn(process.execPath, [`scripts/verify_${name}.mjs`], {
         stdio: 'inherit',

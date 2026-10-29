@@ -11,6 +11,7 @@ import paramiko
 
 parser = argparse.ArgumentParser(description='Publish the verified dist to the dedicated 9010 site using the local SSH key.')
 parser.add_argument('--qa-dir', type=Path, default=Path('.qa/deployment'))
+parser.add_argument('--scope', default='Verified production release', help='Describe the changes included in this release.')
 args = parser.parse_args()
 root=Path(__file__).resolve().parents[1]
 release=subprocess.check_output(['git','rev-parse','--short','HEAD'],text=True).strip()
@@ -78,7 +79,7 @@ run('sudo -n nginx -t')
 run('sudo -n ln -s '+shlex.quote(target)+' /var/www/xuji-showcase/current-next && sudo -n mv -Tf /var/www/xuji-showcase/current-next /var/www/xuji-showcase/current')
 run('sudo -n systemctl reload nginx')
 assert run('curl -fsS -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/')=='200'
-record={'release':release,'previousRelease':Path(previous).name,'url':'http://124.223.175.32:9010/','releasePath':target,'verifiedFiles':len(records),'changedFiles':len(changed),'uploadedBytes':archive.stat().st_size,'scope':'mobile controls and table hints; explanation retry; MSE notes and training selection; source and verification maintenance','deployedAt':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+record={'release':release,'previousRelease':Path(previous).name,'url':'http://124.223.175.32:9010/','releasePath':target,'verifiedFiles':len(records),'changedFiles':len(changed),'uploadedBytes':archive.stat().st_size,'scope':args.scope,'deployedAt':datetime.datetime.now(datetime.timezone.utc).isoformat()}
 run('sudo -n python3 -c '+shlex.quote("from pathlib import Path;Path('/var/www/xuji-showcase/deployment.json').write_text("+repr(json.dumps(record,indent=2))+')'))
 remote_python("from pathlib import Path;import shutil;p=Path("+repr(staging)+");assert p.parent==Path('/home/ubuntu') and p.name.startswith('xuji-home-data-');shutil.rmtree(p)")
 (out/'deploy-result.json').write_text(json.dumps(record,indent=2),encoding='utf8')
