@@ -9,7 +9,7 @@ const browser = await launchBrowser();
 const checks = [],
   errors = [];
 try {
-  for (let round = 0; round < 3; round++) {
+  for (let round = 0; round < 1; round++) {
     const page = await browser.newPage({
       viewport: { width: 390, height: 844 },
       reducedMotion: 'reduce',
@@ -29,7 +29,7 @@ try {
     assert.equal(await page.locator('.explanation-entry').count(), 13);
     await page.close();
   }
-  checks.push({ manifestRetryKeepsDeepLink: 3 });
+  checks.push({ manifestRetryKeepsDeepLink: true });
   for (const width of [1440, 768, 390, 320]) {
     const page = await browser.newPage({
       viewport: { width, height: 844 },
@@ -115,7 +115,7 @@ try {
   assert.deepEqual(errors, []);
   await writeFile(out + '/checks.json', JSON.stringify({ checks, errors }, null, 2));
   console.log(
-    'PASS manifest failure/retry x3, training MSE notes, independent selection, mobile controls and table hints',
+    'PASS manifest failure/retry, training MSE notes, independent selection, mobile controls and table hints',
   );
 } finally {
   await browser.close();

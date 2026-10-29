@@ -2,7 +2,6 @@ from pathlib import Path
 import datetime
 import argparse
 import hashlib
-import io
 import json
 import shlex
 import subprocess
@@ -14,12 +13,19 @@ parser.add_argument('--qa-dir', type=Path, default=Path('.qa/deployment'))
 parser.add_argument('--scope', default='Verified production release', help='Describe the changes included in this release.')
 args = parser.parse_args()
 root=Path(__file__).resolve().parents[1]
-release=subprocess.check_output(['git','rev-parse','--short','HEAD'],text=True).strip()
+commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
+release=commit[:7]
+if subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip():
+    raise RuntimeError('Commit the release changes before deployment.')
+record=json.loads((root/'.qa/build.json').read_text(encoding='utf-8'))
+if not record.get('verified') or record['commit'] != commit:
+    raise RuntimeError('Run npm run verify on this commit before deployment.')
 out=args.qa_dir.resolve()
 out.mkdir(parents=True, exist_ok=True)
 dist=root/'dist'
 records={p.relative_to(dist).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in dist.rglob('*') if p.is_file() and p.suffix!='.gz'}
-assert records['data/journey/manifest.json']=='67445603d2f02f4d5e304d84ea981a9adb0ee9e8f66cdf778dd9ed40353155e2'
+if records != record['files']:
+    raise RuntimeError('Production files differ from the verified build.')
 assert records['data/journey/evaluation.json']=='c5bf0fdc5d272cba46be955c2d890fb704cb97eb297a40a0a7bed58640e20eab'
 client=paramiko.SSHClient();client.load_host_keys(str(Path.home()/'.ssh/known_hosts'))
 client.connect('124.223.175.32',username='ubuntu',key_filename=str(Path.home()/'.ssh/xuji_showcase_ed25519'),look_for_keys=False,allow_agent=False,timeout=20)
@@ -63,10 +69,12 @@ for file in list(target.rglob('*')):
 for name,digest in expected.items():
  file=target/name;raw=file.read_bytes()
  assert hashlib.sha256(raw).hexdigest()==digest,name
- if len(raw)>=1024 and file.suffix in {{'.bin','.json','.js','.css','.svg','.html'}}:
+ zipped=file.with_name(file.name+'.gz')
+ if zipped.exists() and gzip.decompress(zipped.read_bytes()) != raw:zipped.unlink()
+ if name in {changed!r} and len(raw)>=1024 and file.suffix in {{'.bin','.json','.js','.css','.svg','.html'}}:
   packed=gzip.compress(raw,compresslevel=6,mtime=0)
   if len(packed)<len(raw):
-   zipped=file.with_name(file.name+'.gz');zipped.write_bytes(packed)
+   zipped.write_bytes(packed)
    assert gzip.decompress(zipped.read_bytes())==raw
 for file in list(target.rglob('*.gz')):
  if not file.with_suffix('').exists():file.unlink()

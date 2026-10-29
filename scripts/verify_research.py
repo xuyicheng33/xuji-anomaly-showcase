@@ -23,6 +23,10 @@ def array_header(path):
 
 
 def verify_assets():
+    retained = json.loads((ROOT / 'data/reference-index.json').read_text(encoding='utf-8'))
+    for name, digest in retained.items():
+        if hashlib.sha256((ROOT / name).read_bytes()).hexdigest() != digest:
+            raise ValueError(f'本地复核材料变化：{name}')
     records = json.loads((ROOT / "data/manifest.json").read_text(encoding="utf-8-sig"))
     expected = set()
     total_bytes = 0

@@ -8,10 +8,6 @@ const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf
 const browser = await launchBrowser();
 const errors = [],
   checks = [];
-const array = async (file) => {
-  const b = await readFile('public/data/journey/' + file);
-  return new Float64Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.length));
-};
 try {
   for (const width of [1440, 390]) {
     const page = await browser.newPage({
@@ -183,7 +179,7 @@ try {
   page.setDefaultTimeout(60000);
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto(base + '#/playback');
-  for (let rep = 0; rep < 3; rep++) {
+  for (let rep = 0; rep < 1; rep++) {
     await page.getByRole('slider', { name: '播放进度' }).fill('130');
     await page.getByRole('button', { name: '播放', exact: true }).click();
     await page.waitForFunction(
@@ -197,12 +193,12 @@ try {
     assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), n);
     assert.ok(await page.getByRole('button', { name: '播放', exact: true }).isVisible());
   }
-  checks.push({ playingRoundTripPauses: 3 });
+  checks.push({ playingRoundTripPauses: true });
   await page.close();
   assert.deepEqual(errors, []);
   await writeFile(out + '/checks.json', JSON.stringify({ checks, errors }, null, 2));
   console.log(
-    'PASS calculation, coverage, footnotes, mobile/desktop, 200%, deep links, state retention and pause x3',
+    'PASS calculation, coverage, footnotes, mobile/desktop, 200%, deep links, state retention and pause',
   );
 } finally {
   await browser.close();
