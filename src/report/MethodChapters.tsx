@@ -275,7 +275,10 @@ export function TrainingChapter({
           ) : training && stats ? (
             <>
               <div className="chart-context">
-                <span>选定窗口，64 点</span>
+                <span className="training-selection-key">
+                  <i aria-hidden="true" />
+                  选定窗口，64 点
+                </span>
                 <span>
                   {train.times[start]} — {train.times[start + 63]}
                 </span>
@@ -284,9 +287,7 @@ export function TrainingChapter({
                 title="归一化训练数据"
                 lines={[{ name: point.label, values, color: colors.input }]}
                 times={train.times.slice(contextStart, contextStart + contextLength)}
-                labels={values.map((_, i) =>
-                  Number(contextStart + i >= start && contextStart + i < start + 64),
-                )}
+                selection={{ start: start - contextStart, end: start - contextStart + 63 }}
                 height={260}
               />
               <label className="slider-label">
@@ -357,7 +358,14 @@ export function TrainingChapter({
           ))}
         </ol>
       </Section>
-      <Section title="训练损失与学习率">
+      <Section
+        title={
+          <>
+            训练重建误差与学习率
+            <Footnote note="training-mse" reference="ref-training-mse-section" />
+          </>
+        }
+      >
         <div className="model-selection-row">
           <ModelSelect
             data={data}
@@ -372,7 +380,7 @@ export function TrainingChapter({
         <div className="chapter-chart-panel">
           <Curve
             axisUnit="轮"
-            title="训练损失"
+            title="训练重建误差（MSE）"
             lines={[
               {
                 name: current.name,
@@ -403,7 +411,7 @@ export function TrainingChapter({
           <div className="training-metrics inline-facts">
             <strong>
               {record.loss.toFixed(5)}
-              <span>当前轮次损失</span>
+              <span>当前轮次MSE</span>
             </strong>
             <strong>
               {record.lr.toExponential(2)}

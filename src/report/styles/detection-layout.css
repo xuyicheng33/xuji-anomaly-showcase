@@ -233,3 +233,96 @@
 .curve svg path {
   vector-effect: non-scaling-stroke;
 }
+
+/* Narrow detection controls share the existing two-column selection panel. */
+@media (max-width: 680px) {
+  .site-main .detection-page > .chapter-heading {
+    padding: 16px 0 20px;
+  }
+  .detection-page > .chapter-heading p {
+    margin-top: 8px;
+  }
+  .site-main .detection-page > .toolbar {
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+  .detection-page .toolbar > .field {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .detection-page .toolbar > .field select {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+    margin-top: 0;
+  }
+  .detection-page .example-picker {
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .detection-page .example-picker > span {
+    flex-basis: auto;
+    margin-right: 4px;
+  }
+  .detection-page .example-picker button {
+    padding: 8px;
+    font-size: 12px;
+    min-height: 38px;
+  }
+  .detection-page .selection-panel {
+    padding: 12px;
+    gap: 10px;
+  }
+  .detection-page .selection-panel .primary {
+    min-height: 42px;
+    padding-block: 10px;
+    grid-column: 2;
+    grid-row: 1;
+    padding-inline: 6px;
+  }
+  .detection-page .time-range {
+    margin-block: 12px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .detection-page .detection-summary {
+    gap: 8px 16px;
+    padding-block: 8px;
+    margin-block: 10px;
+  }
+  .detection-page .chart-label-key {
+    margin-block: 12px 5px;
+  }
+  .detection-page .selection-panel > .field {
+    gap: 6px;
+  }
+  .detection-page .selection-panel > .field input {
+    width: 68px;
+  }
+  .detection-page .selection-panel > input {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+  }
+  .detection-page .selection-panel > span {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 380px) {
+  .detection-page .selection-panel > .field {
+    white-space: nowrap;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .detection-page .selection-panel > .field input {
+    width: 56px;
+  }
+  .detection-page .selection-panel .primary {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}

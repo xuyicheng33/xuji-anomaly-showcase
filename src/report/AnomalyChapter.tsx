@@ -344,7 +344,25 @@ export default function AnomalyChapter({
                   </div>
                 </div>
                 <div className="case-point" aria-live="polite">
-                  <span>第 {point + 1} 点</span>
+                  <span className="case-point-navigation">
+                    <span>第 {point + 1} 点</span>
+                    <span className="case-point-actions" role="group" aria-label="选择案例时刻">
+                      <button
+                        type="button"
+                        onClick={() => setPoint((value) => Math.max(0, value - 1))}
+                        disabled={point === 0}
+                      >
+                        前一点
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPoint((value) => Math.min(63, value + 1))}
+                        disabled={point === 63}
+                      >
+                        后一点
+                      </button>
+                    </span>
+                  </span>
                   <div>
                     <span>原始值</span>
                     <strong>{base[point]?.toFixed(4)}</strong>

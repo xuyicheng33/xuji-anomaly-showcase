@@ -377,6 +377,10 @@
   display: none;
   font-size: 13px;
   color: var(--muted);
+  line-height: 1.7;
+}
+.score-calculation .reference-table-hint {
+  margin: -6px 0 10px;
 }
 @media (max-width: 1050px) {
   .reference-table-hint {

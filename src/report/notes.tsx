@@ -15,6 +15,7 @@ export const notes = [
   { id: 'point-metrics', title: '逐点指标与区间点调整', page: 'detection' },
   { id: 'window-aggregation', title: '连续回放与跨窗口合并', page: 'playback' },
   { id: 'model-design', title: '两种模型的设计与结果', page: 'models' },
+  { id: 'training-mse', title: '训练重建误差与优化目标', page: 'training' },
 ] as const;
 export type NoteId = (typeof notes)[number]['id'];
 export function getNoteOrigin() {

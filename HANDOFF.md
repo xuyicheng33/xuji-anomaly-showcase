@@ -89,7 +89,7 @@ React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote�
 - 格式统一由Prettier管理，ESLint检查TypeScript与Hook调用规则，TypeScript启用未使用变量/参数检查。日常执行npm run check；完整验收执行npm run verify。
 - 样式统一入口src/report/styles.css，导入顺序就是层叠顺序。refinements.css只组织styles/中的控件布局、评估布局、阅读节奏、检测布局、模型布局五组规则，保持原顺序。微调在对应职责文件中修改，不另加全站覆盖文件。
 - App.tsx负责页面装配及共享选择；navigation.ts维护章节/路由；useJourney.ts管理主资料请求；presentationMemory.ts集中保存说明来源、处理例子和最近片段结果。记忆只在当前页面会话保留，刷新后重新读取。曲线与数据缓存独立于展示记忆。
-- npm run verify包含格式/lint/类型、前端/Python测试、数据/窗口/案例/研究/字体校验、生产构建与四组浏览器验证。scripts/browser.mjs统一浏览器选择；BROWSER_EXECUTABLE可指定路径，Windows优先系统Edge，其余环境使用Playwright Chromium。QA_DIR指定证据目录，SHOWCASE_URL指定已有服务或公网；完整浏览器验证默认自行启动4175预览。
+- npm run verify包含格式/lint/类型、前端/Python测试、数据/窗口/案例/研究/字体校验、生产构建与五组浏览器验证（全站、演算、加载、专项、体验）。scripts/browser.mjs统一浏览器选择；BROWSER_EXECUTABLE可指定路径，Windows优先系统Edge，其余环境使用Playwright Chromium。QA_DIR指定证据目录，SHOWCASE_URL指定已有服务或公网；完整浏览器验证默认自行启动4175预览。
 - 本机SSH别名xuji-showcase连接ubuntu@124.223.175.32:22，专用密钥位于本机~/.ssh/xuji_showcase_ed25519；服务器authorized_keys保留原条目并追加本机公钥。凭据不进入项目。9010继续使用版本目录、哈希校验和原子切换发布。
 - 本轮过程目录.qa/refinement-maintenance-20261029。纯维护整理后25张画面对比尺寸相同，24张逐像素一致，手机回放2个像素渲染差异；四组浏览器验证通过。
 
@@ -158,3 +158,5 @@ React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote�
 本轮类型检查/构建、496字字体覆盖、本地verify_report/verify_calculation/verify_loading与专项9处角标往返核验通过；公网专项与verify_calculation同样通过，保留测点/时刻/结果/暂停状态，检查1440/390、200%与刷新。实验数据、权重、标签、评分、阈值保持不变。过程记录在.qa/explanation-polish-20261028。
 
 2026-10-28北京时间23:47:35发布7df8fbf，1088生产文件SHA256与全部gzip解压一致，增量4文件246697字节；9010 Nginx校验/reload/HTTP200通过，current原子切换，前一release c565c6c保留。发布记录见该工作区deploy-result.json。
+
+2026-10-29体验微调：说明页主资料失败复用DataFailure并支持重试/原角标定位；训练曲线改为“训练重建误差（MSE）”，新增固定注13解释每批MSE再按轮平均及参数优化目标；训练窗口改用Curve.selection蓝色选区。手机检测页沿原两列布局合并起点/按钮、滑块/范围，同视口曲线起点由798px提前至718px；宽表统一TableScrollHint置于表格前，保留全部精度；手机异常页保留标签条并加40px高的前一点/后一点，支持首尾禁用和角标往返。新增verify_usability覆盖失败重试×3、13条说明、训练选区/返回、表格滚动、点选边界、320/390/768/1440。沿用现有按下反馈、结果出场及低动态设置。

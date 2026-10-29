@@ -5,6 +5,7 @@ import { Footnote, type NoteId } from './notes';
 export default function Curve({
   lines,
   labels = [],
+  selection,
   selected,
   reveal,
   threshold,
@@ -26,6 +27,8 @@ export default function Curve({
     opacity?: number;
   }[];
   labels?: number[];
+  /** Inclusive local sample range, independently rendered from anomaly labels. */
+  selection?: { start: number; end: number };
   selected?: number;
   reveal?: number;
   threshold?: number;
@@ -144,6 +147,19 @@ export default function Curve({
           </g>
         ))}
         <g clipPath={'url(#' + uid + ')'}>
+          {selection && (
+            <rect
+              className="curve-selection"
+              data-selection-start={selection.start}
+              data-selection-end={selection.end}
+              x={x(selection.start)}
+              y={T}
+              width={x(selection.end) - x(selection.start)}
+              height={height - T - B}
+              fill="#355f7b"
+              opacity=".12"
+            />
+          )}
           {intervals.map((interval) =>
             interval.start === interval.end ? (
               <line

@@ -1,3 +1,4 @@
+import TableScrollHint from './TableScrollHint';
 import { useState } from 'react';
 import type { Journey, Metrics } from '../journey';
 import { countMetrics, fmt, pct, pointAdjusted } from '../journey';
@@ -188,6 +189,7 @@ export default function MetricsChapter({ data }: { data: Journey }) {
 
       <Section title="两种方法的评估结果">
         <p className="reading-copy">同一测试集、统一阈值规则，分别统计逐点与区间点调整指标。</p>
+        <TableScrollHint id="metrics-table-hint">左右滑动查看全部指标。</TableScrollHint>
         <div
           className="metrics-archive-scroll"
           role="region"
@@ -232,9 +234,6 @@ export default function MetricsChapter({ data }: { data: Journey }) {
             ))}
           </table>
         </div>
-        <p className="reference-table-hint" id="metrics-table-hint">
-          左右滑动查看全部指标。
-        </p>
       </Section>
     </div>
   );

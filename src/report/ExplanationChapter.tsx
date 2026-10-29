@@ -1,3 +1,4 @@
+import TableScrollHint from './TableScrollHint';
 import type { Journey } from '../journey';
 import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
@@ -48,6 +49,7 @@ export default function ExplanationChapter({
           23:00之后。删除后，其余记录按原来的时间顺序保留。
         </p>
         <p>删除的测点：{data.removedFeatures.join('、')}。</p>
+        <TableScrollHint id="sensor-table-hint">左右滑动查看测点名称与编号。</TableScrollHint>
         <div
           className="reference-table-scroll sensor-list"
           tabIndex={0}
@@ -74,9 +76,6 @@ export default function ExplanationChapter({
             </tbody>
           </table>
         </div>
-        <p className="reference-table-hint" id="sensor-table-hint">
-          左右滑动查看测点名称与编号。
-        </p>
       </NoteSection>
       <NoteSection id="data-split">
         <p>
@@ -235,6 +234,14 @@ export default function ExplanationChapter({
         </p>
         <p>
           页面的模型介绍采用报告设计。当前保存的SMST-AD结果由时间特征生成重建；对应代码同时计算空间注意力和空间正则。
+        </p>
+      </NoteSection>
+      <NoteSection id="training-mse">
+        <p>
+          训练重建误差（MSE）记录每轮的重建误差变化。每个批次先计算各窗口、各时刻、各测点的平方误差均值，再将这一轮各批次的均值取平均，得到曲线上的一个数值。
+        </p>
+        <p>
+          参数更新使用有界异常损失：正常时刻减小重建误差，异常时刻将误差推动到设定边界；SMST-AD同时计算空间正则。训练曲线读取保存的MSE记录，学习率读取对应轮次的优化器记录。
         </p>
       </NoteSection>
     </div>

@@ -6,6 +6,7 @@ import AnomalyChapter from './report/AnomalyChapter';
 import { ModelsChapter, TrainingChapter } from './report/MethodChapters';
 import { DetectionChapter, PlaybackChapter } from './report/DetectionChapters';
 import ExplanationChapter from './report/ExplanationChapter';
+import DataFailure from './report/DataFailure';
 import { getNoteOrigin, pausePresentation, rememberNoteOrigin } from './report/notes';
 export default function App() {
   const { data, error, retry } = useJourney();
@@ -152,12 +153,7 @@ export default function App() {
               </section>
             </>
           ) : error ? (
-            <div className="state-panel" role="alert">
-              <h2>{error}</h2>
-              <button className="primary" onClick={retry}>
-                重新读取
-              </button>
-            </div>
+            <DataFailure message={error} retry={retry} />
           ) : !data || !model ? (
             <div className="state-panel" role="status">
               正在读取研究资料…
@@ -181,7 +177,9 @@ export default function App() {
           ) : null}
         </div>
         {page === 'metrics' &&
-          (data ? (
+          (error ? (
+            <DataFailure message={error} retry={retry} />
+          ) : data ? (
             <ExplanationChapter data={data} address={address} feature={feature} />
           ) : (
             <p role="status">正在读取说明资料…</p>

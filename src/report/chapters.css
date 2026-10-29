@@ -12,6 +12,16 @@
 .chapter-refined .report-section > h2 {
   font-size: 27px;
 }
+.training-selection-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.training-selection-key i {
+  width: 14px;
+  height: 10px;
+  background: #355f7b1f;
+}
 .data-ledger {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

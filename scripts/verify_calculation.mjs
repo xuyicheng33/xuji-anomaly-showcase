@@ -36,7 +36,7 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.locator('#ref-window-calculation').click();
     await page.locator('#note-score-calculation:focus').waitFor();
-    assert.equal(await page.locator('.explanation-entry').count(), 12);
+    assert.equal(await page.locator('.explanation-entry').count(), 13);
     await page.locator('#note-score-calculation .note-return').click();
     await page.getByTestId('calculated-score').waitFor();
     assert.equal(await page.getByRole('slider', { name: '片段查看时刻' }).inputValue(), '25');

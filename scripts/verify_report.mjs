@@ -99,7 +99,11 @@ try {
         await page
           .locator('body')
           .innerText()
-          .then((s) => /STMem-AD|归档阈值|训练POT|报告描述|尚待|另行核定/.test(s)),
+          .then((s) =>
+            /STMem-AD|归档阈值|训练POT|报告描述|尚待|另行核定|并不代表|是不是|这不意味着|并非/.test(
+              s,
+            ),
+          ),
         false,
         'stale experimental copy visible',
       );

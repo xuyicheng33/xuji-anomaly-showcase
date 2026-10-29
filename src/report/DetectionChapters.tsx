@@ -1,3 +1,4 @@
+import TableScrollHint from './TableScrollHint';
 import { useEffect, useState } from 'react';
 import {
   countMetrics,
@@ -606,7 +607,14 @@ export function PlaybackChapter(p: Props) {
           </>
         }
       >
-        <div className="table-scroll">
+        <TableScrollHint id="playback-table-hint">左右滑动查看全部指标。</TableScrollHint>
+        <div
+          className="table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="完整测试集评估指标"
+          aria-describedby="playback-table-hint"
+        >
           <table>
             <thead>
               <tr>
@@ -642,8 +650,7 @@ export function PlaybackChapter(p: Props) {
           </table>
         </div>
         <p className="quiet">
-          <span className="mobile-table-hint">左右滑动查看全部指标。 </span>2,397
-          个时刻，检出、误报与漏检按逐点统计。
+          2,397 个时刻，检出、误报与漏检按逐点统计。
           <Footnote note="thresholds" reference="ref-playback-thresholds" />
         </p>
       </Section>

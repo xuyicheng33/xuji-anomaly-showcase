@@ -1,3 +1,4 @@
+import TableScrollHint from './TableScrollHint';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { loadWindow, type Journey, type Model, type Asset } from '../journey';
 import { Footnote } from './notes';
@@ -82,11 +83,13 @@ export function ScoreCalculation({
           <h3>
             <span>01</span> 逐项相减，再平方
           </h3>
+          <TableScrollHint id={id + '-scroll-hint'}>左右滑动查看输入、重建与误差。</TableScrollHint>
           <div
             className="calculation-table-scroll"
             tabIndex={0}
             role="region"
             aria-label="全部125个测点计算明细"
+            aria-describedby={id + '-scroll-hint'}
           >
             <table className="calculation-table">
               <thead>

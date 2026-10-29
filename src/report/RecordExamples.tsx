@@ -1,3 +1,4 @@
+import TableScrollHint from './TableScrollHint';
 import { useEffect, useState } from 'react';
 import type { Journey } from '../journey';
 import { MissingExample } from './DataCleaning';
@@ -38,6 +39,7 @@ export default function RecordExamples({ data }: { data: Journey }) {
             <h3>原始数据片段</h3>
             <span>2022-03-29 04:00—08:00</span>
           </div>
+          <TableScrollHint id="raw-example-hint">左右滑动查看各测点。</TableScrollHint>
           <div
             className="reference-table-scroll raw-record-example"
             tabIndex={0}
@@ -75,9 +77,6 @@ export default function RecordExamples({ data }: { data: Journey }) {
           </div>
           <p className="example-caption">
             “---”表示缺失。网侧绕组温度有单点缺失，底部油温为全缺失测点。
-          </p>
-          <p className="reference-table-hint" id="raw-example-hint">
-            左右滑动查看各测点。
           </p>
         </div>
       ) : selection.view === 'missing' ? (
@@ -118,6 +117,7 @@ export default function RecordExamples({ data }: { data: Journey }) {
             <strong>换流器电压</strong>
             <code>{crop.key}</code>
           </div>
+          <TableScrollHint id="crop-example-hint">左右滑动查看处理前后。</TableScrollHint>
           <div
             className="reference-table-scroll crop-record-example"
             tabIndex={0}
@@ -156,9 +156,6 @@ export default function RecordExamples({ data }: { data: Journey }) {
             {selection.block === 0
               ? '删除中间无效行，前后有效记录按原顺序衔接。'
               : '删除末尾无效行，最后有效记录保留。'}
-          </p>
-          <p className="reference-table-hint" id="crop-example-hint">
-            左右滑动查看处理前后。
           </p>
         </div>
       )}
