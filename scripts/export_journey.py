@@ -11,7 +11,7 @@ import numpy as np
 import openpyxl
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'public/data/journey'
+OUT = ROOT / 'data/reference'
 
 class MetadataReader(pickle.Unpickler):
     """Read trusted local training metadata without importing Torch or tensors."""
@@ -162,3 +162,11 @@ if __name__ == '__main__':
     export()
     from install_window_package import install
     install()
+    from export_runtime import export as export_runtime
+    from export_curve_data import main as export_curves
+    from export_calculation_index import main as export_calculation
+    from export_data_cleaning import export as export_cleaning
+    export_runtime()
+    export_curves()
+    export_calculation()
+    export_cleaning()

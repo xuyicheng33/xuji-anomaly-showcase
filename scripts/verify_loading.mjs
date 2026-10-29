@@ -63,7 +63,6 @@ try {
     `input-rows-v1/${d.input.sha256}/0.bin`,
     `input-rows-v1/${d.input.sha256}/128.bin`,
     chunk.file,
-    d.models[0].windows.maskDirectory + '/' + chunk.file.split('/').pop(),
   ]);
   assert.equal(await det.page.locator('.aggregate-error').count(), 0);
   await det.page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
@@ -86,12 +85,9 @@ try {
   await replay.page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
   await replay.page.getByRole('button', { name: '下一处检出', exact: true }).click();
   await replay.page.waitForFunction(() => !document.querySelector('.feature-location'));
-  assert.ok(replay.requests.includes(d.models[0].errors.file));
+  assert.ok(!replay.requests.some((name) => name.endsWith('/errors.bin')));
   const index = d.labels.findIndex((v, i) => v && d.models[0].scores[i] > d.models[0].threshold);
-  const eb = await readFile('public/data/journey/' + d.models[0].errors.file);
-  const es = new Float64Array(eb.buffer.slice(eb.byteOffset, eb.byteOffset + eb.length));
-  let best = 0;
-  for (let f = 1; f < 125; f++) if (es[index * 125 + f] > es[index * 125 + best]) best = f;
+  const best = d.models[0].focusFeatures[index];
   assert.equal(
     await replay.page.getByRole('combobox', { name: '选择测点' }).inputValue(),
     String(best),
@@ -103,7 +99,7 @@ try {
       `curves-v1/${d.input.sha256}/mean.bin`,
       `curves-v1/${d.models[0].recon.sha256}/mean.bin`,
     ],
-    errorsOnDemand: true,
+    focusNeedsNoMatrix: true,
   });
   await replay.page.close();
   for (let rep = 0; rep < 3; rep++) {
@@ -174,7 +170,7 @@ try {
   assert.deepEqual(errors, []);
   await writeFile(out + '/loading-checks.json', JSON.stringify({ summary, errors }, null, 2));
   console.log(
-    'PASS per-page binary requests, deferred training/labels/errors, score before curves, model request isolation x3 and failure recovery',
+    'PASS per-page binary requests, deferred training/labels and indexed feature location, score before curves, model request isolation x3 and failure recovery',
   );
 } finally {
   await browser.close();

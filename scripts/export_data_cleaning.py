@@ -1,13 +1,14 @@
 """Derive the cleaning illustrations from the preserved full raw and clean records."""
+import argparse
 import hashlib
 import json
 from pathlib import Path
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT / 'public/data/journey'
+BASE = ROOT / 'data/reference'
 
-def export():
+def export(check=False):
     manifest = json.loads((BASE / 'manifest.json').read_text(encoding='utf-8'))
     def read(name):
         asset = manifest['datasets'][name]
@@ -82,8 +83,14 @@ def export():
               'split': {'trainCount': split, 'testCount': len(clean)-split,
                         'trainStart': clean_meta['times'][0], 'trainEnd': clean_meta['times'][split-1],
                         'testStart': clean_meta['times'][split], 'testEnd': clean_meta['times'][-1]}}
-    (ROOT / 'src/report/cleaning-data.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+    target = ROOT / 'src/report/cleaning-data.json'
+    if check:
+        assert json.loads(target.read_text(encoding='utf-8')) == result
+    else:
+        target.write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
     print(f'Verified {len(blocks)} invalid blocks, {len(removed)} removed sensors, {missing.sum()} filled cells')
 
 if __name__ == '__main__':
-    export()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--check', action='store_true')
+    export(parser.parse_args().check)

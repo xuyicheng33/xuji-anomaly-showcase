@@ -3,11 +3,12 @@ import hashlib
 import json
 from pathlib import Path
 import numpy as np
-from evaluate_results import counts
+from evaluation_policy import counts
 from evaluation_policy import POLICY, RESULT_VERSION, select_threshold
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'public/data/journey'
+OUT = ROOT / 'data/reference'
+PUBLIC = ROOT / 'public/data/journey'
 
 
 def point_adjust(y, prediction):
@@ -31,7 +32,7 @@ def install():
         fresh = json.loads((OUT / f'windows-v1/{previous["id"]}/source-manifest.json').read_text('utf8'))
         windows = []
         for chunk in fresh['chunks']:
-            payload = (OUT / chunk['file']).read_bytes()
+            payload = (PUBLIC / chunk['file']).read_bytes()
             assert hashlib.sha256(payload).hexdigest() == chunk['sha256']
             predictions = np.frombuffer(payload, dtype='<f4').reshape(chunk['count'], 64, 125)
             for j, prediction in enumerate(predictions):
@@ -85,7 +86,7 @@ def install():
     })
     data['provenance'].pop('alignment', None)
     path.write_text(json.dumps(data, ensure_ascii=False, separators=(',', ':'), allow_nan=False), encoding='utf8')
-    (OUT / 'evaluation.json').write_text(json.dumps({'version': RESULT_VERSION, 'policy': POLICY, 'models': evaluations},
+    (PUBLIC / 'evaluation.json').write_text(json.dumps({'version': RESULT_VERSION, 'policy': POLICY, 'models': evaluations},
                                                    ensure_ascii=False, indent=2), encoding='utf8')
     print(json.dumps([{'model': m['name'], 'threshold': m['threshold'], 'windowThreshold': m['windowThreshold'],
                        'metrics': m['metrics']} for m in models], ensure_ascii=False, indent=2))

@@ -1,7 +1,7 @@
 import { launchBrowser } from './browser.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 const base = process.env.SHOWCASE_URL || 'http://124.223.175.32:9010/';
-const out = process.env.QA_DIR || '.qa/calculation-20261028';
+const out = process.env.QA_DIR || '.qa/loading-times';
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
 const result = [];
@@ -14,6 +14,9 @@ try {
     page.setDefaultTimeout(90000);
     const started = performance.now();
     await page.goto(base + '#/' + route);
+    await page.locator('h1:visible').waitFor();
+    const pageMs = Math.round(performance.now() - started);
+    if (route === 'data') await page.locator('.normalization-section').scrollIntoViewIfNeeded();
     if (route === 'training')
       await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
     else
@@ -33,7 +36,7 @@ try {
           duration: Math.round(r.duration),
         })),
     );
-    result.push({ route, curveMs, resources });
+    result.push({ route, pageMs, curveMs, resources });
     console.log(
       route,
       curveMs,

@@ -19,34 +19,28 @@ export type Model = {
   id: string;
   name: string;
   threshold: number;
-  thresholdSource: string;
   scores: number[];
   history: { epoch: number; loss: number; lr: number }[];
   recon: Asset;
-  errors: Asset;
+  focusFeatures: number[];
   metrics: { point_wise: Metrics; point_adjusted: Metrics; continuous_score_auc: number };
   windowThreshold: number;
   run: string;
-  coverage?: number[];
-  windows?: { chunks: WindowChunk[]; count: number; dtype: string; maskDirectory: string };
-  examples?: { code: string; index: number; start: number; feature: number }[];
+  windows: { chunks: WindowChunk[]; count: number };
+  examples: { code: string; index: number; start: number; feature: number }[];
 };
 export type Feature = { index: number; key: string; label: string; description: string };
 export type Journey = {
   datasets: Record<string, Asset & { keys: string[]; times: string[] }>;
   schemaVersion: number;
   resultVersion: string;
-  dataset: string;
   window: number;
   features: Feature[];
   times: string[];
   labels: number[];
-  segments: { start: number; end: number }[];
   models: Model[];
   input: Asset;
-  cleanTest: Asset;
   labelMatrix: Asset;
-  assets: Asset[];
   summary: {
     rawRows: number;
     rawFeatures: number;
@@ -66,27 +60,6 @@ export type Journey = {
     cleanEnd: string;
   };
   removedFeatures: string[];
-  missingExample: {
-    feature: number;
-    times: string[];
-    before: (number | null)[];
-    after: number[];
-    selected: number;
-  };
-  normalization: {
-    feature: number;
-    trainMin: number;
-    trainMax: number;
-    testMin: number;
-    testMax: number;
-    raw: number[];
-    normalized: number[];
-  }[];
-  rawSampleRows: { time: string; values: (number | null)[] }[];
-  sampleFeatures: number[];
-  sampleRows: { time: string; values: number[] }[];
-  trainingSample: number[][];
-  provenance: Record<string, string>;
 };
 export const fmt = (n: number, digits = 0) =>
   n.toLocaleString('zh-CN', { maximumFractionDigits: digits });
@@ -128,6 +101,9 @@ export function countMetrics(
     else if (y) fn++;
     else tn++;
   }
+  return metricsFromCounts(tp, fp, fn, tn);
+}
+function metricsFromCounts(tp: number, fp: number, fn: number, tn: number): Metrics {
   return {
     tp,
     fp,
@@ -137,6 +113,15 @@ export function countMetrics(
     recall: tp + fn ? tp / (tp + fn) : null,
     f1: 2 * tp + fp + fn ? (2 * tp) / (2 * tp + fp + fn) : null,
   };
+}
+export function metricPrefixes(labels: number[], scores: number[], threshold: number) {
+  const counts: [number, number, number, number] = [0, 0, 0, 0];
+  const prefixes = [metricsFromCounts(...counts)];
+  for (let i = 0; i < labels.length; i++) {
+    counts[labels[i] ? (scores[i] > threshold ? 0 : 2) : scores[i] > threshold ? 1 : 3]++;
+    prefixes.push(metricsFromCounts(...counts));
+  }
+  return prefixes;
 }
 export function outcome(label: number, score: number, threshold: number) {
   return label
@@ -200,18 +185,14 @@ async function windowFile(file: string, bytes: number) {
 }
 export async function loadWindow(m: Model, start: number) {
   const pack = m.windows,
-    chunk = pack?.chunks.find((c) => start >= c.start && start < c.start + c.count);
-  if (!pack || !chunk) throw Error('没有对应的完整窗口');
-  const [raw, maskRaw] = await Promise.all([
-    windowFile(chunk.file, chunk.bytes),
-    windowFile(`${pack.maskDirectory}/${chunk.file.split('/').pop()}`, chunk.count * 64 * 125),
-  ]);
+    chunk = pack.chunks.find((c) => start >= c.start && start < c.start + c.count);
+  if (!chunk) throw Error('没有对应的完整窗口');
+  const raw = await windowFile(chunk.file, chunk.bytes);
   const offset = (start - chunk.start) * 64 * 125;
   return {
     start,
     modelId: m.id,
     recon: new Float32Array(raw, offset * 4, 64 * 125).slice(),
-    mask: new Uint8Array(maskRaw, offset, 64 * 125).slice(),
   };
 }
 export function windowScores(input: Float64Array, recon: Float32Array, start: number) {

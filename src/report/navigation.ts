@@ -9,20 +9,5 @@ export const chapters = [
 export function route() {
   const path = location.hash.replace('#/', '').split('?')[0];
   if (chapters.some((c) => c[0] === path) || path === 'metrics') return path;
-  const old = path.startsWith('step/') ? [path, path.split('/')[1]] : null;
-  if (old) {
-    const n = +old[1];
-    return n <= 9
-      ? 'data'
-      : n <= 18
-        ? 'anomalies'
-        : n <= 25
-          ? 'models'
-          : n <= 30
-            ? 'training'
-            : n <= 37
-              ? 'detection'
-              : 'playback';
-  }
   return 'home';
 }

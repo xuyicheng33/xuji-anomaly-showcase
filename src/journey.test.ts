@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { countMetrics, pointAdjusted, series, outcome, meanSeries } from './journey';
+import {
+  countMetrics,
+  pointAdjusted,
+  series,
+  outcome,
+  meanSeries,
+  metricPrefixes,
+} from './journey';
 describe('journey navigation and numerical chain', () => {
   it('keeps threshold equality normal and limits prefix statistics', () => {
     const y = [0, 1, 1, 0],
@@ -22,6 +29,9 @@ describe('journey navigation and numerical chain', () => {
       recall: null,
       f1: null,
     });
+    metricPrefixes(y, s, 0.5).forEach((result, end) =>
+      expect(result).toEqual(countMetrics(y, s, 0.5, 0, end)),
+    );
   });
   it('does not apply point adjustment to live decisions', () => {
     expect(pointAdjusted([0, 1, 1, 1, 0], [0, 0, 1, 0, 0], 0.5)).toEqual([

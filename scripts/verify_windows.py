@@ -6,9 +6,10 @@ from evaluation_policy import POLICY, RESULT_VERSION, select_threshold
 
 root=Path(__file__).resolve().parents[1]
 folder=root/'public/data/journey'
-data=json.loads((folder/'manifest.json').read_text('utf8'))
-raw=np.fromfile(folder/data['input']['file'],dtype='<f8').reshape(-1,125)
-labels=np.fromfile(folder/data['labelMatrix']['file'],dtype='<f8').reshape(-1,125)
+reference=root/'data/reference'
+data=json.loads((reference/'manifest.json').read_text('utf8'))
+raw=np.fromfile(reference/data['input']['file'],dtype='<f8').reshape(-1,125)
+labels=np.fromfile(reference/data['labelMatrix']['file'],dtype='<f8').reshape(-1,125)
 assert np.array_equal(labels.any(1),data['labels'])
 assert len(data['models'])==2
 assert data['resultVersion']==RESULT_VERSION and data['evaluation']['id']==POLICY['id']
@@ -19,7 +20,7 @@ for m in data['models']:
         p=folder/chunk['file'];b=p.read_bytes()
         assert len(b)==chunk['bytes'] and hashlib.sha256(b).hexdigest()==chunk['sha256']
         preds=np.frombuffer(b,dtype='<f4').reshape(chunk['count'],64,125)
-        masks=np.fromfile(folder/m['windows']['maskDirectory']/p.name,dtype=np.uint8).reshape(chunk['count'],64,125)
+        masks=np.fromfile(reference/m['windows']['maskDirectory']/p.name,dtype=np.uint8).reshape(chunk['count'],64,125)
         assert np.isfinite(preds).all() and np.isin(masks,[0,1]).all()
         assert (masks.sum(1)==48).all()
         for j,pred in enumerate(preds):
@@ -32,8 +33,8 @@ for m in data['models']:
     assert next_start==len(raw)-63
     assert count[0]==count[-1]==1 and count[63]==count[-64]==64 and (count>0).all()
     np.testing.assert_array_equal(count,m['coverage'])
-    recon=np.fromfile(folder/m['recon']['file'],dtype='<f8').reshape(-1,125)
-    errors=np.fromfile(folder/m['errors']['file'],dtype='<f8').reshape(-1,125)
+    recon=np.fromfile(reference/m['recon']['file'],dtype='<f8').reshape(-1,125)
+    errors=np.fromfile(reference/m['errors']['file'],dtype='<f8').reshape(-1,125)
     np.testing.assert_array_equal(total/count[:,None],recon)
     np.testing.assert_array_equal(loss/count[:,None],errors)
     np.testing.assert_allclose(errors.mean(1),m['scores'],rtol=0,atol=1e-15)

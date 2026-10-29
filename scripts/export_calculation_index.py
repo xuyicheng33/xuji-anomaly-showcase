@@ -5,11 +5,12 @@ import json
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1] / 'public/data/journey'
+REFERENCE = ROOT.parents[2] / 'data/reference'
 
 
 def main():
-    data = json.loads((ROOT / 'manifest.json').read_text(encoding='utf8'))
-    source = np.fromfile(ROOT / data['input']['file'], dtype='<f8').reshape(-1, 125)
+    data = json.loads((REFERENCE / 'manifest.json').read_text(encoding='utf8'))
+    source = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(-1, 125)
     target = ROOT / 'calculation-v1'
     target.mkdir(exist_ok=True)
     manifest = {'resultVersion': data['resultVersion'], 'window': 64, 'features': 125, 'models': {}}

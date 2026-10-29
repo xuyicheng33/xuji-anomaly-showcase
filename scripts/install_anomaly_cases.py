@@ -74,8 +74,8 @@ def install(source, target, journey):
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
-    p.add_argument('--source', default='.qa/cases-20261028/raw')
+    p.add_argument('--source', default='data/reference/cases')
     p.add_argument('--target', default='public/data/journey/anomaly-cases-v1')
-    p.add_argument('--journey', default='public/data/journey/manifest.json')
+    p.add_argument('--journey', default='data/reference/manifest.json')
     a = p.parse_args()
     install(a.source, a.target, a.journey)

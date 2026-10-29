@@ -50,3 +50,23 @@ def select_threshold(scores, labels):
         'tp': int(tp[best]), 'fp': int(fp[best]),
         'paTp': int(pa_tp[best]), 'selectedCandidateIndex': int(best),
     }
+
+
+def counts(labels, prediction):
+    y = np.asarray(labels, dtype=bool)
+    p = np.asarray(prediction, dtype=bool)
+    tp = int((y & p).sum())
+    fp = int((~y & p).sum())
+    fn = int((y & ~p).sum())
+    tn = int((~y & ~p).sum())
+    return {
+        "tp": tp,
+        "fp": fp,
+        "fn": fn,
+        "tn": tn,
+        "precision": tp / (tp + fp) if tp + fp else None,
+        "recall": tp / (tp + fn) if tp + fn else None,
+        "f1": 2 * tp / (2 * tp + fp + fn) if 2 * tp + fp + fn else None,
+    }
+
+

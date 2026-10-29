@@ -1,29 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { launchBrowser } from './browser.mjs';
-import { spawn } from 'node:child_process';
 const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
-const server = process.env.SHOWCASE_URL
-  ? null
-  : spawn(
-      process.execPath,
-      [
-        'node_modules/vite/bin/vite.js',
-        'preview',
-        '--host',
-        '127.0.0.1',
-        '--port',
-        '4175',
-        '--strictPort',
-      ],
-      { stdio: 'pipe', windowsHide: true },
-    );
-for (let attempt = 0; attempt < 50; attempt++) {
-  try {
-    if ((await fetch(base)).ok) break;
-  } catch {}
-  await new Promise((r) => setTimeout(r, 100));
-}
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const cases = JSON.parse(
   await readFile('public/data/journey/anomaly-cases-v1/manifest.json', 'utf8'),
@@ -124,19 +102,6 @@ try {
     reducedMotion: 'reduce',
   });
   page.on('pageerror', (e) => errors.push(String(e)));
-  await go(page, 'data');
-  await page.getByRole('link', { name: '注 1：原始数据与处理例子', exact: true }).click();
-  await page.getByRole('table', { name: '原始数据片段' }).waitFor();
-  assert.equal(await page.locator('#note-data-records input[type=range]').count(), 0);
-  await page.getByRole('button', { name: '缺失值填补', exact: true }).click();
-  await page.getByRole('table', { name: '缺失值填零前后对照' }).waitFor();
-  assert.equal(await page.locator('#note-data-records .filled-row').count(), 1);
-  await page.getByRole('button', { name: '无效记录裁剪', exact: true }).click();
-  assert.match(
-    await page.locator('#note-data-records .removed-record-row').innerText(),
-    /3,433—3,456.*删除 24 条/s,
-  );
-  console.log('PASS raw, missing-value and crop examples in explanations');
   await go(page, 'anomalies');
   const kindNames = {
     reference: '参考片段',
@@ -208,7 +173,7 @@ try {
         pred = new Float32Array(
           buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length),
         );
-      const inputBuffer = await readFile('public/data/journey/input.bin'),
+      const inputBuffer = await readFile('data/reference/input.bin'),
         input = new Float64Array(
           inputBuffer.buffer.slice(
             inputBuffer.byteOffset,
@@ -247,24 +212,30 @@ try {
           ]++,
       );
       await matrix(page, stats);
-      assert.equal(await page.getByRole('combobox', { name: '片段阈值来源' }).count(), 0);
     }
   }
   console.log(
     'PASS true windows first/middle/last, 125-feature score calculation and window threshold',
   );
-  const retainedScore = await page.getByTestId('calculated-score').innerText();
-  const retainedPoint = await page.getByRole('slider', { name: '片段查看时刻' }).inputValue();
-  await page.getByRole('link', { name: '注 9：阈值与评估规则', exact: true }).click();
-  await page.locator('.metrics-page').waitFor();
-  await page.goBack();
-  await page.getByTestId('calculated-score').waitFor();
-  assert.equal(await page.getByTestId('calculated-score').innerText(), retainedScore);
-  assert.equal(
-    await page.getByRole('slider', { name: '片段查看时刻' }).inputValue(),
-    retainedPoint,
-  );
-  console.log('PASS metric explanation round trip preserves result and selected point');
+  const exampleNames = { tp: '检出片段', fp: '误报片段', fn: '漏检片段', tn: '正常片段' };
+  const outcomes = { tp: '检出异常', fp: '误报', fn: '漏检异常', tn: '正常' };
+  for (const model of data.models) {
+    await page.getByRole('button', { name: model.name, exact: true }).click();
+    for (const example of model.examples) {
+      await page.getByRole('button', { name: exampleNames[example.code], exact: true }).click();
+      await page.getByRole('button', { name: /查看模型结果|重新查看结果/ }).click();
+      await page.getByTestId('calculated-score').waitFor();
+      assert.equal(
+        await page.locator('#window-calculation').getAttribute('data-point'),
+        String(example.index + 1),
+      );
+      assert.equal(
+        await page.locator('.calculation-total .outcome').innerText(),
+        outcomes[example.code],
+      );
+    }
+  }
+  console.log('PASS all typical examples select a matching single-window outcome');
   await go(page, 'playback');
   for (const model of data.models) {
     await page.getByRole('button', { name: model.name, exact: true }).click();
@@ -273,7 +244,6 @@ try {
       await matrix(page, expected(model, 0, n));
     }
   }
-  assert.equal(await page.getByRole('combobox', { name: '回放阈值来源' }).count(), 0);
   await page.getByRole('combobox', { name: '选择测点' }).selectOption('-1');
   assert.equal(await page.locator('.aggregate-error').count(), 0);
   const retainedProgress = await page.getByRole('slider', { name: '播放进度' }).inputValue();
@@ -331,5 +301,4 @@ try {
   console.log('PASS no page errors');
 } finally {
   await browser.close();
-  server?.kill();
 }

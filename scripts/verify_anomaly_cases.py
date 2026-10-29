@@ -21,7 +21,7 @@ def read(asset):
 def verify():
     manifest = json.loads((ROOT / 'anomaly-cases-v1/manifest.json').read_text(encoding='utf-8'))
     published = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
-    clean = read(published['cleanTest'])
+    clean = np.fromfile(ROOT.parents[2] / 'data/reference/clean-test.bin', dtype='<f8').reshape(-1, 125)
     expected = {f'{mode}-{kind}' for mode in ['replace', 'blend'] for kind in ['reference', 'uniform', 'peak', 'length']}
     assert {c['id'] for c in manifest['cases']} == expected
     for c in manifest['cases']:
