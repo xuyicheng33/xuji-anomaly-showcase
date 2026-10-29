@@ -28,7 +28,8 @@
     "verify:font": "python -X utf8 -B scripts/build_font.py",
     "verify:acceptance": "node scripts/verify_acceptance.mjs",
     "verify:usability": "node scripts/verify_usability.mjs",
-    "deploy": "npm run precompress && python -X utf8 -B scripts/deploy_release.py"
+    "deploy": "npm run precompress && python -X utf8 -B scripts/deploy_release.py",
+    "backup": "python -X utf8 -B scripts/backup_project.py"
   },
   "dependencies": {
     "react": "19.3.1",
