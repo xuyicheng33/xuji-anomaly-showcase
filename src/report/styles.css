@@ -1,10 +1,10 @@
-/* Ordered cascade: chapter rules, shared foundation, then presentation overrides. */
-@import './fraction.css';
-@import './chapters.css';
-@import './data-preparation.css';
-@import './anomalies.css';
-@import './calculation.css';
-@import './metrics.css';
-@import './report.css';
-@import './refinements.css';
-@import './loading.css';
+@import './styles/base.css';
+@import './styles/components.css';
+@import './styles/charts.css';
+@import './styles/home.css';
+@import './styles/data.css';
+@import './styles/models.css';
+@import './styles/anomalies.css';
+@import './styles/detection.css';
+@import './styles/playback.css';
+@import './styles/explanations.css';

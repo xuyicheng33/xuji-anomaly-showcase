@@ -110,9 +110,7 @@ export function DetectionChapter(p: Props) {
   }, [ready, result, point, viewKey]);
   return (
     <div className="detection-page">
-      <Heading number="05" title="数据片段检测">
-        64 点窗口的重建结果、异常分数与检测判定。
-      </Heading>
+      <Heading title="数据片段检测">64 点窗口的重建结果、异常分数与检测判定。</Heading>
       <div className="toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect

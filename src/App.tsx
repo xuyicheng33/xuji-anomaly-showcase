@@ -180,7 +180,7 @@ export default function App() {
           (error ? (
             <DataFailure message={error} retry={retry} />
           ) : data ? (
-            <ExplanationChapter data={data} address={address} feature={feature} />
+            <ExplanationChapter data={data} address={address} />
           ) : (
             <p role="status">正在读取说明资料…</p>
           ))}

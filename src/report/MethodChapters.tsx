@@ -45,12 +45,6 @@ const descriptions = {
     ],
   },
 };
-function modelInScope(data: Journey, model: Model) {
-  return model.id === 'model1' || model.id === 'model2'
-    ? model
-    : data.models.find((m) => m.id === 'model1')!;
-}
-
 export function ModelsChapter({
   data,
   model,
@@ -60,7 +54,7 @@ export function ModelsChapter({
   model: Model;
   setModel: (value: string) => void;
 }) {
-  const current = modelInScope(data, model),
+  const current = model,
     multi = current.id === 'model2',
     description = descriptions[multi ? 'model2' : 'model1'];
   return (
@@ -178,27 +172,18 @@ type TrainingProps = {
   data: Journey;
   model: Model;
   setModel: (value: string) => void;
-  feature?: number;
-  setFeature?: (value: number) => void;
+  feature: number;
+  setFeature: (value: number) => void;
 };
-export function TrainingChapter({
-  data,
-  model,
-  setModel,
-  feature: sharedFeature,
-  setFeature: shareFeature,
-}: TrainingProps) {
-  const [localFeature, setLocalFeature] = useState(4),
-    [windowStart, setWindowStart] = useState(Math.min(5299, data.datasets.train.shape[0] - 64)),
+export function TrainingChapter({ data, model, setModel, feature, setFeature }: TrainingProps) {
+  const [windowStart, setWindowStart] = useState(Math.min(5299, data.datasets.train.shape[0] - 64)),
     [epoch, setEpoch] = useState(0);
 
-  const feature = sharedFeature ?? localFeature,
-    point = data.features.find((f) => f.index === feature) ?? data.features[4],
+  const point = data.features.find((f) => f.index === feature) ?? data.features[4],
     train = data.datasets.train,
-    current = modelInScope(data, model);
+    current = model;
   const chooseFeature = (value: number) => {
-    setLocalFeature(value);
-    shareFeature?.(value);
+    setFeature(value);
   };
   const trainingAsset = useCurveData(train, train.keys.indexOf(point.key)),
     training = trainingAsset.data,
@@ -233,7 +218,7 @@ export function TrainingChapter({
     record = current.history[activeEpoch];
   return (
     <div className="chapter-refined training-chapter">
-      <Heading number="04" title="模型训练过程">
+      <Heading title="模型训练过程">
         以{' '}
         <span className="note-anchor">
           64 × 125 数据窗口

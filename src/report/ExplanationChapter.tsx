@@ -7,14 +7,7 @@ import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
 
-export default function ExplanationChapter({
-  data,
-  address,
-}: {
-  data: Journey;
-  address: string;
-  feature: number;
-}) {
+export default function ExplanationChapter({ data, address }: { data: Journey; address: string }) {
   const params = new URLSearchParams(address.split('?')[1] ?? ''),
     requested = params.get('note');
   return (

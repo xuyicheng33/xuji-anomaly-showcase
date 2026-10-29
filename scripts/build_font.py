@@ -33,9 +33,9 @@ def main():
             font = instantiateVariableFont(font, {'wght': 500}, inplace=True)
         font.save(TARGET)
         digest = hashlib.sha256(TARGET.read_bytes()).hexdigest()[:12]
-        (ROOT / 'src/report/fonts.css').write_text(
-            "@font-face {\n  font-family: 'Noto Serif SC';\n  font-style: normal; font-display: swap;\n"
-            "  font-weight: 500;\n  src: url(/fonts/NotoSerifSC-Subset.ttf?v=" + digest + ") format('truetype');\n}\n",
+        stylesheet = ROOT / 'src/report/styles/base.css'
+        stylesheet.write_text(re.sub(r'NotoSerifSC-Subset\.ttf\?v=[a-f0-9]+',
+            'NotoSerifSC-Subset.ttf?v=' + digest, stylesheet.read_text(encoding='utf-8')),
             encoding='utf-8')
     font = TTFont(TARGET)
     missing = sorted(c for c in chinese if ord(c) not in font.getBestCmap())

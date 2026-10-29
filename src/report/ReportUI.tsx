@@ -33,13 +33,11 @@ export function ModelSelect({
   return (
     <div ref={ref} className="segmented model-select" aria-label="选择模型">
       <i className="selection-indicator" style={{ left: box.x, width: box.width }} />
-      {data.models
-        .filter((m) => ['model1', 'model2'].includes(m.id))
-        .map((m) => (
-          <button key={m.id} aria-pressed={value === m.id} onClick={() => onChange(m.id)}>
-            {m.name}
-          </button>
-        ))}
+      {data.models.map((m) => (
+        <button key={m.id} aria-pressed={value === m.id} onClick={() => onChange(m.id)}>
+          {m.name}
+        </button>
+      ))}
     </div>
   );
 }
@@ -72,7 +70,6 @@ export function Heading({
   title,
   children,
 }: {
-  number?: string;
   title: React.ReactNode;
   children?: React.ReactNode;
 }) {
@@ -95,23 +92,6 @@ export function Section({
       <h2>{title}</h2>
       {children}
     </section>
-  );
-}
-export function Note({
-  children,
-  title = '数据与计算说明',
-}: {
-  children: React.ReactNode;
-  title?: string;
-}) {
-  return (
-    <details className="report-note">
-      <summary>
-        {title}
-        <span>＋</span>
-      </summary>
-      <div>{children}</div>
-    </details>
   );
 }
 export function Confusion({ metrics, active }: { metrics: Metrics; active?: string }) {

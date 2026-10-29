@@ -1,0 +1,427 @@
+/* Playback styles. Edit existing rules and breakpoints here. */
+.playback-calculation {
+  margin: 30px 0;
+  scroll-margin-top: 24px;
+}
+.playback-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 25px;
+}
+.playback-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+.playback-controls {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.playback-controls button {
+  font-size: 14px;
+  padding: 8px 13px;
+}
+.playback-controls label {
+  font-size: 13px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+}
+.playback-controls select {
+  min-height: 34px;
+  padding: 5px 8px;
+  font-size: 13px;
+}
+.playback-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+.playhead {
+  width: 100%;
+}
+.playback-plots .curve + .curve {
+  margin-top: 8px;
+}
+.playback-statistics .confusion-cell strong {
+  font-size: 25px;
+}
+.current-score {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+}
+.current-score > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.current-score strong {
+  font-size: 24px;
+  font-weight: 500;
+}
+.current-score small {
+  color: var(--muted);
+}
+@media (min-width: 1500px) {
+  .playback-plots svg {
+    max-height: 175px;
+  }
+}
+@media (max-width: 1050px) {
+  .playback-heading {
+    align-items: flex-start;
+  }
+  .playback-heading h1 {
+    font-size: 28px;
+  }
+  .playback-heading > .quiet {
+    display: none;
+  }
+}
+@media (max-width: 680px) {
+  .playback-heading h1 {
+    margin-top: 10px;
+  }
+  .playback-controls .primary {
+    min-width: 76px;
+  }
+  .playback-status {
+    flex-wrap: wrap;
+  }
+  .current-score {
+    margin-bottom: 20px;
+  }
+}
+@media (min-width: 1060px) {
+  .playback-plots svg {
+    height: 130px;
+  }
+  .playback-plots .curve-top {
+    padding: 7px 0;
+  }
+  .playback-statistics .matrix-caption {
+    margin-bottom: 8px;
+  }
+  .playback-caption {
+    margin: 0 0 5px;
+  }
+}
+.playback-heading {
+  flex-wrap: wrap;
+}
+.playback-heading {
+  padding: 20px 0;
+}
+.playback-heading h1 {
+  font-size: 32px;
+}
+.playback-heading > .quiet {
+  white-space: nowrap;
+}
+.playback-controls {
+  gap: 10px;
+  padding-bottom: 12px;
+}
+.playback-controls button {
+  min-height: 36px;
+}
+.playback-controls .primary {
+  min-width: 78px;
+}
+.playback-page > .toolbar {
+  margin-bottom: 12px;
+}
+.playback-status {
+  padding-top: 12px;
+  min-height: 37px;
+}
+.playhead {
+  margin: 10px 0;
+}
+.playback-plots svg {
+  height: auto !important;
+  max-height: none;
+}
+.playback-statistics {
+  padding-top: 14px;
+  margin-bottom: 10px;
+  gap: 48px;
+}
+.playback-statistics .confusion-cell {
+  min-height: 59px;
+  padding: 8px 14px;
+}
+.current-score {
+  margin-bottom: 22px;
+}
+.current-score strong {
+  white-space: nowrap;
+}
+.current-score small {
+  font-size: 14px;
+}
+.replay-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+.replay-links > div {
+  display: flex;
+  gap: 18px;
+}
+.replay-links .text-button {
+  font-size: 13px;
+}
+@media (max-width: 1120px) {
+  .playback-heading > .quiet {
+    display: none;
+  }
+}
+@media (max-width: 680px) {
+  .playback-heading > div {
+    display: block;
+  }
+  .playback-heading h1 {
+    font-size: 28px;
+  }
+  .playback-controls {
+    gap: 8px;
+  }
+  .playback-status {
+    font-size: 12px;
+    gap: 10px;
+  }
+  .playback-status .outcome {
+    font-size: 14px;
+  }
+  .replay-links {
+    display: block;
+  }
+  .replay-links > div {
+    justify-content: space-between;
+    margin-top: 8px;
+    gap: 8px;
+  }
+}
+@media (min-width: 1060px) {
+  .playback-heading {
+    padding: 12px 0;
+  }
+  .playback-statistics .confusion-cell {
+    min-height: 54px;
+    padding: 6px 14px;
+  }
+  .playback-statistics .confusion-cell strong {
+    font-size: 25px;
+  }
+  .playback-statistics .confusion-cell p {
+    line-height: 1.45;
+    margin-top: 2px;
+  }
+  .playback-page > .toolbar {
+    margin-bottom: 8px;
+  }
+  .playback-status {
+    padding-top: 8px;
+  }
+  .playback-controls {
+    padding-bottom: 8px;
+  }
+  .playhead {
+    margin: 8px 0;
+  }
+  .playback-statistics {
+    padding-top: 10px;
+  }
+}
+@media (max-width: 680px) {
+  .playback-page .table-scroll th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--paper);
+    box-shadow: 1px 0 var(--line);
+  }
+  .playback-page .table-scroll thead th:first-child {
+    z-index: 3;
+    background: #eeeee8;
+  }
+}
+.playback-page .playback-heading {
+  padding-top: 20px;
+  padding-bottom: 24px;
+}
+.playback-page .playback-caption {
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+@media (min-width: 1060px) {
+  .playback-page .playback-heading {
+    padding: 12px 0;
+  }
+  .playback-page .playback-caption {
+    margin: 0 0 8px;
+  }
+  .playback-page .playback-statistics {
+    padding-top: 18px;
+  }
+}
+@media (max-width: 680px) {
+  .playback-page .playback-heading {
+    padding-top: 22px;
+    padding-bottom: 24px;
+  }
+}
+.playback-plots > .curve {
+  margin-top: 18px;
+}
+.playback-page .playback-heading {
+  padding: 30px 0 26px;
+}
+.playback-page .playback-heading h1 {
+  font-size: 36px;
+}
+.playback-page .playback-controls {
+  gap: 12px;
+  padding-bottom: 18px;
+}
+.playback-page .toolbar {
+  margin-bottom: 20px;
+}
+.playback-page .playback-status {
+  padding-top: 16px;
+}
+.playback-page .playback-statistics {
+  padding-top: 28px;
+  gap: 48px;
+}
+.playback-page .replay-links {
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+.playback-page .playback-caption {
+  margin: 8px 0 16px;
+}
+.playback-page .current-score {
+  margin-bottom: 28px;
+}
+.playback-controls label {
+  gap: 8px;
+}
+.playback-controls .primary {
+  min-height: 42px;
+}
+.playback-page .confusion-cell {
+  min-height: 68px !important;
+  padding: 10px 14px !important;
+}
+.playback-statistics .rates strong {
+  font-size: 27px;
+}
+@media (max-width: 680px) {
+  .playback-page .playback-heading h1 {
+    font-size: 29px;
+  }
+  .playback-page .playback-heading {
+    padding: 28px 0 24px;
+  }
+  .playback-page .playback-statistics {
+    gap: 28px;
+  }
+  .playback-page .rates strong {
+    font-size: 24px;
+  }
+  .playback-page .playback-controls {
+    gap: 10px;
+  }
+  .playback-controls label {
+    font-size: 13px;
+  }
+  .playback-controls select {
+    font-size: 13px;
+  }
+  .playback-page .playback-status {
+    font-size: 13px;
+  }
+}
+@media (min-width: 1060px) {
+  .replay-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 40px;
+    align-items: start;
+  }
+  .replay-workspace > .statistics {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 20px 0 0 28px;
+    border-left: 1px solid var(--line);
+    margin: 0;
+  }
+  .replay-workspace .matrix-section {
+    width: 100%;
+  }
+  .replay-workspace .matrix-caption {
+    display: block;
+    margin-bottom: 16px;
+  }
+  .replay-workspace .matrix-caption span {
+    display: block;
+    margin-top: 8px;
+  }
+  .replay-workspace .confusion {
+    gap: 6px;
+  }
+  .replay-workspace .confusion-cell {
+    padding: 12px !important;
+    min-height: 88px !important;
+  }
+  .replay-workspace .confusion-cell strong {
+    font-size: 25px;
+  }
+  .replay-workspace .confusion-cell p {
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .replay-workspace > .statistics > div:last-child {
+    width: 100%;
+  }
+  .replay-workspace .rates {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .replay-workspace .rates > div {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .replay-workspace .rates strong {
+    font-size: 25px;
+  }
+  .replay-workspace .current-score {
+    display: block;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+  }
+  .replay-workspace .current-score strong {
+    display: block;
+    margin-top: 14px;
+    font-size: 25px;
+  }
+  .replay-workspace .legend {
+    font-size: 12px;
+  }
+  .replay-workspace .curve-top strong {
+    font-size: 14px;
+  }
+  .playback-page .replay-links {
+    margin-top: 20px;
+  }
+}

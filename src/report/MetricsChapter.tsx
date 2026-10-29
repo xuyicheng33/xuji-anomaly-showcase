@@ -77,7 +77,7 @@ export default function MetricsChapter({ data }: { data: Journey }) {
     pointWise,
     pointAdjusted: adjustedMetrics,
   } = compareMetrics(exampleLabels, alarms);
-  const models = data.models.filter((model) => model.id === 'model1' || model.id === 'model2');
+  const models = data.models;
   const toggle = (index: number) =>
     setAlarms((previous) => previous.map((alarm, i) => (i === index ? 1 - alarm : alarm)));
 

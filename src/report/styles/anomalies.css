@@ -1,4 +1,4 @@
-/* Fixed cases use the report's paper, rules, type and curve palette. */
+/* Anomalies styles. Edit existing rules and breakpoints here. */
 .case-layout {
   display: grid;
   grid-template-columns: 260px minmax(0, 1fr);
@@ -398,18 +398,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  .case-methods button {
-    padding: 16px 14px;
-  }
-  .case-methods strong {
-    font-size: 20px;
-  }
-  .case-methods span {
-    font-size: 13px;
-  }
-  .case-nav-group + .case-nav-group {
-    margin-top: 26px;
-  }
   .case-kinds {
     grid-template-columns: 1fr 1fr;
     gap: 0 14px;
@@ -417,31 +405,15 @@
   .case-kinds button {
     grid-template-columns: 21px 1fr;
     gap: 8px;
-    padding: 14px 6px;
   }
   .case-kinds span:last-child {
     display: none;
   }
-  .case-kind-copy {
-    margin-top: 16px;
-  }
-  .case-layout {
-    gap: 30px;
-  }
-  .case-title h2 {
-    font-size: 24px;
-  }
   .case-count {
     font-size: 22px;
   }
-  .case-stage {
-    padding-top: 18px;
-  }
   .case-stage-toolbar {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
   }
   .case-steps {
     width: 100%;
@@ -455,7 +427,6 @@
   .case-stage-toolbar .primary {
     justify-self: end;
     margin: 0;
-    min-width: 112px;
   }
   .case-context {
     gap: 10px;
@@ -477,7 +448,6 @@
   .case-point {
     grid-template-columns: 1fr 20px 1fr 0.5fr;
     gap: 12px;
-    padding-top: 20px;
   }
   .case-point > span:first-child {
     grid-column: 1/-1;
@@ -505,9 +475,6 @@
   }
   .case-detection .rates {
     grid-template-columns: repeat(3, 1fr);
-  }
-  .case-stage-copy {
-    min-height: 76px;
   }
   .case-detection .rates strong {
     font-size: 21px;
@@ -562,13 +529,8 @@
   .case-composition > span:last-child {
     flex-basis: 100%;
   }
-}
-@media (max-width: 550px) {
   .case-page .chapter-heading {
     padding: 22px 0 28px;
-  }
-  .case-methods button {
-    padding: 12px 13px;
   }
   .case-methods strong {
     margin-bottom: 4px;
@@ -576,12 +538,6 @@
   .case-methods span {
     font-size: 13px;
     line-height: 1.65;
-  }
-  .case-nav-group h2 {
-    margin-bottom: 12px;
-  }
-  .case-nav-group + .case-nav-group {
-    margin-top: 20px;
   }
   .case-kinds button {
     padding: 11px 6px;
@@ -591,41 +547,20 @@
     font-size: 13px;
     line-height: 1.8;
   }
-  .case-layout {
-    gap: 24px;
-  }
-  .case-title p {
-    margin-bottom: 7px;
-  }
-  .case-title {
-    margin-bottom: 16px;
-  }
   .case-stage-toolbar {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 12px;
     align-items: center;
   }
-  .case-steps {
-    grid-column: 1/-1;
-    grid-row: 2;
-  }
   .case-stage-toolbar .primary {
-    grid-row: 1;
-    grid-column: 2;
     min-width: 100px;
     padding: 9px 12px;
   }
   .case-stage-toolbar:before {
-    content: '构造过程';
     font-size: 13px;
     color: var(--muted);
     grid-row: 1;
   }
   .case-context > span {
     display: none;
-  }
-  .case-stage-toolbar {
-    margin-bottom: 16px;
   }
   .case-stage {
     padding-top: 14px;
@@ -638,9 +573,6 @@
   }
   .case-result-action {
     padding-top: 24px;
-  }
-  .case-title h2 {
-    font-size: 22px;
   }
 }
 .case-context label {
@@ -724,9 +656,6 @@
     font-size: 13px;
   }
 }
-.case-content .report-note p {
-  max-width: 42em;
-}
 .length-construction {
   margin-top: 32px;
   padding-top: 8px;
@@ -774,7 +703,11 @@
   font-size: 12px;
   color: var(--muted);
 }
-.length-source button[aria-pressed='true'],
+.length-source button[aria-pressed='true'] {
+  background: #e4ecee;
+  border-color: var(--blue);
+  color: var(--blue);
+}
 .length-destination button[aria-pressed='true'] {
   background: #e4ecee;
   border-color: var(--blue);
@@ -836,9 +769,6 @@
 .length-construction .length-total {
   margin-top: 18px;
 }
-.length-construction .report-note {
-  margin-top: 20px;
-}
 @media (max-width: 550px) {
   .length-source {
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -888,11 +818,9 @@
     margin-left: 10px;
   }
 }
-
 .case-stage {
   scroll-margin-top: 18px;
 }
-
 @media (max-width: 550px) {
   .site-main .case-page > .chapter-heading {
     padding: 20px 0 22px;
@@ -953,5 +881,28 @@
   }
   .case-point {
     padding-top: 16px;
+  }
+}
+@media (min-width: 1060px) {
+  .anomaly-page > .chapter-heading {
+    padding: 22px 0 24px;
+  }
+  .anomaly-page > .chapter-heading h1 {
+    font-size: 38px;
+  }
+  .anomaly-page > .chapter-heading p {
+    margin-top: 13px;
+    max-width: 900px;
+  }
+}
+.anomaly-page > .chapter-heading {
+  padding-top: 24px;
+}
+.case-page .chapter-heading {
+  padding-bottom: 42px;
+}
+@media (max-width: 680px) {
+  .case-page .chapter-heading {
+    padding-bottom: 32px;
   }
 }

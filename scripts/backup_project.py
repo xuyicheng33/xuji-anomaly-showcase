@@ -9,7 +9,7 @@ import subprocess
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-RETAINED = ("data/source", "data/models", "materials", ".qa/cases-20261028/raw")
+RETAINED = ("data/source", "data/models", "data/reference", "materials")
 
 
 def sha256(file):
@@ -62,6 +62,7 @@ def main():
         "includes": ["tracked workspace files", "all Git refs", *RETAINED],
     }
     archive.with_suffix(".json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    bundle.unlink()  # The verified ZIP already contains the complete Git bundle.
     print(json.dumps(result, ensure_ascii=False))
 
 

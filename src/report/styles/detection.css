@@ -1,0 +1,298 @@
+/* Detection styles. Edit existing rules and breakpoints here. */
+.selection-panel {
+  align-items: center;
+  background: #eeeee7;
+  padding: 22px;
+}
+.selection-panel > input {
+  flex: 1;
+  min-width: 90px;
+}
+.selection-panel .field input {
+  width: 100px;
+}
+.selection-panel > span {
+  font-size: 14px;
+  white-space: nowrap;
+}
+.time-range {
+  margin: 15px 0 22px;
+}
+@media (max-width: 1050px) {
+  .selection-panel {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 680px) {
+  .selection-panel .field input {
+    width: 80px;
+  }
+  .selection-panel > input {
+    min-width: 100px;
+    flex-basis: 100%;
+  }
+}
+.selection-panel {
+  display: grid;
+  grid-template-columns: auto minmax(100px, 1fr) auto 180px;
+  gap: 22px;
+}
+.selection-panel > input {
+  width: 100%;
+}
+.selection-panel .primary {
+  width: 100%;
+  gap: 8px;
+  min-height: 46px;
+}
+.example-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.example-picker button {
+  font-size: 13px;
+  padding: 8px 13px;
+}
+.example-picker button[aria-pressed='true'] {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: #e9edef;
+}
+.example-picker small {
+  font-size: 12px;
+  margin-left: auto;
+}
+@media (max-width: 1120px) {
+  .selection-panel {
+    grid-template-columns: auto minmax(100px, 1fr) auto;
+  }
+  .selection-panel .primary {
+    grid-column: 1/-1;
+    width: auto;
+    justify-self: end;
+  }
+  .example-picker small {
+    margin-left: 0;
+  }
+}
+@media (max-width: 680px) {
+  .selection-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding: 18px;
+  }
+  .selection-panel > .field {
+    grid-column: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    width: auto;
+  }
+  .selection-panel > .field input {
+    width: 78px;
+  }
+  .selection-panel > span {
+    grid-column: 2;
+    text-align: right;
+  }
+  .selection-panel > input {
+    grid-column: 1/-1;
+    grid-row: 2;
+    order: unset;
+  }
+  .selection-panel .primary {
+    grid-column: 1/-1;
+    grid-row: 3;
+    width: 100%;
+    order: unset;
+  }
+  .example-picker {
+    gap: 8px;
+  }
+  .example-picker > span {
+    flex-basis: 100%;
+  }
+  .example-picker small {
+    flex-basis: 100%;
+  }
+  .example-picker button {
+    padding: 8px 10px;
+  }
+}
+.evaluation-context {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line, #dcded6);
+  margin-bottom: 24px;
+}
+.evaluation-context > span {
+  font-weight: 600;
+}
+.evaluation-context p {
+  margin: 0;
+  flex: 1;
+  color: #586257;
+}
+.evaluation-context strong {
+  color: #242923;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 640px) {
+  .evaluation-context {
+    flex-wrap: wrap;
+    gap: 10px 20px;
+  }
+  .evaluation-context p {
+    flex: auto;
+  }
+  .evaluation-context > a {
+    flex-basis: 100%;
+  }
+}
+.evaluation-context {
+  margin-top: 26px;
+}
+.detection-summary {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 20px 0;
+  margin: 4px 0 18px;
+  border-block: 1px solid var(--line);
+  font-size: 13px;
+  color: var(--muted);
+}
+.detection-summary strong {
+  font-weight: 500;
+  color: var(--ink);
+  font-size: 20px;
+  margin-left: 8px;
+}
+.detection-summary button {
+  margin-left: auto;
+  border: 0;
+  border-bottom: 1px solid #355f7b55;
+  border-radius: 0;
+  padding: 4px 0;
+  background: none;
+}
+.chart-label-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 6px;
+}
+.chart-label-key i {
+  width: 14px;
+  height: 10px;
+  background: #d9976330;
+  display: inline-block;
+}
+@media (max-width: 680px) {
+  .detection-summary {
+    gap: 16px 22px;
+  }
+  .detection-summary button {
+    margin-left: 0;
+  }
+  .detection-summary strong {
+    font-size: 19px;
+  }
+  .site-main .detection-page > .chapter-heading {
+    padding: 16px 0 20px;
+  }
+  .detection-page > .chapter-heading p {
+    margin-top: 8px;
+  }
+  .site-main .detection-page > .toolbar {
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+  .detection-page .toolbar > .field {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 10px;
+  }
+  .detection-page .toolbar > .field select {
+    flex: 1;
+    min-width: 0;
+    width: 0;
+    margin-top: 0;
+  }
+  .detection-page .example-picker {
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .detection-page .example-picker > span {
+    flex-basis: auto;
+    margin-right: 4px;
+  }
+  .detection-page .example-picker button {
+    padding: 8px;
+    font-size: 12px;
+    min-height: 38px;
+  }
+  .detection-page .selection-panel {
+    padding: 12px;
+    gap: 10px;
+  }
+  .detection-page .selection-panel .primary {
+    min-height: 42px;
+    padding-block: 10px;
+    grid-column: 2;
+    grid-row: 1;
+    padding-inline: 6px;
+  }
+  .detection-page .time-range {
+    margin-block: 12px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .detection-page .detection-summary {
+    gap: 8px 16px;
+    padding-block: 8px;
+    margin-block: 10px;
+  }
+  .detection-page .chart-label-key {
+    margin-block: 12px 5px;
+  }
+  .detection-page .selection-panel > .field {
+    gap: 6px;
+  }
+  .detection-page .selection-panel > .field input {
+    width: 68px;
+  }
+  .detection-page .selection-panel > input {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+  }
+  .detection-page .selection-panel > span {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+@media (max-width: 380px) {
+  .detection-page .selection-panel > .field {
+    white-space: nowrap;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .detection-page .selection-panel > .field input {
+    width: 64px;
+    padding-inline: 4px;
+  }
+  .detection-page .selection-panel .primary {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}

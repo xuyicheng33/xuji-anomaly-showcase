@@ -88,7 +88,6 @@ export type Journey = {
   trainingSample: number[][];
   provenance: Record<string, string>;
 };
-export const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
 export const fmt = (n: number, digits = 0) =>
   n.toLocaleString('zh-CN', { maximumFractionDigits: digits });
 export const pct = (n: number | null) => (n === null ? '—' : `${(n * 100).toFixed(2)}%`);

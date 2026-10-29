@@ -8,7 +8,7 @@ import DataCleaning from './DataCleaning';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
 
-type Props = { data: Journey; feature?: number; setFeature?: (feature: number) => void };
+type Props = { data: Journey; feature: number; setFeature: (feature: number) => void };
 const number = (value: number, digits = 3) =>
   value.toLocaleString('zh-CN', { maximumFractionDigits: digits });
 const chartRange = (values: (number | null)[]): [number, number] => {
@@ -19,17 +19,10 @@ const chartRange = (values: (number | null)[]): [number, number] => {
   return [min - pad, max + pad];
 };
 
-export default function DataChapter({
-  data,
-  feature: sharedFeature,
-  setFeature: shareFeature,
-}: Props) {
-  const [localFeature, setLocalFeature] = useState(4);
-  const feature = sharedFeature ?? localFeature,
-    point = data.features.find((f) => f.index === feature) ?? data.features[4];
+export default function DataChapter({ data, feature, setFeature }: Props) {
+  const point = data.features.find((f) => f.index === feature) ?? data.features[4];
   const chooseFeature = (value: number) => {
-    setLocalFeature(value);
-    shareFeature?.(value);
+    setFeature(value);
   };
   const normalizationRef = useRef<HTMLDivElement>(null),
     [normalizationVisible, setNormalizationVisible] = useState(false);
@@ -83,9 +76,7 @@ export default function DataChapter({
     value < 0 ? `(−${number(Math.abs(value), 4)})` : number(value, 4);
   return (
     <div className="chapter-refined data-chapter">
-      <Heading number="01" title="监测数据预处理">
-        筛选有效记录，完成缺失填补、数据划分与归一化。
-      </Heading>
+      <Heading title="监测数据预处理">筛选有效记录，完成缺失填补、数据划分与归一化。</Heading>
       <div className="data-ledger" aria-label="数据规模">
         <div>
           <span>原始记录</span>

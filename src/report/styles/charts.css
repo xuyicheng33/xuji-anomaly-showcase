@@ -1,0 +1,125 @@
+/* Charts styles. Edit existing rules and breakpoints here. */
+.curve {
+  min-width: 0;
+}
+.curve-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+.curve-top strong {
+  font-size: 15px;
+  font-weight: 500;
+}
+.legend {
+  display: flex;
+  gap: 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.legend span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.legend i {
+  display: block;
+  width: 20px;
+  height: 2px;
+}
+.legend .dashed {
+  height: 0;
+  border-top: 2px dashed #bd653c;
+}
+.curve text {
+  fill: #62665e;
+  font-family: var(--sans);
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 680px) {
+  .curve-top {
+    flex-direction: column;
+  }
+  .legend {
+    gap: 15px;
+  }
+}
+.curve svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+@media (max-width: 680px) {
+  .curve svg {
+    min-height: 0;
+  }
+}
+.curve svg {
+  font-family: var(--sans);
+}
+.curve-top {
+  min-height: 37px;
+  padding: 8px 0;
+}
+.legend {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: 7px;
+}
+.curve svg {
+  overflow: visible;
+}
+.curve text {
+  font-size: 12px;
+}
+@media (max-width: 680px) {
+  .curve-top {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .curve-top strong {
+    font-size: 14px;
+  }
+  .legend {
+    justify-content: flex-start;
+    font-size: 11px;
+  }
+  .curve text {
+    font-size: 11px;
+  }
+}
+.legend i.line-dashed {
+  height: 0;
+  background: none;
+  border-top: 2px dashed;
+}
+.curve svg path {
+  vector-effect: non-scaling-stroke;
+}
+.curve-loading {
+  min-height: 270px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  color: var(--muted);
+  font-size: 14px;
+  border-block: 1px solid var(--line);
+}
+.curve-loading.compact {
+  min-height: 185px;
+}
+.curve-loading button {
+  font-size: 13px;
+}
+@media (max-width: 680px) {
+  .curve-loading {
+    min-height: 220px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .curve-loading.compact {
+    min-height: 180px;
+  }
+}

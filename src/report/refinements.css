@@ -1,6 +1,0 @@
-/* Keep this order: later groups refine earlier shared rules. */
-@import './styles/controls-layout.css';
-@import './styles/evaluation-layout.css';
-@import './styles/reading-rhythm.css';
-@import './styles/detection-layout.css';
-@import './styles/model-layout.css';
