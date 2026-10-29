@@ -1,14 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser.mjs';
 const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:5176/';
 const out = process.env.QA_DIR || '.qa/calculation-20261028';
 await mkdir(out, { recursive: true });
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
-const browser = await chromium.launch({
-  executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  headless: true,
-});
+const browser = await launchBrowser();
 const errors = [],
   checks = [];
 const array = async (file) => {

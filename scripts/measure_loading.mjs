@@ -1,12 +1,9 @@
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 const base = process.env.SHOWCASE_URL || 'http://124.223.175.32:9010/';
 const out = process.env.QA_DIR || '.qa/calculation-20261028';
 await mkdir(out, { recursive: true });
-const browser = await chromium.launch({
-  executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  headless: true,
-});
+const browser = await launchBrowser();
 const result = [];
 try {
   for (const route of ['data', 'training', 'detection', 'playback']) {

@@ -2,7 +2,6 @@ import { useState } from 'react';
 import type { Journey, Metrics } from '../journey';
 import { countMetrics, fmt, pct, pointAdjusted } from '../journey';
 import { Section } from './ReportUI';
-import './metrics.css';
 import Fraction from './Fraction';
 
 // Twenty teaching points: the inclusive interval 6–13 is anomalous.

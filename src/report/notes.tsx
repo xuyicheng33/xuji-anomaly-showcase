@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { presentationMemory } from './presentationMemory';
 
 // Stable reading order. Repeated references reuse the same number.
 export const notes = [
@@ -16,14 +17,12 @@ export const notes = [
   { id: 'model-design', title: '两种模型的设计与结果', page: 'models' },
 ] as const;
 export type NoteId = (typeof notes)[number]['id'];
-export type NoteOrigin = { hash: string; y: number; reference: string };
-let origin: NoteOrigin | null = null;
 export function getNoteOrigin() {
-  return origin;
+  return presentationMemory.noteOrigin;
 }
 export function rememberNoteOrigin(reference = '') {
   if (location.hash.startsWith('#/metrics')) return;
-  origin = { hash: location.hash || '#/', y: window.scrollY, reference };
+  presentationMemory.noteOrigin = { hash: location.hash || '#/', y: window.scrollY, reference };
 }
 export function pausePresentation() {
   window.dispatchEvent(new Event('showcase:pause'));
@@ -67,6 +66,7 @@ export function Footnote({
   );
 }
 export function NoteSection({ id, children }: { id: NoteId; children: ReactNode }) {
+  const origin = presentationMemory.noteOrigin;
   const index = notes.findIndex((item) => item.id === id),
     item = notes[index];
   return (

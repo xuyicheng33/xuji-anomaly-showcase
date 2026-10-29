@@ -5,7 +5,6 @@ import { notes, NoteSection } from './notes';
 import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
-import './calculation.css';
 
 export default function ExplanationChapter({
   data,

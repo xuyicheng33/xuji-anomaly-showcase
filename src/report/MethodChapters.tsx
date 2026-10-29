@@ -4,7 +4,6 @@ import { Heading, Section, ModelSelect, colors } from './ReportUI';
 import Curve from './Curve';
 import { Footnote } from './notes';
 import { useCurveData } from './useCurveData';
-import './chapters.css';
 
 const descriptions = {
   model1: {

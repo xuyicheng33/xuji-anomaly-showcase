@@ -15,7 +15,7 @@ describe('chapter report design constraints', () => {
   });
   it('loads one active stylesheet for the new site', () => {
     const main = readFileSync('src/main.tsx', 'utf8');
-    expect(main).toContain('report/report.css');
+    expect(main).toContain('report/styles.css');
     expect(main).not.toContain('journey.css');
   });
   it('keeps fonts local for static deployment', () => {

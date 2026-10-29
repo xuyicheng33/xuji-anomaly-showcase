@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
-import { chromium } from 'playwright';
+import { launchBrowser } from './browser.mjs';
 import { spawn } from 'node:child_process';
 const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
 const server = process.env.SHOWCASE_URL
@@ -28,18 +28,10 @@ const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf
 const cases = JSON.parse(
   await readFile('public/data/journey/anomaly-cases-v1/manifest.json', 'utf8'),
 ).cases;
-const browser = await chromium.launch({
-  executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
-  headless: true,
-});
-const originalNewPage = browser.newPage.bind(browser);
-browser.newPage = async (...args) => {
-  const page = await originalNewPage(...args);
-  page.setDefaultTimeout(Number(process.env.BROWSER_TIMEOUT || 60000));
-  return page;
-};
+const browser = await launchBrowser();
 const errors = [];
-await mkdir('.qa/unified/shots', { recursive: true });
+const out = process.env.QA_DIR || '.qa/unified/shots';
+await mkdir(out, { recursive: true });
 async function go(page, name) {
   await page.goto(base + '#/' + name);
   await page.locator('h1:visible').waitFor();
@@ -112,7 +104,7 @@ try {
         'stale experimental copy visible',
       );
       await page.screenshot({
-        path: '.qa/unified/shots/' + width + '-' + (name || 'home') + '.png',
+        path: out + '/' + width + '-' + (name || 'home') + '.png',
         fullPage: true,
       });
       if (width === 1440 && name === 'playback') {
@@ -315,7 +307,7 @@ try {
   console.log('PASS interactive point-wise vs point-adjusted example');
   await page.evaluate(() => (document.documentElement.style.zoom = '2'));
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
-  await page.screenshot({ path: '.qa/unified/shots/zoom200-metrics.png', fullPage: true });
+  await page.screenshot({ path: out + '/zoom200-metrics.png', fullPage: true });
   await page.close();
   const failPage = await browser.newPage();
   let fail = true;

@@ -7,8 +7,6 @@ import { Footnote } from './notes';
 import DataCleaning from './DataCleaning';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
-import './chapters.css';
-import './data-preparation.css';
 
 type Props = { data: Journey; feature?: number; setFeature?: (feature: number) => void };
 const number = (value: number, digits = 3) =>

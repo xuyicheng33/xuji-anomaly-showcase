@@ -1,0 +1,209 @@
+/* Client presentation: concise copy, clear groups and generous reading space. */
+.site-main .chapter-heading {
+  padding: 40px 0 44px;
+}
+.site-main .chapter-heading p {
+  max-width: 42em;
+  margin-top: 18px;
+  line-height: 1.8;
+}
+.site-main .report-section {
+  margin-top: 64px;
+}
+.site-main .report-section > h2 {
+  margin-bottom: 28px;
+}
+.site-main .report-section > .reading-copy {
+  margin-bottom: 26px;
+  max-width: 42em;
+}
+.site-main .report-note {
+  margin-top: 28px;
+}
+.site-main .report-note summary {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.site-main .report-note p + p {
+  margin-top: 14px;
+}
+.site-main .chapter-next {
+  margin-top: 64px;
+  padding-top: 30px;
+}
+.home-closing {
+  justify-content: flex-end;
+  padding-top: 32px;
+}
+.data-ledger {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+.data-cleaning-copy p,
+.model-comparison p {
+  max-width: 32em;
+}
+.training-chapter .window-rules {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  padding-top: 30px;
+}
+.training-chapter .window-rules > div + div {
+  border-left: 1px solid var(--line);
+}
+.models-chapter .model-details {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+.anomaly-page .anomaly-intro {
+  padding-top: 26px;
+  padding-bottom: 26px;
+}
+.experiment .quiet {
+  margin-top: 16px;
+}
+.metrics-page .metrics-example {
+  padding-top: 28px;
+}
+.metrics-page .metrics-example-heading {
+  align-items: center;
+  gap: 24px;
+}
+.metrics-page .metrics-effect {
+  margin-top: 26px;
+  margin-bottom: 26px;
+}
+.metrics-page .metrics-definition {
+  margin-top: 20px;
+  max-width: 46em;
+}
+.metrics-page .evaluation-thresholds {
+  margin-top: 30px;
+  margin-bottom: 28px;
+}
+.playback-page .playback-heading {
+  padding-top: 20px;
+  padding-bottom: 24px;
+}
+.playback-page .playback-caption {
+  margin-top: 4px;
+  margin-bottom: 12px;
+}
+.playback-page .playback-statistics {
+  padding-top: 20px;
+}
+.playback-page .replay-links {
+  margin-top: 18px;
+}
+@media (min-width: 1060px) {
+  .playback-page .playback-heading {
+    padding: 12px 0;
+  }
+  .playback-page .playback-caption {
+    margin: 0 0 8px;
+  }
+  .playback-page .playback-statistics {
+    padding-top: 18px;
+  }
+}
+@media (max-width: 680px) {
+  .site-main .chapter-heading {
+    padding: 30px 0 34px;
+  }
+  .site-main .chapter-heading h1 {
+    font-size: 30px;
+    line-height: 1.5;
+  }
+  .site-main .chapter-heading p {
+    margin-top: 14px;
+  }
+  .site-main .report-section {
+    margin-top: 46px;
+  }
+  .site-main .report-section > h2 {
+    margin-bottom: 24px;
+  }
+  .site-main .report-note {
+    margin-top: 24px;
+  }
+  .site-main .report-note summary {
+    padding-top: 18px;
+    padding-bottom: 18px;
+  }
+  .site-main .chapter-next {
+    margin-top: 46px;
+    padding-top: 26px;
+  }
+  .models-chapter .model-details {
+    padding: 0;
+  }
+  .models-chapter .model-details > section {
+    padding-top: 26px !important;
+    padding-bottom: 26px !important;
+  }
+  .training-chapter .window-rules {
+    gap: 20px;
+  }
+  .anomaly-page .anomaly-intro {
+    gap: 12px;
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+  .metrics-page .metrics-example-heading h2 {
+    font-size: 23px;
+  }
+  .metrics-page .metrics-example {
+    padding-top: 24px;
+  }
+  .metrics-page .metrics-effect {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+  .playback-page .playback-heading {
+    padding-top: 22px;
+    padding-bottom: 24px;
+  }
+}
+/* Shared presentation rhythm: one navigation, quiet details, generous grouping. */
+.site-main {
+  padding-bottom: 80px;
+}
+.site-main .chapter-heading {
+  padding: 48px 0 48px;
+}
+.site-main .report-section {
+  margin-top: 72px;
+}
+.site-main .report-section > h2 {
+  margin-bottom: 30px;
+}
+.site-header {
+  padding-top: 26px;
+  padding-bottom: 26px;
+}
+.site-nav {
+  gap: 26px;
+}
+.site-nav a {
+  padding: 12px 0;
+}
+.site-main .toolbar {
+  margin-bottom: 26px;
+}
+.site-main .report-note {
+  margin-top: 36px;
+}
+.site-main .report-note summary {
+  padding: 22px 0;
+}
+.site-main .report-note p {
+  line-height: 1.95;
+}
+.chapter-list > a {
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+.model-intro p,
+.reading-copy {
+  line-height: 1.95;
+}

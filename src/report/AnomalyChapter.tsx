@@ -11,7 +11,6 @@ import {
 import { Heading, ModelSelect, Confusion, Rates, colors } from './ReportUI';
 import Curve from './Curve';
 import { curveDomain } from './curveScale';
-import './anomalies.css';
 import { Footnote, usePauseOnNavigation } from './notes';
 import LengthConstruction from './LengthConstruction';
 

@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import './fraction.css';
 
 export default function Fraction({
   numerator,

@@ -24,6 +24,7 @@ import { useDataAsset } from './useDataAsset';
 import { useCurveData, useWindowInput } from './useCurveData';
 import { Footnote, usePauseOnNavigation } from './notes';
 import { ScoreCalculation, PlaybackCalculation } from './ScoreCalculation';
+import { presentationMemory } from './presentationMemory';
 type Props = {
   data: Journey;
   model: Model;
@@ -42,7 +43,6 @@ const names: Record<string, string> = {
   tn: '正常片段',
 };
 type WindowResult = Awaited<ReturnType<typeof loadWindow>>;
-let rememberedDetection: { key: string; result: WindowResult; point: number } | null = null;
 export function DetectionChapter(p: Props) {
   const {
     data,
@@ -65,7 +65,8 @@ export function DetectionChapter(p: Props) {
   const requestResult = () =>
     setRequest((previous) => ({ key: viewKey, attempt: (previous?.attempt ?? 0) + 1 }));
   useEffect(() => {
-    const saved = rememberedDetection?.key === viewKey ? rememberedDetection : null;
+    const saved =
+      presentationMemory.detection?.key === viewKey ? presentationMemory.detection : null;
     setResult(saved?.result ?? null);
     setError('');
     setBusy(false);
@@ -104,7 +105,7 @@ export function DetectionChapter(p: Props) {
     index = start + point;
   const labelAsset = useDataAsset(ready && viewFeature >= 0 ? data.labelMatrix : null);
   useEffect(() => {
-    if (ready && result) rememberedDetection = { key: viewKey, result, point };
+    if (ready && result) presentationMemory.detection = { key: viewKey, result, point };
   }, [ready, result, point, viewKey]);
   return (
     <div className="detection-page">

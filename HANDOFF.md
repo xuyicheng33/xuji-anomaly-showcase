@@ -1,6 +1,6 @@
 # 许继电气异常检测展示
 
-本文件是唯一维护的项目说明。更新于2026-10-28。历史讨论、阶段报告与旧设计决策从Git历史查阅，不再保留多份累计文档。materials中的原始报告与老师谈话属于来源材料。
+本文件是唯一维护的项目说明。更新于2026-10-29。历史讨论、阶段报告与旧设计决策从Git历史查阅，不再保留多份累计文档。materials中的原始报告与老师谈话属于来源材料。
 
 ## 当前任务与范围
 
@@ -82,6 +82,16 @@ React19/TypeScript/Vite8，分支codex/xuji-end-to-end-rebuild，无Git remote�
 发布根/var/www/xuji-showcase，releases/<提交号>保存生产文件，current为原子切换软链接，deployment.json记录实际状态。只上传dist；不上传源码、研究报告、权重、QA及凭据。专属Nginx配置修改后执行sudo -n nginx -t，通过才reload，不改9001—9005。
 
 发布前核对全部dist文件SHA256；允许从前版本复制生产文件并增量上传。预压缩文件解压后必须与原始载荷一致。完成后原子切current，保留上一release可回滚。旧版本89f1d98、b31064c；当前生产代码7df8fbf，实际最终部署状态见末尾记录。
+
+## 维护约定（2026-10-29）
+
+- 修改范围以用户本轮点名内容为准；版面微调使用已更新的oil-ui 0.27.1，保持暖纸、衬线标题、现有颜色和网格。主页面与说明页均用直接陈述，禁止防御性句式。
+- 格式统一由Prettier管理，ESLint检查TypeScript与Hook调用规则，TypeScript启用未使用变量/参数检查。日常执行npm run check；完整验收执行npm run verify。
+- 样式统一入口src/report/styles.css，导入顺序就是层叠顺序。refinements.css只组织styles/中的控件布局、评估布局、阅读节奏、检测布局、模型布局五组规则，保持原顺序。微调在对应职责文件中修改，不另加全站覆盖文件。
+- App.tsx负责页面装配及共享选择；navigation.ts维护章节/路由；useJourney.ts管理主资料请求；presentationMemory.ts集中保存说明来源、处理例子和最近片段结果。记忆只在当前页面会话保留，刷新后重新读取。曲线与数据缓存独立于展示记忆。
+- npm run verify包含格式/lint/类型、前端/Python测试、数据/窗口/案例/研究/字体校验、生产构建与四组浏览器验证。scripts/browser.mjs统一浏览器选择；BROWSER_EXECUTABLE可指定路径，Windows优先系统Edge，其余环境使用Playwright Chromium。QA_DIR指定证据目录，SHOWCASE_URL指定已有服务或公网；完整浏览器验证默认自行启动4175预览。
+- 本机SSH别名xuji-showcase连接ubuntu@124.223.175.32:22，专用密钥位于本机~/.ssh/xuji_showcase_ed25519；服务器authorized_keys保留原条目并追加本机公钥。凭据不进入项目。9010继续使用版本目录、哈希校验和原子切换发布。
+- 本轮过程目录.qa/refinement-maintenance-20261029。纯维护整理后25张画面对比尺寸相同，24张逐像素一致，手机回放2个像素渲染差异；四组浏览器验证通过。
 
 ## 核心保留与清理规则
 

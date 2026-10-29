@@ -5,7 +5,6 @@ import { Outcome } from './ReportUI';
 import { useDataAsset } from './useDataAsset';
 import { useWindowInput } from './useCurveData';
 import Fraction from './Fraction';
-import './calculation.css';
 
 export function pointCalculation(
   input: Float64Array,

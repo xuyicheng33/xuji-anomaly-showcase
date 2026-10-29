@@ -2,21 +2,15 @@ import { useEffect, useState } from 'react';
 import type { Journey } from '../journey';
 import { MissingExample } from './DataCleaning';
 import cleaning from './cleaning-data.json';
-import './data-preparation.css';
+import { presentationMemory } from './presentationMemory';
 
-type View = 'raw' | 'missing' | 'crop';
-let remembered: { view: View; example: number; block: number } = {
-  view: 'raw',
-  example: 0,
-  block: 0,
-};
 const value = (n: number | null) => (n === null ? '缺失' : n.toFixed(4));
 const count = (n: number) => n.toLocaleString('zh-CN');
 
 export default function RecordExamples({ data }: { data: Journey }) {
-  const [selection, setSelection] = useState(remembered);
+  const [selection, setSelection] = useState(presentationMemory.records);
   useEffect(() => {
-    remembered = selection;
+    presentationMemory.records = selection;
   }, [selection]);
   const crop = cleaning.cropExamples[selection.block];
   return (

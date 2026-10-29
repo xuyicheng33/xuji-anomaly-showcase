@@ -1,50 +1,21 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { type Journey } from './journey';
+import { chapters, route } from './report/navigation';
+import { useJourney } from './report/useJourney';
 import DataChapter from './report/DataChapter';
 import AnomalyChapter from './report/AnomalyChapter';
 import { ModelsChapter, TrainingChapter } from './report/MethodChapters';
 import { DetectionChapter, PlaybackChapter } from './report/DetectionChapters';
 import ExplanationChapter from './report/ExplanationChapter';
 import { getNoteOrigin, pausePresentation, rememberNoteOrigin } from './report/notes';
-const chapters = [
-  ['data', '数据整理', '监测数据预处理', '无效记录剔除、缺失填补与归一化'],
-  ['anomalies', '异常构造', '异常样本构造', '四类异常的构造过程与标签'],
-  ['models', '两种方法', '两种异常检测模型', '双分支结构与多尺度时空建模'],
-  ['training', '模型训练', '模型训练过程', '训练窗口、参数更新与损失变化'],
-  ['detection', '片段检测', '数据片段检测', '窗口重建、异常评分与阈值判定'],
-  ['playback', '连续回放', '连续检测结果回放', '逐时刻检测与累计评估指标'],
-];
-function route() {
-  const path = location.hash.replace('#/', '').split('?')[0];
-  if (chapters.some((c) => c[0] === path) || path === 'metrics') return path;
-  const old = path.startsWith('step/') ? [path, path.split('/')[1]] : null;
-  if (old) {
-    const n = +old[1];
-    return n <= 9
-      ? 'data'
-      : n <= 18
-        ? 'anomalies'
-        : n <= 25
-          ? 'models'
-          : n <= 30
-            ? 'training'
-            : n <= 37
-              ? 'detection'
-              : 'playback';
-  }
-  return 'home';
-}
 export default function App() {
+  const { data, error, retry } = useJourney();
   const [page, setPage] = useState(route),
     [address, setAddress] = useState(location.hash),
     [contentPage, setContentPage] = useState(() => (route() === 'metrics' ? null : route())),
-    [data, setData] = useState<Journey | null>(null),
     [modelId, setModel] = useState('model1'),
     [feature, setFeature] = useState(5),
     [start, setStart] = useState(107),
     [viewFeature, setViewFeature] = useState(-1),
-    [error, setError] = useState(''),
-    [attempt, setAttempt] = useState(0),
     [menu, setMenu] = useState(false);
   const previousPage = useRef(page),
     returning = useRef(false),
@@ -64,26 +35,6 @@ export default function App() {
     window.addEventListener('hashchange', f);
     return () => window.removeEventListener('hashchange', f);
   }, []);
-  useEffect(() => {
-    let active = true;
-    setError('');
-    fetch(import.meta.env.BASE_URL + 'data/journey/manifest.json')
-      .then((r) => {
-        if (!r.ok) throw Error('资料读取失败');
-        return r.json();
-      })
-      .then((d: Journey) => {
-        if (d.schemaVersion !== 2 || d.features.length !== 125) throw Error('资料版本不匹配');
-        d.models = d.models.filter((m) => ['model1', 'model2'].includes(m.id));
-        if (active) setData(d);
-      })
-      .catch((e) => {
-        if (active) setError(e.message);
-      });
-    return () => {
-      active = false;
-    };
-  }, [attempt]);
   useLayoutEffect(() => {
     document.title =
       (page === 'metrics'
@@ -203,7 +154,7 @@ export default function App() {
           ) : error ? (
             <div className="state-panel" role="alert">
               <h2>{error}</h2>
-              <button className="primary" onClick={() => setAttempt((n) => n + 1)}>
+              <button className="primary" onClick={retry}>
                 重新读取
               </button>
             </div>
