@@ -1,29 +1,190 @@
 import assert from 'node:assert/strict';
-import {readFile,mkdir,writeFile} from 'node:fs/promises';
-import {chromium} from 'playwright';
-const base=process.env.SHOWCASE_URL||'http://127.0.0.1:5176/';
-const out=process.env.QA_DIR||'.qa/loading-20261028';await mkdir(out,{recursive:true});
-const d=JSON.parse(await readFile('public/data/journey/manifest.json','utf8'));
-const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
-const originalNewPage=browser.newPage.bind(browser);browser.newPage=async(...args)=>{const page=await originalNewPage(...args);page.setDefaultTimeout(Number(process.env.BROWSER_TIMEOUT||60000));return page};
-const summary=[],errors=[];
-async function fresh(route,setup){const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});const requests=[];page.on('request',r=>{if(r.url().includes('/data/journey/'))requests.push(r.url().split('/data/journey/')[1].split('?')[0])});page.on('pageerror',e=>errors.push(String(e)));if(setup)await setup(page);await page.goto(base+'#/'+route);await page.locator('h1:visible').waitFor();return {page,requests};}
-const actual=rs=>[...new Set(rs.filter(s=>s.endsWith('.bin')))];
-function only(requests,expected){assert.deepEqual(actual(requests).sort(),expected.sort())}
-try{
- const train=await fresh('training');await train.page.getByRole('img',{name:'归一化训练数据',exact:true}).waitFor();only(train.requests,[`curves-v1/${d.datasets.train.sha256}/5.bin`]);summary.push({page:'training',binaryFiles:actual(train.requests),bytes:44744});await train.page.close();
- const data=await fresh('data');await data.page.locator('.removed-sensors li').last().waitFor();only(data.requests,[]);await data.page.locator('.normalization-section').scrollIntoViewIfNeeded();await data.page.locator('.normalization-equation strong').waitFor();only(data.requests,[`curves-v1/${d.datasets.train.sha256}/5.bin`]);await data.page.getByRole('link',{name:'注 1：原始数据与处理例子',exact:true}).click();await data.page.getByRole('table',{name:'原始数据片段'}).waitFor();for(const name of ['缺失值填补','无效记录裁剪'])await data.page.getByRole('button',{name,exact:true}).click();only(data.requests,[`curves-v1/${d.datasets.train.sha256}/5.bin`]);summary.push({page:'data',initialBinaryFiles:[],normalizationDeferred:true,recordExamplesNeedNoBinaryRequests:true});await data.page.close();
- const det=await fresh('detection');await det.page.locator('.reconstruction-view').waitFor();only(det.requests,[`curves-v1/${d.input.sha256}/mean.bin`]);await det.page.getByRole('button',{name:'查看模型结果 →',exact:true}).click();await det.page.getByTestId('calculated-score').waitFor();const chunk=d.models[0].windows.chunks.find(c=>107>=c.start&&107<c.start+c.count);only(det.requests,[`curves-v1/${d.input.sha256}/mean.bin`,`input-rows-v1/${d.input.sha256}/0.bin`,`input-rows-v1/${d.input.sha256}/128.bin`,chunk.file,d.models[0].windows.maskDirectory+'/'+chunk.file.split('/').pop()]);assert.equal(await det.page.locator('.aggregate-error').count(),0);await det.page.getByRole('combobox',{name:'选择测点'}).selectOption('4');await det.page.locator('#ref-window-calculation-label').waitFor();assert.ok(det.requests.includes('labels.bin'));summary.push({page:'detection',initialBytes:19176,initialBinaryFiles:[`curves-v1/${d.input.sha256}/mean.bin`],singleWindowOnDemand:true,labelsOnDemand:true});await det.page.close();
- const replay=await fresh('playback');await replay.page.locator('.reconstruction-view').waitFor();only(replay.requests,[`curves-v1/${d.input.sha256}/mean.bin`,`curves-v1/${d.models[0].recon.sha256}/mean.bin`]);await replay.page.getByRole('combobox',{name:'选择测点'}).selectOption('4');await replay.page.getByRole('button',{name:'下一处检出',exact:true}).click();await replay.page.waitForFunction(()=>!document.querySelector('.feature-location'));assert.ok(replay.requests.includes(d.models[0].errors.file));const index=d.labels.findIndex((v,i)=>v&&d.models[0].scores[i]>d.models[0].threshold);const eb=await readFile('public/data/journey/'+d.models[0].errors.file);const es=new Float64Array(eb.buffer.slice(eb.byteOffset,eb.byteOffset+eb.length));let best=0;for(let f=1;f<125;f++)if(es[index*125+f]>es[index*125+best])best=f;assert.equal(await replay.page.getByRole('combobox',{name:'选择测点'}).inputValue(),String(best));summary.push({page:'playback',initialBytes:38352,initialBinaryFiles:[`curves-v1/${d.input.sha256}/mean.bin`,`curves-v1/${d.models[0].recon.sha256}/mean.bin`],errorsOnDemand:true});await replay.page.close();
- for(let rep=0;rep<3;rep++){
-  let releaseOld;const gate=new Promise(r=>releaseOld=r);let intercepted;
-  const seen=new Promise(r=>intercepted=r);
-  const test=await fresh('playback',p=>p.route(`**/curves-v1/${d.models[0].recon.sha256}/mean.bin*`,async route=>{intercepted();await gate;await route.continue()}));await seen;
-  await test.page.getByRole('slider',{name:'播放进度'}).fill('150');await test.page.getByTestId('count-tp').waitFor();assert.equal(await test.page.locator('.reconstruction-view').count(),0);await test.page.getByRole('button',{name:'SMST-AD',exact:true}).click();await test.page.locator('.reconstruction-view').waitFor();await test.page.evaluate(()=>document.fonts.ready);await test.page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));const path=await test.page.locator('.reconstruction-view path').nth(1).getAttribute('d');const response=test.page.waitForResponse(r=>r.url().includes('/curves-v1/'+d.models[0].recon.sha256+'/mean.bin'));releaseOld();await response;await test.page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));assert.equal(await test.page.locator('.reconstruction-view path').nth(1).getAttribute('d'),path);assert.equal(await test.page.getByRole('slider',{name:'播放进度'}).inputValue(),'150');await test.page.close();
- }
- summary.push({slowOldModelCannotOverwriteNewModel:3,scoreAvailableBeforeReconstruction:true});
- const fail=await fresh('playback',p=>p.route(`**/curves-v1/${d.models[0].recon.sha256}/mean.bin*`,r=>r.fulfill({status:503,body:'failed'})));await fail.page.getByRole('button',{name:'重试曲线'}).waitFor();await fail.page.getByRole('slider',{name:'播放进度'}).fill('500');await fail.page.unroute(`**/curves-v1/${d.models[0].recon.sha256}/mean.bin*`);await fail.page.getByRole('button',{name:'重试曲线'}).click();await fail.page.locator('.reconstruction-view').waitFor();assert.equal(await fail.page.getByRole('slider',{name:'播放进度'}).inputValue(),'500');await fail.page.close();
- const route=await fresh('training',p=>p.route(`**/curves-v1/${d.datasets.train.sha256}/5.bin*`,r=>r.fulfill({status:503,body:'failed'})));await route.page.getByRole('alert').waitFor();await route.page.goto(base+'#/playback');await route.page.getByRole('img',{name:'整体异常分数',exact:true}).waitFor();assert.equal(await route.page.getByRole('alert').count(),0);await route.page.close();
- summary.push({curveRetryPreservesProgress:true,pageFailureIsIsolated:true});
- assert.deepEqual(errors,[]);await writeFile(out+'/loading-checks.json',JSON.stringify({summary,errors},null,2));console.log('PASS per-page binary requests, deferred training/labels/errors, score before curves, model request isolation x3 and failure recovery');
-}finally{await browser.close()}
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
+const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:5176/';
+const out = process.env.QA_DIR || '.qa/loading-20261028';
+await mkdir(out, { recursive: true });
+const d = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
+const browser = await chromium.launch({
+  executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  headless: true,
+});
+const originalNewPage = browser.newPage.bind(browser);
+browser.newPage = async (...args) => {
+  const page = await originalNewPage(...args);
+  page.setDefaultTimeout(Number(process.env.BROWSER_TIMEOUT || 60000));
+  return page;
+};
+const summary = [],
+  errors = [];
+async function fresh(route, setup) {
+  const page = await browser.newPage({
+    viewport: { width: 1440, height: 900 },
+    reducedMotion: 'reduce',
+  });
+  const requests = [];
+  page.on('request', (r) => {
+    if (r.url().includes('/data/journey/'))
+      requests.push(r.url().split('/data/journey/')[1].split('?')[0]);
+  });
+  page.on('pageerror', (e) => errors.push(String(e)));
+  if (setup) await setup(page);
+  await page.goto(base + '#/' + route);
+  await page.locator('h1:visible').waitFor();
+  return { page, requests };
+}
+const actual = (rs) => [...new Set(rs.filter((s) => s.endsWith('.bin')))];
+function only(requests, expected) {
+  assert.deepEqual(actual(requests).sort(), expected.sort());
+}
+try {
+  const train = await fresh('training');
+  await train.page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
+  only(train.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
+  summary.push({ page: 'training', binaryFiles: actual(train.requests), bytes: 44744 });
+  await train.page.close();
+  const data = await fresh('data');
+  await data.page.locator('.removed-sensors li').last().waitFor();
+  only(data.requests, []);
+  await data.page.locator('.normalization-section').scrollIntoViewIfNeeded();
+  await data.page.locator('.normalization-equation strong').waitFor();
+  only(data.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
+  await data.page.getByRole('link', { name: '注 1：原始数据与处理例子', exact: true }).click();
+  await data.page.getByRole('table', { name: '原始数据片段' }).waitFor();
+  for (const name of ['缺失值填补', '无效记录裁剪'])
+    await data.page.getByRole('button', { name, exact: true }).click();
+  only(data.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
+  summary.push({
+    page: 'data',
+    initialBinaryFiles: [],
+    normalizationDeferred: true,
+    recordExamplesNeedNoBinaryRequests: true,
+  });
+  await data.page.close();
+  const det = await fresh('detection');
+  await det.page.locator('.reconstruction-view').waitFor();
+  only(det.requests, [`curves-v1/${d.input.sha256}/mean.bin`]);
+  await det.page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
+  await det.page.getByTestId('calculated-score').waitFor();
+  const chunk = d.models[0].windows.chunks.find((c) => 107 >= c.start && 107 < c.start + c.count);
+  only(det.requests, [
+    `curves-v1/${d.input.sha256}/mean.bin`,
+    `input-rows-v1/${d.input.sha256}/0.bin`,
+    `input-rows-v1/${d.input.sha256}/128.bin`,
+    chunk.file,
+    d.models[0].windows.maskDirectory + '/' + chunk.file.split('/').pop(),
+  ]);
+  assert.equal(await det.page.locator('.aggregate-error').count(), 0);
+  await det.page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
+  await det.page.locator('#ref-window-calculation-label').waitFor();
+  assert.ok(det.requests.includes('labels.bin'));
+  summary.push({
+    page: 'detection',
+    initialBytes: 19176,
+    initialBinaryFiles: [`curves-v1/${d.input.sha256}/mean.bin`],
+    singleWindowOnDemand: true,
+    labelsOnDemand: true,
+  });
+  await det.page.close();
+  const replay = await fresh('playback');
+  await replay.page.locator('.reconstruction-view').waitFor();
+  only(replay.requests, [
+    `curves-v1/${d.input.sha256}/mean.bin`,
+    `curves-v1/${d.models[0].recon.sha256}/mean.bin`,
+  ]);
+  await replay.page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
+  await replay.page.getByRole('button', { name: '下一处检出', exact: true }).click();
+  await replay.page.waitForFunction(() => !document.querySelector('.feature-location'));
+  assert.ok(replay.requests.includes(d.models[0].errors.file));
+  const index = d.labels.findIndex((v, i) => v && d.models[0].scores[i] > d.models[0].threshold);
+  const eb = await readFile('public/data/journey/' + d.models[0].errors.file);
+  const es = new Float64Array(eb.buffer.slice(eb.byteOffset, eb.byteOffset + eb.length));
+  let best = 0;
+  for (let f = 1; f < 125; f++) if (es[index * 125 + f] > es[index * 125 + best]) best = f;
+  assert.equal(
+    await replay.page.getByRole('combobox', { name: '选择测点' }).inputValue(),
+    String(best),
+  );
+  summary.push({
+    page: 'playback',
+    initialBytes: 38352,
+    initialBinaryFiles: [
+      `curves-v1/${d.input.sha256}/mean.bin`,
+      `curves-v1/${d.models[0].recon.sha256}/mean.bin`,
+    ],
+    errorsOnDemand: true,
+  });
+  await replay.page.close();
+  for (let rep = 0; rep < 3; rep++) {
+    let releaseOld;
+    const gate = new Promise((r) => (releaseOld = r));
+    let intercepted;
+    const seen = new Promise((r) => (intercepted = r));
+    const test = await fresh('playback', (p) =>
+      p.route(`**/curves-v1/${d.models[0].recon.sha256}/mean.bin*`, async (route) => {
+        intercepted();
+        await gate;
+        await route.continue();
+      }),
+    );
+    await seen;
+    await test.page.getByRole('slider', { name: '播放进度' }).fill('150');
+    await test.page.getByTestId('count-tp').waitFor();
+    assert.equal(await test.page.locator('.reconstruction-view').count(), 0);
+    await test.page.getByRole('button', { name: 'SMST-AD', exact: true }).click();
+    await test.page.locator('.reconstruction-view').waitFor();
+    await test.page.evaluate(() => document.fonts.ready);
+    await test.page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    );
+    const path = await test.page.locator('.reconstruction-view path').nth(1).getAttribute('d');
+    const response = test.page.waitForResponse((r) =>
+      r.url().includes('/curves-v1/' + d.models[0].recon.sha256 + '/mean.bin'),
+    );
+    releaseOld();
+    await response;
+    await test.page.evaluate(
+      () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))),
+    );
+    assert.equal(
+      await test.page.locator('.reconstruction-view path').nth(1).getAttribute('d'),
+      path,
+    );
+    assert.equal(await test.page.getByRole('slider', { name: '播放进度' }).inputValue(), '150');
+    await test.page.close();
+  }
+  summary.push({
+    slowOldModelCannotOverwriteNewModel: 3,
+    scoreAvailableBeforeReconstruction: true,
+  });
+  const fail = await fresh('playback', (p) =>
+    p.route(`**/curves-v1/${d.models[0].recon.sha256}/mean.bin*`, (r) =>
+      r.fulfill({ status: 503, body: 'failed' }),
+    ),
+  );
+  await fail.page.getByRole('button', { name: '重试曲线' }).waitFor();
+  await fail.page.getByRole('slider', { name: '播放进度' }).fill('500');
+  await fail.page.unroute(`**/curves-v1/${d.models[0].recon.sha256}/mean.bin*`);
+  await fail.page.getByRole('button', { name: '重试曲线' }).click();
+  await fail.page.locator('.reconstruction-view').waitFor();
+  assert.equal(await fail.page.getByRole('slider', { name: '播放进度' }).inputValue(), '500');
+  await fail.page.close();
+  const route = await fresh('training', (p) =>
+    p.route(`**/curves-v1/${d.datasets.train.sha256}/5.bin*`, (r) =>
+      r.fulfill({ status: 503, body: 'failed' }),
+    ),
+  );
+  await route.page.getByRole('alert').waitFor();
+  await route.page.goto(base + '#/playback');
+  await route.page.getByRole('img', { name: '整体异常分数', exact: true }).waitFor();
+  assert.equal(await route.page.getByRole('alert').count(), 0);
+  await route.page.close();
+  summary.push({ curveRetryPreservesProgress: true, pageFailureIsIsolated: true });
+  assert.deepEqual(errors, []);
+  await writeFile(out + '/loading-checks.json', JSON.stringify({ summary, errors }, null, 2));
+  console.log(
+    'PASS per-page binary requests, deferred training/labels/errors, score before curves, model request isolation x3 and failure recovery',
+  );
+} finally {
+  await browser.close();
+}

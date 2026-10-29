@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.qa/
+data/
+public/
+materials/
+package-lock.json
+src/report/cleaning-data.json
+HANDOFF.md

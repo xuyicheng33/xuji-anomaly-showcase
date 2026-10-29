@@ -1,7 +1,12 @@
 /** One shared domain for every line; retain every observation and threshold. */
-export function curveDomain(values: readonly (number | null)[], range?: [number, number]): [number, number] {
-  if (range && Number.isFinite(range[0]) && Number.isFinite(range[1]) && range[1] > range[0]) return range;
-  let low = Infinity, high = -Infinity;
+export function curveDomain(
+  values: readonly (number | null)[],
+  range?: [number, number],
+): [number, number] {
+  if (range && Number.isFinite(range[0]) && Number.isFinite(range[1]) && range[1] > range[0])
+    return range;
+  let low = Infinity,
+    high = -Infinity;
   for (const value of values) {
     if (value === null || !Number.isFinite(value)) continue;
     low = Math.min(low, value);
@@ -9,7 +14,10 @@ export function curveDomain(values: readonly (number | null)[], range?: [number,
   }
   if (!Number.isFinite(low)) return [0, 1];
   const span = high - low;
-  const pad = span > 0 ? Math.max(span * .12, Math.abs(high) * 1e-9, 1e-12) : Math.max(Math.abs(high) * .015, .001);
+  const pad =
+    span > 0
+      ? Math.max(span * 0.12, Math.abs(high) * 1e-9, 1e-12)
+      : Math.max(Math.abs(high) * 0.015, 0.001);
   const from = low >= 0 ? Math.max(0, low - pad) : low - pad;
   return [from, high + pad];
 }
