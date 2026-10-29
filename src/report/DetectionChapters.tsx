@@ -335,6 +335,7 @@ export function PlaybackChapter(p: Props) {
   const [scope, setScope] = useState('all'),
     [count, setCount] = useState(0),
     [playing, setPlaying] = useState(false),
+    [scrubbing, setScrubbing] = useState(false),
     [speed, setSpeed] = useState(4);
   const from = scope === 'all' ? 0 : start,
     total = scope === 'all' ? data.times.length : 64,
@@ -416,6 +417,8 @@ export function PlaybackChapter(p: Props) {
     if (found >= 0 && viewFeature >= 0) setFocusTarget({ index: found, modelId: model.id });
   };
   const curvesReady = !!inputAsset.data && !!reconAsset.data;
+  const scaleContext = `${model.id}:${scope}:${start}`;
+  const holdScale = playing || scrubbing;
   return (
     <div className="playback-page">
       <div className="playback-heading">
@@ -491,6 +494,30 @@ export function PlaybackChapter(p: Props) {
         max={total}
         value={count}
         onChange={(e) => seek(+e.target.value)}
+        onPointerDown={(e) => {
+          e.currentTarget.setPointerCapture(e.pointerId);
+          setScrubbing(true);
+        }}
+        onPointerUp={() => setScrubbing(false)}
+        onPointerCancel={() => setScrubbing(false)}
+        onLostPointerCapture={() => setScrubbing(false)}
+        onKeyDown={(e) => {
+          if (
+            [
+              'ArrowLeft',
+              'ArrowRight',
+              'ArrowUp',
+              'ArrowDown',
+              'Home',
+              'End',
+              'PageUp',
+              'PageDown',
+            ].includes(e.key)
+          )
+            setScrubbing(true);
+        }}
+        onKeyUp={() => setScrubbing(false)}
+        onBlur={() => setScrubbing(false)}
       />
       <p className="quiet playback-caption">
         橙色区域表示真实异常{viewFeature >= 0 ? '，下方分数综合全部 125 个测点' : ''}
@@ -500,6 +527,7 @@ export function PlaybackChapter(p: Props) {
           {curvesReady ? (
             <ReconstructionView
               compact
+              playbackScale={{ key: `${scaleContext}:${viewFeature}`, hold: holdScale }}
               aggregate={viewFeature < 0}
               input={Array.from(inputAsset.data!.slice(viewStart, viewStart + len))}
               recon={Array.from(reconAsset.data!.slice(viewStart, viewStart + len))}
@@ -533,6 +561,7 @@ export function PlaybackChapter(p: Props) {
           )}
           <Curve
             title="整体异常分数"
+            playbackScale={{ key: scaleContext, hold: holdScale }}
             note="window-aggregation"
             reference="ref-playback-score-plot"
             lines={[{ name: '125 测点平均平方误差', values: scores, color: colors.score }]}

@@ -1,5 +1,6 @@
 import Curve from './Curve';
 import { colors } from './ReportUI';
+import type { PlaybackScale } from './usePlaybackScale';
 
 export default function ReconstructionView({
   input,
@@ -11,6 +12,7 @@ export default function ReconstructionView({
   start = 0,
   onSelect,
   compact = false,
+  playbackScale,
 }: {
   input: number[];
   recon?: number[];
@@ -21,6 +23,7 @@ export default function ReconstructionView({
   start?: number;
   onSelect?: (n: number) => void;
   compact?: boolean;
+  playbackScale?: PlaybackScale;
 }) {
   return (
     <div className={'reconstruction-view' + (aggregate ? ' aggregate-view' : '')}>
@@ -47,6 +50,7 @@ export default function ReconstructionView({
         start={start}
         onSelect={onSelect}
         height={compact ? 145 : 220}
+        playbackScale={playbackScale}
       />
     </div>
   );

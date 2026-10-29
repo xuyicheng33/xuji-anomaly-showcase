@@ -2,6 +2,7 @@ import { useId, useEffect, useRef, useState } from 'react';
 import { colors } from './ReportUI';
 import { curveDomain, curveTick } from './curveScale';
 import { Footnote, type NoteId } from './notes';
+import { usePlaybackScale, type PlaybackScale } from './usePlaybackScale';
 export default function Curve({
   lines,
   labels = [],
@@ -18,6 +19,7 @@ export default function Curve({
   axisUnit = '点',
   note,
   reference,
+  playbackScale,
 }: {
   lines: {
     name: string;
@@ -41,6 +43,7 @@ export default function Curve({
   axisUnit?: string;
   note?: NoteId;
   reference?: string;
+  playbackScale?: PlaybackScale;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(1100);
@@ -58,10 +61,10 @@ export default function Curve({
     B = 32,
     n = Math.max(2, ...lines.map((l) => l.values.length));
   const nums = lines
-    .flatMap((l) => l.values)
+    .flatMap((l) => (playbackScale ? l.values.slice(0, reveal) : l.values))
     .filter((v): v is number => v !== null && Number.isFinite(v));
   if (threshold !== undefined) nums.push(threshold);
-  const [lo, hi] = curveDomain(nums, range);
+  const [lo, hi] = usePlaybackScale(curveDomain(nums, range), playbackScale, reveal === 0);
   const x = (i: number) => L + (i / (n - 1)) * (W - L - R),
     y = (v: number) => T + ((hi - v) / (hi - lo || 1)) * (height - T - B);
   const path = (vs: (number | null)[]) => {

@@ -1,3 +1,5 @@
+export type CurveDomain = [number, number];
+
 /** One shared domain for every line; retain every observation and threshold. */
 export function curveDomain(
   values: readonly (number | null)[],
@@ -20,6 +22,16 @@ export function curveDomain(
       : Math.max(Math.abs(high) * 0.015, 0.001);
   const from = low >= 0 ? Math.max(0, low - pad) : low - pad;
   return [from, high + pad];
+}
+
+/** Include both interrupted animation bounds and the newly revealed observations. */
+export function playbackEnvelope(...domains: CurveDomain[]): CurveDomain {
+  return [Math.min(...domains.map(([low]) => low)), Math.max(...domains.map(([, high]) => high))];
+}
+
+/** Small changes stay inside the existing padding instead of moving the whole plot. */
+export function shouldTightenDomain(current: CurveDomain, target: CurveDomain) {
+  return target[1] - target[0] < (current[1] - current[0]) * 0.8;
 }
 
 export function curveTick(value: number, span: number) {

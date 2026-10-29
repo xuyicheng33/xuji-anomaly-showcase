@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { curveDomain, curveTick } from './curveScale';
+import { curveDomain, curveTick, playbackEnvelope, shouldTightenDomain } from './curveScale';
 
 describe('shared curve scale', () => {
   it('reveals small differences near one without forcing a zero baseline', () => {
@@ -25,5 +25,13 @@ describe('shared curve scale', () => {
     expect(curveTick(0.9751, 0.001)).not.toBe(curveTick(0.9752, 0.001));
     expect(curveTick(1500.1, 0.2)).not.toBe(curveTick(1500.2, 0.2));
     expect(curveTick(0.00000002, 0.00000004)).toContain('e-');
+  });
+  it('retains extrema when playback interrupts a scale transition', () => {
+    expect(playbackEnvelope([0.6, 0.9], [0.45, 0.92], [0.63, 0.89])).toEqual([0.45, 0.92]);
+    expect(playbackEnvelope([-4, 2], [-3, 6], [-8, 1])).toEqual([-8, 6]);
+  });
+  it('holds small scale fluctuations but allows meaningful tightening after a pause', () => {
+    expect(shouldTightenDomain([0.45, 0.92], [0.46, 0.91])).toBe(false);
+    expect(shouldTightenDomain([0.45, 0.92], [0.63, 0.81])).toBe(true);
   });
 });
