@@ -127,15 +127,6 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
         "file": "anomaly-cases-v1/replace-reference-material.bin",
         "shape": [
@@ -164,7 +155,7 @@
         "sha256": "d0f3e68a32e2dac431b442216a44026498c8b1fdab5a6908d68243cb4b3813fa"
       },
       "input": {
-        "file": "anomaly-cases-v1/replace-reference-input.bin",
+        "file": "anomaly-cases-v1/replace-reference-candidate.bin",
         "shape": [
           64,
           125
@@ -173,7 +164,7 @@
         "sha256": "2d90de06f21c98aa230d9e25d84e841a75e83dab0ccada29765a2baa50c2896e"
       },
       "labels": {
-        "file": "anomaly-cases-v1/replace-reference-labels.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125
@@ -487,17 +478,8 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
-        "file": "anomaly-cases-v1/blend-reference-material.bin",
+        "file": "anomaly-cases-v1/replace-reference-material.bin",
         "shape": [
           64,
           125
@@ -506,7 +488,7 @@
         "sha256": "9b48a0ac97b9942fe634d5f0aee6f310de5f3a09c9494f7a3d89ccc80ff1b816"
       },
       "candidate": {
-        "file": "anomaly-cases-v1/blend-reference-candidate.bin",
+        "file": "anomaly-cases-v1/replace-reference-candidate.bin",
         "shape": [
           64,
           125
@@ -533,7 +515,7 @@
         "sha256": "18ce841f82a673e424c0c463a1929c73aceb8567a0042d9e814324f66996b431"
       },
       "labels": {
-        "file": "anomaly-cases-v1/blend-reference-labels.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125
@@ -878,17 +860,8 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
-        "file": "anomaly-cases-v1/replace-uniform-material.bin",
+        "file": "anomaly-cases-v1/original.bin",
         "shape": [
           64,
           125
@@ -906,7 +879,7 @@
         "sha256": "f6d615b057fcbc7d6032aac48912974dfec4cb1e6a6b9cf360c1da9f93227dd4"
       },
       "weights": {
-        "file": "anomaly-cases-v1/replace-uniform-weights.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125
@@ -915,7 +888,7 @@
         "sha256": "d0f3e68a32e2dac431b442216a44026498c8b1fdab5a6908d68243cb4b3813fa"
       },
       "input": {
-        "file": "anomaly-cases-v1/replace-uniform-input.bin",
+        "file": "anomaly-cases-v1/replace-uniform-candidate.bin",
         "shape": [
           64,
           125
@@ -924,7 +897,7 @@
         "sha256": "f6d615b057fcbc7d6032aac48912974dfec4cb1e6a6b9cf360c1da9f93227dd4"
       },
       "labels": {
-        "file": "anomaly-cases-v1/replace-uniform-labels.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125
@@ -1269,17 +1242,8 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
-        "file": "anomaly-cases-v1/blend-uniform-material.bin",
+        "file": "anomaly-cases-v1/original.bin",
         "shape": [
           64,
           125
@@ -1288,7 +1252,7 @@
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
       "candidate": {
-        "file": "anomaly-cases-v1/blend-uniform-candidate.bin",
+        "file": "anomaly-cases-v1/replace-uniform-candidate.bin",
         "shape": [
           64,
           125
@@ -1297,7 +1261,7 @@
         "sha256": "f6d615b057fcbc7d6032aac48912974dfec4cb1e6a6b9cf360c1da9f93227dd4"
       },
       "weights": {
-        "file": "anomaly-cases-v1/blend-uniform-weights.bin",
+        "file": "anomaly-cases-v1/blend-reference-weights.bin",
         "shape": [
           64,
           125
@@ -1315,7 +1279,7 @@
         "sha256": "d27e1fb63df8e20c51383ef90d943d19069143fee15180cf3522f281caec47fd"
       },
       "labels": {
-        "file": "anomaly-cases-v1/blend-uniform-labels.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125
@@ -1662,17 +1626,8 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
-        "file": "anomaly-cases-v1/replace-peak-material.bin",
+        "file": "anomaly-cases-v1/original.bin",
         "shape": [
           64,
           125
@@ -1699,7 +1654,7 @@
         "sha256": "1e32c9f4e6e9e9dd57035ac4f59edc67ad42f2e28f43920001d8d0cfc2875dbd"
       },
       "input": {
-        "file": "anomaly-cases-v1/replace-peak-input.bin",
+        "file": "anomaly-cases-v1/replace-peak-candidate.bin",
         "shape": [
           64,
           125
@@ -2055,17 +2010,8 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
-        "file": "anomaly-cases-v1/blend-peak-material.bin",
+        "file": "anomaly-cases-v1/original.bin",
         "shape": [
           64,
           125
@@ -2074,7 +2020,7 @@
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
       "candidate": {
-        "file": "anomaly-cases-v1/blend-peak-candidate.bin",
+        "file": "anomaly-cases-v1/replace-peak-candidate.bin",
         "shape": [
           64,
           125
@@ -2101,7 +2047,7 @@
         "sha256": "5ddd8d90578dbb6aac79ad5901719ea73e0ff0e716c9c55df18d4a3e1c5e00d4"
       },
       "labels": {
-        "file": "anomaly-cases-v1/blend-peak-labels.bin",
+        "file": "anomaly-cases-v1/replace-peak-labels.bin",
         "shape": [
           64,
           125
@@ -2416,17 +2362,8 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
-        "file": "anomaly-cases-v1/replace-length-material.bin",
+        "file": "anomaly-cases-v1/original.bin",
         "shape": [
           64,
           125
@@ -2444,7 +2381,7 @@
         "sha256": "775ab05c78faf4e15d718dbef4e0972bca388a99efad842a50115573c1fe7ae6"
       },
       "weights": {
-        "file": "anomaly-cases-v1/replace-length-weights.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125
@@ -2453,7 +2390,7 @@
         "sha256": "d0f3e68a32e2dac431b442216a44026498c8b1fdab5a6908d68243cb4b3813fa"
       },
       "input": {
-        "file": "anomaly-cases-v1/replace-length-input.bin",
+        "file": "anomaly-cases-v1/replace-length-candidate.bin",
         "shape": [
           64,
           125
@@ -2462,7 +2399,7 @@
         "sha256": "775ab05c78faf4e15d718dbef4e0972bca388a99efad842a50115573c1fe7ae6"
       },
       "labels": {
-        "file": "anomaly-cases-v1/replace-length-labels.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125
@@ -2777,17 +2714,8 @@
         "bytes": 64000,
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
-      "mask": {
-        "file": "anomaly-cases-v1/mask.bin",
-        "shape": [
-          64,
-          125
-        ],
-        "bytes": 64000,
-        "sha256": "d534d7b7f2a51cf8c909555c3a51dc94e88557b2a1f7c6f5ae81c0ac0b744ff5"
-      },
       "material": {
-        "file": "anomaly-cases-v1/blend-length-material.bin",
+        "file": "anomaly-cases-v1/original.bin",
         "shape": [
           64,
           125
@@ -2796,7 +2724,7 @@
         "sha256": "9454a8e175dd71c88627e8fa27127f562ae0c32b0e6fb6e41e142e2a93afd733"
       },
       "candidate": {
-        "file": "anomaly-cases-v1/blend-length-candidate.bin",
+        "file": "anomaly-cases-v1/replace-length-candidate.bin",
         "shape": [
           64,
           125
@@ -2805,7 +2733,7 @@
         "sha256": "775ab05c78faf4e15d718dbef4e0972bca388a99efad842a50115573c1fe7ae6"
       },
       "weights": {
-        "file": "anomaly-cases-v1/blend-length-weights.bin",
+        "file": "anomaly-cases-v1/blend-reference-weights.bin",
         "shape": [
           64,
           125
@@ -2823,7 +2751,7 @@
         "sha256": "0787aa304760273f6a24f2ba596e41effec338c0bfb5ee770c77143da84cd7ec"
       },
       "labels": {
-        "file": "anomaly-cases-v1/blend-length-labels.bin",
+        "file": "anomaly-cases-v1/replace-reference-weights.bin",
         "shape": [
           64,
           125

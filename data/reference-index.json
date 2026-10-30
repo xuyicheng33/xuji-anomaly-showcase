@@ -87,5 +87,6 @@
   "data/reference/windows-v1/model1/source-manifest.json": "839bd49ee27f8b7056428521790d4a21c6920337a82dab24281ae09443eaedb4",
   "data/reference/windows-v1/model2/errors.bin": "98055af6fe9ce8a3d54db320fbdd126395f74693a87fa58e3810309b9d5d2267",
   "data/reference/windows-v1/model2/recon.bin": "e727e2dab86285579fcefd01e81e8705b55bb46c616718933486b0428eac364d",
-  "data/reference/windows-v1/model2/source-manifest.json": "358799f8eeb21c36d5851bc0d28cedf732bcac2c826e363214e42d557423df6d"
+  "data/reference/windows-v1/model2/source-manifest.json": "358799f8eeb21c36d5851bc0d28cedf732bcac2c826e363214e42d557423df6d",
+  "data/reference/fonts/NotoSerifSC-variable.ttf": "050080d9255a86808f2945bffac582b31ef32bc36411ce29563b4961670c66f9"
 }

@@ -34,9 +34,10 @@ def verify():
             np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), values[:, feature])
             mean += values[:, feature]
             expected.add(name)
-        name = f'curves-v1/{asset["sha256"]}/mean.bin'
-        np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), mean / values.shape[1])
-        expected.add(name)
+        if asset['sha256'] != source['datasets']['train']['sha256']:
+            name = f'curves-v1/{asset["sha256"]}/mean.bin'
+            np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), mean / values.shape[1])
+            expected.add(name)
     for start in range(0, len(raw), 128):
         name = f'input-rows-v1/{source["input"]["sha256"]}/{start}.bin'
         np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8').reshape(-1, 125), raw[start:start + 128])

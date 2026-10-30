@@ -23,17 +23,22 @@ def install(source, target, journey):
     clean = np.fromfile(Path(journey).parent / 'clean-test.bin', dtype='<f8').reshape(-1, 125)
     expected = {c['id']: c for c in construct(clean)}
     records = []
+    assets = {}
 
     def asset(name, value):
         a = np.asarray(value, dtype='<f8')
+        payload = a.tobytes()
+        digest = hashlib.sha256(payload).hexdigest()
+        key = (digest, a.shape)
+        if key in assets:
+            return assets[key]
         p = target / (name + '.bin')
-        p.write_bytes(a.tobytes())
-        return dict(file='anomaly-cases-v1/' + p.name, shape=list(a.shape), bytes=p.stat().st_size,
-                    sha256=hashlib.sha256(p.read_bytes()).hexdigest())
+        p.write_bytes(payload)
+        assets[key] = dict(file='anomaly-cases-v1/' + p.name, shape=list(a.shape), bytes=len(payload), sha256=digest)
+        return assets[key]
 
     first = exports['model1']['cases'][0]
     original = asset('original', first['original'])
-    mask = asset('mask', first['mask'])
     names = {'reference': '参考片段', 'uniform': '均匀值', 'peak': '峰值噪声', 'length': '长度调整'}
     for c in exports['model1']['cases']:
         cid = c['id']
@@ -48,7 +53,7 @@ def install(source, target, journey):
         if c['kind'] == 'reference':
             material[c['begin']:c['end'], c['features']] = clean[175:199, c['features']]
         rec.update(name=('替换' if c['insertion'] == 'replace' else '混合') + '：' + names[c['kind']],
-                   times=data['times'][c['start']:c['start'] + 64], original=original, mask=mask,
+                   times=data['times'][c['start']:c['start'] + 64], original=original,
                    material=asset(cid + '-material', material),
                    **{k: asset(cid + '-' + k, c[k]) for k in ['candidate', 'weights', 'input', 'labels']})
         rec['models'] = []
@@ -69,6 +74,10 @@ def install(source, target, journey):
                     lengthPolicy='Repeat 8 points by scale 3 inside a 24-point interval; no tail shift or unlabelled feature changes.',
                     thresholdPolicy='Reuse frozen independent-window thresholds; never optimize on these eight cases.')
     (target / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
+    used = {Path(a['file']).name for a in assets.values()}
+    for p in target.glob('*.bin'):
+        if p.name not in used:
+            p.unlink()
     print(f'PASS {len(records)} cases × 2 models; sources, composition, labels and all 125-feature errors verified')
 
 

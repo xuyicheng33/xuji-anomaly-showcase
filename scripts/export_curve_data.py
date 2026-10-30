@@ -20,12 +20,15 @@ def main():
             assert np.array_equal(np.frombuffer(payload, dtype='<f8'), values[:, feature], equal_nan=True)
             (folder / f'{feature}.bin').write_bytes(payload)
             written += 1
-        # Same left-to-right summation order as meanSeries in the browser.
-        mean = np.zeros(len(values))
-        for feature in range(values.shape[1]):
-            mean += values[:, feature]
-        (folder / 'mean.bin').write_bytes((mean / values.shape[1]).astype('<f8').tobytes())
-        written += 1
+        if asset['sha256'] == data['datasets']['train']['sha256']:
+            (folder / 'mean.bin').unlink(missing_ok=True)
+        else:
+            # Same left-to-right summation order as meanSeries in the browser.
+            mean = np.zeros(len(values))
+            for feature in range(values.shape[1]):
+                mean += values[:, feature]
+            (folder / 'mean.bin').write_bytes((mean / values.shape[1]).astype('<f8').tobytes())
+            written += 1
     values = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(-1, 125)
     folder = ROOT / 'input-rows-v1' / data['input']['sha256']
     folder.mkdir(parents=True, exist_ok=True)

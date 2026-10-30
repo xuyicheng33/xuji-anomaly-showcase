@@ -28,7 +28,6 @@ export type AnomalyCase = {
   weights: Asset;
   input: Asset;
   labels: Asset;
-  mask: Asset;
   models: CaseModel[];
 };
 export type CaseArrays = {
