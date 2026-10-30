@@ -32,7 +32,7 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.locator('#ref-window-calculation').click();
     await page.locator('#note-score-calculation:focus').waitFor();
-    assert.equal(await page.locator('.explanation-entry').count(), 13);
+    assert.equal(await page.locator('.explanation-entry').count(), 15);
     await page.locator('#note-score-calculation .note-return').click();
     await page.getByTestId('calculated-score').waitFor();
     assert.equal(await page.getByRole('slider', { name: '片段查看时刻' }).inputValue(), '25');
@@ -93,7 +93,11 @@ try {
     await page.getByRole('button', { name: '连续缺失', exact: true }).click();
     const dataText = await page.locator('.data-chapter').innerText();
     assert.ok(!/缺失率|这些底部油温|均包含/.test(dataText));
-    assert.ok(dataText.includes('每个测点均使用训练集的最大值和最小值，归一化至0-1。'));
+    assert.ok(
+      dataText.includes(
+        '各测点使用训练集的最小值和最大值归一化；测试集沿用训练参数，越界值截断到0—1。',
+      ),
+    );
     assert.equal(await page.locator('.removed-sensors li span').count(), 0);
     assert.equal(await page.locator('.balanced-split br').count(), 0);
     assert.ok(

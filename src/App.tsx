@@ -141,22 +141,16 @@ export default function App() {
                   异常检测研究
                 </h1>
                 <div className="hero-bottom">
-                  <p>
-                    7,992 个时刻，125 个测点
-                    <br />
-                    数据处理、模型训练与检测评估
-                  </p>
                   <a className="primary" href="#/data">
                     开始查看
                   </a>
                 </div>
               </section>
               <section className="chapter-list" aria-label="完整研究流程">
-                {chapters.map(([id, name, title, desc], i) => (
+                {chapters.map(([id, , title, desc], i) => (
                   <a href={'#/' + id} key={id}>
                     <span className="large-index">0{i + 1}</span>
                     <div>
-                      <span className="chapter-name">{name}</span>
                       <h2>{title}</h2>
                       <p>{desc}</p>
                     </div>

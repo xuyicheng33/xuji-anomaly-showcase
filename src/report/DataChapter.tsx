@@ -85,7 +85,6 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
         </div>
       </div>
       <div className="data-page-intro">
-        <p>按原始记录的时间顺序整理数据。</p>
         <span>
           原始数据与处理例子
           <Footnote note="data-records" />
@@ -148,7 +147,9 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           }
         >
           <div className="normalization-heading">
-            <p className="reading-copy">每个测点均使用训练集的最大值和最小值，归一化至0-1。</p>
+            <p className="reading-copy">
+              各测点使用训练集的最小值和最大值归一化；测试集沿用训练参数，越界值截断到0—1。
+            </p>
             <label className="field">
               测点
               <select

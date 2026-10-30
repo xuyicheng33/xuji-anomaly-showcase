@@ -26,7 +26,7 @@ try {
   await page.getByRole('button', { name: '重新读取', exact: true }).click();
   await page.locator('#note-training-mse:focus').waitFor();
   assert.equal(await page.locator('[role=alert]:visible').count(), 0);
-  assert.equal(await page.locator('.explanation-entry').count(), 13);
+  assert.equal(await page.locator('.explanation-entry').count(), 15);
   await page.close();
 
   checks.push({ manifestRetryKeepsDeepLink: true });
@@ -64,6 +64,15 @@ try {
       await page.locator('main').innerText(),
       /并不代表|是不是|这不意味着|不代表|并非/,
     );
+    const labelTable = page.locator('.anomaly-label-table');
+    assert.equal(await labelTable.locator('thead th').count(), 5);
+    assert.ok(await labelTable.evaluate((element) => element.scrollWidth <= element.clientWidth));
+    await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+    assert.ok(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      'Explanation page overflow at 200%, viewport ' + width,
+    );
+    await page.evaluate(() => (document.documentElement.style.zoom = '1'));
     await page.locator('#note-training-mse .note-return').click();
     assert.equal(await page.getByRole('slider', { name: '训练窗口位置' }).inputValue(), '320');
     assert.equal(await page.getByRole('slider', { name: '训练轮次' }).inputValue(), '7');
@@ -142,6 +151,11 @@ try {
     if (width <= 390) {
       await page.goto(base + '#/anomalies');
       await page.locator('.case-label-cells button').last().waitFor();
+      const picker = page.locator('.case-selection-summary');
+      const openPicker = async () => {
+        if ((await picker.getAttribute('aria-expanded')) === 'false') await picker.click();
+      };
+      await openPicker();
       await page.getByText('查看构造说明与公式', { exact: true }).click();
       assert.match(
         await page.locator('.case-mobile-explanation').innerText(),
@@ -149,11 +163,13 @@ try {
       );
       await page.locator('.case-methods button').last().click();
       await page.locator('.case-label-cells button').last().waitFor();
+      await openPicker();
       assert.match(
         await page.locator('.case-mobile-explanation').innerText(),
         /原始值 × \(1 − 权重\)/,
       );
       await page.locator('.case-methods button').first().click();
+      await openPicker();
       await page.getByText('查看构造说明与公式', { exact: true }).click();
       await page.getByRole('button', { name: '标签结果', exact: true }).click();
       const selected = () => page.locator('.case-label-cells [aria-pressed=true]');
@@ -174,8 +190,8 @@ try {
       const size = await page.getByRole('button', { name: '前一点', exact: true }).boundingBox();
       assert.ok(size.width >= 60 && size.height >= 40);
       await page.locator('#ref-anomalies-point-labels').click();
-      await page.locator('#note-anomaly-cases:focus').waitFor();
-      await page.locator('#note-anomaly-cases .note-return').click();
+      await page.locator('#note-anomaly-labels:focus').waitFor();
+      await page.locator('#note-anomaly-labels .note-return').click();
       assert.match(await selected().getAttribute('aria-label'), /^第 64 点/);
       await page.screenshot({ path: out + '/' + width + '-anomalies.png', fullPage: true });
     }

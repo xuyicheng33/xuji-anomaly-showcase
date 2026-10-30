@@ -44,7 +44,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
           64 × 125 数据窗口
           <Footnote note="window-settings" reference="ref-training-window-shape" />
         </span>
-        为输入，通过重建损失优化模型参数。
+        为输入，逐步优化参数。
       </Heading>
       <Section
         title={

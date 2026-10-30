@@ -35,6 +35,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           Sheet1包含7,992个时刻、125个测点。
         </p>
         <p>整理时删除768条无效记录和11个全缺失测点，将13个保留测点中的170个缺失单元格填为0。</p>
+        <p>报告第3.2节采用加权滑动平均填补与平滑；本版数据采用零值填补。</p>
         <p>
           无效记录是原表第3433—3456条和第8017—8760条，行号从表头下一行开始计数。这两段的时间与测点值均为“---”。中间一段位于2022-05-23
           23:00与2022-05-25 00:00之间，末尾一段位于2022-11-30
@@ -94,6 +95,73 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
         <p>模型输入、重建值和平方误差均使用归一化后的数值。</p>
       </NoteSection>
+      <NoteSection id="anomaly-process">
+        <p>
+          报告第3.3节按完整序列构造异常：先划分不重叠窗口，在选中的窗口内修改局部数据并生成标签，再按时间顺序拼回序列，最后生成模型使用的重叠窗口。
+        </p>
+        <ol>
+          <li>将正常序列分为连续的64点窗口，末尾不足64点时补齐，拼回时取原序列长度。</li>
+          <li>抽取待插入的窗口，再选择异常类型、测点、区间长度和起始位置。</li>
+          <li>在选定位置构造异常，同时在标签矩阵中标记对应的时刻和测点。</li>
+          <li>按原顺序连接各窗口，得到带异常的完整序列及对应标签矩阵。</li>
+          <li>以步长1生成重叠窗口。同一时刻出现在多个窗口中时，共用序列中的数据和标签。</li>
+        </ol>
+        <p>
+          训练阶段采用动态插入：每个训练轮次重新抽取位置并构造异常。测试阶段采用固定插入：一次生成数据和标签，测试时使用同一份序列；插入标签与原有标签逐单元格取或，形成最终测试标签。
+        </p>
+        <p>
+          窗口注入比例控制抽取窗口的数量；异常时刻占比统计包含异常的行数，异常单元格占比统计标签矩阵中1的数量。
+        </p>
+      </NoteSection>
+      <NoteSection id="anomaly-labels">
+        <p>
+          <strong>标签矩阵的一行对应一个时刻，一列对应一个测点。</strong>
+          单元格为0表示正常，为1表示该测点在这个时刻处于构造异常区间。
+        </p>
+        <p>
+          以参考片段案例为例，测点5和测点6属于选中测点，测点8保留原值。第19—42点的选中测点标为1。
+        </p>
+        <div
+          className="reference-table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="参考片段案例的局部标签"
+        >
+          <table className="anomaly-label-table">
+            <thead>
+              <tr>
+                <th>时刻</th>
+                <th>测点5</th>
+                <th>测点6</th>
+                <th>测点8</th>
+                <th>时刻标签</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                [18, 0],
+                [19, 1],
+                [42, 1],
+                [43, 0],
+              ].map(([point, label]) => (
+                <tr key={point}>
+                  <th>第{point}点</th>
+                  <td>{label}</td>
+                  <td>{label}</td>
+                  <td>0</td>
+                  <td>{label}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p>
+          对同一行的125个标签取或：只要有一个测点标为1，该时刻的标签就是1。整条测试序列的标签矩阵为2,397×125，包含18,869个异常单元格；按行汇总后有490个异常时刻，组成17段连续异常。
+        </p>
+        <p>
+          标签覆盖范围由构造规则确定。峰值噪声同时标记峰值及邻近时刻；混合区间的两端权重可降到0，标签仍覆盖选定区间。
+        </p>
+      </NoteSection>
       <NoteSection id="anomaly-cases">
         <p>
           八个案例由“替换、混合”两种插入方式与四种素材组合而成。每个案例从清洁测试数据中取64个时刻，在32个选定测点上构造异常，再由两个模型分别重建和评估。
@@ -109,11 +177,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           权重”计算，中央权重为0.7，两端逐渐降低。异常标签标记构造区间，也包括规则指定的边缘或邻近时刻。
         </p>
         <p>
-          <strong>标签对应一个时刻、一个测点。</strong>
-          0表示正常，1表示异常。例如“第133点的直流电流标签异常”，说的是这个单元格。
-        </p>
-        <p>
-          同一时刻只要有一个测点的标签为1，这个时刻的真实状态就是异常。模型再根据该时刻的异常分数与阈值作出判断。
+          报告的四类构造为软替换、均匀替换、峰值噪声和长度调整。案例将素材生成与写入方式分开，使用固定区间展示替换和混合的过程；整条测试序列使用实验中生成的固定异常及标签。
         </p>
       </NoteSection>
       <NoteSection id="length-sampling">
@@ -122,6 +186,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           A、A、A、B、B、B、C、C、C。当前案例将8点变成24点，写入第19—42点，其余位置保留原值。
         </p>
         <p>缩短是间隔采样：A、B、C、D、E、F、G、H → A、C、E、G，将原来的8点变化压缩到4个位置。</p>
+        <p>案例在选定区间和测点内完成采样；实验函数的长度调整还会移动窗口内的前后片段。</p>
       </NoteSection>
       <NoteSection id="window-settings">
         <p>
@@ -132,11 +197,9 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           训练时把多个窗口组成一批，整批形状是B×64×125，B表示窗口数量。当前训练配置每批128个窗口，最后一批按剩余数量组成；各窗口分别重建，整批计算损失并更新一次参数。
         </p>
         <p>
-          页面使用2026年10月27日由已有权重导出的窗口结果。每个窗口保存64×125个重建值，Global分支每个测点遮蔽16个位置，Local分支接收完整窗口。
+          窗口结果导出于2026年10月27日。每个窗口包含64×125个重建值，Global分支每个测点遮蔽16个位置，Local分支接收完整窗口。
         </p>
-        <p>
-          历史训练在序列开头重复首个观测值补齐窗口。页面的窗口演示和测试结果从完整窗口开始展示。
-        </p>
+        <p>训练序列开头以首个观测值补齐窗口；片段检测使用连续64个观测值组成的完整窗口。</p>
       </NoteSection>
       <NoteSection id="score-calculation">
         <p>
@@ -183,6 +246,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         <p>
           片段检测和连续回放分别选取阈值。片段页的阈值统一依据全部2,334个窗口选出，各窗口分别进行区间点调整后汇总；回放阈值依据完整序列的合并分数选出。
         </p>
+        <p>报告第4.4节采用POT阈值：用训练集异常分数拟合尾部分布，再确定测试时的报警阈值。</p>
       </NoteSection>
       <NoteSection id="point-metrics">
         <p>
@@ -227,7 +291,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           报告中的SMST-AD增加多尺度时间建模和空间分支。这里的“空间”是测点之间的关联：在测点维度计算注意力，用相关性掩码与空间正则约束关联，再融合时间和空间特征重建。
         </p>
         <p>
-          页面的模型介绍采用报告设计。当前保存的SMST-AD结果由时间特征生成重建；对应代码同时计算空间注意力和空间正则。
+          本版SMST-AD由时间特征生成重建，空间分支计算注意力和空间正则；报告的解码器融合时间与空间特征。
         </p>
       </NoteSection>
       <NoteSection id="training-mse">

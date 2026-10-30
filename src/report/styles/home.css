@@ -1,6 +1,6 @@
 /* Home styles. Edit existing rules and breakpoints here. */
 .home-hero {
-  padding: 76px 0 70px;
+  padding: 62px 0 54px;
   border-bottom: 1px solid var(--line);
 }
 .home-hero h1 {
@@ -10,13 +10,8 @@
 }
 .hero-bottom {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  margin-top: 38px;
-}
-.hero-bottom p {
-  font-size: 19px;
-  color: var(--muted);
+  justify-content: flex-end;
+  margin-top: 28px;
 }
 .hero-bottom .primary {
   min-width: 156px;
@@ -28,7 +23,11 @@
   column-gap: 64px;
 }
 .chapter-list > a {
-  padding: 36px 0;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: start;
+  gap: 22px;
+  padding: 34px 0;
   border-bottom: 1px solid var(--line);
   transition: color 0.2s;
 }
@@ -38,13 +37,9 @@
   color: #7c8577;
   line-height: 1.1;
 }
-.chapter-name {
-  color: var(--muted);
-  font-size: 13px;
-}
 .chapter-list h2 {
   font-size: 23px;
-  margin: 7px 0 8px;
+  margin: 0 0 8px;
   line-height: 1.55;
 }
 .chapter-list p {
@@ -63,42 +58,18 @@
     font-size: 58px;
   }
   .hero-bottom {
-    align-items: flex-start;
-    gap: 25px;
-    flex-direction: column;
-  }
-  .hero-bottom p {
-    font-size: 17px;
+    justify-content: flex-start;
   }
   .chapter-list {
     grid-template-columns: 1fr;
+    column-gap: 0;
   }
   .chapter-list > a {
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 16px;
     padding: 26px 0;
   }
   .chapter-list h2 {
     font-size: 22px;
   }
-}
-.home-hero {
-  padding-top: 62px;
-}
-.chapter-list > a {
-  display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  align-items: start;
-  gap: 22px;
-}
-@media (max-width: 680px) {
-  .chapter-list > a {
-    grid-template-columns: 32px minmax(0, 1fr);
-    gap: 16px;
-  }
-  .chapter-list {
-    column-gap: 0;
-  }
-}
-.chapter-list > a {
-  padding-top: 40px;
-  padding-bottom: 40px;
 }

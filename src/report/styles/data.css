@@ -258,10 +258,6 @@
   color: var(--muted);
   font-size: 14px;
 }
-.data-page-intro p {
-  margin: 0;
-  min-width: 0;
-}
 .data-page-intro > span {
   flex-shrink: 0;
   white-space: nowrap;
@@ -539,6 +535,11 @@
   max-width: 100%;
   margin-bottom: 24px;
 }
+.record-examples .record-example-tabs button {
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.5;
+}
 .record-example-panel {
   animation: arrive 0.22s ease-out;
 }
@@ -743,7 +744,6 @@
   .record-example-tabs button {
     flex: 1;
     padding-inline: 4px;
-    white-space: nowrap;
   }
   .example-heading {
     align-items: flex-start;

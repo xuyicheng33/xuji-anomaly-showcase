@@ -13,6 +13,7 @@ import Curve from './Curve';
 import { curveDomain } from './curveScale';
 import { Footnote, usePauseOnNavigation } from './notes';
 import LengthConstruction from './LengthConstruction';
+import ReferenceConstruction from './ReferenceConstruction';
 import { useDataAsset } from './useDataAsset';
 
 const methods = [
@@ -77,6 +78,7 @@ export default function AnomalyChapter({
     [point, setPoint] = useState(30),
     [showResult, setShowResult] = useState(false);
   const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
   usePauseOnNavigation(() => setPlaying(false));
   const resultRef = useRef<HTMLDivElement>(null),
     stageRef = useRef<HTMLDivElement>(null);
@@ -131,31 +133,40 @@ export default function AnomalyChapter({
     const tick = (now: number) => {
       if (last !== undefined && !document.hidden) {
         const delta = now - last;
-        setProgress((p) => Math.min(1, p + delta / 8000));
+        setProgress((p) => Math.min(1, p + delta / (kind === 'reference' ? 12000 : 8000)));
       }
       last = now;
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [playing]);
+  }, [playing, kind]);
   useEffect(() => {
     if (progress >= 1) setPlaying(false);
   }, [progress]);
   const method = methods.find((m) => m.id === insertion)!,
     construction = kinds.find((k) => k.id === kind)!;
   const feature = selectedFeature ?? selected?.feature ?? 4;
-  const phase = progress < 0.2 ? 0 : progress < 0.4 ? 1 : progress < 0.82 ? 2 : 3;
-  const blend = Math.max(0, Math.min(1, (progress - 0.4) / 0.42));
+  const phase = progress < 0.16 ? 0 : progress <= 0.58 ? 1 : progress < 0.9 ? 2 : 3;
+  const blend = Math.max(0, Math.min(1, (progress - 0.58) / 0.32));
   const material = arrays ? series(arrays.material, feature, 0) : [];
-  const materialProgress = Math.max(0, Math.min(1, (progress - 0.2) / 0.2));
+  const materialProgress = Math.max(0, Math.min(1, (progress - 0.16) / 0.42));
   const base = arrays ? series(arrays.original, feature, 0) : [],
     candidate = arrays ? series(arrays.candidate, feature, 0) : [],
     after = arrays ? series(arrays.input, feature, 0) : [];
-  const visible = base.map((v, i) => v + (after[i] - v) * blend);
   const labels = arrays ? series(arrays.labels, feature, 0) : [],
     visibleLabels = labels.map((v) => (phase === 3 ? v : 0));
   const weights = arrays ? series(arrays.weights, feature, 0) : [];
+  const activePoints = weights.flatMap((weight, index) => (weight > 0 ? [index] : []));
+  const writtenCount = Math.ceil(activePoints.length * blend - 1e-9);
+  const written = new Set(activePoints.slice(0, writtenCount));
+  const visible = base.map((value, index) =>
+    insertion === 'replace'
+      ? written.has(index)
+        ? after[index]
+        : value
+      : value + (after[index] - value) * blend,
+  );
   const shownCandidate = candidate.map(
     (v, i) => material[i] + (v - material[i]) * materialProgress,
   );
@@ -178,51 +189,80 @@ export default function AnomalyChapter({
   };
   const jump = (n: number) => {
     setPlaying(false);
-    setProgress([0, 0.399, 0.65, 1][n]);
+    setProgress([0, 0.58, 0.74, 1][n]);
   };
   return (
     <div className="anomaly-page case-page">
       <Heading title="异常样本构造" />
       <div className="case-layout">
         <aside className="case-navigation" aria-label="异常案例导航">
-          <div className="case-nav-group">
-            <h2>
-              插入方式
-              <Footnote note="anomaly-cases" />
-            </h2>
-            <div className="case-methods">
-              {methods.map((m) => (
-                <button
-                  key={m.id}
-                  aria-pressed={insertion === m.id}
-                  onClick={() => setInsertion(m.id)}
-                >
-                  <strong>{m.name}</strong>
-                  <span>{m.copy}</span>
-                </button>
-              ))}
+          <button
+            className="case-selection-summary"
+            aria-expanded={pickerOpen}
+            aria-controls="case-navigation-options"
+            onClick={() => {
+              setPlaying(false);
+              setPickerOpen((open) => !open);
+            }}
+          >
+            <strong>
+              {method.name} · {construction.name}
+            </strong>
+            <span>{pickerOpen ? '收起选择' : '更换方式'}</span>
+          </button>
+          <div
+            id="case-navigation-options"
+            className={'case-navigation-options' + (pickerOpen ? ' is-open' : '')}
+          >
+            <div className="case-nav-group">
+              <h2>
+                插入方式
+                <Footnote note="anomaly-cases" />
+              </h2>
+              <div className="case-methods">
+                {methods.map((m) => (
+                  <button
+                    key={m.id}
+                    aria-pressed={insertion === m.id}
+                    onClick={() => {
+                      setInsertion(m.id);
+                      setPickerOpen(false);
+                    }}
+                  >
+                    <strong>{m.name}</strong>
+                    <span>{m.copy}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div className="case-nav-group">
-            <h2>构造方法</h2>
-            <div className="case-kinds">
-              {kinds.map((k, i) => (
-                <button key={k.id} aria-pressed={kind === k.id} onClick={() => setKind(k.id)}>
-                  <span>0{i + 1}</span>
-                  <strong>{k.name}</strong>
-                  <span aria-hidden="true">→</span>
-                </button>
-              ))}
+            <div className="case-nav-group">
+              <h2>构造方法</h2>
+              <div className="case-kinds">
+                {kinds.map((k, i) => (
+                  <button
+                    key={k.id}
+                    aria-pressed={kind === k.id}
+                    onClick={() => {
+                      setKind(k.id);
+                      setPickerOpen(false);
+                    }}
+                  >
+                    <span>0{i + 1}</span>
+                    <strong>{k.name}</strong>
+                    <span aria-hidden="true">→</span>
+                  </button>
+                ))}
+              </div>
+              <p className="case-kind-copy">{construction.copy}</p>
             </div>
-            <p className="case-kind-copy">{construction.copy}</p>
+            <p className="case-formula">{method.formula}</p>
+            <details className="case-mobile-explanation">
+              <summary>查看构造说明与公式</summary>
+              <p>{method.copy}</p>
+              <p>{construction.copy}</p>
+              <p>{method.formula}</p>
+            </details>
           </div>
-          <p className="case-formula">{method.formula}</p>
-          <details className="case-mobile-explanation">
-            <summary>查看构造说明与公式</summary>
-            <p>{method.copy}</p>
-            <p>{construction.copy}</p>
-            <p>{method.formula}</p>
-          </details>
         </aside>
         <div className="case-content">
           <div className="case-title">
@@ -258,7 +298,13 @@ export default function AnomalyChapter({
             </div>
           ) : (
             <>
-              <div className="case-stage" ref={stageRef} data-case={selected.id} data-phase={phase}>
+              <div
+                className="case-stage"
+                ref={stageRef}
+                data-case={selected.id}
+                data-phase={phase}
+                data-written={writtenCount}
+              >
                 <div className="case-stage-toolbar">
                   <div className="case-steps" role="group" aria-label="构造步骤">
                     {steps.map((s, i) => (
@@ -290,31 +336,50 @@ export default function AnomalyChapter({
                     {selected.times[0]} — {selected.times[63]}
                   </span>
                 </div>
-                <Curve
-                  title="片段构造"
-                  lines={[
-                    { name: '原始片段', values: base, color: colors.muted, dash: true },
-                    ...(phase >= 1
-                      ? [
-                          {
-                            name: '异常素材',
-                            values: shownCandidate.map((v, i) =>
-                              weights[i] > 0 || labels[i] ? v : null,
-                            ),
-                            color: colors.ink,
-                            dash: true,
-                            opacity: phase === 1 ? 1 : 0.65,
-                          },
-                        ]
-                      : []),
-                    { name: '插入结果', values: visible, color: colors.input },
-                  ]}
-                  labels={visibleLabels}
-                  selected={point}
-                  onSelect={setPoint}
-                  height={260}
-                  range={stableRange}
-                />
+                {kind === 'reference' && phase === 1 ? (
+                  <ReferenceConstruction
+                    values={material.slice(selected.begin, selected.end)}
+                    progress={materialProgress}
+                    range={stableRange}
+                    sourceStart={selected.source.referenceStart ?? 175}
+                    sourceTime={data.times[selected.source.referenceStart ?? 175]}
+                    onStep={(step) => {
+                      setPlaying(false);
+                      setProgress([0.16, 0.16 + 0.42 * 0.65, 0.58][step]);
+                    }}
+                  />
+                ) : (
+                  <Curve
+                    title="片段构造"
+                    lines={[
+                      { name: '原始片段', values: base, color: colors.muted, dash: true },
+                      ...(phase >= 1
+                        ? [
+                            {
+                              name: '异常素材',
+                              values: shownCandidate.map((v, i) =>
+                                weights[i] > 0 || labels[i] ? v : null,
+                              ),
+                              color: colors.ink,
+                              dash: true,
+                              opacity: phase === 1 ? 1 : 0.65,
+                            },
+                          ]
+                        : []),
+                      { name: '插入结果', values: visible, color: colors.input },
+                    ]}
+                    labels={visibleLabels}
+                    selection={
+                      kind === 'peak'
+                        ? { start: 26, end: 34 }
+                        : { start: selected.begin, end: selected.end - 1 }
+                    }
+                    selected={point}
+                    onSelect={setPoint}
+                    height={260}
+                    range={stableRange}
+                  />
+                )}
                 <div className="case-material-strip">
                   <span>{phase === 0 ? '目标区间' : '素材构造'}</span>
                   <p>
@@ -335,7 +400,7 @@ export default function AnomalyChapter({
                   <div>
                     <span>
                       所选测点标签
-                      <Footnote note="anomaly-cases" reference="ref-anomalies-point-labels" />
+                      <Footnote note="anomaly-labels" reference="ref-anomalies-point-labels" />
                     </span>
                     <small>0 正常，1 异常</small>
                   </div>
@@ -385,24 +450,28 @@ export default function AnomalyChapter({
                     <strong data-testid="case-label">{visibleLabels[point]}</strong>
                   </div>
                 </div>
-                {phase >= 1 && (
+                {phase >= 1 && !(kind === 'reference' && phase === 1) && (
                   <div className="case-composition">
                     <span>
                       素材值 <strong>{shownCandidate[point]?.toFixed(4)}</strong>
                     </span>
                     <span>
-                      {phase === 3 ? '插入权重' : '演示进度'}{' '}
+                      {insertion === 'replace' ? '写入时刻' : phase === 3 ? '插入权重' : '混合进度'}{' '}
                       <strong>
-                        {phase === 3 ? weights[point]?.toFixed(2) : Math.round(blend * 100) + '%'}
+                        {insertion === 'replace'
+                          ? `${writtenCount} / ${activePoints.length}`
+                          : phase === 3
+                            ? weights[point]?.toFixed(2)
+                            : Math.round(blend * 100) + '%'}
                       </strong>
                     </span>
                     <span>
                       {phase < 2
                         ? '构造素材，准备写入目标区间。'
-                        : phase === 3 && insertion === 'replace'
-                          ? weights[point]
-                            ? '结果取对应素材值'
-                            : '区间外保留原始值'
+                        : insertion === 'replace'
+                          ? written.has(point)
+                            ? '当前时刻已写入素材值'
+                            : '当前时刻保留原始值'
                           : '原始值 × ' +
                             (1 - animatedWeight).toFixed(2) +
                             ' + 素材 × ' +
@@ -417,7 +486,7 @@ export default function AnomalyChapter({
                       ? construction.detail
                       : phase === 2
                         ? insertion === 'replace'
-                          ? '用构造素材逐步替代目标区间原值。'
+                          ? '沿时间顺序写入素材，经过的位置取对应素材值。'
                           : '按保存的权重将素材融入原片段，中央权重为 0.7。'
                         : kind === 'peak'
                           ? '极值改变一个时刻，标签覆盖该点及前后各 4 个时刻。'
