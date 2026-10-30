@@ -1,4 +1,8 @@
 /* Detection styles. Edit existing rules and breakpoints here. */
+.detection-page {
+  container-type: inline-size;
+  container-name: detection;
+}
 .selection-panel {
   align-items: center;
   background: #eeeee7;
@@ -292,5 +296,62 @@
   .detection-page .selection-panel .primary {
     font-size: 12px;
     white-space: nowrap;
+  }
+}
+@container detection (max-width: 240px) {
+  .detection-page .selection-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .detection-page .selection-panel > .field {
+    grid-column: 1;
+    grid-row: 1;
+    flex-wrap: wrap;
+  }
+  .detection-page .selection-panel > input {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+  }
+  .detection-page .selection-panel > span {
+    grid-column: 1;
+    grid-row: 3;
+    white-space: normal;
+    text-align: left;
+  }
+  .detection-page .selection-panel .primary {
+    grid-column: 1;
+    grid-row: 4;
+    min-width: 0;
+    white-space: normal;
+  }
+  .detection-page .confusion,
+  .detection-page .rates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .detection-page .note-anchor {
+    white-space: normal;
+  }
+  .detection-page .slider-label {
+    flex-wrap: wrap;
+  }
+  .detection-page .rates strong {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .detection-page .model-select button {
+    min-width: 0;
+    padding-inline: 3px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .detection-page .sum-value,
+  .detection-page .calculation-comparison,
+  .detection-page .calculation-equation {
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .detection-page .calculation-equation > * {
+    max-width: 100%;
+    min-width: 0;
   }
 }

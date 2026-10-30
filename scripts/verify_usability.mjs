@@ -83,6 +83,12 @@ try {
         await detail.locator('dd').allTextContents(),
         await page.locator('.calculation-table .selected-sensor td').allTextContents(),
       );
+      await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      const contained = await detail.evaluate((e) => e.scrollWidth <= e.clientWidth);
+      assert.equal(contained, true);
+      await detail.screenshot({ path: out + '/' + width + '-detail-200.png' });
+      await page.evaluate(() => (document.documentElement.style.zoom = '1'));
     }
     await page.evaluate(() => document.fonts.ready);
     const chartTop = await page

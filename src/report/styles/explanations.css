@@ -140,7 +140,7 @@
 }
 .sensor-calculation-detail dl {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 110px), 1fr));
   gap: 14px 18px;
   margin: 0;
 }
@@ -151,6 +151,7 @@
 .sensor-calculation-detail dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 .calculation-table th {
   padding: 12px 9px;
