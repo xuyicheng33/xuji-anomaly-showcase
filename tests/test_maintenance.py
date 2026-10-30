@@ -68,9 +68,46 @@ class MaintenanceTests(unittest.TestCase):
         (self.folder / ".qa/browser.json").write_text(json.dumps(record))
         subprocess.run(["node", str(script), "verify"], cwd=self.folder, check=True, capture_output=True)
         self.assertTrue(json.loads((self.folder / ".qa/build.json").read_text())["verified"])
+
         result = subprocess.run(
             ["node", str(ROOT / "scripts/verify_browser.mjs")], cwd=self.folder,
             env={**os.environ, "SHOWCASE_URL": "http://127.0.0.1:1/"}, capture_output=True,
         )
         self.assertNotEqual(result.returncode, 0)
         self.assertIn(b"Release verification uses local dist", result.stderr)
+
+    def test_restore_preserves_workspace_edits_and_deletions(self):
+        modules = {}
+        for name in ("backup_project", "restore_project"):
+            spec = importlib.util.spec_from_file_location(name, ROOT / f"scripts/{name}.py")
+            modules[name] = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(modules[name])
+        backup = modules["backup_project"]
+        (self.folder / "removed.txt").write_text("deleted before backup")
+        (self.folder / "staged.txt").write_text("staged deletion")
+        (self.folder / "old-name.txt").write_text("renamed file")
+        git(self.folder, "add", ".")
+        git(self.folder, "commit", "-qm", "Files to remove")
+        (self.folder / "removed.txt").unlink()
+        git(self.folder, "rm", "staged.txt")
+        git(self.folder, "mv", "old-name.txt", "new-name.txt")
+        (self.folder / "app.txt").write_text("edited source")
+        (self.folder / "new.txt").write_text("new file")
+        for name in backup.RETAINED:
+            target = self.folder / name
+            target.mkdir(parents=True)
+            (target / "source.txt").write_text("retained experiment")
+        with patch.object(backup, "ROOT", self.folder), patch("sys.argv", ["backup"]):
+            with contextlib.redirect_stdout(io.StringIO()):
+                backup.main()
+        archive = next((self.folder / ".qa/backups").glob("*.zip"))
+        restored = modules["restore_project"].restore(archive, self.folder / "restored")
+        self.assertFalse((restored / "removed.txt").exists())
+        self.assertFalse((restored / "staged.txt").exists())
+        self.assertFalse((restored / "old-name.txt").exists())
+        self.assertEqual((restored / "new-name.txt").read_text(), "renamed file")
+        self.assertEqual((restored / "app.txt").read_text(), "edited source")
+        self.assertEqual((restored / "new.txt").read_text(), "new file")
+        for name in backup.RETAINED:
+            self.assertEqual((restored / name / "source.txt").read_text(), "retained experiment")
+        git(restored, "log", "--all", "--oneline")

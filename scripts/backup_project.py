@@ -36,12 +36,16 @@ def main():
         ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT
     ).decode("utf-8")
     files = {ROOT / name for name in workspace.split("\0") if name and (ROOT / name).is_file()}
+    deleted = subprocess.check_output(
+        ["git", "diff", "HEAD", "--no-renames", "--diff-filter=D", "--name-only", "-z"], cwd=ROOT
+    ).decode("utf-8")
     for name in RETAINED:
         folder = ROOT / name
         if not folder.exists():
             raise FileNotFoundError(f"Required recovery source is missing: {name}")
         files.update(p for p in folder.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
-    records = {}
+    records = {"workspace/" + name: None for name in deleted.split("\0")
+               if name and not (ROOT / name).exists()}
     with zipfile.ZipFile(archive, "x", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as package:
         for file in sorted(files):
             if not file.resolve().is_relative_to(ROOT) or file.is_symlink():
@@ -54,6 +58,8 @@ def main():
         package.writestr("manifest.json", json.dumps(records, indent=2))
     with zipfile.ZipFile(archive) as package:
         for name, expected in records.items():
+            if expected is None:
+                continue
             with package.open(name) as stream:
                 actual = hashlib.file_digest(stream, "sha256").hexdigest()
             if actual != expected:
@@ -61,7 +67,7 @@ def main():
     result = {
         "archive": str(archive), "release": release, "files": len(records),
         "bytes": archive.stat().st_size, "sha256": sha256(archive), "verified": True,
-        "includes": ["tracked and non-ignored untracked workspace files", "all Git refs", *RETAINED],
+        "includes": ["tracked and non-ignored untracked workspace files", "workspace deletions", "all Git refs", *RETAINED],
     }
     archive.with_suffix(".json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     bundle.unlink()  # The verified ZIP already contains the complete Git bundle.
