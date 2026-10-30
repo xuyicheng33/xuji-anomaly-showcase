@@ -123,6 +123,35 @@
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
+.sensor-calculation-detail {
+  display: none;
+  padding: 14px 16px;
+  background: #e8ede6;
+  font-size: 13px;
+}
+.sensor-calculation-detail p {
+  margin: 0 0 12px;
+}
+.sensor-calculation-detail small {
+  display: block;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+}
+.sensor-calculation-detail dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 18px;
+  margin: 0;
+}
+.sensor-calculation-detail dt {
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.sensor-calculation-detail dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
 .calculation-table th {
   padding: 12px 9px;
   text-align: right;
@@ -462,6 +491,12 @@
   }
   .calculation-table-scroll {
     max-height: 340px;
+  }
+  .sensor-calculation-detail {
+    display: block;
+  }
+  .calculation-table tbody th:first-child {
+    position: static;
   }
   .calculation-table th:first-child {
     min-width: 145px;

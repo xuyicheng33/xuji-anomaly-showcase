@@ -44,6 +44,7 @@ export function ScoreCalculation({
       [input, recon, point],
     );
   const body = useRef<HTMLTableSectionElement>(null);
+  const selectedRow = calculation.rows[focusFeature];
   useEffect(() => {
     if (focusFeature < 0) return;
     const row = body.current?.rows[focusFeature];
@@ -76,6 +77,29 @@ export function ScoreCalculation({
           <h3>
             <span>01</span> 逐项相减，再平方
           </h3>
+          {selectedRow && (
+            <div className="sensor-calculation-detail" role="region" aria-label="当前测点计算明细">
+              <p>
+                {focusFeature + 1}. {data.features[focusFeature].label}
+                <small>{data.features[focusFeature].key}</small>
+              </p>
+              <dl>
+                {(
+                  [
+                    ['输入', selectedRow.value],
+                    ['重建', selectedRow.prediction],
+                    ['差值', selectedRow.difference],
+                    ['平方误差', selectedRow.error],
+                  ] as const
+                ).map(([name, value]) => (
+                  <div key={name}>
+                    <dt>{name}</dt>
+                    <dd>{decimal(value)}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
           <TableScrollHint id={id + '-scroll-hint'}>左右滑动查看输入、重建与误差。</TableScrollHint>
           <div
             className="calculation-table-scroll"

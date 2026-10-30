@@ -73,8 +73,17 @@ try {
     await startInput.press('Enter');
     assert.equal(await page.getByRole('slider', { name: '选择64点片段' }).inputValue(), '499');
     await startInput.fill('108');
+    if (width <= 390) await page.getByLabel('选择测点', { exact: true }).selectOption('5');
     await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
+    if (width <= 390) {
+      const detail = page.getByRole('region', { name: '当前测点计算明细', exact: true });
+      await detail.waitFor();
+      assert.deepEqual(
+        await detail.locator('dd').allTextContents(),
+        await page.locator('.calculation-table .selected-sensor td').allTextContents(),
+      );
+    }
     await page.evaluate(() => document.fonts.ready);
     const chartTop = await page
       .locator('.reconstruction-view svg')
@@ -88,6 +97,22 @@ try {
       if (data.scroll > data.width) {
         await table.evaluate((e) => (e.scrollLeft = e.scrollWidth));
         assert.ok((await table.evaluate((e) => e.scrollLeft)) > 0);
+        if (width <= 390) {
+          assert.equal(
+            await table
+              .locator('tbody th')
+              .first()
+              .evaluate((e) => getComputedStyle(e).position),
+            'static',
+          );
+          const lastValue = table.locator('.selected-sensor td').last();
+          const visible = await lastValue.evaluate((e) => {
+            const value = e.getBoundingClientRect();
+            const viewport = e.closest('.calculation-table-scroll').getBoundingClientRect();
+            return value.left >= viewport.left && value.right <= viewport.right;
+          });
+          assert.equal(visible, true);
+        }
         await table.evaluate((e) => (e.scrollLeft = 0));
       }
     }
