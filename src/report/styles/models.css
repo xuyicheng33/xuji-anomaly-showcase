@@ -72,6 +72,8 @@
 .model-comparison p {
   font-size: 15px;
   color: var(--muted);
+  max-width: 32em;
+  text-wrap: pretty;
 }
 .training-chapter .chapter-heading {
   padding-bottom: 4px;
@@ -307,6 +309,7 @@
   max-width: 790px;
   font-size: 17px;
   color: var(--muted);
+  line-height: 1.95;
 }
 .model-details {
   display: grid;
@@ -382,9 +385,6 @@
     font-size: 12px;
   }
 }
-.model-comparison p {
-  max-width: 32em;
-}
 .training-chapter .window-rules {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 32px;
@@ -408,9 +408,6 @@
   .training-chapter .window-rules {
     gap: 20px;
   }
-}
-.model-intro p {
-  line-height: 1.95;
 }
 .models-chapter .model-flow {
   display: grid;
@@ -460,6 +457,7 @@
   color: var(--muted);
   line-height: 1.95;
   max-width: 37em;
+  text-wrap: pretty;
 }
 .mask-example {
   padding: 26px 0;
@@ -524,6 +522,7 @@
   color: var(--muted);
   line-height: 1.95;
   max-width: 34em;
+  text-wrap: pretty;
 }
 @media (max-width: 820px) {
   .models-chapter .model-flow {
@@ -571,15 +570,6 @@
     gap: 1px;
     height: 34px;
   }
-}
-.model-explanation p {
-  text-wrap: pretty;
-}
-.loss-explanation p {
-  text-wrap: pretty;
-}
-.model-comparison p {
-  text-wrap: pretty;
 }
 @media (max-width: 680px) {
   .training-chapter .training-steps p {

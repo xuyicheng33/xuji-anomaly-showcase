@@ -45,10 +45,12 @@
 .chapter-list h2 {
   font-size: 23px;
   margin: 7px 0 8px;
+  line-height: 1.55;
 }
 .chapter-list p {
   font-size: 14px;
   color: var(--muted);
+  min-height: 26px;
 }
 .chapter-list > a:hover {
   color: var(--blue);
@@ -86,12 +88,6 @@
   grid-template-columns: 42px minmax(0, 1fr);
   align-items: start;
   gap: 22px;
-}
-.chapter-list h2 {
-  line-height: 1.55;
-}
-.chapter-list p {
-  min-height: 26px;
 }
 @media (max-width: 680px) {
   .chapter-list > a {

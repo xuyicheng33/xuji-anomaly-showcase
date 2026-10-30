@@ -465,12 +465,10 @@
 }
 .missing-example td {
   padding: 11px 16px;
+  width: 37%;
 }
 .missing-example th:first-child {
   width: 26%;
-}
-.missing-example td {
-  width: 37%;
 }
 .filled-row {
   background: #edf0e8;

@@ -116,6 +116,7 @@
 .case-stage {
   border-block: 1px solid var(--line);
   padding: 24px 0 26px;
+  scroll-margin-top: 18px;
 }
 .case-stage-toolbar {
   display: flex;
@@ -160,6 +161,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
+  max-width: 100%;
 }
 .case-context select {
   font-size: 12px;
@@ -226,6 +229,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
 .case-point > div span {
   font-size: 12px;
@@ -575,17 +579,10 @@
     padding-top: 24px;
   }
 }
-.case-context label {
-  min-width: 0;
-  max-width: 100%;
-}
 .case-context select {
   min-width: 0;
   width: 100%;
   flex: 1;
-}
-.case-point > div {
-  min-width: 0;
 }
 @media (max-width: 360px) {
   .case-methods {
@@ -628,9 +625,6 @@
   }
   .case-result-action p {
     font-size: 11px;
-  }
-  .case-title h2 {
-    font-size: 21px;
   }
   .case-material-strip {
     display: block;
@@ -817,9 +811,6 @@
   .length-window strong {
     margin-left: 10px;
   }
-}
-.case-stage {
-  scroll-margin-top: 18px;
 }
 @media (max-width: 550px) {
   .site-main .case-page > .chapter-heading {

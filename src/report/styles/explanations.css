@@ -99,6 +99,7 @@
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   scrollbar-gutter: stable;
+  max-width: 100%;
 }
 .window-score-scroll {
   overflow: auto;
@@ -106,6 +107,8 @@
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   scrollbar-gutter: stable;
+  max-height: 330px;
+  max-width: 100%;
 }
 .reference-table-scroll {
   overflow: auto;
@@ -255,9 +258,6 @@
   font-size: 15px;
   line-height: 1.7;
 }
-.window-score-scroll {
-  max-height: 330px;
-}
 .window-score-scroll table {
   min-width: 540px;
   width: 100%;
@@ -379,6 +379,7 @@
 .reference-table-scroll {
   max-height: 350px;
   margin: 20px 0;
+  max-width: 100%;
 }
 .reference-table-scroll table {
   width: 100%;
@@ -544,15 +545,6 @@
 }
 .calculation-layout > div {
   min-width: 0;
-}
-.calculation-table-scroll {
-  max-width: 100%;
-}
-.window-score-scroll {
-  max-width: 100%;
-}
-.reference-table-scroll {
-  max-width: 100%;
 }
 .window-score-scroll tbody th {
   position: sticky;
@@ -1027,8 +1019,6 @@
     z-index: 2;
     background: var(--paper);
     box-shadow: 1px 0 var(--line);
-  }
-  .metrics-archive th[rowspan] {
     min-width: 98px;
   }
 }

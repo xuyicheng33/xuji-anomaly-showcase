@@ -57,6 +57,7 @@
 }
 .curve svg {
   font-family: var(--sans);
+  overflow: visible;
 }
 .curve-top {
   min-height: 37px;
@@ -66,9 +67,6 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   row-gap: 7px;
-}
-.curve svg {
-  overflow: visible;
 }
 .curve text {
   font-size: 12px;
