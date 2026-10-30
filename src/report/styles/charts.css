@@ -7,6 +7,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 15px;
+  min-height: 37px;
+  padding: 8px 0;
 }
 .curve-top strong {
   font-size: 15px;
@@ -17,6 +19,9 @@
   gap: 20px;
   color: var(--muted);
   font-size: 13px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  row-gap: 7px;
 }
 .legend span {
   display: flex;
@@ -36,43 +41,11 @@
   fill: #62665e;
   font-family: var(--sans);
   font-variant-numeric: tabular-nums;
-}
-@media (max-width: 680px) {
-  .curve-top {
-    flex-direction: column;
-  }
-  .legend {
-    gap: 15px;
-  }
-}
-.curve svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-@media (max-width: 680px) {
-  .curve svg {
-    min-height: 0;
-  }
-}
-.curve svg {
-  font-family: var(--sans);
-  overflow: visible;
-}
-.curve-top {
-  min-height: 37px;
-  padding: 8px 0;
-}
-.legend {
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  row-gap: 7px;
-}
-.curve text {
   font-size: 12px;
 }
 @media (max-width: 680px) {
   .curve-top {
+    flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
@@ -80,12 +53,16 @@
     font-size: 14px;
   }
   .legend {
+    column-gap: 15px;
     justify-content: flex-start;
-    font-size: 11px;
   }
-  .curve text {
-    font-size: 11px;
-  }
+}
+.curve svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--sans);
+  overflow: visible;
 }
 .legend i.line-dashed {
   height: 0;

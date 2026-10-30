@@ -24,6 +24,7 @@ export default function App() {
     menuButton = useRef<HTMLButtonElement>(null),
     returning = useRef(false),
     scrollPositions = useRef(new Map<string, number>());
+  const loaded = data !== null;
   useEffect(() => {
     const f = () => {
       const next = route();
@@ -72,7 +73,7 @@ export default function App() {
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [page, address, !!data]);
+  }, [page, address, loaded]);
   const model = data?.models.find((m) => m.id === modelId);
   return (
     <>
@@ -104,6 +105,7 @@ export default function App() {
           id="chapter-navigation"
           className={menu ? 'site-nav open' : 'site-nav'}
           aria-label="章节导航"
+          onClick={() => setMenu(false)}
         >
           {chapters.map(([id, name]) => (
             <a key={id} href={'#/' + id} aria-current={page === id ? 'page' : undefined}>

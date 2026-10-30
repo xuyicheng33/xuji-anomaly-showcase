@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { launchBrowser } from './browser.mjs';
+import { launchBrowser, showcaseUrl } from './browser.mjs';
 
-const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:5176/';
+const base = showcaseUrl;
 const out = process.env.QA_DIR || '.qa/usability';
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
@@ -10,26 +10,25 @@ const manifest = JSON.parse(await readFile('public/data/journey/manifest.json', 
 const checks = [],
   errors = [];
 try {
-  for (let round = 0; round < 1; round++) {
-    const page = await browser.newPage({
-      viewport: { width: 390, height: 844 },
-      reducedMotion: 'reduce',
-    });
-    page.on('pageerror', (e) => errors.push(String(e)));
-    let failing = true;
-    await page.route('**/data/journey/manifest.json', (r) =>
-      failing ? r.fulfill({ status: 503, body: 'unavailable' }) : r.continue(),
-    );
-    await page.goto(base + '#/metrics?note=training-mse');
-    await page.getByRole('alert').waitFor();
-    assert.match(await page.getByRole('alert').innerText(), /资料读取失败/);
-    failing = false;
-    await page.getByRole('button', { name: '重新读取', exact: true }).click();
-    await page.locator('#note-training-mse:focus').waitFor();
-    assert.equal(await page.locator('[role=alert]:visible').count(), 0);
-    assert.equal(await page.locator('.explanation-entry').count(), 13);
-    await page.close();
-  }
+  const page = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    reducedMotion: 'reduce',
+  });
+  page.on('pageerror', (e) => errors.push(String(e)));
+  let failing = true;
+  await page.route('**/data/journey/manifest.json', (r) =>
+    failing ? r.fulfill({ status: 503, body: 'unavailable' }) : r.continue(),
+  );
+  await page.goto(base + '#/metrics?note=training-mse');
+  await page.getByRole('alert').waitFor();
+  assert.match(await page.getByRole('alert').innerText(), /资料读取失败/);
+  failing = false;
+  await page.getByRole('button', { name: '重新读取', exact: true }).click();
+  await page.locator('#note-training-mse:focus').waitFor();
+  assert.equal(await page.locator('[role=alert]:visible').count(), 0);
+  assert.equal(await page.locator('.explanation-entry').count(), 13);
+  await page.close();
+
   checks.push({ manifestRetryKeepsDeepLink: true });
   for (const width of [1440, 768, 390, 320]) {
     const page = await browser.newPage({
@@ -46,6 +45,12 @@ try {
       await page.keyboard.press('Escape');
       assert.equal(await menu.getAttribute('aria-expanded'), 'false');
       assert.equal(await menu.evaluate((e) => e === document.activeElement), true);
+      await menu.click();
+      await page
+        .getByRole('navigation', { name: '章节导航' })
+        .getByRole('link', { name: '模型训练', exact: true })
+        .click();
+      assert.equal(await menu.getAttribute('aria-expanded'), 'false');
     }
     assert.equal(await page.locator('.curve-selection').count(), 1);
     assert.equal(await page.locator('[data-anomaly-start]').count(), 0);
@@ -76,6 +81,16 @@ try {
     if (width <= 390) await page.getByLabel('选择测点', { exact: true }).selectOption('5');
     await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
+    if (width === 768) {
+      const layout = await page.locator('.calculation-layout > div').evaluateAll((elements) =>
+        elements.map((element) => {
+          const box = element.getBoundingClientRect();
+          return { left: box.left, top: box.top, bottom: box.bottom };
+        }),
+      );
+      assert.equal(layout[0].left, layout[1].left);
+      assert.ok(layout[1].top >= layout[0].bottom);
+    }
     if (width <= 390) {
       const detail = page.getByRole('region', { name: '当前测点计算明细', exact: true });
       await detail.waitFor();
@@ -172,6 +187,14 @@ try {
     await sensors.focus();
     await page.keyboard.press('PageDown');
     await page.waitForFunction(() => document.querySelector('.sensor-list').scrollTop > 0);
+    await page.goto(base + '#/data');
+    const removed = page.locator('.removed-sensors');
+    await removed.waitFor();
+    assert.equal(await removed.getAttribute('open'), null);
+    await removed.locator('summary').click();
+    assert.equal(await removed.locator('li:visible').count(), 11);
+    await removed.locator('summary').click();
+    assert.equal(await removed.locator('li:visible').count(), 0);
     if (width === 1440 || width === 390) {
       await page.goto(base + '#/playback');
       await page.locator('.reconstruction-view').waitFor();

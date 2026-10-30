@@ -247,7 +247,7 @@ export function PlaybackChapter(p: PlaybackProps) {
           />
         </div>
         <div className="statistics playback-statistics">
-          <Confusion metrics={stats} active={active} />
+          <Confusion metrics={stats} active={active} caption="当前时刻累计结果" />
           <div>
             <div className="current-score">
               <span>
@@ -310,14 +310,14 @@ export function PlaybackChapter(p: PlaybackProps) {
             <thead>
               <tr>
                 <th>方法</th>
+                <th>逐点F1</th>
+                <th>区间点调整F1</th>
+                <th>精确率</th>
+                <th>召回率</th>
                 <th>检出</th>
                 <th>误报</th>
                 <th>漏检</th>
                 <th>正确正常</th>
-                <th>精确率</th>
-                <th>召回率</th>
-                <th>逐点F1</th>
-                <th>区间点调整F1</th>
               </tr>
             </thead>
             <tbody>
@@ -326,14 +326,14 @@ export function PlaybackChapter(p: PlaybackProps) {
                 return (
                   <tr key={m.id}>
                     <th>{m.name}</th>
+                    <td>{pct(v.f1)}</td>
+                    <td>{pct(m.metrics.point_adjusted.f1)}</td>
+                    <td> {pct(v.precision)}</td>
+                    <td> {pct(v.recall)}</td>
                     <td>{v.tp}</td>
                     <td>{v.fp}</td>
                     <td>{v.fn}</td>
                     <td>{v.tn}</td>
-                    <td> {pct(v.precision)}</td>
-                    <td> {pct(v.recall)}</td>
-                    <td>{pct(v.f1)}</td>
-                    <td>{pct(m.metrics.point_adjusted.f1)}</td>
                   </tr>
                 );
               })}

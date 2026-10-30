@@ -11,11 +11,10 @@ import cleaning from './cleaning-data.json';
 type Props = { data: Journey; feature: number; setFeature: (feature: number) => void };
 const number = (value: number, digits = 3) =>
   value.toLocaleString('zh-CN', { maximumFractionDigits: digits });
-const chartRange = (values: (number | null)[]): [number, number] => {
-  const finite = values.filter((v): v is number => v !== null && Number.isFinite(v));
-  const min = finite.length ? Math.min(...finite) : 0,
-    max = finite.length ? Math.max(...finite) : 1,
-    pad = (max - min) * 0.12 || Math.max(Math.abs(max) * 0.02, 0.1);
+const chartRange = (values: number[]): [number, number] => {
+  const min = Math.min(...values),
+    max = Math.max(...values);
+  const pad = (max - min) * 0.12 || Math.max(Math.abs(max) * 0.02, 0.1);
   return [min - pad, max + pad];
 };
 
@@ -55,7 +54,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
       values,
       normalized: values.map(normalize),
     };
-  }, [trainAsset.data, train]);
+  }, [trainAsset.data]);
   const sampleIndex = sample;
   const split = cleaning.split;
   const operand = (value: number) =>

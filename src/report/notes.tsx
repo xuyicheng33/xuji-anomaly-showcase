@@ -34,22 +34,11 @@ export function usePauseOnNavigation(pause: () => void) {
     return () => window.removeEventListener('showcase:pause', pause);
   }, [pause]);
 }
-export function Footnote({
-  note,
-  context,
-  reference,
-}: {
-  note: NoteId;
-  context?: Record<string, string | number>;
-  reference?: string;
-}) {
+export function Footnote({ note, reference }: { note: NoteId; reference?: string }) {
   const index = notes.findIndex((item) => item.id === note),
     item = notes[index];
   const id = reference ?? `ref-${item.page}-${note}`;
-  const params = new URLSearchParams({
-    note,
-    ...Object.fromEntries(Object.entries(context ?? {}).map(([k, v]) => [k, String(v)])),
-  });
+  const params = new URLSearchParams({ note });
   return (
     <sup className="footnote">
       <a
@@ -80,11 +69,7 @@ export function NoteSection({ id, children }: { id: NoteId; children: ReactNode 
       <div className="explanation-heading">
         <span className="explanation-number">{String(index + 1).padStart(2, '0')}</span>
         <h2 id={'note-title-' + id}>{item.title}</h2>
-        <a
-          className="inline-link note-return"
-          href={origin?.hash ?? '#/' + item.page}
-          data-return-reference={origin?.reference ?? `ref-${item.page}-${id}`}
-        >
+        <a className="inline-link note-return" href={origin?.hash ?? '#/' + item.page}>
           返回{origin ? '引用处' : '正文'} ↑
         </a>
       </div>

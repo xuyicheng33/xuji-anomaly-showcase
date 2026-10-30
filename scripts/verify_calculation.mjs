@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { launchBrowser } from './browser.mjs';
-const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:5176/';
-const out = process.env.QA_DIR || '.qa/calculation-20261028';
+import { launchBrowser, showcaseUrl } from './browser.mjs';
+const base = showcaseUrl;
+const out = process.env.QA_DIR || '.qa/calculation';
 await mkdir(out, { recursive: true });
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const browser = await launchBrowser();
@@ -179,20 +179,19 @@ try {
   page.setDefaultTimeout(60000);
   page.on('pageerror', (e) => errors.push(String(e)));
   await page.goto(base + '#/playback');
-  for (let rep = 0; rep < 1; rep++) {
-    await page.getByRole('slider', { name: '播放进度' }).fill('130');
-    await page.getByRole('button', { name: '播放', exact: true }).click();
-    await page.waitForFunction(
-      () => Number(document.querySelector('[aria-label="播放进度"]').value) > 130,
-    );
-    await page.locator('#ref-playback-window-aggregation').click();
-    await page.locator('#note-window-aggregation:focus').waitFor();
-    await page.locator('#note-window-aggregation .note-return').click();
-    const n = await page.getByRole('slider', { name: '播放进度' }).inputValue();
-    await page.waitForTimeout(700);
-    assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), n);
-    assert.ok(await page.getByRole('button', { name: '播放', exact: true }).isVisible());
-  }
+  await page.getByRole('slider', { name: '播放进度' }).fill('130');
+  await page.getByRole('button', { name: '播放', exact: true }).click();
+  await page.waitForFunction(
+    () => Number(document.querySelector('[aria-label="播放进度"]').value) > 130,
+  );
+  await page.locator('#ref-playback-window-aggregation').click();
+  await page.locator('#note-window-aggregation:focus').waitFor();
+  await page.locator('#note-window-aggregation .note-return').click();
+  const n = await page.getByRole('slider', { name: '播放进度' }).inputValue();
+  await page.waitForTimeout(700);
+  assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), n);
+  assert.ok(await page.getByRole('button', { name: '播放', exact: true }).isVisible());
+
   checks.push({ playingRoundTripPauses: true });
   await page.close();
   assert.deepEqual(errors, []);

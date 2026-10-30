@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { launchBrowser } from './browser.mjs';
-const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:5176/';
-const out = process.env.QA_DIR || '.qa/loading-20261028';
+import { launchBrowser, showcaseUrl } from './browser.mjs';
+const base = showcaseUrl;
+const out = process.env.QA_DIR || '.qa/loading';
 await mkdir(out, { recursive: true });
 const d = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const browser = await launchBrowser();
@@ -35,7 +35,7 @@ try {
   summary.push({ page: 'training', binaryFiles: actual(train.requests), bytes: 44744 });
   await train.page.close();
   const data = await fresh('data');
-  await data.page.locator('.removed-sensors li').last().waitFor();
+  await data.page.locator('.removed-sensors').waitFor();
   only(data.requests, []);
   await data.page.locator('.normalization-section').scrollIntoViewIfNeeded();
   await data.page.locator('.normalization-equation strong').waitFor();
@@ -167,6 +167,78 @@ try {
   assert.equal(await route.page.getByRole('alert').count(), 0);
   await route.page.close();
   summary.push({ curveRetryPreservesProgress: true, pageFailureIsIsolated: true });
+  for (const width of [1440, 390]) {
+    for (let repetition = 0; repetition < 3; repetition++) {
+      const page = await browser.newPage({
+        viewport: { width, height: 900 },
+        reducedMotion: 'reduce',
+      });
+      page.on('pageerror', (e) => errors.push(String(e)));
+      let release;
+      const gate = new Promise((resolve) => (release = resolve));
+      await page.route('**/anomaly-cases-v1/*model2.bin*', async (route) => {
+        await gate;
+        await route.continue();
+      });
+      await page.goto(base + '#/anomalies');
+      await page.locator('.case-stage').waitFor();
+      await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+      await page.locator('.case-reconstruction[aria-busy=false]').waitFor();
+      await page.locator('.case-label-cells button').nth(31).click({ force: true });
+      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+      await page.getByRole('button', { name: 'SMST-AD', exact: true }).scrollIntoViewIfNeeded();
+      const before = await page.evaluate(() => ({
+        y: scrollY,
+        height: document.documentElement.scrollHeight,
+      }));
+      await page.getByRole('button', { name: 'SMST-AD', exact: true }).click();
+      await page.getByRole('status').filter({ hasText: '正在读取模型重建' }).waitFor();
+      assert.equal(await page.locator('.case-stage').count(), 1);
+      assert.equal(await page.getByTestId('case-label').innerText(), '1');
+      assert.match(
+        await page.locator('.case-label-cells [aria-pressed=true]').getAttribute('aria-label'),
+        /^第 32 点/,
+      );
+      assert.deepEqual(
+        await page.evaluate(() => ({ y: scrollY, height: document.documentElement.scrollHeight })),
+        before,
+      );
+      const response = page.waitForResponse((r) =>
+        r.url().includes('replace-reference-model2.bin'),
+      );
+      release();
+      await response;
+      await page.locator('.case-reconstruction[aria-busy=false]').waitFor();
+      assert.deepEqual(
+        await page.evaluate(() => ({ y: scrollY, height: document.documentElement.scrollHeight })),
+        before,
+      );
+      await page.close();
+    }
+  }
+  const caseFailure = await fresh('anomalies', (page) =>
+    page.route('**/anomaly-cases-v1/*model1.bin*', (route) =>
+      route.fulfill({ status: 503, body: 'failed' }),
+    ),
+  );
+  await caseFailure.page.locator('.case-stage').waitFor();
+  await caseFailure.page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+  await caseFailure.page.getByRole('button', { name: '重试重建', exact: true }).waitFor();
+  await caseFailure.page.locator('.case-label-cells button').nth(31).click({ force: true });
+  await caseFailure.page.unroute('**/anomaly-cases-v1/*model1.bin*');
+  await caseFailure.page.getByRole('button', { name: '重试重建', exact: true }).click();
+  await caseFailure.page.locator('.case-reconstruction[aria-busy=false]').waitFor();
+  assert.match(
+    await caseFailure.page
+      .locator('.case-label-cells [aria-pressed=true]')
+      .getAttribute('aria-label'),
+    /^第 32 点/,
+  );
+  await caseFailure.page.close();
+  summary.push({
+    caseModelSwitchKeepsLayoutAndSelection: '1440px and 390px × 3',
+    caseReconstructionRetry: true,
+  });
   assert.deepEqual(errors, []);
   await writeFile(out + '/loading-checks.json', JSON.stringify({ summary, errors }, null, 2));
   console.log(

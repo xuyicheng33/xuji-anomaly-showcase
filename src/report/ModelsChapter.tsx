@@ -51,8 +51,7 @@ export function ModelsChapter({
   model: Model;
   setModel: (value: string) => void;
 }) {
-  const current = model,
-    multi = current.id === 'model2',
+  const multi = model.id === 'model2',
     description = descriptions[multi ? 'model2' : 'model1'];
   return (
     <div className="chapter-refined models-chapter">
@@ -67,10 +66,10 @@ export function ModelsChapter({
         以窗口重建为基础，识别偏离正常模式的时间片段。
       </Heading>
       <div className="model-selection-row">
-        <ModelSelect data={data} value={current.id} onChange={setModel} />
+        <ModelSelect data={data} value={model.id} onChange={setModel} />
       </div>
       <div className="model-intro">
-        <span>{current.name}</span>
+        <span>{model.name}</span>
         <h2>{description.title}</h2>
         <p>{description.intro}</p>
       </div>

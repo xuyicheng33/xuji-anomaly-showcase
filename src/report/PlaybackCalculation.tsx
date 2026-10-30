@@ -95,7 +95,7 @@ export function PlaybackCalculation({
     return () => {
       active = false;
     };
-  }, [selected, model.id, windowAttempt]);
+  }, [selected, model, windowAttempt]);
   const starts = index === null ? [] : coveringWindows(index, data.times.length);
   const rows =
     scoresAsset.data && index !== null

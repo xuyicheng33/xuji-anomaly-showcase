@@ -295,6 +295,21 @@
 .case-result-heading h2 {
   font-size: 26px;
 }
+.case-reconstruction {
+  position: relative;
+}
+.case-reconstruction-status {
+  position: absolute;
+  inset: 50px 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 14px;
+}
 .case-score-pair {
   display: flex;
   gap: 22px;
@@ -896,10 +911,6 @@
   }
   .anomaly-page > .chapter-heading h1 {
     font-size: 38px;
-  }
-  .anomaly-page > .chapter-heading p {
-    margin-top: 13px;
-    max-width: 900px;
   }
 }
 .anomaly-page > .chapter-heading {

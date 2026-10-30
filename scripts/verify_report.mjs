@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
-import { launchBrowser } from './browser.mjs';
-const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
+import { launchBrowser, showcaseUrl } from './browser.mjs';
+const base = showcaseUrl;
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const cases = JSON.parse(
   await readFile('public/data/journey/anomaly-cases-v1/manifest.json', 'utf8'),
 ).cases;
 const browser = await launchBrowser();
 const errors = [];
-const out = process.env.QA_DIR || '.qa/unified/shots';
+const out = process.env.QA_DIR || '.qa/report';
 await mkdir(out, { recursive: true });
 async function go(page, name) {
   await page.goto(base + '#/' + name);

@@ -17,6 +17,8 @@ export function useCurveData(asset: Asset | null, feature: number) {
 }
 
 export function useWindowInput(asset: Asset, start: number, enabled: boolean) {
+  const sha256 = asset.sha256,
+    rows = asset.shape[0];
   const key = asset.sha256 + ':' + start,
     [attempt, setAttempt] = useState(0),
     [state, setState] = useState<{ key: string; data: Float64Array | null; error: string }>({
@@ -34,10 +36,9 @@ export function useWindowInput(asset: Asset, start: number, enabled: boolean) {
     Promise.all(
       chunks.map((from) =>
         loadAsset({
-          file: `input-rows-v1/${asset.sha256}/${from}.bin`,
-          bytes: Math.min(128, asset.shape[0] - from) * 125 * 8,
-          shape: [Math.min(128, asset.shape[0] - from), 125],
-          sha256: asset.sha256,
+          file: `input-rows-v1/${sha256}/${from}.bin`,
+          bytes: Math.min(128, rows - from) * 125 * 8,
+          sha256,
         }),
       ),
     )
@@ -58,7 +59,7 @@ export function useWindowInput(asset: Asset, start: number, enabled: boolean) {
     return () => {
       active = false;
     };
-  }, [key, enabled, attempt]);
+  }, [key, sha256, rows, start, enabled, attempt]);
   return {
     data: state.key === key ? state.data : null,
     error: state.key === key ? state.error : '',

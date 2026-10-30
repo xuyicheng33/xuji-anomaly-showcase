@@ -3,7 +3,10 @@ import { loadAsset, type Asset } from '../journey';
 
 /** Keep shared file caching, but only request assets used by the current view. */
 export function useDataAsset(asset: Asset | null) {
-  const key = asset ? asset.file + ':' + asset.sha256 : '';
+  const file = asset?.file ?? '',
+    bytes = asset?.bytes ?? 0,
+    sha256 = asset?.sha256 ?? '';
+  const key = file + ':' + sha256;
   const [state, setState] = useState<{ key: string; data: Float64Array | null; error: string }>({
     key: '',
     data: null,
@@ -11,10 +14,10 @@ export function useDataAsset(asset: Asset | null) {
   });
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    if (!asset) return;
+    if (!file) return;
     let active = true;
     setState((previous) => ({ key, data: previous.key === key ? previous.data : null, error: '' }));
-    loadAsset(asset)
+    loadAsset({ file, bytes, sha256 })
       .then((data) => {
         if (active) setState({ key, data, error: '' });
       })
@@ -24,7 +27,7 @@ export function useDataAsset(asset: Asset | null) {
     return () => {
       active = false;
     };
-  }, [key, attempt]);
+  }, [file, bytes, sha256, key, attempt]);
   return {
     data: state.key === key ? state.data : null,
     error: state.key === key ? state.error : '',

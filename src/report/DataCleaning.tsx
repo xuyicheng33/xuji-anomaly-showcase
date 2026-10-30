@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useState } from 'react';
 import type { Journey } from '../journey';
 import cleaning from './cleaning-data.json';
 
@@ -71,10 +71,10 @@ export default function DataCleaning({ data }: { data: Journey }) {
             <small>个测点</small>
           </div>
         </div>
-        <div className="removed-sensors">
-          <div className="cleaning-caption">
-            <span>全缺失测点清单</span>
-          </div>
+        <details className="removed-sensors">
+          <summary>
+            全缺失测点清单<span>11 个</span>
+          </summary>
           <ul>
             {cleaning.removedSensors.map((key) => (
               <li key={key}>
@@ -82,7 +82,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
               </li>
             ))}
           </ul>
-        </div>
+        </details>
       </article>
       <article className="cleaning-step record-cleaning">
         <div className="cleaning-intro">
@@ -146,12 +146,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
               <div
                 key={i}
                 className={span.invalid ? 'invalid' : 'valid'}
-                style={
-                  {
-                    flexGrow: span.invalid && trimmed ? 0 : span.count,
-                    '--segment-count': span.count,
-                  } as CSSProperties
-                }
+                style={{ flexGrow: span.invalid && trimmed ? 0 : span.count }}
               >
                 <span>{span.invalid ? (i === 1 ? '' : count(span.count)) : count(span.count)}</span>
               </div>

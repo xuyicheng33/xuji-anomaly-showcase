@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { launchBrowser } from './browser.mjs';
+import { launchBrowser, showcaseUrl } from './browser.mjs';
 
-const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
+const base = showcaseUrl;
 const out = process.env.QA_DIR || '.qa/playback-scale';
 await mkdir(out, { recursive: true });
 const manifest = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));

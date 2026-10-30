@@ -13,6 +13,7 @@ export default tseslint.config(
     rules: {
       'no-irregular-whitespace': ['error', { skipJSXText: true }],
       'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },

@@ -1,6 +1,8 @@
 import { existsSync } from 'node:fs';
 import { chromium } from 'playwright';
 
+export const showcaseUrl = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
+
 /** Explicit override, system Edge on Windows, or Playwright's installed Chromium. */
 export function browserOptions() {
   const edge = [

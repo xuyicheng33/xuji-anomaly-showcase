@@ -321,10 +321,22 @@
   color: var(--muted);
   margin-bottom: 12px;
 }
+.removed-sensors summary {
+  padding: 12px 0;
+  border-block: 1px solid var(--line);
+  color: var(--blue);
+  font-size: 14px;
+  cursor: pointer;
+}
+.removed-sensors summary span {
+  float: right;
+  color: var(--muted);
+  font-size: 13px;
+}
 .removed-sensors ul {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 12px 0 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 24px;

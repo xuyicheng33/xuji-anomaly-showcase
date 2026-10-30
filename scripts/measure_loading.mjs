@@ -1,6 +1,6 @@
-import { launchBrowser } from './browser.mjs';
+import { launchBrowser, showcaseUrl } from './browser.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
-const base = process.env.SHOWCASE_URL || 'http://124.223.175.32:9010/';
+const base = showcaseUrl;
 const out = process.env.QA_DIR || '.qa/loading-times';
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();

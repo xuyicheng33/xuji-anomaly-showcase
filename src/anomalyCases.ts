@@ -37,7 +37,6 @@ export type CaseArrays = {
   weights: Float64Array;
   input: Float64Array;
   labels: Float64Array;
-  recon: Float64Array;
 };
 let manifest: Promise<{ version: string; cases: AnomalyCase[] }> | undefined;
 export function loadCases() {
@@ -55,9 +54,9 @@ export function loadCases() {
       throw e;
     }));
 }
-export async function loadCaseArrays(c: AnomalyCase, m: CaseModel): Promise<CaseArrays> {
-  const [original, material, candidate, weights, input, labels, recon] = await Promise.all(
-    [c.original, c.material, c.candidate, c.weights, c.input, c.labels, m.recon].map(loadAsset),
+export async function loadCaseArrays(c: AnomalyCase): Promise<CaseArrays> {
+  const [original, material, candidate, weights, input, labels] = await Promise.all(
+    [c.original, c.material, c.candidate, c.weights, c.input, c.labels].map(loadAsset),
   );
-  return { original, material, candidate, weights, input, labels, recon };
+  return { original, material, candidate, weights, input, labels };
 }

@@ -17,8 +17,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
     [epoch, setEpoch] = useState(0);
 
   const point = data.features[feature],
-    train = data.datasets.train,
-    current = model;
+    train = data.datasets.train;
   const trainingAsset = useCurveData(train, train.keys.indexOf(point.key)),
     training = trainingAsset.data,
     error = trainingAsset.error;
@@ -35,8 +34,8 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
           return stats.normalize(value);
         })
       : [];
-  const activeEpoch = Math.min(epoch, current.history.length - 1),
-    record = current.history[activeEpoch];
+  const activeEpoch = Math.min(epoch, model.history.length - 1),
+    record = model.history[activeEpoch];
   return (
     <div className="chapter-refined training-chapter">
       <Heading title="模型训练过程">
@@ -175,13 +174,13 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
         <div className="model-selection-row">
           <ModelSelect
             data={data}
-            value={current.id}
+            value={model.id}
             onChange={(value) => {
               setModel(value);
               setEpoch(0);
             }}
           />
-          <p>{current.history.length} 轮训练</p>
+          <p>{model.history.length} 轮训练</p>
         </div>
         <div className="chapter-chart-panel">
           <Curve
@@ -189,8 +188,8 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             title="训练重建误差（MSE）"
             lines={[
               {
-                name: current.name,
-                values: current.history.map((item) => item.loss),
+                name: model.name,
+                values: model.history.map((item) => item.loss),
                 color: colors.input,
               },
             ]}
@@ -204,31 +203,29 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
               aria-label="训练轮次"
               type="range"
               min="0"
-              max={current.history.length - 1}
+              max={model.history.length - 1}
               value={activeEpoch}
               onChange={(e) => setEpoch(+e.target.value)}
             />
             <span>
-              {record.epoch} / {current.history.length}
+              {record.epoch} / {model.history.length}
             </span>
           </label>
         </div>
-        {
-          <div className="training-metrics inline-facts">
-            <strong>
-              {record.loss.toFixed(5)}
-              <span>当前轮次MSE</span>
-            </strong>
-            <strong>
-              {record.lr.toExponential(2)}
-              <span>当前学习率</span>
-            </strong>
-            <strong>
-              {current.history.length}
-              <span>训练轮次</span>
-            </strong>
-          </div>
-        }
+        <div className="training-metrics inline-facts">
+          <strong>
+            {record.loss.toFixed(5)}
+            <span>当前轮次MSE</span>
+          </strong>
+          <strong>
+            {record.lr.toExponential(2)}
+            <span>当前学习率</span>
+          </strong>
+          <strong>
+            {model.history.length}
+            <span>训练轮次</span>
+          </strong>
+        </div>
       </Section>
     </div>
   );

@@ -458,11 +458,13 @@
 }
 @media (max-width: 1050px) {
   .calculation-layout {
-    grid-template-columns: minmax(0, 1fr) 260px;
-    gap: 22px;
+    grid-template-columns: 1fr;
+    gap: 24px;
   }
   .calculation-total {
-    padding-left: 20px;
+    border-left: 0;
+    padding: 22px 0 0;
+    border-top: 1px solid var(--line);
   }
   .aggregation-summary {
     flex-wrap: wrap;
@@ -480,15 +482,6 @@
   }
   .calculation-heading p {
     font-size: 13px;
-  }
-  .calculation-layout {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .calculation-total {
-    border-left: 0;
-    padding: 22px 0 0;
-    border-top: 1px solid var(--line);
   }
   .calculation-table-scroll {
     max-height: 340px;
@@ -651,17 +644,6 @@
     color: var(--muted);
   }
 }
-.metrics-page .chapter-heading {
-  max-width: 100%;
-  padding: 15px 0 36px;
-}
-.metrics-page .chapter-heading h1 {
-  font-size: 40px;
-}
-.metrics-page .chapter-heading p {
-  max-width: 850px;
-  margin-top: 18px;
-}
 .metrics-example {
   border-top: 1px solid var(--line);
   padding-top: 26px;
@@ -675,11 +657,6 @@
 .metrics-example-heading h2 {
   font-size: 25px;
   letter-spacing: -0.025em;
-}
-.metrics-example-heading p {
-  margin-top: 9px;
-  font-size: 14px;
-  color: var(--muted);
 }
 .metrics-presets {
   display: flex;
@@ -868,12 +845,6 @@
   text-align: right;
   padding: 12px 0;
 }
-.metrics-comparison thead span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 400;
-  margin-left: 7px;
-}
 .metrics-comparison tbody th {
   font-size: 14px;
   font-weight: 400;
@@ -967,26 +938,11 @@
   }
 }
 @media (max-width: 680px) {
-  .metrics-page .chapter-heading {
-    padding: 14px 0 28px;
-  }
-  .metrics-page .chapter-heading h1 {
-    font-size: 31px;
-    line-height: 1.45;
-    text-wrap: pretty;
-  }
-  .metrics-page .chapter-heading p {
-    font-size: 16px;
-    margin-top: 16px;
-  }
   .metrics-example {
     padding-top: 23px;
   }
   .metrics-example-heading h2 {
     font-size: 24px;
-  }
-  .metrics-example-heading p {
-    font-size: 14px;
   }
   .metrics-track-instruction {
     margin-top: 19px;
@@ -1018,10 +974,6 @@
   }
   .metrics-comparison thead th {
     font-size: 14px;
-  }
-  .metrics-comparison thead span {
-    display: block;
-    margin: 5px 0 0;
   }
   .metrics-comparison td {
     font-size: 15px;
@@ -1111,10 +1063,6 @@
 .metrics-page .metrics-definition {
   margin-top: 20px;
   max-width: 46em;
-}
-.metrics-page .evaluation-thresholds {
-  margin-top: 30px;
-  margin-bottom: 28px;
 }
 @media (max-width: 680px) {
   .metrics-page .metrics-example-heading h2 {

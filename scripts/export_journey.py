@@ -45,9 +45,6 @@ def read_sheet(path, name):
 def numeric(value):
     return float(value) if isinstance(value, (int, float)) else np.nan
 
-def serial(array):
-    return [[float(v) if np.isfinite(v) else None for v in row] for row in np.asarray(array)]
-
 def segments(labels):
     starts = np.flatnonzero(np.diff(np.r_[0, labels, 0]) == 1)
     ends = np.flatnonzero(np.diff(np.r_[0, labels, 0]) == -1)
@@ -63,7 +60,6 @@ def export():
     raw_headers, headers = raw_rows[0][1:], clean_rows[0][1:]
     raw = np.array([[numeric(v) for v in row[1:]] for row in raw_rows[1:]])
     clean = np.array([row[1:] for row in clean_rows[1:]], float)
-    clean_times = [row[0].replace('.', '-').replace(':00:00', ':00') for row in clean_rows[1:]]
     times = [row[0].replace('.', '-')[:16] for row in clean_rows[1:]]
     train = np.load(base / 'prodata/converter_train.npy')
     test_path = base / 'experiment-v1/converter_test_clean.npy'
@@ -84,22 +80,6 @@ def export():
             label = ('油温' if 'OIL_TEMP' in key else '阀侧绕组温度' if 'VALVE_TEMP' in key else '网侧绕组温度' if 'LINE_TEMP' in key else '直流电流' if 'IDC' in key else '换流器电压' if 'UD' in key else '交流电压' if 'UL' in key else '监测值')
         features.append({'index': index, 'key': key, 'label': label, 'description': english})
     all_missing = np.isnan(raw).all(0)
-    raw_by_time = {str(row[0]): i for i, row in enumerate(raw_rows[1:]) if isinstance(row[0], str) and row[0] != '---'}
-    # Find an actual missing value for which the cleaned workbook contains a value.
-    example = None
-    for c, key in enumerate(headers):
-        rc = raw_headers.index(key)
-        candidates = np.flatnonzero(np.isnan(raw[:, rc]) & ~np.isnan(raw).all(1))
-        for ri in candidates:
-            timestamp = raw_rows[ri + 1][0]
-            matches = [i for i, row in enumerate(clean_rows[1:]) if row[0] == timestamp]
-            if matches and 8 <= matches[0] < len(clean) - 8:
-                ci = matches[0]; lo, hi = ci - 8, ci + 9
-                before = [numeric(raw_rows[raw_by_time[clean_rows[j + 1][0]] + 1][rc + 1]) if clean_rows[j + 1][0] in raw_by_time else np.nan for j in range(lo, hi)]
-                example = {'feature': c, 'times': times[lo:hi], 'before': [float(v) if np.isfinite(v) else None for v in before], 'after': clean[lo:hi, c].tolist(), 'selected': 8}
-                break
-        if example: break
-    assert example is not None
     assets = []
     def binary(name, array):
         array = np.asarray(array, dtype='<f8')
@@ -117,13 +97,6 @@ def export():
             np.testing.assert_array_equal(np.load(folder / filename), expected)
         models.append({'id': model_id, 'name': title,
             'history': checkpoint_history(ROOT / f'data/models/converter/{model_id}/model.ckpt')})
-    selected = [1, 2, 3, 4, 16, 24]
-    sample_indices = [0, 1, 2, 3, 4, 5]
-    normalization = []
-    for c in selected:
-        normalization.append({'feature': c, 'trainMin': float(clean[1:5594,c].min()), 'trainMax': float(clean[1:5594,c].max()),
-            'testMin': float(clean[5595:,c].min()), 'testMax': float(clean[5595:,c].max()),
-            'raw': clean[5300:5364,c].tolist(), 'normalized': train[5299:5363,c].tolist()})
     datasets = {}
     for key, values, keys, dates in [('raw', raw, list(raw_headers), [str(r[0]).replace('.', '-')[:16] for r in raw_rows[1:]]), ('clean', clean, list(headers), times), ('train', clean[1:5594], list(headers), times[1:5594])]:
         filename = key + '-full.bin'
@@ -139,11 +112,6 @@ def export():
             'trainStart': times[1], 'trainEnd': times[5593], 'testStart': times[5595], 'testEnd': times[-1],
             'omittedTimes': [times[0], times[5594]], 'cleanStart': times[0], 'cleanEnd': times[-1]},
         'removedFeatures': [str(k) for k, empty in zip(raw_headers, all_missing) if empty],
-        'missingExample': example, 'normalization': normalization, 'sampleFeatures': selected,
-        'sampleRows': [{'time': times[i], 'values': clean[i,selected].tolist()} for i in sample_indices],
-        'rawSampleRows': [{'time': str(raw_rows[i + 1][0]).replace('.', '-')[:16],
-            'values': serial(raw[i:i+1, [raw_headers.index(headers[c]) for c in selected]])[0]} for i in sample_indices],
-        'trainingSample': train[5300:5428][:,selected].tolist(),
         'provenance': {'raw': 'data/source/dataset/converter.xlsx　Sheet8', 'clean': 'data/source/dataset/orgdata/converternew.xlsx　Sheet1',
             'arrays': 'data/source/dataset/experiment-v1', 'results': 'data/source/results/converter',
             'normalization': '每个测点使用训练段最小值和最大值进行Min–Max归一化；测试数据沿用训练统计量，超出范围的数值截断到0—1。',

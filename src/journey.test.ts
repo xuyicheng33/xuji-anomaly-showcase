@@ -3,7 +3,7 @@ import {
   countMetrics,
   pointAdjusted,
   series,
-  outcome,
+  outcomeCode,
   meanSeries,
   metricPrefixes,
 } from './journey';
@@ -41,7 +41,7 @@ describe('journey navigation and numerical chain', () => {
       true,
       false,
     ]);
-    expect(outcome(1, 0, 0.5)).toBe('漏检异常');
+    expect(outcomeCode(1, 0, 0.5)).toBe('fn');
   });
   it('reads row-major arrays without mixing feature dimensions', () => {
     const a = Float64Array.from({ length: 375 }, (_, i) => i);

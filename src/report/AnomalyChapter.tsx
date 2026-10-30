@@ -13,6 +13,7 @@ import Curve from './Curve';
 import { curveDomain } from './curveScale';
 import { Footnote, usePauseOnNavigation } from './notes';
 import LengthConstruction from './LengthConstruction';
+import { useDataAsset } from './useDataAsset';
 
 const methods = [
   {
@@ -81,8 +82,9 @@ export default function AnomalyChapter({
     stageRef = useRef<HTMLDivElement>(null);
   const selected = cases.find((c) => c.insertion === insertion && c.kind === kind),
     cm = selected?.models.find((m) => m.id === model.id),
-    key = selected ? selected.id + ':' + model.id : '';
+    key = selected?.id ?? '';
   const arrays = bundle?.key === key ? bundle.arrays : null;
+  const reconstruction = useDataAsset(cm?.recon ?? null);
   useEffect(() => {
     let active = true;
     setError('');
@@ -98,10 +100,10 @@ export default function AnomalyChapter({
     };
   }, [attempt]);
   useEffect(() => {
-    if (!selected || !cm) return;
+    if (!selected) return;
     let active = true;
     setError('');
-    loadCaseArrays(selected, cm)
+    loadCaseArrays(selected)
       .then((arrays) => {
         if (active) setBundle({ key, arrays });
       })
@@ -111,7 +113,7 @@ export default function AnomalyChapter({
     return () => {
       active = false;
     };
-  }, [key, selected, cm, attempt]);
+  }, [key, selected, attempt]);
   useEffect(() => {
     setProgress(0);
     setPlaying(false);
@@ -460,22 +462,43 @@ export default function AnomalyChapter({
                     <h2>案例检测结果</h2>
                     <ModelSelect data={data} value={model.id} onChange={setModel} />
                   </div>
-                  <Curve
-                    title="插入结果与重建"
-                    lines={[
-                      { name: '插入结果', values: after, color: colors.input },
-                      {
-                        name: '模型重建',
-                        values: series(arrays.recon, feature, 0),
-                        color: colors.recon,
-                        dash: true,
-                      },
-                    ]}
-                    labels={labels}
-                    selected={point}
-                    onSelect={setPoint}
-                    height={230}
-                  />
+                  <div className="case-reconstruction" aria-busy={!reconstruction.data}>
+                    <Curve
+                      title="插入结果与重建"
+                      lines={[
+                        { name: '插入结果', values: after, color: colors.input },
+                        ...(reconstruction.data
+                          ? [
+                              {
+                                name: '模型重建',
+                                values: series(reconstruction.data, feature, 0),
+                                color: colors.recon,
+                                dash: true,
+                              },
+                            ]
+                          : []),
+                      ]}
+                      labels={labels}
+                      selected={point}
+                      onSelect={setPoint}
+                      height={230}
+                    />
+                    {!reconstruction.data && (
+                      <div
+                        className="case-reconstruction-status"
+                        role={reconstruction.error ? 'alert' : 'status'}
+                      >
+                        {reconstruction.error ? (
+                          <>
+                            {reconstruction.error}
+                            <button onClick={reconstruction.retry}>重试重建</button>
+                          </>
+                        ) : (
+                          '正在读取模型重建…'
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <Curve
                     title="125 测点异常分数"
                     lines={[{ name: '平均平方误差', values: cm.scores, color: colors.score }]}
@@ -496,7 +519,12 @@ export default function AnomalyChapter({
                     <span>
                       当前测点误差{' '}
                       <strong>
-                        {((after[point] - arrays.recon[point * 125 + feature]) ** 2).toFixed(6)}
+                        {reconstruction.data
+                          ? (
+                              (after[point] - reconstruction.data[point * 125 + feature]) **
+                              2
+                            ).toFixed(6)
+                          : '—'}
                       </strong>
                     </span>
                   </div>

@@ -46,7 +46,7 @@ export function DetectionChapter(p: DetectionProps) {
     setBusy(false);
     const example = model.examples.find((item) => item.start === start);
     setPoint(saved?.point ?? (example ? example.index - start : 24));
-  }, [viewKey]);
+  }, [viewKey, model.examples, start]);
   // Bind each request to its model and window; ignore responses after the selection changes.
   useEffect(() => {
     if (request?.key !== viewKey) {
@@ -69,7 +69,7 @@ export function DetectionChapter(p: DetectionProps) {
     return () => {
       active = false;
     };
-  }, [request, viewKey, start, model.id]);
+  }, [request, viewKey, start, model]);
   const inputAsset = useWindowInput(data.input, start, request?.key === viewKey || !!result),
     input = inputAsset.data;
   const ready = !!input && result?.start === start && result.modelId === model.id,

@@ -94,7 +94,15 @@ export function Section({
     </section>
   );
 }
-export function Confusion({ metrics, active }: { metrics: Metrics; active?: string }) {
+export function Confusion({
+  metrics,
+  active,
+  caption = '混淆矩阵',
+}: {
+  metrics: Metrics;
+  active?: string;
+  caption?: string;
+}) {
   const cells = [
     ['tp', '检出', '实际异常，模型报警', metrics.tp],
     ['fn', '漏检', '实际异常，未报警', metrics.fn],
@@ -104,9 +112,9 @@ export function Confusion({ metrics, active }: { metrics: Metrics; active?: stri
   return (
     <div className="matrix-section">
       <div className="matrix-caption">
-        <h3>混淆矩阵</h3>
+        <h3>{caption}</h3>
       </div>
-      <div className="confusion" aria-label="累计混淆矩阵">
+      <div className="confusion" aria-label={caption}>
         {cells.map(([id, name, desc, count]) => (
           <div
             key={id}

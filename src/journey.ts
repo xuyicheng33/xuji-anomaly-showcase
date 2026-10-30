@@ -148,11 +148,6 @@ export function metricPrefixes(labels: number[], scores: number[], threshold: nu
   }
   return prefixes;
 }
-export function outcome(label: number, score: number, threshold: number) {
-  return { tp: '检出异常', fn: '漏检异常', fp: '误报', tn: '正确正常' }[
-    outcomeCode(label, score, threshold)
-  ];
-}
 export function pointAdjusted(labels: number[], scores: number[], threshold: number) {
   const p = scores.map((v) => v > threshold);
   let i = 0;
@@ -168,7 +163,7 @@ export function pointAdjusted(labels: number[], scores: number[], threshold: num
   return p;
 }
 const assetCache = new Map<string, Promise<Float64Array>>();
-export function loadAsset(asset: Asset) {
+export function loadAsset(asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>) {
   const key = asset.file + ':' + asset.sha256;
   const existing = assetCache.get(key);
   if (existing) return existing;
