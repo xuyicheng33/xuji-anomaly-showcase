@@ -21,6 +21,7 @@ export default function App() {
     [viewFeature, setViewFeature] = useState(-1),
     [menu, setMenu] = useState(false);
   const previousPage = useRef(page),
+    menuButton = useRef<HTMLButtonElement>(null),
     returning = useRef(false),
     scrollPositions = useRef(new Map<string, number>());
   useEffect(() => {
@@ -38,6 +39,17 @@ export default function App() {
     window.addEventListener('hashchange', f);
     return () => window.removeEventListener('hashchange', f);
   }, []);
+  useEffect(() => {
+    if (!menu) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenu(false);
+        menuButton.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
+  }, [menu]);
   useLayoutEffect(() => {
     document.title =
       (page === 'metrics'
@@ -79,10 +91,20 @@ export default function App() {
           <strong>许继电气</strong>
           <span>异常检测研究</span>
         </a>
-        <button className="mobile-menu" onClick={() => setMenu((v) => !v)} aria-expanded={menu}>
+        <button
+          ref={menuButton}
+          className="mobile-menu"
+          onClick={() => setMenu((v) => !v)}
+          aria-expanded={menu}
+          aria-controls="chapter-navigation"
+        >
           目录
         </button>
-        <nav className={menu ? 'site-nav open' : 'site-nav'} aria-label="章节导航">
+        <nav
+          id="chapter-navigation"
+          className={menu ? 'site-nav open' : 'site-nav'}
+          aria-label="章节导航"
+        >
           {chapters.map(([id, name]) => (
             <a key={id} href={'#/' + id} aria-current={page === id ? 'page' : undefined}>
               {name}

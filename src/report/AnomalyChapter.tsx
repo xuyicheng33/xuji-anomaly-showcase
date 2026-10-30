@@ -215,6 +215,12 @@ export default function AnomalyChapter({
             <p className="case-kind-copy">{construction.copy}</p>
           </div>
           <p className="case-formula">{method.formula}</p>
+          <details className="case-mobile-explanation">
+            <summary>查看构造说明与公式</summary>
+            <p>{method.copy}</p>
+            <p>{construction.copy}</p>
+            <p>{method.formula}</p>
+          </details>
         </aside>
         <div className="case-content">
           <div className="case-title">

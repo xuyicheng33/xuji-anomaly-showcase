@@ -1,4 +1,3 @@
-import TableScrollHint from './TableScrollHint';
 import type { Journey } from '../journey';
 import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
@@ -42,7 +41,9 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           23:00之后。删除后，其余记录按原来的时间顺序保留。
         </p>
         <p>删除的测点：{data.removedFeatures.join('、')}。</p>
-        <TableScrollHint id="sensor-table-hint">左右滑动查看测点名称与编号。</TableScrollHint>
+        <p className="sensor-list-hint" id="sensor-table-hint">
+          共 125 个测点，向下滚动查看完整列表；窄屏可左右滑动查看名称与编号。
+        </p>
         <div
           className="reference-table-scroll sensor-list"
           tabIndex={0}

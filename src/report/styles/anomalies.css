@@ -225,6 +225,19 @@
   font-size: 13px;
   color: var(--muted);
 }
+.case-mobile-explanation {
+  display: none;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.case-mobile-explanation summary {
+  cursor: pointer;
+  padding: 10px 0;
+}
+.case-mobile-explanation p {
+  margin: 0 0 8px;
+}
 .case-point > div {
   display: flex;
   flex-direction: column;
@@ -835,6 +848,9 @@
   }
   .case-kind-copy {
     display: none;
+  }
+  .case-mobile-explanation {
+    display: block;
   }
   .case-layout {
     gap: 18px;

@@ -399,6 +399,10 @@
   color: var(--muted);
   line-height: 1.7;
 }
+.sensor-list-hint {
+  font-size: 13px;
+  color: var(--muted);
+}
 .score-calculation .reference-table-hint {
   margin: -6px 0 10px;
 }

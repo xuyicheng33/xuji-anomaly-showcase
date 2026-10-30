@@ -1,6 +1,6 @@
 import TableScrollHint from './TableScrollHint';
 import { useEffect, useMemo, useState } from 'react';
-import { metricPrefixes, pct } from '../journey';
+import { metricPrefixes, outcomeCode, pct, type OutcomeCode } from '../journey';
 import { Section, ModelSelect, FeatureSelect, Confusion, Rates, Outcome, colors } from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
@@ -61,28 +61,23 @@ export function PlaybackChapter(p: PlaybackProps) {
     scores = model.scores.slice(viewStart, viewStart + len),
     labs = data.labels.slice(viewStart, viewStart + len),
     stats = prefixes[count],
-    actual = data.labels[idx] > 0,
     pred = model.scores[idx] > threshold,
-    active = count ? (actual ? (pred ? 'tp' : 'fn') : pred ? 'fp' : 'tn') : undefined;
+    active = count ? outcomeCode(data.labels[idx], model.scores[idx], threshold) : undefined;
   const seek = (n: number) => {
     setPlaying(false);
     setCount(n);
   };
-  const nextOutcome = (code: string) => {
-    const found = data.labels.findIndex(
-      (l, i) =>
-        i >= from + count &&
-        i < from + total &&
-        (l
-          ? model.scores[i] > threshold
-            ? 'tp'
-            : 'fn'
-          : model.scores[i] > threshold
-            ? 'fp'
-            : 'tn') === code,
-    );
-    seek(found >= 0 ? found - from + 1 : total);
-    if (found >= 0 && viewFeature >= 0) {
+  const nextPoints = useMemo(() => {
+    const points: Partial<Record<OutcomeCode, number>> = {};
+    for (let i = from + count; i < from + total; i++) {
+      const code = outcomeCode(data.labels[i], model.scores[i], threshold);
+      points[code] ??= i;
+    }
+    return points;
+  }, [data.labels, model, threshold, from, count, total]);
+  const nextOutcome = (found: number) => {
+    seek(found - from + 1);
+    if (viewFeature >= 0) {
       const best = model.focusFeatures[found];
       setFeature(best);
       setViewFeature(best);
@@ -275,15 +270,17 @@ export function PlaybackChapter(p: PlaybackProps) {
       </div>
       <div className="replay-links">
         <div>
-          <button className="text-button" onClick={() => nextOutcome('tp')}>
-            下一处检出
-          </button>
-          <button className="text-button" onClick={() => nextOutcome('fp')}>
-            下一处误报
-          </button>
-          <button className="text-button" onClick={() => nextOutcome('fn')}>
-            下一处漏检
-          </button>
+          {(['tp', 'fp', 'fn'] as const).map((code) => (
+            <button
+              key={code}
+              className="text-button"
+              disabled={nextPoints[code] === undefined}
+              title={nextPoints[code] === undefined ? '后续没有此类结果' : undefined}
+              onClick={() => nextOutcome(nextPoints[code]!)}
+            >
+              下一处{{ tp: '检出', fp: '误报', fn: '漏检' }[code]}
+            </button>
+          ))}
         </div>
       </div>
       <PlaybackCalculation

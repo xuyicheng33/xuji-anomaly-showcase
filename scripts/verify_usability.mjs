@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { launchBrowser } from './browser.mjs';
 
 const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:5176/';
 const out = process.env.QA_DIR || '.qa/usability';
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
+const manifest = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const checks = [],
   errors = [];
 try {
@@ -38,6 +39,14 @@ try {
     page.on('pageerror', (e) => errors.push(String(e)));
     await page.goto(base + '#/training');
     await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
+    if (width <= 390) {
+      const menu = page.getByRole('button', { name: '目录', exact: true });
+      await menu.click();
+      await page.getByRole('navigation', { name: '章节导航' }).getByRole('link').first().focus();
+      await page.keyboard.press('Escape');
+      assert.equal(await menu.getAttribute('aria-expanded'), 'false');
+      assert.equal(await menu.evaluate((e) => e === document.activeElement), true);
+    }
     assert.equal(await page.locator('.curve-selection').count(), 1);
     assert.equal(await page.locator('[data-anomaly-start]').count(), 0);
     assert.equal(await page.locator('.curve-selection').getAttribute('fill'), '#355f7b');
@@ -87,6 +96,19 @@ try {
     if (width <= 390) {
       await page.goto(base + '#/anomalies');
       await page.locator('.case-label-cells button').last().waitFor();
+      await page.getByText('查看构造说明与公式', { exact: true }).click();
+      assert.match(
+        await page.locator('.case-mobile-explanation').innerText(),
+        /用异常素材替代局部原值/,
+      );
+      await page.locator('.case-methods button').last().click();
+      await page.locator('.case-label-cells button').last().waitFor();
+      assert.match(
+        await page.locator('.case-mobile-explanation').innerText(),
+        /原始值 × \(1 − 权重\)/,
+      );
+      await page.locator('.case-methods button').first().click();
+      await page.getByText('查看构造说明与公式', { exact: true }).click();
       await page.getByRole('button', { name: '标签结果', exact: true }).click();
       const selected = () => page.locator('.case-label-cells [aria-pressed=true]');
       await page.getByRole('button', { name: '前一点', exact: true }).click();
@@ -110,6 +132,42 @@ try {
       await page.locator('#note-anomaly-cases .note-return').click();
       assert.match(await selected().getAttribute('aria-label'), /^第 64 点/);
       await page.screenshot({ path: out + '/' + width + '-anomalies.png', fullPage: true });
+    }
+    await page.goto(base + '#/metrics?note=data-cleaning');
+    const sensors = page.locator('.sensor-list');
+    await sensors.waitFor();
+    assert.equal(await page.locator('#sensor-table-hint').isVisible(), true);
+    assert.match(await page.locator('#sensor-table-hint').innerText(), /125.*向下滚动/);
+    await sensors.focus();
+    await page.keyboard.press('PageDown');
+    await page.waitForFunction(() => document.querySelector('.sensor-list').scrollTop > 0);
+    if (width === 1440 || width === 390) {
+      await page.goto(base + '#/playback');
+      await page.locator('.reconstruction-view').waitFor();
+      const progress = page.getByRole('slider', { name: '播放进度' });
+      for (const model of manifest.models) {
+        await page.getByRole('button', { name: model.name, exact: true }).click();
+        for (const [code, name] of [
+          ['tp', '检出'],
+          ['fp', '误报'],
+          ['fn', '漏检'],
+        ]) {
+          const matches = model.scores.flatMap((score, index) => {
+            const actual = manifest.labels[index] > 0;
+            const predicted = score > model.threshold;
+            const outcome = actual ? (predicted ? 'tp' : 'fn') : predicted ? 'fp' : 'tn';
+            return outcome === code ? [index] : [];
+          });
+          await progress.fill('0');
+          const next = page.getByRole('button', { name: '下一处' + name, exact: true });
+          await next.click();
+          assert.equal(await progress.inputValue(), String(matches[0] + 1));
+          await progress.fill(String(matches.at(-1) + 1));
+          assert.equal(await next.isDisabled(), true);
+        }
+      }
+      await progress.fill('2397');
+      assert.equal(await page.locator('.replay-links button:disabled').count(), 3);
     }
     checks.push({
       width,
