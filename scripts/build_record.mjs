@@ -33,13 +33,17 @@ const recordPath = '.qa/build.json';
 const mode = process.argv[2];
 if (mode === 'verify') {
   const build = JSON.parse(readFileSync(recordPath, 'utf8'));
+  const browser = JSON.parse(readFileSync('.qa/browser.json', 'utf8'));
   if (
     build.sourceHash !== sourceHash ||
     build.commit !== commit ||
-    JSON.stringify(build.files) !== JSON.stringify(files)
+    JSON.stringify(build.files) !== JSON.stringify(files) ||
+    browser.commit !== commit ||
+    browser.sourceHash !== sourceHash ||
+    JSON.stringify(browser.files) !== JSON.stringify(files)
   ) {
     throw new Error(
-      'Source or production files changed after the build. Run npm run verify again.',
+      'Local browser verification does not match this build. Run npm run verify again.',
     );
   }
 }

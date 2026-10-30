@@ -32,8 +32,10 @@ def main():
     subprocess.run(["git", "bundle", "create", str(bundle), "--all"], cwd=ROOT, check=True)
     subprocess.run(["git", "bundle", "verify", str(bundle)], cwd=ROOT, check=True,
                    stdout=subprocess.DEVNULL)
-    tracked = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode("utf-8")
-    files = {ROOT / name for name in tracked.split("\0") if name}
+    workspace = subprocess.check_output(
+        ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT
+    ).decode("utf-8")
+    files = {ROOT / name for name in workspace.split("\0") if name and (ROOT / name).is_file()}
     for name in RETAINED:
         folder = ROOT / name
         if not folder.exists():
@@ -59,7 +61,7 @@ def main():
     result = {
         "archive": str(archive), "release": release, "files": len(records),
         "bytes": archive.stat().st_size, "sha256": sha256(archive), "verified": True,
-        "includes": ["tracked workspace files", "all Git refs", *RETAINED],
+        "includes": ["tracked and non-ignored untracked workspace files", "all Git refs", *RETAINED],
     }
     archive.with_suffix(".json").write_text(json.dumps(result, indent=2), encoding="utf-8")
     bundle.unlink()  # The verified ZIP already contains the complete Git bundle.

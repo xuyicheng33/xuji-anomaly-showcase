@@ -148,7 +148,8 @@ export function pointAdjusted(labels: number[], scores: number[], threshold: num
 }
 const assetCache = new Map<string, Promise<Float64Array>>();
 export function loadAsset(asset: Asset) {
-  const existing = assetCache.get(asset.file);
+  const key = asset.file + ':' + asset.sha256;
+  const existing = assetCache.get(key);
   if (existing) return existing;
   const request = fetch(`${import.meta.env.BASE_URL}data/journey/${asset.file}?v=${asset.sha256}`)
     .then(async (r) => {
@@ -158,17 +159,18 @@ export function loadAsset(asset: Asset) {
       return new Float64Array(b);
     })
     .catch((e) => {
-      assetCache.delete(asset.file);
+      assetCache.delete(key);
       throw e;
     });
-  assetCache.set(asset.file, request);
+  assetCache.set(key, request);
   return request;
 }
 const windowCache = new Map<string, Promise<ArrayBuffer>>();
-async function windowFile(file: string, bytes: number) {
-  let request = windowCache.get(file);
+async function windowFile({ file, bytes, sha256 }: WindowChunk) {
+  const key = file + ':' + sha256;
+  let request = windowCache.get(key);
   if (request) return request;
-  request = fetch(`${import.meta.env.BASE_URL}data/journey/${file}?v=windows-v1-20261027`)
+  request = fetch(`${import.meta.env.BASE_URL}data/journey/${file}?v=${sha256}`)
     .then(async (r) => {
       if (!r.ok) throw Error('窗口结果读取失败');
       const b = await r.arrayBuffer();
@@ -176,10 +178,10 @@ async function windowFile(file: string, bytes: number) {
       return b;
     })
     .catch((e) => {
-      windowCache.delete(file);
+      windowCache.delete(key);
       throw e;
     });
-  windowCache.set(file, request);
+  windowCache.set(key, request);
   if (windowCache.size > 10) windowCache.delete(windowCache.keys().next().value!);
   return request;
 }
@@ -187,7 +189,7 @@ export async function loadWindow(m: Model, start: number) {
   const pack = m.windows,
     chunk = pack.chunks.find((c) => start >= c.start && start < c.start + c.count);
   if (!chunk) throw Error('没有对应的完整窗口');
-  const raw = await windowFile(chunk.file, chunk.bytes);
+  const raw = await windowFile(chunk);
   const offset = (start - chunk.start) * 64 * 125;
   return {
     start,

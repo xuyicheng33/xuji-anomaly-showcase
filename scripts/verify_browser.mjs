@@ -1,12 +1,19 @@
 import { spawn } from 'node:child_process';
 import { setTimeout } from 'node:timers/promises';
 import path from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
 
-const base = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
+const remote = process.argv.includes('--remote');
+if (process.env.SHOWCASE_URL && !remote)
+  throw new Error('Release verification uses local dist. Use npm run test:site for another URL.');
+if (remote && !process.env.SHOWCASE_URL)
+  throw new Error('Set SHOWCASE_URL when running npm run test:site.');
+const base = remote ? process.env.SHOWCASE_URL : 'http://127.0.0.1:4175/';
 const output = process.env.QA_DIR || '.qa/verification';
+const build = remote ? null : JSON.parse(await readFile('.qa/build.json', 'utf8'));
 let server;
 try {
-  if (!process.env.SHOWCASE_URL) {
+  if (!remote) {
     server = spawn(
       process.execPath,
       [
@@ -53,6 +60,7 @@ try {
       );
     });
   }
+  if (build) await writeFile('.qa/browser.json', JSON.stringify(build) + '\n');
 } finally {
   server?.kill();
 }

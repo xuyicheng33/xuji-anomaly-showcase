@@ -56,6 +56,14 @@ try {
     await page.getByRole('img', { name: '训练重建误差（MSE）', exact: true }).waitFor();
     await page.goto(base + '#/detection');
     await page.locator('.reconstruction-view').waitFor();
+    const startInput = page.getByRole('spinbutton', { name: '片段起点' });
+    await startInput.fill('');
+    assert.equal(await startInput.inputValue(), '');
+    await startInput.pressSequentially('500');
+    assert.equal(await startInput.inputValue(), '500');
+    await startInput.press('Enter');
+    assert.equal(await page.getByRole('slider', { name: '选择64点片段' }).inputValue(), '499');
+    await startInput.fill('108');
     await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
     await page.evaluate(() => document.fonts.ready);

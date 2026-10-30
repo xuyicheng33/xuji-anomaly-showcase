@@ -12,6 +12,7 @@
     "preview": "vite preview --host 127.0.0.1",
     "test": "vitest run",
     "test:browser": "npm run build && node scripts/verify_browser.mjs",
+    "test:site": "node scripts/verify_browser.mjs --remote",
     "typecheck": "tsc -b",
     "verify:data": "python -X utf8 -B scripts/verify_runtime.py && npm run verify:windows && npm run verify:cases && python -X utf8 -B scripts/export_data_cleaning.py --check",
     "export:data": "python -X utf8 -B scripts/export_journey.py",

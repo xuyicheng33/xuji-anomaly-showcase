@@ -33,6 +33,7 @@ export function DetectionChapter(p: DetectionProps) {
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [point, setPoint] = useState(24),
+    [draftStart, setDraftStart] = useState<string | null>(null),
     [request, setRequest] = useState<{ key: string; attempt: number } | null>(null);
   const viewKey = `${model.run}:${model.id}:${start}`;
   const requestResult = () =>
@@ -124,15 +125,15 @@ export function DetectionChapter(p: DetectionProps) {
             type="number"
             min="1"
             max={data.times.length - 63}
-            value={start + 1}
-            onChange={(e) =>
-              setStart(
-                Math.max(
-                  0,
-                  Math.min(data.times.length - 64, Math.floor(Number(e.target.value) || 1) - 1),
-                ),
-              )
-            }
+            value={draftStart ?? start + 1}
+            onChange={(e) => {
+              setDraftStart(e.target.value);
+              if (e.target.value && e.target.validity.valid) setStart(e.target.valueAsNumber - 1);
+            }}
+            onBlur={() => setDraftStart(null)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.currentTarget.blur();
+            }}
           />
         </label>
         <input

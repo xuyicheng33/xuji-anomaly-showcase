@@ -3,7 +3,7 @@ import { loadAsset, type Asset } from '../journey';
 
 /** Keep shared file caching, but only request assets used by the current view. */
 export function useDataAsset(asset: Asset | null) {
-  const key = asset?.file ?? '';
+  const key = asset ? asset.file + ':' + asset.sha256 : '';
   const [state, setState] = useState<{ key: string; data: Float64Array | null; error: string }>({
     key: '',
     data: null,
