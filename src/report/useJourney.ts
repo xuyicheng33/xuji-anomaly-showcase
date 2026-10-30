@@ -16,7 +16,6 @@ export function useJourney() {
       })
       .then((d: Journey) => {
         if (d.schemaVersion !== 2 || d.features.length !== 125) throw Error('资料版本不匹配');
-        d.models = d.models.filter((m) => ['model1', 'model2'].includes(m.id));
         if (active) setData(d);
       })
       .catch((e) => {

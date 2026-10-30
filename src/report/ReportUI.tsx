@@ -1,6 +1,6 @@
 import type { Journey, Metrics, Model } from '../journey';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { pct } from '../journey';
+import { pct, outcomeCode } from '../journey';
 export const colors = {
   input: '#283c4c',
   recon: '#258077',
@@ -143,13 +143,7 @@ export function Rates({ metrics }: { metrics: Metrics }) {
   );
 }
 export function Outcome({ label, score, model }: { label: number; score: number; model: Model }) {
-  const code = label
-    ? score > model.threshold
-      ? 'tp'
-      : 'fn'
-    : score > model.threshold
-      ? 'fp'
-      : 'tn';
+  const code = outcomeCode(label, score, model.threshold);
   return (
     <span className={'outcome ' + code}>
       {{ tp: '检出异常', fp: '误报', fn: '漏检异常', tn: '正常' }[code]}

@@ -3,7 +3,8 @@ import { chapters, route } from './report/navigation';
 import { useJourney } from './report/useJourney';
 import DataChapter from './report/DataChapter';
 import AnomalyChapter from './report/AnomalyChapter';
-import { ModelsChapter, TrainingChapter } from './report/MethodChapters';
+import { ModelsChapter } from './report/ModelsChapter';
+import { TrainingChapter } from './report/TrainingChapter';
 import { DetectionChapter } from './report/DetectionChapter';
 import { PlaybackChapter } from './report/PlaybackChapter';
 import ExplanationChapter from './report/ExplanationChapter';
@@ -60,21 +61,7 @@ export default function App() {
     });
     return () => cancelAnimationFrame(frame);
   }, [page, address, !!data]);
-  const model = data?.models.find((m) => m.id === modelId),
-    props =
-      data && model
-        ? {
-            data,
-            model,
-            setModel,
-            feature,
-            setFeature,
-            start,
-            setStart,
-            viewFeature,
-            setViewFeature,
-          }
-        : null;
+  const model = data?.models.find((m) => m.id === modelId);
   return (
     <>
       <a
@@ -165,16 +152,36 @@ export default function App() {
             <ModelsChapter data={data} model={model} setModel={setModel} />
           ) : contentPage === 'anomalies' ? (
             <AnomalyChapter data={data} model={model} setModel={setModel} />
-          ) : !props ? (
-            <div className="state-panel" role="status">
-              正在读取模型结果…
-            </div>
           ) : contentPage === 'training' ? (
-            <TrainingChapter {...props} />
+            <TrainingChapter
+              data={data}
+              model={model}
+              setModel={setModel}
+              feature={feature}
+              setFeature={setFeature}
+            />
           ) : contentPage === 'detection' ? (
-            <DetectionChapter {...props} />
+            <DetectionChapter
+              data={data}
+              model={model}
+              setModel={setModel}
+              feature={feature}
+              setFeature={setFeature}
+              start={start}
+              setStart={setStart}
+              viewFeature={viewFeature}
+              setViewFeature={setViewFeature}
+            />
           ) : contentPage === 'playback' ? (
-            <PlaybackChapter {...props} />
+            <PlaybackChapter
+              data={data}
+              model={model}
+              setModel={setModel}
+              setFeature={setFeature}
+              start={start}
+              viewFeature={viewFeature}
+              setViewFeature={setViewFeature}
+            />
           ) : null}
         </div>
         {page === 'metrics' &&

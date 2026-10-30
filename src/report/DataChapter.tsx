@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { type Journey } from '../journey';
+import { type Journey, trainingScale } from '../journey';
 import { useCurveData } from './useCurveData';
 import { Heading, Section, colors } from './ReportUI';
 import Curve from './Curve';
@@ -20,10 +20,7 @@ const chartRange = (values: (number | null)[]): [number, number] => {
 };
 
 export default function DataChapter({ data, feature, setFeature }: Props) {
-  const point = data.features.find((f) => f.index === feature) ?? data.features[4];
-  const chooseFeature = (value: number) => {
-    setFeature(value);
-  };
+  const point = data.features[feature];
   const normalizationRef = useRef<HTMLDivElement>(null),
     [normalizationVisible, setNormalizationVisible] = useState(false);
   const [sample, setSample] = useState(0);
@@ -48,29 +45,18 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
   }, []);
   const norm = useMemo(() => {
     if (!trainAsset.data) return null;
-    let min = Infinity,
-      max = -Infinity;
-    for (let i = 0; i < train.shape[0]; i++) {
-      const value = trainAsset.data[i];
-      if (Number.isFinite(value)) {
-        min = Math.min(min, value);
-        max = Math.max(max, value);
-      }
-    }
-    const start = Math.min(5299, Math.max(0, train.shape[0] - 64));
-    const values = Array.from(
-      { length: Math.min(64, train.shape[0]) },
-      (_, i) => trainAsset.data![start + i],
-    );
+    const { min, max, normalize } = trainingScale(trainAsset.data);
+    const start = 5299;
+    const values = Array.from({ length: 64 }, (_, i) => trainAsset.data![start + i]);
     return {
       min,
       max,
       start,
       values,
-      normalized: values.map((value) => (max === min ? 0 : (value - min) / (max - min))),
+      normalized: values.map(normalize),
     };
   }, [trainAsset.data, train]);
-  const sampleIndex = Math.min(sample, (norm?.values.length ?? 1) - 1);
+  const sampleIndex = sample;
   const split = cleaning.split;
   const operand = (value: number) =>
     value < 0 ? `(−${number(Math.abs(value), 4)})` : number(value, 4);
@@ -169,7 +155,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
               <select
                 aria-label="归一化测点"
                 value={point.index}
-                onChange={(e) => chooseFeature(+e.target.value)}
+                onChange={(e) => setFeature(+e.target.value)}
               >
                 {data.features.map((f) => (
                   <option key={f.index} value={f.index}>

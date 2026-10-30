@@ -6,10 +6,10 @@ import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
 import { useCurveData } from './useCurveData';
 import { Footnote, usePauseOnNavigation } from './notes';
-import { PlaybackCalculation } from './ScoreCalculation';
-import type { DetectionProps } from './detectionTypes';
+import { PlaybackCalculation } from './PlaybackCalculation';
+import type { PlaybackProps } from './detectionTypes';
 
-export function PlaybackChapter(p: DetectionProps) {
+export function PlaybackChapter(p: PlaybackProps) {
   const { data, model, setModel, setFeature, start, viewFeature, setViewFeature } = p;
   const [scope, setScope] = useState('all'),
     [count, setCount] = useState(0),

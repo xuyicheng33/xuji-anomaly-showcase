@@ -11,3 +11,5 @@ export type DetectionProps = {
   viewFeature: number;
   setViewFeature: (n: number) => void;
 };
+
+export type PlaybackProps = Omit<DetectionProps, 'feature' | 'setStart'>;

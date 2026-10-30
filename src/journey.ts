@@ -64,6 +64,23 @@ export type Journey = {
 export const fmt = (n: number, digits = 0) =>
   n.toLocaleString('zh-CN', { maximumFractionDigits: digits });
 export const pct = (n: number | null) => (n === null ? '—' : `${(n * 100).toFixed(2)}%`);
+export function trainingScale(values: Float64Array) {
+  let min = Infinity,
+    max = -Infinity;
+  for (const value of values) {
+    min = Math.min(min, value);
+    max = Math.max(max, value);
+  }
+  return {
+    min,
+    max,
+    normalize: (value: number) => (min === max ? 0 : (value - min) / (max - min)),
+  };
+}
+export type OutcomeCode = 'tp' | 'fp' | 'fn' | 'tn';
+export function outcomeCode(label: number, score: number, threshold: number): OutcomeCode {
+  return label ? (score > threshold ? 'tp' : 'fn') : score > threshold ? 'fp' : 'tn';
+}
 export function series(values: Float64Array, feature: number, start: number, length = 64) {
   return Array.from(
     { length: Math.min(length, values.length / 125 - start) },
@@ -94,12 +111,20 @@ export function countMetrics(
     fn = 0,
     tn = 0;
   for (let i = start; i < end; i++) {
-    const y = labels[i] > 0,
-      p = scores[i] > threshold;
-    if (y && p) tp++;
-    else if (p) fp++;
-    else if (y) fn++;
-    else tn++;
+    switch (outcomeCode(labels[i], scores[i], threshold)) {
+      case 'tp':
+        tp++;
+        break;
+      case 'fp':
+        fp++;
+        break;
+      case 'fn':
+        fn++;
+        break;
+      case 'tn':
+        tn++;
+        break;
+    }
   }
   return metricsFromCounts(tp, fp, fn, tn);
 }
@@ -118,19 +143,15 @@ export function metricPrefixes(labels: number[], scores: number[], threshold: nu
   const counts: [number, number, number, number] = [0, 0, 0, 0];
   const prefixes = [metricsFromCounts(...counts)];
   for (let i = 0; i < labels.length; i++) {
-    counts[labels[i] ? (scores[i] > threshold ? 0 : 2) : scores[i] > threshold ? 1 : 3]++;
+    counts[{ tp: 0, fp: 1, fn: 2, tn: 3 }[outcomeCode(labels[i], scores[i], threshold)]]++;
     prefixes.push(metricsFromCounts(...counts));
   }
   return prefixes;
 }
 export function outcome(label: number, score: number, threshold: number) {
-  return label
-    ? score > threshold
-      ? '检出异常'
-      : '漏检异常'
-    : score > threshold
-      ? '误报'
-      : '正确正常';
+  return { tp: '检出异常', fn: '漏检异常', fp: '误报', tn: '正确正常' }[
+    outcomeCode(label, score, threshold)
+  ];
 }
 export function pointAdjusted(labels: number[], scores: number[], threshold: number) {
   const p = scores.map((v) => v > threshold);
