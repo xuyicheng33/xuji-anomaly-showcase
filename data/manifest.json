@@ -852,10 +852,10 @@
     "sha256": "c48d24e29976fb9c18d86900582baaeab2807934709883f814e7065812f264bd"
   },
   {
-    "local": "materials/周四 14点15分.md",
-    "bytes": 22130,
-    "sha256": "c835421e862f684f4a8a0eca9b367db56db6bdae655bce5f5df2ac2a44cc2faf",
-    "origin": "user-provided material"
+    "local": "materials/与老师谈话记录.md",
+    "bytes": 13666,
+    "sha256": "e49d76a73cc3f80487a1a405ba9c88ca9191df0873691441e94d284e6af39b69",
+    "origin": "user-provided recording transcript; platform-only summary and excerpts curated at user request"
   },
   {
     "local": "materials/异常检测报告.docx",
