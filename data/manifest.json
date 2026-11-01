@@ -18,30 +18,6 @@
     "sha256": "5f9442131241da562fd1bd979b354f706d7dc810bcad8ae0cb57c46a807014af"
   },
   {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/checkpoints/DTAAD_xuji/model.ckpt",
-    "local": "data/models/xuji/model3/model.ckpt",
-    "bytes": 2229573,
-    "sha256": "ab0db805fb3c9a43a8f54f365a6a98956e59864e50e72f00f2b558cee15a866c"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/data/xuji/labels.npy",
-    "local": "data/source/data/xuji/labels.npy",
-    "bytes": 98240,
-    "sha256": "881210f27dd4713f6a3ce5f0a9dcb31f61d7c5ab787e170c5e7b3ee8b5b80cf1"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/data/xuji/test.npy",
-    "local": "data/source/data/xuji/test.npy",
-    "bytes": 98240,
-    "sha256": "46f9a073f23660d1d153c59635ab21fe2229c0f36090a72ea00a9fc118aa09fb"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/data/xuji/train.npy",
-    "local": "data/source/data/xuji/train.npy",
-    "bytes": 392520,
-    "sha256": "13f4ba95e66478d89a996b0a4ef1a14f27e50324e9d9fd3110ab084297eeee76"
-  },
-  {
     "remote": "/root/gpufree-data/DTAAD/dataset/converter.xlsx",
     "local": "data/source/dataset/converter.xlsx",
     "bytes": 9524784,
@@ -76,66 +52,6 @@
     "local": "data/source/dataset/prodata/converter_train.npy",
     "bytes": 5593128,
     "sha256": "8a9d1d7fceba6bea024ec82e3888baba190b53bfb9239bdddf52d7d55a79f636"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_labels.npy",
-    "local": "data/source/insertedData/xuji/xuji_labels.npy",
-    "bytes": 49184,
-    "sha256": "d2ef5ea2235a32b692aa0aa94faaa080f6b7f34920d8a2aae540825c93995cdc"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_test_labels_mergedSeq_after_insert.npy",
-    "local": "data/source/insertedData/xuji/xuji_test_labels_mergedSeq_after_insert.npy",
-    "bytes": 49184,
-    "sha256": "d2ef5ea2235a32b692aa0aa94faaa080f6b7f34920d8a2aae540825c93995cdc"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_test_mergedSeq_after_insert.npy",
-    "local": "data/source/insertedData/xuji/xuji_test_mergedSeq_after_insert.npy",
-    "bytes": 98240,
-    "sha256": "f64fa0088d6490beb0db5b70f038be8c4dbf7e98f49f61858623ac56b165c0d9"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train.npy",
-    "local": "data/source/insertedData/xuji/xuji_train.npy",
-    "bytes": 394368,
-    "sha256": "37450033fb308c6b7fbfd6d886cccf7c9cb5fc2ea5dacfdd2b10dfa568d52c76"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train_label.npy",
-    "local": "data/source/insertedData/xuji/xuji_train_label.npy",
-    "bytes": 197248,
-    "sha256": "007cc15b3e78fc25926a2105a88f4866341b10805c661e19f7ceb3b42ec2031f"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train_labels_mergedSeq_after_insert.npy",
-    "local": "data/source/insertedData/xuji/xuji_train_labels_mergedSeq_after_insert.npy",
-    "bytes": 196324,
-    "sha256": "e88579b1558b4f734f3ed93183cc5eaeb733756a12f9a1dcb05d49085a7fdf33"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/insertedData/xuji/xuji_train_mergedSeq_after_insert.npy",
-    "local": "data/source/insertedData/xuji/xuji_train_mergedSeq_after_insert.npy",
-    "bytes": 392520,
-    "sha256": "af20f459faad326257d4dcb31cc2d80cfe197943926d84c00782b8396d24fee6"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/processed/xuji/labels.npy",
-    "local": "data/source/processed/xuji/labels.npy",
-    "bytes": 98240,
-    "sha256": "881210f27dd4713f6a3ce5f0a9dcb31f61d7c5ab787e170c5e7b3ee8b5b80cf1"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/processed/xuji/test.npy",
-    "local": "data/source/processed/xuji/test.npy",
-    "bytes": 98240,
-    "sha256": "a6bccb70d06d27ab8b907ce11b4ac62cde1cd047a3b69955cf15a8b5735e1563"
-  },
-  {
-    "remote": "/root/gpufree-data/DTAAD/DTAAD_64_n_method_3/processed/xuji/train.npy",
-    "local": "data/source/processed/xuji/train.npy",
-    "bytes": 392520,
-    "sha256": "dc25c6e0fd0083104cb372df0aa9dad3fb69ee317cdf968e91ce0e9ae50b16a6"
   },
   {
     "remote": "/root/gpufree-data/DTAAD/DTAAD-main/src/constants.py",

@@ -61,7 +61,6 @@ def verify_assets():
     for dataset, paths in {
         "换流设备 converter": ("data/source/dataset/prodata/converter_train.npy",
                               "data/source/dataset/prodata/converter_test.npy"),
-        "风电旧版 xuji": ("data/source/data/xuji/train.npy", "data/source/data/xuji/test.npy"),
     }.items():
         train, test = [array_header(ROOT / path)["shape"] for path in paths]
         print(f"{dataset}：训练 {train}，测试 {test}")
