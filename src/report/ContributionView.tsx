@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { rankContributions } from '../contributions';
 import { loadAsset, type Journey, type Model } from '../journey';
 import { useDataAsset } from './useDataAsset';
@@ -25,6 +25,7 @@ export default function ContributionView({
   const [lastHeight, setLastHeight] = useState(0);
   const content = useRef<HTMLDivElement>(null);
   const detail = useRef<HTMLDivElement>(null);
+  const origin = useRef<HTMLButtonElement | null>(null);
   const key = `${model.id}:${model.run}:${index}`;
   const chunk =
     index === null
@@ -73,15 +74,24 @@ export default function ContributionView({
     return () => observer.disconnect();
   }, [ready]);
   const percentage = (n: number) => (ranked?.total ? (n / ranked.total) * 100 : 0);
-  const choose = (feature: number) => {
+  const revealDetail = useCallback(() => {
+    if (matchMedia('(max-width: 760px)').matches)
+      detail.current?.scrollIntoView({
+        block: 'start',
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+      });
+  }, []);
+  const choose = (feature: number, button: HTMLButtonElement) => {
     pause();
+    origin.current = button;
     setSelection({ key, feature });
+  };
+  const closeDetail = () => {
+    setSelection(null);
     requestAnimationFrame(() => {
+      origin.current?.focus({ preventScroll: true });
       if (matchMedia('(max-width: 760px)').matches)
-        detail.current?.scrollIntoView({
-          block: 'start',
-          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
-        });
+        origin.current?.scrollIntoView({ block: 'nearest' });
     });
   };
   return (
@@ -171,7 +181,7 @@ export default function ContributionView({
                   aria-pressed={selected === row.feature}
                   data-feature={row.feature}
                   data-contribution={row.contribution}
-                  onClick={() => choose(row.feature)}
+                  onClick={(event) => choose(row.feature, event.currentTarget)}
                 >
                   <span className="contribution-name">
                     {featureName(data.features[row.feature])}
@@ -225,7 +235,8 @@ export default function ContributionView({
                   index={index}
                   feature={selectedRow.feature}
                   meanError={selectedRow.error}
-                  close={() => setSelection(null)}
+                  close={closeDetail}
+                  reveal={revealDetail}
                 />
               </div>
             )}

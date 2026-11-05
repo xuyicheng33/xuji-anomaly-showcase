@@ -108,6 +108,7 @@ export default function SensorWindowDetail({
   feature,
   meanError,
   close,
+  reveal,
 }: {
   data: Journey;
   model: Model;
@@ -115,6 +116,7 @@ export default function SensorWindowDetail({
   feature: number;
   meanError: number;
   close: () => void;
+  reveal: () => void;
 }) {
   const inputAsset = useCurveData(data.input, feature);
   const input = inputAsset.data?.[index];
@@ -141,6 +143,12 @@ export default function SensorWindowDetail({
   }, [model, index, feature, input, attempt]);
   const point = data.features[feature];
   const row = rows?.[selected];
+  const visible = rows !== null;
+  useEffect(() => {
+    // Reposition after the result replaces the loading panel; cell selection stays in place.
+    const frame = requestAnimationFrame(reveal);
+    return () => cancelAnimationFrame(frame);
+  }, [visible, reveal]);
   const minimum = rows ? Math.min(...rows.map((item) => item.error)) : 0;
   const maximum = rows ? Math.max(...rows.map((item) => item.error)) : 1;
   const span = maximum - minimum;

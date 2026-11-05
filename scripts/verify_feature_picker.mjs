@@ -42,6 +42,12 @@ try {
     const total = await page.getByTestId('contribution-total').innerText();
     await page.locator('.contribution-row').click();
     await page.getByTestId('sensor-mean-error').waitFor();
+    if (width < 760) {
+      await page.waitForFunction(() => {
+        const heading = document.querySelector('.sensor-detail-heading')?.getBoundingClientRect();
+        return heading && heading.top >= 0 && heading.bottom < innerHeight;
+      });
+    }
     assert.equal(total, data.models[0].scores[131].toFixed(9));
     await page.locator('.window-error-grid button').last().click();
     assert.match(await page.locator('.window-cell-detail').innerText(), /64 \/ 64.*第 132—195 点/s);
@@ -56,6 +62,17 @@ try {
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.screenshot({ path: `${out}/${width}-detail-200.png` });
     await page.evaluate(() => (document.documentElement.style.zoom = '1'));
+    await page.getByRole('button', { name: '收起明细', exact: true }).click();
+    await page.waitForFunction(() => {
+      const origin = document.querySelector('.contribution-row');
+      return origin === document.activeElement && !document.querySelector('.sensor-window-detail');
+    });
+    if (width < 760) {
+      await page.waitForFunction(() => {
+        const row = document.querySelector('.contribution-row')?.getBoundingClientRect();
+        return row && row.top >= 0 && row.bottom < innerHeight;
+      });
+    }
     await page.goto(showcaseUrl + '#/anomalies');
     await page.locator('.case-stage').waitFor();
     await page.getByRole('button', { name: '案例测点', exact: true }).click();
@@ -68,7 +85,7 @@ try {
     await page.locator('#ref-data-test-count:focus').waitFor();
     await page.close();
     console.log(
-      `PASS ${width}px searchable selection, dictionary names, cancellation, case restriction, contribution search, plot/grid and 200%`,
+      `PASS ${width}px searchable selection, dictionary names, cancellation, case restriction, contribution search, detail positioning/return, plot/grid and 200%`,
     );
   }
 } finally {
