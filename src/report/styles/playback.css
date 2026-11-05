@@ -1,4 +1,7 @@
 /* Continuous playback: controls, plots and cumulative evaluation. */
+.playback-page {
+  container-type: inline-size;
+}
 .playback-calculation {
   margin: 30px 0;
   scroll-margin-top: 24px;
@@ -42,11 +45,15 @@
   gap: 8px;
   font-size: 13px;
   color: var(--muted);
+  max-width: 100%;
+  min-width: 0;
 }
 .playback-controls select {
   min-height: 34px;
   padding: 5px 8px;
   font-size: 13px;
+  min-width: 0;
+  max-width: 100%;
 }
 .site-main .playback-page > .toolbar {
   margin-bottom: 20px;
@@ -73,6 +80,69 @@
   padding-top: 28px;
   margin-bottom: 10px;
   gap: 48px;
+  min-width: 0;
+}
+@container (max-width: 280px) {
+  .playback-statistics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .playback-statistics > div {
+    min-width: 0;
+  }
+  .playback-statistics .confusion-cell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .playback-statistics .confusion-cell > span,
+  .playback-statistics .confusion-cell p > span {
+    white-space: normal;
+  }
+  .playback-statistics .matrix-caption {
+    flex-wrap: wrap;
+  }
+  .playback-statistics .confusion {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .playback-statistics .rates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .playback-statistics .rates > div {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .playback-controls label {
+    flex-wrap: wrap;
+  }
+  .current-score {
+    flex-wrap: wrap;
+  }
+  .current-score strong {
+    white-space: normal;
+  }
+  .current-score small {
+    display: block;
+  }
+  .aggregation-formula {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .playback-calculation .aggregation-formula .equation-result {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+  .playback-calculation .aggregation-formula strong {
+    font-size: 18px;
+  }
+  .aggregation-summary > button {
+    white-space: normal;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  .replay-links > div {
+    flex-wrap: wrap;
+  }
+  .aggregation-summary {
+    min-width: 0;
+  }
 }
 .playback-statistics .confusion-cell {
   min-height: 68px;
@@ -198,17 +268,33 @@
 }
 @media (max-width: 680px) {
   .playback-heading {
-    padding: 28px 0 24px;
+    padding: 12px 0 16px;
   }
   .playback-heading > div {
     display: block;
   }
   .playback-heading h1 {
-    margin-top: 10px;
+    margin-top: 0;
     font-size: 29px;
   }
   .playback-controls {
-    gap: 10px;
+    gap: 8px;
+    padding-bottom: 12px;
+  }
+  .site-main .playback-page > .toolbar {
+    margin-bottom: 14px;
+  }
+  .playback-page .toolbar {
+    gap: 12px;
+  }
+  .playback-page .playback-status {
+    padding-top: 10px;
+  }
+  .playback-page .playback-caption {
+    margin: 4px 0 10px;
+  }
+  .playback-plots > .curve {
+    margin-top: 10px;
   }
   .playback-status {
     flex-wrap: wrap;

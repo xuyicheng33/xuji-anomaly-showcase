@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import numpy as np
+from data_geometry import geometry
 
 ROOT = Path(__file__).resolve().parents[1] / 'public/data/journey'
 REFERENCE = ROOT.parents[2] / 'data/reference'
@@ -10,24 +11,23 @@ REFERENCE = ROOT.parents[2] / 'data/reference'
 
 def main():
     data = json.loads((REFERENCE / 'manifest.json').read_text(encoding='utf8'))
-    source = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(-1, 125)
+    _, features, window = geometry(data)
+    source = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(-1, features)
     target = ROOT / 'calculation-v1'
     target.mkdir(exist_ok=True)
-    manifest = {'resultVersion': data['resultVersion'], 'window': 64, 'features': 125, 'models': {}}
+    manifest = {'resultVersion': data['resultVersion'], 'window': window, 'features': features, 'models': {}}
     for model in data['models']:
-        if model['id'] not in ('model1', 'model2'):
-            continue
-        scores = np.empty((model['windows']['count'], 64), dtype='<f8')
+        scores = np.empty((model['windows']['count'], window), dtype='<f8')
         for chunk in model['windows']['chunks']:
-            recon = np.fromfile(ROOT / chunk['file'], dtype='<f4').reshape(chunk['count'], 64, 125)
+            recon = np.fromfile(REFERENCE / chunk['file'], dtype='<f4').reshape(chunk['count'], window, features)
             for local in range(chunk['count']):
                 start = chunk['start'] + local
-                scores[start] = ((source[start:start + 64] - recon[local].astype(float)) ** 2).mean(axis=1)
+                scores[start] = ((source[start:start + window] - recon[local].astype(float)) ** 2).mean(axis=1)
         total = np.zeros(len(source))
         coverage = np.zeros(len(source), dtype=int)
         for start, row in enumerate(scores):
-            total[start:start + 64] += row
-            coverage[start:start + 64] += 1
+            total[start:start + window] += row
+            coverage[start:start + window] += 1
         difference = float(np.max(np.abs(total / coverage - model['scores'])))
         assert difference < 1e-12, difference
         assert coverage.tolist() == model['coverage']

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { loadAsset, type Asset } from '../journey';
 import { useDataAsset } from './useDataAsset';
+import { rowChunks } from '../dataGeometry';
 
 /** Drawing a curve only needs one column; every number retains its original precision. */
 export function useCurveData(asset: Asset | null, feature: number) {
@@ -16,10 +17,17 @@ export function useCurveData(asset: Asset | null, feature: number) {
   );
 }
 
-export function useWindowInput(asset: Asset, start: number, enabled: boolean) {
+export function useWindowInput(
+  asset: Asset,
+  start: number,
+  enabled: boolean,
+  length: number,
+  chunkRows: number,
+) {
   const sha256 = asset.sha256,
-    rows = asset.shape[0];
-  const key = asset.sha256 + ':' + start,
+    rows = asset.shape[0],
+    features = asset.shape[1];
+  const key = asset.sha256 + ':' + start + ':' + length,
     [attempt, setAttempt] = useState(0),
     [state, setState] = useState<{ key: string; data: Float64Array | null; error: string }>({
       key: '',
@@ -30,26 +38,24 @@ export function useWindowInput(asset: Asset, start: number, enabled: boolean) {
     if (!enabled) return;
     let active = true;
     setState((previous) => ({ key, data: previous.key === key ? previous.data : null, error: '' }));
-    const first = Math.floor(start / 128) * 128,
-      last = Math.floor((start + 63) / 128) * 128;
-    const chunks = first === last ? [first] : [first, last];
+    const chunks = rowChunks(start, length, chunkRows);
     Promise.all(
       chunks.map((from) =>
         loadAsset({
           file: `input-rows-v1/${sha256}/${from}.bin`,
-          bytes: Math.min(128, rows - from) * 125 * 8,
+          bytes: Math.min(chunkRows, rows - from) * features * 8,
           sha256,
         }),
       ),
     )
       .then((parts) => {
-        const result = new Float64Array(64 * 125);
-        for (let i = 0; i < 64; i++) {
+        const result = new Float64Array(length * features);
+        for (let i = 0; i < length; i++) {
           const row = start + i,
-            chunk = Math.floor(row / 128) * 128,
+            chunk = Math.floor(row / chunkRows) * chunkRows,
             part = parts[chunks.indexOf(chunk)],
-            offset = (row - chunk) * 125;
-          result.set(part.subarray(offset, offset + 125), i * 125);
+            offset = (row - chunk) * features;
+          result.set(part.subarray(offset, offset + features), i * features);
         }
         if (active) setState({ key, data: result, error: '' });
       })
@@ -59,7 +65,7 @@ export function useWindowInput(asset: Asset, start: number, enabled: boolean) {
     return () => {
       active = false;
     };
-  }, [key, sha256, rows, start, enabled, attempt]);
+  }, [key, sha256, rows, start, enabled, attempt, length, chunkRows, features]);
   return {
     data: state.key === key ? state.data : null,
     error: state.key === key ? state.error : '',

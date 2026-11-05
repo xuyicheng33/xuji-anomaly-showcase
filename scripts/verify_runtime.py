@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import numpy as np
+from data_geometry import geometry
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / 'public/data/journey'
@@ -19,6 +20,7 @@ def read(base, asset, dtype='<f8'):
 def verify():
     source = json.loads((REFERENCE / 'manifest.json').read_text(encoding='utf-8'))
     runtime = json.loads((PUBLIC / 'manifest.json').read_text(encoding='utf-8'))
+    _, features, window = geometry(source)
     for key in ('features', 'times', 'labels', 'summary', 'removedFeatures', 'resultVersion'):
         assert runtime[key] == source[key], key
     arrays = {a['file']: read(REFERENCE, a) for a in [*source['assets'], *source['datasets'].values()]}
@@ -38,9 +40,9 @@ def verify():
             name = f'curves-v1/{asset["sha256"]}/mean.bin'
             np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), mean / values.shape[1])
             expected.add(name)
-    for start in range(0, len(raw), 128):
+    for start in range(0, len(raw), runtime['inputChunkRows']):
         name = f'input-rows-v1/{source["input"]["sha256"]}/{start}.bin'
-        np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8').reshape(-1, 125), raw[start:start + 128])
+        np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8').reshape(-1, features), raw[start:start + runtime['inputChunkRows']])
         expected.add(name)
     index = json.loads((PUBLIC / 'calculation-v1/manifest.json').read_text())
     expected.add('calculation-v1/manifest.json')
@@ -48,16 +50,24 @@ def verify():
         for key in ('id', 'scores', 'history', 'threshold', 'windowThreshold', 'metrics', 'run'):
             assert model[key] == original[key], (model['id'], key)
         errors = arrays[original['errors']['file']]
+        for chunk in model['contributions']['chunks']:
+            payload = (PUBLIC / chunk['file']).read_bytes()
+            assert hashlib.sha256(payload).hexdigest() == chunk['sha256']
+            values = np.frombuffer(payload, '<f8').reshape(chunk['count'], features)
+            np.testing.assert_array_equal(values, errors[chunk['start']:chunk['start'] + chunk['count']])
+            np.testing.assert_allclose(values.mean(1), model['scores'][chunk['start']:chunk['start'] + chunk['count']], rtol=0, atol=1e-15)
+            expected.add(chunk['file'])
         np.testing.assert_array_equal(errors.argmax(1), model['focusFeatures'])
         scores = read(PUBLIC, index['models'][model['id']])
         expected.add(index['models'][model['id']]['file'])
         for chunk in model['windows']['chunks']:
             payload = (PUBLIC / chunk['file']).read_bytes()
             assert hashlib.sha256(payload).hexdigest() == chunk['sha256']
-            predictions = np.frombuffer(payload, '<f4').reshape(-1, 64, 125)
+            assert payload == (REFERENCE / chunk['file']).read_bytes()
+            predictions = np.frombuffer(payload, '<f4').reshape(-1, window, features)
             for i, prediction in enumerate(predictions):
                 start = chunk['start'] + i
-                np.testing.assert_array_equal(scores[start], ((raw[start:start + 64] - prediction.astype(float)) ** 2).mean(1))
+                np.testing.assert_array_equal(scores[start], ((raw[start:start + window] - prediction.astype(float)) ** 2).mean(1))
             expected.add(chunk['file'])
         for example in model['examples']:
             point = example['index']

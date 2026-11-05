@@ -28,11 +28,13 @@ export function DetectionChapter(p: DetectionProps) {
     viewFeature,
     setViewFeature,
   } = p;
+  const window = data.window,
+    features = data.features.length;
   const inputCurve = useCurveData(data.input, viewFeature);
   const [result, setResult] = useState<WindowResult | null>(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
-    [point, setPoint] = useState(24),
+    [point, setPoint] = useState(Math.min(24, window - 1)),
     [draftStart, setDraftStart] = useState<string | null>(null),
     [request, setRequest] = useState<{ key: string; attempt: number } | null>(null);
   const viewKey = `${model.run}:${model.id}:${start}`;
@@ -45,8 +47,8 @@ export function DetectionChapter(p: DetectionProps) {
     setError('');
     setBusy(false);
     const example = model.examples.find((item) => item.start === start);
-    setPoint(saved?.point ?? (example ? example.index - start : 24));
-  }, [viewKey, model.examples, start]);
+    setPoint(Math.min(window - 1, saved?.point ?? (example ? example.index - start : 24)));
+  }, [viewKey, model.examples, start, window]);
   // Bind each request to its model and window; ignore responses after the selection changes.
   useEffect(() => {
     if (request?.key !== viewKey) {
@@ -70,15 +72,21 @@ export function DetectionChapter(p: DetectionProps) {
       active = false;
     };
   }, [request, viewKey, start, model]);
-  const inputAsset = useWindowInput(data.input, start, request?.key === viewKey || !!result),
+  const inputAsset = useWindowInput(
+      data.input,
+      start,
+      request?.key === viewKey || !!result,
+      window,
+      data.inputChunkRows,
+    ),
     input = inputAsset.data;
   const ready = !!input && result?.start === start && result.modelId === model.id,
     resultScores = useMemo(
-      () => (ready ? windowScores(input, result.recon, 0) : []),
-      [ready, input, result],
+      () => (ready ? windowScores(input, result.recon, 0, window, features) : []),
+      [ready, input, result, window, features],
     ),
     threshold = model.windowThreshold,
-    labs = data.labels.slice(start, start + 64),
+    labs = data.labels.slice(start, start + window),
     stats = ready ? countMetrics(labs, resultScores, threshold) : null,
     index = start + point;
   const labelAsset = useDataAsset(ready && viewFeature >= 0 ? data.labelMatrix : null);
@@ -87,7 +95,7 @@ export function DetectionChapter(p: DetectionProps) {
   }, [ready, result, point, viewKey]);
   return (
     <div className="detection-page">
-      <Heading title="数据片段检测">64 点窗口的重建结果、异常分数与检测判定。</Heading>
+      <Heading title="数据片段检测">{window} 点窗口的重建结果、异常分数与检测判定。</Heading>
       <div className="toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect
@@ -124,7 +132,7 @@ export function DetectionChapter(p: DetectionProps) {
             aria-label="片段起点"
             type="number"
             min="1"
-            max={data.times.length - 63}
+            max={data.times.length - window + 1}
             value={draftStart ?? start + 1}
             onChange={(e) => {
               setDraftStart(e.target.value);
@@ -137,24 +145,24 @@ export function DetectionChapter(p: DetectionProps) {
           />
         </label>
         <input
-          aria-label="选择64点片段"
+          aria-label={`选择${window}点片段`}
           type="range"
           min="0"
-          max={data.times.length - 64}
+          max={data.times.length - window}
           value={start}
           onChange={(e) => setStart(+e.target.value)}
         />
         <span>
-          第 {start + 1}—{start + 64} 点
+          第 {start + 1}—{start + window} 点
         </span>
         <button className="primary" disabled={busy || !inputCurve.data} onClick={requestResult}>
           {busy ? '正在读取…' : ready ? '重新查看结果' : '查看模型结果'} →
         </button>
       </div>
       <p className="quiet time-range">
-        {data.times[start]} — {data.times[start + 63]}，
+        {data.times[start]} — {data.times[start + window - 1]}，
         <span className="note-anchor">
-          64个时刻 × 125个测点
+          {window}个时刻 × {features}个测点
           <Footnote note="score-calculation" reference="ref-detection-score-calculation" />
         </span>
       </p>
@@ -193,13 +201,14 @@ export function DetectionChapter(p: DetectionProps) {
       </p>
       {inputCurve.data ? (
         <ReconstructionView
+          features={data.features.length}
           aggregate={viewFeature < 0}
-          input={Array.from(inputCurve.data.slice(start, start + 64))}
+          input={Array.from(inputCurve.data.slice(start, start + window))}
           recon={
             ready
               ? viewFeature < 0
-                ? meanSeries(result.recon)
-                : Array.from({ length: 64 }, (_, i) => result.recon[i * 125 + viewFeature])
+                ? meanSeries(result.recon, 0, window, features)
+                : Array.from({ length: window }, (_, i) => result.recon[i * features + viewFeature])
               : undefined
           }
           labels={labs}
@@ -247,7 +256,9 @@ export function DetectionChapter(p: DetectionProps) {
             title="窗口异常分数"
             note="score-calculation"
             reference="ref-detection-score-plot"
-            lines={[{ name: '125测点平均平方误差', values: resultScores, color: colors.score }]}
+            lines={[
+              { name: `${features}测点平均平方误差`, values: resultScores, color: colors.score },
+            ]}
             labels={labs}
             threshold={threshold}
             selected={point}
@@ -261,7 +272,7 @@ export function DetectionChapter(p: DetectionProps) {
               aria-label="片段查看时刻"
               type="range"
               min="0"
-              max="63"
+              max={window - 1}
               value={point}
               onChange={(e) => setPoint(+e.target.value)}
             />
@@ -297,7 +308,7 @@ export function DetectionChapter(p: DetectionProps) {
                 <Rates metrics={stats} />
               </div>
               <p className="quiet">
-                统计范围：第 {start + 1}—{start + 64} 点
+                统计范围：第 {start + 1}—{start + window} 点
               </p>
             </Section>
           </div>

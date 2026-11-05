@@ -3,6 +3,8 @@ import hashlib
 import json
 from pathlib import Path
 import numpy as np
+from data_geometry import geometry
+import shutil
 from evaluation_policy import counts
 from evaluation_policy import POLICY, RESULT_VERSION, select_threshold
 
@@ -22,9 +24,10 @@ def point_adjust(y, prediction):
 def install():
     path = OUT / 'manifest.json'
     data = json.loads(path.read_text('utf8'))
+    _, features, window = geometry(data)
     y = np.asarray(data['labels'])
-    raw = np.fromfile(OUT / data['input']['file'], dtype='<f8').reshape(-1, 125)
-    label_matrix = np.fromfile(OUT / data['labelMatrix']['file'], dtype='<f8').reshape(-1, 125)
+    raw = np.fromfile(OUT / data['input']['file'], dtype='<f8').reshape(-1, features)
+    label_matrix = np.fromfile(OUT / data['labelMatrix']['file'], dtype='<f8').reshape(-1, features)
     models, evaluations = [], []
     for previous in data['models']:
         if previous['id'] not in ('model1', 'model2'):
@@ -32,47 +35,51 @@ def install():
         fresh = json.loads((OUT / f'windows-v1/{previous["id"]}/source-manifest.json').read_text('utf8'))
         windows = []
         for chunk in fresh['chunks']:
-            payload = (PUBLIC / chunk['file']).read_bytes()
-            assert hashlib.sha256(payload).hexdigest() == chunk['sha256']
-            predictions = np.frombuffer(payload, dtype='<f4').reshape(chunk['count'], 64, 125)
+            payload = (OUT / chunk['file']).read_bytes()
+            if hashlib.sha256(payload).hexdigest() != chunk['sha256']:
+                raise ValueError(f'Window checksum differs: {chunk["file"]}')
+            target = PUBLIC / chunk['file']
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(OUT / chunk['file'], target)
+            predictions = np.frombuffer(payload, dtype='<f4').reshape(chunk['count'], window, features)
             for j, prediction in enumerate(predictions):
                 start = chunk['start'] + j
-                windows.append(((raw[start:start + 64] - prediction.astype(float)) ** 2).mean(1))
+                windows.append(((raw[start:start + window] - prediction.astype(float)) ** 2).mean(1))
         window_scores = np.asarray(windows)
-        window_labels = np.asarray([y[i:i + 64] for i in range(len(window_scores))])
+        window_labels = np.asarray([y[i:i + window] for i in range(len(window_scores))])
         scores = np.asarray(fresh['scores'])
         sequence = select_threshold(scores, y)
-        window = select_threshold(window_scores, window_labels)
+        window_evaluation = select_threshold(window_scores, window_labels)
         threshold = sequence['value']
         m = {k: previous[k] for k in ('id', 'name', 'history')}
         m.update({k: fresh[k] for k in ('scores', 'recon', 'errors', 'coverage')})
         m.update({
-            'threshold': threshold, 'windowThreshold': window['value'],
+            'threshold': threshold, 'windowThreshold': window_evaluation['value'],
             'thresholdSource': '在本版测试结果上遍历阈值，选择区间点调整F1最高的值；并列时依次比较逐点F1与阈值。',
             'metrics': {
                 'point_wise': counts(y, scores > threshold),
                 'point_adjusted': counts(y, point_adjust(y, scores > threshold)),
                 'continuous_score_auc': fresh['metrics']['continuous_score_auc'],
             },
-            'evaluation': {'policy': POLICY['id'], 'sequence': sequence, 'window': window},
+            'evaluation': {'policy': POLICY['id'], 'sequence': sequence, 'window': window_evaluation},
             'windows': {'chunks': fresh['chunks'], 'count': fresh['windowCount'], 'dtype': 'float32',
                         'maskDirectory': 'windows-v1/masks', 'maskPolicy': fresh['maskPolicy']},
             'run': RESULT_VERSION, 'inferenceRun': fresh['run'],
             'provenance': {'sources': fresh['sources'], 'probe': fresh['probe'], 'inputPolicy': fresh['inputPolicy']},
             'examples': [],
         })
-        errs = np.fromfile(OUT / m['errors']['file'], dtype='<f8').reshape(-1, 125)
+        errs = np.fromfile(OUT / m['errors']['file'], dtype='<f8').reshape(-1, features)
         for code in ('tp', 'fn', 'fp', 'tn'):
             indexes = np.flatnonzero((y.astype(bool) == (code in ('tp', 'fn'))) &
                                      ((scores > threshold) == (code in ('tp', 'fp'))))
-            candidates = indexes[(indexes >= 64) & (indexes < len(y) - 64)]
+            candidates = indexes[(indexes >= window) & (indexes < len(y) - window)]
             if not len(candidates): candidates = indexes
             if not len(candidates): continue
             index = int(candidates[0])
             feature = int(np.argmax(label_matrix[index] * errs[index])) if code in ('tp', 'fn') else int(np.argmax(errs[index]))
-            m['examples'].append({'code': code, 'index': index, 'start': max(0, min(len(y) - 64, index - 24)), 'feature': feature})
+            m['examples'].append({'code': code, 'index': index, 'start': max(0, min(len(y) - window, index - 24)), 'feature': feature})
         models.append(m)
-        evaluations.append({'id': m['id'], 'sequence': sequence, 'window': window})
+        evaluations.append({'id': m['id'], 'sequence': sequence, 'window': window_evaluation})
     data['models'] = models
     data['assets'] = [data['input'], data['cleanTest'], data['labelMatrix'],
                       *[a for m in models for a in (m['recon'], m['errors'])]]

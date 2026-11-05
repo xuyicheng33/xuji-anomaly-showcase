@@ -5,15 +5,21 @@ import { Footnote } from './notes';
 import { Outcome } from './ReportUI';
 import Fraction from './Fraction';
 
-function pointCalculation(input: Float64Array, recon: Float32Array, index: number, local: number) {
-  const rows = Array.from({ length: 125 }, (_, feature) => {
-    const value = input[index * 125 + feature],
-      prediction = recon[local * 125 + feature],
+function pointCalculation(
+  input: Float64Array,
+  recon: Float32Array,
+  index: number,
+  local: number,
+  features: number,
+) {
+  const rows = Array.from({ length: features }, (_, feature) => {
+    const value = input[index * features + feature],
+      prediction = recon[local * features + feature],
       difference = value - prediction;
     return { feature, value, prediction, difference, error: difference * difference };
   });
   const sum = rows.reduce((total, row) => total + row.error, 0);
-  return { rows, sum, score: sum / 125 };
+  return { rows, sum, score: sum / features };
 }
 const decimal = (value: number) => value.toFixed(9);
 
@@ -38,10 +44,11 @@ export function ScoreCalculation({
   focusFeature?: number;
   labels?: Float64Array | null;
 }) {
+  const features = data.features.length;
   const index = start + point,
     calculation = useMemo(
-      () => pointCalculation(input, recon, point, point),
-      [input, recon, point],
+      () => pointCalculation(input, recon, point, point, features),
+      [input, recon, point, features],
     );
   const body = useRef<HTMLTableSectionElement>(null);
   const selectedRow = calculation.rows[focusFeature];
@@ -65,7 +72,8 @@ export function ScoreCalculation({
             <Footnote note="score-calculation" reference={'ref-' + id} />
           </h2>
           <p>
-            {model.name}，第 {start + 1}—{start + 64} 点窗口，窗口内第 {point + 1} / 64 个时刻
+            {model.name}，第 {start + 1}—{start + data.window} 点窗口，窗口内第 {point + 1} /{' '}
+            {data.window} 个时刻
           </p>
         </div>
       </div>
@@ -105,7 +113,7 @@ export function ScoreCalculation({
             className="calculation-table-scroll"
             tabIndex={0}
             role="region"
-            aria-label="全部125个测点计算明细"
+            aria-label={`全部${features}个测点计算明细`}
             aria-describedby={id + '-scroll-hint'}
           >
             <table className="calculation-table">
@@ -145,7 +153,7 @@ export function ScoreCalculation({
             <p className="calculation-help">
               第 {index + 1} 点，{data.features[focusFeature].label}标签：
               <span className="note-anchor">
-                {labels[index * 125 + focusFeature] ? '异常' : '正常'}
+                {labels[index * features + focusFeature] ? '异常' : '正常'}
                 <Footnote note="anomaly-cases" reference={'ref-' + id + '-label'} />
               </span>
             </p>
@@ -153,14 +161,14 @@ export function ScoreCalculation({
         </div>
         <div className="calculation-total">
           <h3>
-            <span>02</span> 汇总全部125项
+            <span>02</span> 汇总全部{features}项
           </h3>
           <p>平方误差合计</p>
           <strong className="sum-value" data-testid={id + '-sum'}>
             {decimal(calculation.sum)}
           </strong>
           <div className="calculation-equation">
-            <Fraction numerator={decimal(calculation.sum)} denominator="125" />
+            <Fraction numerator={decimal(calculation.sum)} denominator={features} />
             <span className="equation-result">
               <span>=</span>
               <strong

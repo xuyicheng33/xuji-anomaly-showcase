@@ -2,6 +2,7 @@
 from pathlib import Path
 import json
 import numpy as np
+from data_geometry import INPUT_CHUNK_ROWS
 
 ROOT = Path(__file__).resolve().parents[1] / 'public/data/journey'
 REFERENCE = ROOT.parents[2] / 'data/reference'
@@ -29,13 +30,13 @@ def main():
                 mean += values[:, feature]
             (folder / 'mean.bin').write_bytes((mean / values.shape[1]).astype('<f8').tobytes())
             written += 1
-    values = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(-1, 125)
+    values = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(data['input']['shape'])
     folder = ROOT / 'input-rows-v1' / data['input']['sha256']
     folder.mkdir(parents=True, exist_ok=True)
-    for start in range(0, len(values), 128):
-        (folder / f'{start}.bin').write_bytes(values[start:start + 128].astype('<f8').tobytes())
+    for start in range(0, len(values), INPUT_CHUNK_ROWS):
+        (folder / f'{start}.bin').write_bytes(values[start:start + INPUT_CHUNK_ROWS].astype('<f8').tobytes())
         written += 1
-    print(json.dumps({'files': written, 'fullInputBytes': values.nbytes, 'curveBytes': len(values)*8, 'inputRowChunkBytes': 128*125*8}))
+    print(json.dumps({'files': written, 'fullInputBytes': values.nbytes, 'curveBytes': len(values)*8, 'inputRowChunkBytes': INPUT_CHUNK_ROWS*values.shape[1]*8}))
 
 
 if __name__ == '__main__':

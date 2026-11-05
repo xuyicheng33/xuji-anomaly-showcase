@@ -1,5 +1,6 @@
+import AnomalyResult from './AnomalyResult';
 import { useEffect, useRef, useState } from 'react';
-import { series, meanSeries, type Journey, type Model } from '../journey';
+import { series, type Journey, type Model } from '../journey';
 import {
   loadCases,
   loadCaseArrays,
@@ -8,7 +9,7 @@ import {
   type Insertion,
   type Construction,
 } from '../anomalyCases';
-import { Heading, ModelSelect, Confusion, Rates, colors } from './ReportUI';
+import { Heading, colors } from './ReportUI';
 import Curve from './Curve';
 import { curveDomain } from './curveScale';
 import { Footnote, usePauseOnNavigation } from './notes';
@@ -149,14 +150,62 @@ export default function AnomalyChapter({
   const feature = selectedFeature ?? selected?.feature ?? 4;
   const phase = progress < 0.16 ? 0 : progress <= 0.58 ? 1 : progress < 0.9 ? 2 : 3;
   const blend = Math.max(0, Math.min(1, (progress - 0.58) / 0.32));
-  const material = arrays ? series(arrays.material, feature, 0) : [];
+  const material = arrays
+    ? series(
+        arrays.material,
+        feature,
+        0,
+        selected?.times.length ?? data.window,
+        data.features.length,
+      )
+    : [];
   const materialProgress = Math.max(0, Math.min(1, (progress - 0.16) / 0.42));
-  const base = arrays ? series(arrays.original, feature, 0) : [],
-    candidate = arrays ? series(arrays.candidate, feature, 0) : [],
-    after = arrays ? series(arrays.input, feature, 0) : [];
-  const labels = arrays ? series(arrays.labels, feature, 0) : [],
+  const base = arrays
+      ? series(
+          arrays.original,
+          feature,
+          0,
+          selected?.times.length ?? data.window,
+          data.features.length,
+        )
+      : [],
+    candidate = arrays
+      ? series(
+          arrays.candidate,
+          feature,
+          0,
+          selected?.times.length ?? data.window,
+          data.features.length,
+        )
+      : [],
+    after = arrays
+      ? series(
+          arrays.input,
+          feature,
+          0,
+          selected?.times.length ?? data.window,
+          data.features.length,
+        )
+      : [];
+  const labels = arrays
+      ? series(
+          arrays.labels,
+          feature,
+          0,
+          selected?.times.length ?? data.window,
+          data.features.length,
+        )
+      : [],
     visibleLabels = labels.map((v) => (phase === 3 ? v : 0));
-  const weights = arrays ? series(arrays.weights, feature, 0) : [];
+  const weights = arrays
+    ? series(
+        arrays.weights,
+        feature,
+        0,
+        selected?.times.length ?? data.window,
+        data.features.length,
+      )
+    : [];
   const activePoints = weights.flatMap((weight, index) => (weight > 0 ? [index] : []));
   const writtenCount = Math.ceil(activePoints.length * blend - 1e-9);
   const written = new Set(activePoints.slice(0, writtenCount));
@@ -333,7 +382,7 @@ export default function AnomalyChapter({
                     </select>
                   </label>
                   <span>
-                    {selected.times[0]} — {selected.times[63]}
+                    {selected.times[0]} — {selected.times[selected.times.length - 1]}
                   </span>
                 </div>
                 {kind === 'reference' && phase === 1 ? (
@@ -429,8 +478,10 @@ export default function AnomalyChapter({
                       </button>
                       <button
                         type="button"
-                        onClick={() => setPoint((value) => Math.min(63, value + 1))}
-                        disabled={point === 63}
+                        onClick={() =>
+                          setPoint((value) => Math.min(selected.times.length - 1, value + 1))
+                        }
+                        disabled={point === selected.times.length - 1}
                       >
                         后一点
                       </button>
@@ -501,7 +552,9 @@ export default function AnomalyChapter({
                 />
               )}
               <div className="case-result-action">
-                <p>同一片段，64 个时刻，125 个测点</p>
+                <p>
+                  同一片段，{selected.times.length} 个时刻，{data.features.length} 个测点
+                </p>
                 <button
                   className="inline-link"
                   onClick={() => {
@@ -522,86 +575,20 @@ export default function AnomalyChapter({
                 </button>
               </div>
               {showResult && (
-                <div
-                  className="case-detection result-reveal"
-                  ref={resultRef}
-                  data-testid="case-detection"
-                >
-                  <div className="case-result-heading">
-                    <h2>案例检测结果</h2>
-                    <ModelSelect data={data} value={model.id} onChange={setModel} />
-                  </div>
-                  <div className="case-reconstruction" aria-busy={!reconstruction.data}>
-                    <Curve
-                      title="插入结果与重建"
-                      lines={[
-                        { name: '插入结果', values: after, color: colors.input },
-                        ...(reconstruction.data
-                          ? [
-                              {
-                                name: '模型重建',
-                                values: series(reconstruction.data, feature, 0),
-                                color: colors.recon,
-                                dash: true,
-                              },
-                            ]
-                          : []),
-                      ]}
-                      labels={labels}
-                      selected={point}
-                      onSelect={setPoint}
-                      height={230}
-                    />
-                    {!reconstruction.data && (
-                      <div
-                        className="case-reconstruction-status"
-                        role={reconstruction.error ? 'alert' : 'status'}
-                      >
-                        {reconstruction.error ? (
-                          <>
-                            {reconstruction.error}
-                            <button onClick={reconstruction.retry}>重试重建</button>
-                          </>
-                        ) : (
-                          '正在读取模型重建…'
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <Curve
-                    title="125 测点异常分数"
-                    lines={[{ name: '平均平方误差', values: cm.scores, color: colors.score }]}
-                    labels={meanSeries(arrays.labels).map((v) => Number(v > 0))}
-                    threshold={cm.threshold}
-                    selected={point}
-                    onSelect={setPoint}
-                    height={190}
-                  />
-                  <div className="case-score-pair">
-                    <span>
-                      当前时刻分数{' '}
-                      <strong data-testid="case-score">{cm.scores[point].toFixed(6)}</strong>
-                    </span>
-                    <span>
-                      判定阈值 <strong>{cm.threshold.toFixed(6)}</strong>
-                    </span>
-                    <span>
-                      当前测点误差{' '}
-                      <strong>
-                        {reconstruction.data
-                          ? (
-                              (after[point] - reconstruction.data[point * 125 + feature]) **
-                              2
-                            ).toFixed(6)
-                          : '—'}
-                      </strong>
-                    </span>
-                  </div>
-                  <div className="statistics">
-                    <Confusion metrics={cm.metrics} />
-                    <Rates metrics={cm.metrics} />
-                  </div>
-                </div>
+                <AnomalyResult
+                  data={data}
+                  selected={selected}
+                  cm={cm}
+                  arrays={arrays}
+                  reconstruction={reconstruction}
+                  feature={feature}
+                  point={point}
+                  after={after}
+                  labels={labels}
+                  setPoint={setPoint}
+                  resultRef={resultRef}
+                  setModel={setModel}
+                />
               )}
             </>
           )}

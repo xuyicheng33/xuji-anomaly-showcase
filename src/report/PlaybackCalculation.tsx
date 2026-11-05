@@ -1,3 +1,4 @@
+import { coveringWindows } from '../dataGeometry';
 import { useEffect, useRef, useState } from 'react';
 import { loadWindow, type Journey, type Model, type Asset } from '../journey';
 import { Footnote } from './notes';
@@ -8,12 +9,6 @@ import { ScoreCalculation } from './ScoreCalculation';
 
 const decimal = (value: number) => value.toFixed(9);
 
-function coveringWindows(index: number, length: number) {
-  return Array.from(
-    { length: Math.min(index, length - 64) - Math.max(0, index - 63) + 1 },
-    (_, i) => Math.max(0, index - 63) + i,
-  );
-}
 type IndexManifest = { resultVersion: string; models: Record<string, Asset> };
 let indexRequest: Promise<IndexManifest> | null = null;
 function loadIndex() {
@@ -53,7 +48,13 @@ export function PlaybackCalculation({
     [windowAttempt, setWindowAttempt] = useState(0);
   const section = useRef<HTMLElement>(null),
     detail = useRef<HTMLDivElement>(null);
-  const inputAsset = useWindowInput(data.input, selected ?? 0, selected !== null),
+  const inputAsset = useWindowInput(
+      data.input,
+      selected ?? 0,
+      selected !== null,
+      data.window,
+      data.inputChunkRows,
+    ),
     input = inputAsset.data;
   const scoresAsset = useDataAsset(open && catalog ? catalog.models[model.id] : null);
   useEffect(() => {
@@ -96,10 +97,13 @@ export function PlaybackCalculation({
       active = false;
     };
   }, [selected, model, windowAttempt]);
-  const starts = index === null ? [] : coveringWindows(index, data.times.length);
+  const starts = index === null ? [] : coveringWindows(index, data.times.length, data.window);
   const rows =
     scoresAsset.data && index !== null
-      ? starts.map((start) => ({ start, score: scoresAsset.data![start * 64 + index - start] }))
+      ? starts.map((start) => ({
+          start,
+          score: scoresAsset.data![start * data.window + index - start],
+        }))
       : [];
   const total = rows.reduce((sum, row) => sum + row.score, 0),
     score = index === null ? null : model.scores[index];
@@ -109,7 +113,7 @@ export function PlaybackCalculation({
     result.start === selected &&
     index !== null &&
     index >= result.start &&
-    index < result.start + 64;
+    index < result.start + data.window;
   const reveal = () => {
     pause();
     setOpen(true);
@@ -170,7 +174,10 @@ export function PlaybackCalculation({
       </div>
       {open && index !== null && (
         <div className="aggregation-detail result-reveal">
-          <p>各窗口在同一时刻的125项平方误差取平均，再合并这 {starts.length} 个窗口分数。</p>
+          <p>
+            各窗口在同一时刻的{data.features.length}项平方误差取平均，再合并这 {starts.length}{' '}
+            个窗口分数。
+          </p>
           {error || scoresAsset.error ? (
             <div role="alert">
               {error || scoresAsset.error}
@@ -210,9 +217,11 @@ export function PlaybackCalculation({
                         className={selected === row.start ? 'selected-sensor' : undefined}
                       >
                         <th scope="row">
-                          第 {row.start + 1}—{row.start + 64} 点
+                          第 {row.start + 1}—{row.start + data.window} 点
                         </th>
-                        <td>{index - row.start + 1} / 64</td>
+                        <td>
+                          {index - row.start + 1} / {data.window}
+                        </td>
                         <td>{decimal(row.score)}</td>
                         <td>
                           <button
@@ -278,7 +287,7 @@ export function PlaybackCalculation({
                   id="coverage-window-calculation"
                 />
               ) : (
-                <p role="status">正在读取该窗口的125项计算…</p>
+                <p role="status">正在读取该窗口的{data.features.length}项计算…</p>
               ))}
           </div>
         </div>

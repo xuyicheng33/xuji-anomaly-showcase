@@ -1,3 +1,4 @@
+import { displaySettings } from '../dataGeometry';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type Journey, trainingScale } from '../journey';
 import { useCurveData } from './useCurveData';
@@ -45,8 +46,11 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
   const norm = useMemo(() => {
     if (!trainAsset.data) return null;
     const { min, max, normalize } = trainingScale(trainAsset.data);
-    const start = 5299;
-    const values = Array.from({ length: 64 }, (_, i) => trainAsset.data![start + i]);
+    const start = Math.min(5299, Math.max(0, train.shape[0] - displaySettings.playbackPoints));
+    const values = Array.from(
+      { length: Math.min(displaySettings.playbackPoints, train.shape[0] - start) },
+      (_, i) => trainAsset.data![start + i],
+    );
     return {
       min,
       max,
@@ -54,7 +58,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
       values,
       normalized: values.map(normalize),
     };
-  }, [trainAsset.data]);
+  }, [trainAsset.data, train.shape]);
   const sampleIndex = sample;
   const split = cleaning.split;
   const operand = (value: number) =>
@@ -185,7 +189,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                 <Curve
                   title="原始单位"
                   lines={[{ name: point.label, values: norm.values, color: colors.input }]}
-                  times={train.times.slice(norm.start, norm.start + 64)}
+                  times={train.times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}
                   range={chartRange(norm.values)}
                   height={205}
@@ -194,7 +198,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                 <Curve
                   title="归一化后"
                   lines={[{ name: point.label, values: norm.normalized, color: colors.recon }]}
-                  times={train.times.slice(norm.start, norm.start + 64)}
+                  times={train.times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}
                   height={205}
                   onSelect={setSample}

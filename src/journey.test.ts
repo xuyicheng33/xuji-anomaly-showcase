@@ -45,13 +45,13 @@ describe('journey navigation and numerical chain', () => {
   });
   it('reads row-major arrays without mixing feature dimensions', () => {
     const a = Float64Array.from({ length: 375 }, (_, i) => i);
-    expect(series(a, 124, 1, 2)).toEqual([249, 374]);
+    expect(series(a, 124, 1, 2, 125)).toEqual([249, 374]);
   });
   it('keeps aggregate error when signed residuals cancel in the mean curve', () => {
     const input = Float64Array.from({ length: 250 }, (_, i) => (i < 125 ? (i % 2 ? 1 : -1) : 0));
     const error = Float64Array.from(input, (v) => v * v);
-    expect(meanSeries(input, 0, 2)[0] ** 2).toBeLessThan(0.001);
-    expect(meanSeries(error, 0, 2)).toEqual([1, 0]);
-    expect(meanSeries(input, 1, 1)).toEqual([0]);
+    expect(meanSeries(input, 0, 2, 125)[0] ** 2).toBeLessThan(0.001);
+    expect(meanSeries(error, 0, 2, 125)).toEqual([1, 0]);
+    expect(meanSeries(input, 1, 1, 125)).toEqual([0]);
   });
 });

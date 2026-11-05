@@ -13,6 +13,7 @@ export default function ReconstructionView({
   onSelect,
   compact = false,
   playbackScale,
+  features,
 }: {
   input: number[];
   recon?: number[];
@@ -24,11 +25,12 @@ export default function ReconstructionView({
   onSelect?: (n: number) => void;
   compact?: boolean;
   playbackScale?: PlaybackScale;
+  features: number;
 }) {
   return (
     <div className={'reconstruction-view' + (aggregate ? ' aggregate-view' : '')}>
       <Curve
-        title={aggregate ? '125 测点平均曲线' : '测点输入与重建'}
+        title={aggregate ? `${features} 测点平均曲线` : '测点输入与重建'}
         note={compact ? 'window-aggregation' : 'score-calculation'}
         reference={'ref-' + (compact ? 'playback' : 'detection') + '-reconstruction'}
         lines={[

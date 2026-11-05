@@ -74,7 +74,10 @@ export default function App() {
     });
     return () => cancelAnimationFrame(frame);
   }, [page, address, loaded]);
-  const model = data?.models.find((m) => m.id === modelId);
+  const model = data?.models.find((m) => m.id === modelId) ?? data?.models[0];
+  const selectedFeature = data ? Math.min(feature, data.features.length - 1) : feature;
+  const selectedStart = data ? Math.min(start, data.times.length - data.window) : start;
+  const selectedView = data ? Math.min(viewFeature, data.features.length - 1) : viewFeature;
   return (
     <>
       <a
@@ -165,7 +168,7 @@ export default function App() {
               正在读取研究资料…
             </div>
           ) : contentPage === 'data' ? (
-            <DataChapter data={data} feature={feature} setFeature={setFeature} />
+            <DataChapter data={data} feature={selectedFeature} setFeature={setFeature} />
           ) : contentPage === 'models' ? (
             <ModelsChapter data={data} model={model} setModel={setModel} />
           ) : contentPage === 'anomalies' ? (
@@ -175,7 +178,7 @@ export default function App() {
               data={data}
               model={model}
               setModel={setModel}
-              feature={feature}
+              feature={selectedFeature}
               setFeature={setFeature}
             />
           ) : contentPage === 'detection' ? (
@@ -183,11 +186,11 @@ export default function App() {
               data={data}
               model={model}
               setModel={setModel}
-              feature={feature}
+              feature={selectedFeature}
               setFeature={setFeature}
-              start={start}
+              start={selectedStart}
               setStart={setStart}
-              viewFeature={viewFeature}
+              viewFeature={selectedView}
               setViewFeature={setViewFeature}
             />
           ) : contentPage === 'playback' ? (
@@ -196,8 +199,8 @@ export default function App() {
               model={model}
               setModel={setModel}
               setFeature={setFeature}
-              start={start}
-              viewFeature={viewFeature}
+              start={selectedStart}
+              viewFeature={selectedView}
               setViewFeature={setViewFeature}
             />
           ) : null}

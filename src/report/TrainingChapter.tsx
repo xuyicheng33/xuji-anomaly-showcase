@@ -1,3 +1,4 @@
+import { displaySettings } from '../dataGeometry';
 import { useMemo, useState } from 'react';
 import { type Journey, type Model, trainingScale } from '../journey';
 import { Heading, Section, ModelSelect, colors } from './ReportUI';
@@ -13,7 +14,9 @@ type TrainingProps = {
   setFeature: (value: number) => void;
 };
 export function TrainingChapter({ data, model, setModel, feature, setFeature }: TrainingProps) {
-  const [windowStart, setWindowStart] = useState(5299),
+  const [windowStart, setWindowStart] = useState(
+      Math.min(5299, Math.max(0, data.datasets.train.shape[0] - data.window)),
+    ),
     [epoch, setEpoch] = useState(0);
 
   const point = data.features[feature],
@@ -23,10 +26,10 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
     error = trainingAsset.error;
   const stats = useMemo(() => (training ? trainingScale(training) : null), [training]);
   const length = train.shape[0],
-    lastStart = length - 64,
-    start = windowStart,
-    contextLength = 192,
-    contextStart = Math.max(0, Math.min(start - 64, length - contextLength));
+    lastStart = length - data.window,
+    start = Math.min(windowStart, lastStart),
+    contextLength = Math.min(length, Math.max(data.window, displaySettings.trainingPoints)),
+    contextStart = Math.max(0, Math.min(start - data.window, length - contextLength));
   const values =
     training && stats
       ? Array.from({ length: contextLength }, (_, i) => {
@@ -41,7 +44,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
       <Heading title="模型训练过程">
         以{' '}
         <span className="note-anchor">
-          64 × 125 数据窗口
+          {data.window} × {data.features.length} 数据窗口
           <Footnote note="window-settings" reference="ref-training-window-shape" />
         </span>
         为输入，逐步优化参数。
@@ -82,17 +85,20 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
               <div className="chart-context">
                 <span className="training-selection-key">
                   <i aria-hidden="true" />
-                  选定窗口，64 点
+                  选定窗口，{data.window} 点
                 </span>
                 <span>
-                  {train.times[start]} — {train.times[start + 63]}
+                  {train.times[start]} — {train.times[start + data.window - 1]}
                 </span>
               </div>
               <Curve
                 title="归一化训练数据"
                 lines={[{ name: point.label, values, color: colors.input }]}
                 times={train.times.slice(contextStart, contextStart + contextLength)}
-                selection={{ start: start - contextStart, end: start - contextStart + 63 }}
+                selection={{
+                  start: start - contextStart,
+                  end: start - contextStart + data.window - 1,
+                }}
                 height={260}
               />
               <label className="slider-label">
@@ -106,7 +112,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
                   onChange={(e) => setWindowStart(+e.target.value)}
                 />
                 <span>
-                  {start + 1}—{start + 64}
+                  {start + 1}—{start + data.window}
                 </span>
               </label>
               <div className="window-position-actions">
@@ -138,7 +144,9 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
         </div>
         <div className="window-rules">
           <div>
-            <strong>64 × 125</strong>
+            <strong>
+              {data.window} × {data.features.length}
+            </strong>
             <span>每个窗口的输入形状</span>
           </div>
           <div>

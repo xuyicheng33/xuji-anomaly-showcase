@@ -26,7 +26,8 @@ export type Model = {
   metrics: { point_wise: Metrics; point_adjusted: Metrics; continuous_score_auc: number };
   windowThreshold: number;
   run: string;
-  windows: { chunks: WindowChunk[]; count: number };
+  windows: { chunks: WindowChunk[]; count: number; length: number; features: number };
+  contributions: { chunks: WindowChunk[]; features: number };
   examples: { code: string; index: number; start: number; feature: number }[];
 };
 export type Feature = { index: number; key: string; label: string; description: string };
@@ -35,6 +36,7 @@ export type Journey = {
   schemaVersion: number;
   resultVersion: string;
   window: number;
+  inputChunkRows: number;
   features: Feature[];
   times: string[];
   labels: number[];
@@ -81,17 +83,23 @@ export type OutcomeCode = 'tp' | 'fp' | 'fn' | 'tn';
 export function outcomeCode(label: number, score: number, threshold: number): OutcomeCode {
   return label ? (score > threshold ? 'tp' : 'fn') : score > threshold ? 'fp' : 'tn';
 }
-export function series(values: Float64Array, feature: number, start: number, length = 64) {
+export function series(
+  values: Float64Array,
+  feature: number,
+  start: number,
+  length: number,
+  features: number,
+) {
   return Array.from(
-    { length: Math.min(length, values.length / 125 - start) },
-    (_, i) => values[(start + i) * 125 + feature],
+    { length: Math.min(length, values.length / features - start) },
+    (_, i) => values[(start + i) * features + feature],
   );
 }
 export function meanSeries(
   values: Float64Array | Float32Array,
-  start = 0,
-  length = 64,
-  features = 125,
+  start: number,
+  length: number,
+  features: number,
 ) {
   return Array.from({ length: Math.min(length, values.length / features - start) }, (_, i) => {
     let sum = 0;
@@ -206,17 +214,25 @@ export async function loadWindow(m: Model, start: number) {
     chunk = pack.chunks.find((c) => start >= c.start && start < c.start + c.count);
   if (!chunk) throw Error('没有对应的完整窗口');
   const raw = await windowFile(chunk);
-  const offset = (start - chunk.start) * 64 * 125;
+  const size = pack.length * pack.features;
+  const offset = (start - chunk.start) * size;
   return {
     start,
     modelId: m.id,
-    recon: new Float32Array(raw, offset * 4, 64 * 125).slice(),
+    recon: new Float32Array(raw, offset * 4, size).slice(),
   };
 }
-export function windowScores(input: Float64Array, recon: Float32Array, start: number) {
-  return Array.from({ length: 64 }, (_, i) => {
+export function windowScores(
+  input: Float64Array,
+  recon: Float32Array,
+  start: number,
+  window: number,
+  features: number,
+) {
+  return Array.from({ length: window }, (_, i) => {
     let s = 0;
-    for (let j = 0; j < 125; j++) s += (input[(start + i) * 125 + j] - recon[i * 125 + j]) ** 2;
-    return s / 125;
+    for (let j = 0; j < features; j++)
+      s += (input[(start + i) * features + j] - recon[i * features + j]) ** 2;
+    return s / features;
   });
 }
