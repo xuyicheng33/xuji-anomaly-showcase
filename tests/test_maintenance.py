@@ -140,6 +140,31 @@ class MaintenanceTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             modules['restore_project'].restore(archive, restored)
 
+    def test_restore_preserves_crlf_without_false_working_tree_changes(self):
+        modules = {}
+        for name in ("backup_project", "restore_project"):
+            spec = importlib.util.spec_from_file_location(name, ROOT / f"scripts/{name}.py")
+            modules[name] = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(modules[name])
+        (self.folder / '.gitattributes').write_text('*.txt text eol=lf\n')
+        (self.folder / 'line.txt').write_bytes(b'original\n')
+        git(self.folder, 'add', '.')
+        git(self.folder, 'commit', '-qm', 'Line ending policy')
+        (self.folder / 'line.txt').write_bytes(b'original\r\n')
+        (self.folder / 'app.txt').write_text('uncommitted content')
+        for name in modules['backup_project'].RETAINED:
+            (self.folder / name).mkdir(parents=True, exist_ok=True)
+        with patch.object(modules['backup_project'], 'ROOT', self.folder), patch('sys.argv', ['backup']):
+            with contextlib.redirect_stdout(io.StringIO()):
+                modules['backup_project'].main()
+        archive = next((self.folder / '.qa/backups').glob('*.zip'))
+        restored = modules['restore_project'].restore(archive, self.folder / 'restored')
+        self.assertEqual((restored / 'line.txt').read_bytes(), b'original\r\n')
+        status = subprocess.check_output(
+            ['git', '-C', str(restored), 'status', '--porcelain'], text=True)
+        self.assertEqual(status, ' M app.txt\n')
+        self.assertEqual((restored / 'app.txt').read_text(), 'uncommitted content')
+
     def test_release_evaluation_allows_verified_new_version_and_rejects_mismatch(self):
         spec = importlib.util.spec_from_file_location('release_validation', ROOT / 'scripts/release_validation.py')
         module = importlib.util.module_from_spec(spec)

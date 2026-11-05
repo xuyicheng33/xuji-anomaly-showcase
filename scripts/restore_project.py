@@ -58,6 +58,23 @@ def restore(archive, destination):
                 actual = hashlib.sha256(file.read_bytes()).hexdigest() if file.exists() else None
                 if actual != expected:
                     raise ValueError(f"Restored workspace mismatch: {name}")
+        # Preserved Windows CRLF bytes can differ from clone's checkout while
+        # Git's normalized content remains identical. Refresh only those paths;
+        # actual edits, deletions and new files retain their restored state.
+        changed = subprocess.check_output(
+            ["git", "-C", str(destination), "diff-files", "--name-only", "-z"]
+        ).decode("utf-8").split("\0")
+        for name in filter(None, changed):
+            if not (destination / name).is_file():
+                continue
+            index_hash = subprocess.check_output(
+                ["git", "-C", str(destination), "rev-parse", ":" + name]
+            ).strip()
+            content_hash = subprocess.check_output(
+                ["git", "-C", str(destination), "hash-object", "--path=" + name, "--", name]
+            ).strip()
+            if content_hash == index_hash:
+                subprocess.run(["git", "-C", str(destination), "add", "--", name], check=True)
     return destination
 
 
