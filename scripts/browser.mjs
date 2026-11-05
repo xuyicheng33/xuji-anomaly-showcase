@@ -25,3 +25,16 @@ export async function launchBrowser() {
   };
   return browser;
 }
+
+/** Exercise the same searchable picker used by keyboard and touch users. */
+export async function selectFeature(page, value, name = '选择测点') {
+  const trigger = page.getByRole('button', { name, exact: true });
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: `${name}列表`, exact: true });
+  await dialog.locator(`.feature-option[data-value="${value}"]`).click();
+  await dialog.waitFor({ state: 'hidden' });
+}
+
+export function featureValue(page, name = '选择测点') {
+  return page.getByRole('button', { name, exact: true }).getAttribute('data-value');
+}

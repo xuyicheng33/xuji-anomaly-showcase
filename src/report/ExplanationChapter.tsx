@@ -5,6 +5,7 @@ import { notes, NoteSection } from './notes';
 import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
+import { featureName } from './featureNames';
 
 export default function ExplanationChapter({ data, address }: { data: Journey; address: string }) {
   const params = new URLSearchParams(address.split('?')[1] ?? ''),
@@ -64,7 +65,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
               {data.features.map((f, i) => (
                 <tr key={f.key}>
                   <td>{i + 1}</td>
-                  <th>{f.label}</th>
+                  <th>{featureName(f)}</th>
                   <td>{f.key}</td>
                 </tr>
               ))}

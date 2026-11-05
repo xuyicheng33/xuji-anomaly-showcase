@@ -4,6 +4,7 @@ import { type Journey, type Model } from '../journey';
 import { Footnote } from './notes';
 import { Outcome } from './ReportUI';
 import Fraction from './Fraction';
+import { featureName } from './featureNames';
 
 function pointCalculation(
   input: Float64Array,
@@ -88,7 +89,7 @@ export function ScoreCalculation({
           {selectedRow && (
             <div className="sensor-calculation-detail" role="region" aria-label="当前测点计算明细">
               <p>
-                {focusFeature + 1}. {data.features[focusFeature].label}
+                {focusFeature + 1}. {featureName(data.features[focusFeature])}
                 <small>{data.features[focusFeature].key}</small>
               </p>
               <dl>
@@ -135,7 +136,7 @@ export function ScoreCalculation({
                   >
                     <th scope="row">
                       <span>
-                        {row.feature + 1}. {data.features[row.feature].label}
+                        {row.feature + 1}. {featureName(data.features[row.feature])}
                       </span>
                       <small>{data.features[row.feature].key}</small>
                     </th>
@@ -151,7 +152,7 @@ export function ScoreCalculation({
           <p className="calculation-help">平方误差 =（输入 − 重建）²。</p>
           {focusFeature >= 0 && labels && (
             <p className="calculation-help">
-              第 {index + 1} 点，{data.features[focusFeature].label}标签：
+              第 {index + 1} 点，{featureName(data.features[focusFeature])}标签：
               <span className="note-anchor">
                 {labels[index * features + focusFeature] ? '异常' : '正常'}
                 <Footnote note="anomaly-cases" reference={'ref-' + id + '-label'} />

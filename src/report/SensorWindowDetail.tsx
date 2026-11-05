@@ -5,10 +5,20 @@ import { useCurveData } from './useCurveData';
 import { curveDomain, curveTick } from './curveScale';
 import { colors } from './ReportUI';
 import { Footnote } from './notes';
+import { featureName } from './featureNames';
+import Fraction from './Fraction';
 
 const decimal = (value: number) => value.toFixed(9);
 
-function WindowPlot({ rows, selected }: { rows: SensorWindow[]; selected: number }) {
+function WindowPlot({
+  rows,
+  selected,
+  select,
+}: {
+  rows: SensorWindow[];
+  selected: number;
+  select: (index: number) => void;
+}) {
   const [low, high] = curveDomain(rows.flatMap((row) => [row.input, row.prediction]));
   const x = (i: number) => 58 + (i / Math.max(1, rows.length - 1)) * 424;
   const y = (v: number) => 18 + ((high - v) / (high - low)) * 106;
@@ -24,7 +34,7 @@ function WindowPlot({ rows, selected }: { rows: SensorWindow[]; selected: number
           各窗口重建
         </span>
       </div>
-      <svg viewBox="0 0 500 156" role="img" aria-label="同一输入值与各覆盖窗口的重建值">
+      <svg viewBox="0 0 500 156" role="group" aria-label="同一输入值与各覆盖窗口的重建值">
         {[low, (low + high) / 2, high].map((value) => (
           <g key={value}>
             <line x1="58" x2="482" y1={y(value)} y2={y(value)} stroke="var(--line)" />
@@ -42,22 +52,49 @@ function WindowPlot({ rows, selected }: { rows: SensorWindow[]; selected: number
           strokeWidth="1.5"
         />
         {rows.map((row, i) => (
-          <circle
+          <g
             key={row.start}
-            cx={x(i)}
-            cy={y(row.prediction)}
-            r={i === selected ? 4.5 : 2.5}
-            fill={colors.recon}
-            stroke={i === selected ? colors.input : 'none'}
+            role="button"
+            tabIndex={i === selected ? 0 : -1}
+            aria-label={`选择第 ${i + 1} 个覆盖窗口，起点第 ${row.start + 1} 点`}
+            aria-pressed={i === selected}
+            className="window-prediction-point"
+            onClick={() => select(i)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                select(i);
+              }
+              if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                event.preventDefault();
+                const next = Math.max(
+                  0,
+                  Math.min(rows.length - 1, i + (event.key === 'ArrowRight' ? 1 : -1)),
+                );
+                select(next);
+                const parent = event.currentTarget.parentElement;
+                requestAnimationFrame(() =>
+                  parent?.querySelector<SVGGElement>('[aria-pressed=true]')?.focus(),
+                );
+              }
+            }}
           >
+            <circle cx={x(i)} cy={y(row.prediction)} r="10" fill="transparent" />
+            <circle
+              cx={x(i)}
+              cy={y(row.prediction)}
+              r={i === selected ? 4.5 : 2.5}
+              fill={colors.recon}
+              stroke={i === selected ? colors.input : 'none'}
+            />
             <title>{`窗口 ${row.start + 1}：重建 ${decimal(row.prediction)}`}</title>
-          </circle>
+          </g>
         ))}
         <text x="58" y="148">
-          第 {rows[0].start + 1} 个窗口
+          起点 {rows[0].start + 1}
         </text>
         <text x="482" y="148" textAnchor="end">
-          第 {rows.at(-1)!.start + 1} 个窗口
+          起点 {rows.at(-1)!.start + 1}
         </text>
       </svg>
     </div>
@@ -107,6 +144,7 @@ export default function SensorWindowDetail({
   const minimum = rows ? Math.min(...rows.map((item) => item.error)) : 0;
   const maximum = rows ? Math.max(...rows.map((item) => item.error)) : 1;
   const span = maximum - minimum;
+  const errorSum = rows?.reduce((sum, item) => sum + item.error, 0) ?? 0;
   return (
     <section
       className="sensor-window-detail result-reveal"
@@ -116,7 +154,7 @@ export default function SensorWindowDetail({
     >
       <div className="sensor-detail-heading">
         <div>
-          <h3>{point.label}</h3>
+          <h3>{featureName(point)}</h3>
           <small>{point.key}</small>
         </div>
         <button className="text-button" onClick={close}>
@@ -140,7 +178,8 @@ export default function SensorWindowDetail({
         </p>
       ) : rows && row ? (
         <>
-          <WindowPlot rows={rows} selected={selected} />
+          <p className="window-coverage-context">{rows.length} 个窗口覆盖当前点 · 按窗口起点排列</p>
+          <WindowPlot rows={rows} selected={selected} select={setSelected} />
           <div className="window-error-heading">
             <h4>
               {rows.length} 个窗口的平方误差
@@ -175,8 +214,12 @@ export default function SensorWindowDetail({
           </div>
           <div className="window-cell-detail" aria-live="polite">
             <strong>
-              窗口：第 {row.start + 1}—{row.start + data.window} 点
+              第 {selected + 1} / {rows.length} 个覆盖窗口：第 {row.start + 1}—
+              {row.start + data.window} 点
             </strong>
+            <p className="quiet">
+              当前第 {index + 1} 点位于窗口内第 {index - row.start + 1} / {data.window} 点
+            </p>
             <dl>
               <div>
                 <dt>输入</dt>
@@ -195,10 +238,16 @@ export default function SensorWindowDetail({
           <div className="sensor-contribution-results">
             <div>
               <span>平均误差</span>
+              <span className="sensor-contribution-equation">
+                <Fraction numerator={decimal(errorSum)} denominator={rows.length} /> =
+              </span>
               <strong data-testid="sensor-mean-error">{decimal(meanError)}</strong>
             </div>
             <div>
               <span>分数贡献</span>
+              <span className="sensor-contribution-equation">
+                <Fraction numerator={decimal(meanError)} denominator={data.features.length} /> =
+              </span>
               <strong data-testid="sensor-score-contribution">
                 {decimal(meanError / data.features.length)}
               </strong>

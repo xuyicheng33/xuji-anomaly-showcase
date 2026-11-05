@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl } from './browser.mjs';
+import { launchBrowser, showcaseUrl, selectFeature, featureValue } from './browser.mjs';
 const base = showcaseUrl;
 const out = process.env.QA_DIR || '.qa/loading';
 await mkdir(out, { recursive: true });
@@ -65,7 +65,7 @@ try {
     chunk.file,
   ]);
   assert.equal(await det.page.locator('.aggregate-error').count(), 0);
-  await det.page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
+  await selectFeature(det.page, '4');
   await det.page.locator('#ref-window-calculation-label').waitFor();
   assert.ok(det.requests.includes('labels.bin'));
   summary.push({
@@ -82,16 +82,13 @@ try {
     `curves-v1/${d.input.sha256}/mean.bin`,
     `curves-v1/${d.models[0].recon.sha256}/mean.bin`,
   ]);
-  await replay.page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
+  await selectFeature(replay.page, '4');
   await replay.page.getByRole('button', { name: '下一处检出', exact: true }).click();
   await replay.page.waitForFunction(() => !document.querySelector('.feature-location'));
   assert.ok(!replay.requests.some((name) => name.endsWith('/errors.bin')));
   const index = d.labels.findIndex((v, i) => v && d.models[0].scores[i] > d.models[0].threshold);
   const best = d.models[0].focusFeatures[index];
-  assert.equal(
-    await replay.page.getByRole('combobox', { name: '选择测点' }).inputValue(),
-    String(best),
-  );
+  assert.equal(await featureValue(replay.page), String(best));
   summary.push({
     page: 'playback',
     initialBytes: 38352,

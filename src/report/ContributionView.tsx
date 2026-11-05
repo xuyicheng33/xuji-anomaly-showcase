@@ -4,6 +4,7 @@ import { loadAsset, type Journey, type Model } from '../journey';
 import { useDataAsset } from './useDataAsset';
 import SensorWindowDetail from './SensorWindowDetail';
 import { Footnote } from './notes';
+import { featureName, matchesFeature } from './featureNames';
 
 export default function ContributionView({
   data,
@@ -19,6 +20,7 @@ export default function ContributionView({
   pause: () => void;
 }) {
   const [limit, setLimit] = useState(7);
+  const [query, setQuery] = useState('');
   const [selection, setSelection] = useState<{ key: string; feature: number } | null>(null);
   const [lastHeight, setLastHeight] = useState(0);
   const content = useRef<HTMLDivElement>(null);
@@ -59,6 +61,8 @@ export default function ContributionView({
   const selectedRow =
     selected === null ? null : ranked?.rows.find((row) => row.feature === selected);
   const rows = ranked?.rows.slice(0, limit) ?? [];
+  const visibleRows =
+    limit > 12 ? rows.filter((row) => matchesFeature(data.features[row.feature], query)) : rows;
   const remainder = ranked?.rows.slice(limit).reduce((sum, row) => sum + row.contribution, 0) ?? 0;
   const shown = rows.reduce((sum, row) => sum + row.contribution, 0);
   const ready = ranked !== null;
@@ -104,6 +108,7 @@ export default function ContributionView({
             onChange={(e) => {
               pause();
               setLimit(+e.target.value);
+              setQuery('');
             }}
           >
             <option value={7}>前 {Math.min(7, features)} 个</option>
@@ -134,6 +139,23 @@ export default function ContributionView({
               贡献合计 <strong data-testid="contribution-total">{ranked.total.toFixed(9)}</strong>
             </span>
           </div>
+          {limit > 12 && (
+            <div className="contribution-search">
+              <label>
+                <span>查找测点</span>
+                <input
+                  type="search"
+                  aria-label="查找贡献测点"
+                  placeholder="名称或测点编号"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                />
+              </label>
+              <span>
+                {visibleRows.length} / {features} 个测点
+              </span>
+            </div>
+          )}
           <div className={'contribution-workspace' + (selectedRow ? ' has-detail' : '')}>
             <div
               className={'contribution-list' + (limit > 12 ? ' is-long' : '')}
@@ -141,10 +163,10 @@ export default function ContributionView({
               aria-label="测点贡献柱状图"
               data-playing={playing}
             >
-              {rows.map((row, rank) => (
+              {visibleRows.map((row) => (
                 <button
                   className="contribution-row"
-                  key={rank}
+                  key={row.feature}
                   aria-label={`查看测点 ${data.features[row.feature].key} 的贡献明细`}
                   aria-pressed={selected === row.feature}
                   data-feature={row.feature}
@@ -152,7 +174,7 @@ export default function ContributionView({
                   onClick={() => choose(row.feature)}
                 >
                   <span className="contribution-name">
-                    {data.features[row.feature].label}
+                    {featureName(data.features[row.feature])}
                     <small>{data.features[row.feature].key}</small>
                   </span>
                   <span className="contribution-track">
@@ -167,6 +189,11 @@ export default function ContributionView({
                   </svg>
                 </button>
               ))}
+              {visibleRows.length === 0 && (
+                <p className="feature-no-results" role="status">
+                  没有匹配的测点
+                </p>
+              )}
               {features > rows.length && (
                 <button
                   className="contribution-row contribution-other"

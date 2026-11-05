@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl } from './browser.mjs';
+import { launchBrowser, showcaseUrl, selectFeature } from './browser.mjs';
 
 const base = showcaseUrl;
 const out = process.env.QA_DIR || '.qa/playback-scale';
@@ -174,7 +174,7 @@ try {
 
     await page.getByRole('button', { name: 'SMST-AD', exact: true }).click();
     await page.locator('.reconstruction-view').waitFor();
-    await page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
+    await selectFeature(page, '4');
     await page.locator('.reconstruction-view').waitFor();
     const featureInput = await series(manifest.input, '4');
     const featureRecon = await series(manifest.models[1].recon, '4');

@@ -48,6 +48,7 @@ try {
     'usability',
     'playback_scale',
     'contributions',
+    'feature_picker',
   ]) {
     await new Promise((resolve, reject) => {
       const child = spawn(process.execPath, [`scripts/verify_${name}.mjs`], {

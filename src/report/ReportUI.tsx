@@ -1,6 +1,7 @@
 import type { Journey, Metrics, Model } from '../journey';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { pct, outcomeCode } from '../journey';
+import FeaturePicker from './FeaturePicker';
 export const colors = {
   input: '#283c4c',
   recon: '#258077',
@@ -53,17 +54,13 @@ export function FeatureSelect({
   aggregate?: boolean;
 }) {
   return (
-    <label className="field">
-      {aggregate ? '显示范围' : '测点'}
-      <select aria-label="选择测点" value={value} onChange={(e) => onChange(+e.target.value)}>
-        {aggregate && <option value={-1}>全部测点平均</option>}
-        {data.features.map((f) => (
-          <option key={f.index} value={f.index}>
-            {f.label}（{f.key}）
-          </option>
-        ))}
-      </select>
-    </label>
+    <FeaturePicker
+      features={data.features}
+      value={value}
+      onChange={onChange}
+      label={aggregate ? '显示范围' : '测点'}
+      aggregate={aggregate}
+    />
   );
 }
 export function Heading({

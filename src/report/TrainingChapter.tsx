@@ -5,6 +5,8 @@ import { Heading, Section, ModelSelect, colors } from './ReportUI';
 import Curve from './Curve';
 import { Footnote } from './notes';
 import { useCurveData } from './useCurveData';
+import FeaturePicker from './FeaturePicker';
+import { featureName } from './featureNames';
 
 type TrainingProps = {
   data: Journey;
@@ -58,20 +60,13 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
         }
       >
         <div className="training-window-header">
-          <label className="field">
-            显示测点
-            <select
-              aria-label="训练测点"
-              value={point.index}
-              onChange={(e) => setFeature(+e.target.value)}
-            >
-              {data.features.map((f) => (
-                <option key={f.index} value={f.index}>
-                  {f.label}（{f.key}）
-                </option>
-              ))}
-            </select>
-          </label>
+          <FeaturePicker
+            features={data.features}
+            value={point.index}
+            onChange={setFeature}
+            name="训练测点"
+            label="显示测点"
+          />
           <span>训练集，{length.toLocaleString('zh-CN')} 个时刻</span>
         </div>
         <div className="chapter-chart-panel">
@@ -93,7 +88,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
               </div>
               <Curve
                 title="归一化训练数据"
-                lines={[{ name: point.label, values, color: colors.input }]}
+                lines={[{ name: featureName(point), values, color: colors.input }]}
                 times={train.times.slice(contextStart, contextStart + contextLength)}
                 selection={{
                   start: start - contextStart,

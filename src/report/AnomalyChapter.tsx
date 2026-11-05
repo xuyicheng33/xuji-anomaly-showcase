@@ -16,6 +16,7 @@ import { Footnote, usePauseOnNavigation } from './notes';
 import LengthConstruction from './LengthConstruction';
 import ReferenceConstruction from './ReferenceConstruction';
 import { useDataAsset } from './useDataAsset';
+import FeaturePicker from './FeaturePicker';
 
 const methods = [
   {
@@ -367,20 +368,12 @@ export default function AnomalyChapter({
                   </button>
                 </div>
                 <div className="case-context">
-                  <label>
-                    测点
-                    <select
-                      aria-label="案例测点"
-                      value={feature}
-                      onChange={(e) => setSelectedFeature(+e.target.value)}
-                    >
-                      {selected.features.map((f) => (
-                        <option key={f} value={f}>
-                          {data.features[f].label}（{data.features[f].key}）
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <FeaturePicker
+                    features={selected.features.map((index) => data.features[index])}
+                    value={feature}
+                    onChange={setSelectedFeature}
+                    name="案例测点"
+                  />
                   <span>
                     {selected.times[0]} — {selected.times[selected.times.length - 1]}
                   </span>

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl } from './browser.mjs';
+import { launchBrowser, showcaseUrl, selectFeature } from './browser.mjs';
 const base = showcaseUrl;
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const cases = JSON.parse(
@@ -244,13 +244,13 @@ try {
       await matrix(page, expected(model, 0, n));
     }
   }
-  await page.getByRole('combobox', { name: '选择测点' }).selectOption('-1');
+  await selectFeature(page, '-1');
   assert.equal(await page.locator('.aggregate-error').count(), 0);
   const retainedProgress = await page.getByRole('slider', { name: '播放进度' }).inputValue();
-  await page.getByRole('combobox', { name: '选择测点' }).selectOption('4');
+  await selectFeature(page, '4');
   assert.equal(await page.locator('.aggregate-error').count(), 0);
   assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), retainedProgress);
-  await page.getByRole('combobox', { name: '选择测点' }).selectOption('-1');
+  await selectFeature(page, '-1');
   for (let rep = 0; rep < 3; rep++) {
     await page.getByRole('button', { name: '重置', exact: true }).click();
     await page.getByRole('combobox', { name: '播放速度' }).selectOption('16');

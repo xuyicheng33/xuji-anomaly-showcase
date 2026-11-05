@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl } from './browser.mjs';
+import { launchBrowser, showcaseUrl, selectFeature } from './browser.mjs';
 
 const base = showcaseUrl;
 const out = process.env.QA_DIR || '.qa/usability';
@@ -87,7 +87,7 @@ try {
     await startInput.press('Enter');
     assert.equal(await page.getByRole('slider', { name: '选择64点片段' }).inputValue(), '499');
     await startInput.fill('108');
-    if (width <= 390) await page.getByLabel('选择测点', { exact: true }).selectOption('5');
+    if (width <= 390) await selectFeature(page, '5');
     await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
     if (width === 768) {

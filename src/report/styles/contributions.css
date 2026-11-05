@@ -42,6 +42,26 @@
   gap: 36px;
   align-items: start;
 }
+.contribution-search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.contribution-search label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.contribution-search input {
+  width: 240px;
+}
 .contribution-list {
   min-width: 0;
 }
@@ -174,6 +194,19 @@
 .window-reconstruction-plot {
   margin-top: 14px;
 }
+.window-coverage-context {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.window-prediction-point {
+  cursor: pointer;
+  outline: none;
+}
+.window-prediction-point:focus-visible circle:last-of-type {
+  stroke: var(--blue);
+  stroke-width: 2.5;
+}
 .window-reconstruction-plot svg {
   width: 100%;
   display: block;
@@ -244,8 +277,8 @@
   overflow-wrap: anywhere;
 }
 .sensor-contribution-results {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 14px;
   margin-top: 14px;
 }
@@ -255,6 +288,12 @@
   justify-content: space-between;
   gap: 8px;
   flex-wrap: wrap;
+}
+.sensor-contribution-equation {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
 }
 .sensor-contribution-results span {
   color: var(--muted);
@@ -293,6 +332,12 @@
   }
 }
 @media (max-width: 680px) {
+  .contribution-search label {
+    width: 100%;
+  }
+  .contribution-search input {
+    flex: 1;
+  }
   .contribution-section {
     margin: 24px 0;
     padding-top: 22px;

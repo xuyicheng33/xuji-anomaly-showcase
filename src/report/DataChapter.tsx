@@ -8,6 +8,8 @@ import { Footnote } from './notes';
 import DataCleaning from './DataCleaning';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
+import FeaturePicker from './FeaturePicker';
+import { featureName } from './featureNames';
 
 type Props = { data: Journey; feature: number; setFeature: (feature: number) => void };
 const number = (value: number, digits = 3) =>
@@ -160,20 +162,12 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
             <p className="reading-copy">
               各测点使用训练集的最小值和最大值归一化；测试集沿用训练参数，越界值截断到0—1。
             </p>
-            <label className="field">
-              测点
-              <select
-                aria-label="归一化测点"
-                value={point.index}
-                onChange={(e) => setFeature(+e.target.value)}
-              >
-                {data.features.map((f) => (
-                  <option key={f.index} value={f.index}>
-                    {f.label}（{f.key}）
-                  </option>
-                ))}
-              </select>
-            </label>
+            <FeaturePicker
+              features={data.features}
+              value={point.index}
+              onChange={setFeature}
+              name="归一化测点"
+            />
           </div>
           {norm ? (
             <>
@@ -194,7 +188,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
               <div className="normalization-plots">
                 <Curve
                   title="原始单位"
-                  lines={[{ name: point.label, values: norm.values, color: colors.input }]}
+                  lines={[{ name: featureName(point), values: norm.values, color: colors.input }]}
                   times={train.times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}
                   range={chartRange(norm.values)}
@@ -203,7 +197,9 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                 />
                 <Curve
                   title="归一化后"
-                  lines={[{ name: point.label, values: norm.normalized, color: colors.recon }]}
+                  lines={[
+                    { name: featureName(point), values: norm.normalized, color: colors.recon },
+                  ]}
                   times={train.times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}
                   height={205}
