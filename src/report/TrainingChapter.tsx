@@ -26,7 +26,10 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
   const trainingAsset = useCurveData(train, train.keys.indexOf(point.key)),
     training = trainingAsset.data,
     error = trainingAsset.error;
-  const stats = useMemo(() => (training ? trainingScale(training) : null), [training]);
+  const stats = useMemo(
+    () => (training ? trainingScale(training, data.normalization?.epsilon) : null),
+    [training, data.normalization?.epsilon],
+  );
   const length = train.shape[0],
     lastStart = length - data.window,
     start = Math.min(windowStart, lastStart),

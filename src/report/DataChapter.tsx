@@ -1,3 +1,4 @@
+import WindSource from './WindSource';
 import { displaySettings } from '../dataGeometry';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { type Journey, trainingScale } from '../journey';
@@ -22,6 +23,7 @@ const chartRange = (values: number[]): [number, number] => {
 };
 
 export default function DataChapter({ data, feature, setFeature }: Props) {
+  const wind = data.dataset?.id === 'wind';
   const point = data.features[feature];
   const normalizationRef = useRef<HTMLDivElement>(null),
     [normalizationVisible, setNormalizationVisible] = useState(false);
@@ -47,7 +49,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
   }, []);
   const norm = useMemo(() => {
     if (!trainAsset.data) return null;
-    const { min, max, normalize } = trainingScale(trainAsset.data);
+    const { min, max, normalize } = trainingScale(trainAsset.data, data.normalization?.epsilon);
     const start = Math.min(5299, Math.max(0, train.shape[0] - displaySettings.playbackPoints));
     const values = Array.from(
       { length: Math.min(displaySettings.playbackPoints, train.shape[0] - start) },
@@ -60,14 +62,27 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
       values,
       normalized: values.map(normalize),
     };
-  }, [trainAsset.data, train.shape]);
+  }, [trainAsset.data, train.shape, data.normalization?.epsilon]);
   const sampleIndex = sample;
-  const split = cleaning.split;
+  const split = wind
+    ? {
+        trainCount: data.summary.trainRows,
+        testCount: data.summary.testRows,
+        trainStart: data.summary.trainStart,
+        trainEnd: data.summary.trainEnd,
+        testStart: data.summary.testStart,
+        testEnd: data.summary.testEnd,
+      }
+    : cleaning.split;
   const operand = (value: number) =>
     value < 0 ? `(−${number(Math.abs(value), 4)})` : number(value, 4);
   return (
     <div className="chapter-refined data-chapter">
-      <Heading title="监测数据预处理">筛选有效记录，完成缺失填补、数据划分与归一化。</Heading>
+      <Heading title="监测数据预处理">
+        {wind
+          ? '整理功率与天气记录，完成时间对应、数据划分与归一化。'
+          : '筛选有效记录，完成缺失填补、数据划分与归一化。'}
+      </Heading>
       <div className="data-ledger" aria-label="数据规模">
         <div>
           <span>原始记录</span>
@@ -106,12 +121,12 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
       <Section
         title={
           <>
-            无效记录与缺失值处理
+            {wind ? '功率与天气数据构成' : '无效记录与缺失值处理'}
             <Footnote note="data-source" />
           </>
         }
       >
-        <DataCleaning data={data} />
+        {wind ? <WindSource data={data} /> : <DataCleaning data={data} />}
       </Section>
 
       <Section
@@ -160,7 +175,9 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
         >
           <div className="normalization-heading">
             <p className="reading-copy">
-              各测点使用训练集的最小值和最大值归一化；测试集沿用训练参数，越界值截断到0—1。
+              {wind
+                ? '各字段使用训练集的最小值和最大值归一化，分母加 0.0001；测试集沿用训练参数，保留超出 0—1 的数值。'
+                : '各测点使用训练集的最小值和最大值归一化；测试集沿用训练参数，越界值截断到0—1。'}
             </p>
             <FeaturePicker
               features={data.features}
@@ -235,6 +252,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                     denominator={
                       <>
                         {operand(norm.max)} − {operand(norm.min)}
+                        {wind ? ' + 0.0001' : ''}
                       </>
                     }
                   />

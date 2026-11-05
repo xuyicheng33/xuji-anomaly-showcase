@@ -695,6 +695,10 @@
 .field input {
   min-height: 42px;
 }
+.model-identity {
+  font-size: 14px;
+  color: var(--muted);
+}
 .model-select {
   position: relative;
   isolation: isolate;

@@ -10,8 +10,14 @@
 }
 .hero-bottom {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
   margin-top: 28px;
+}
+.dataset-switch {
+  padding: 10px 0;
+  white-space: nowrap;
 }
 .hero-bottom .primary {
   min-width: 156px;
@@ -58,7 +64,7 @@
     font-size: 58px;
   }
   .hero-bottom {
-    justify-content: flex-start;
+    flex-wrap: wrap;
   }
   .chapter-list {
     grid-template-columns: 1fr;

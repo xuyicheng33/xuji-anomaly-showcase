@@ -1,3 +1,4 @@
+import { dataUrl, datasetId } from '../datasets';
 import { useEffect, useState } from 'react';
 import type { Journey } from '../journey';
 
@@ -9,7 +10,7 @@ export function useJourney() {
   useEffect(() => {
     let active = true;
     setError('');
-    fetch(import.meta.env.BASE_URL + 'data/journey/manifest.json')
+    fetch(dataUrl('manifest.json'))
       .then((r) => {
         if (!r.ok) throw Error('资料读取失败');
         return r.json();
@@ -17,6 +18,8 @@ export function useJourney() {
       .then((d: Journey) => {
         if (
           d.schemaVersion !== 2 ||
+          (d.dataset?.id ?? 'converter') !== datasetId ||
+          !d.models.length ||
           !d.features.length ||
           d.input.shape[1] !== d.features.length ||
           d.input.shape[0] !== d.times.length ||

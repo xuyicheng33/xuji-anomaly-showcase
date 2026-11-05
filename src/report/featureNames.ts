@@ -1,6 +1,17 @@
 import type { Feature } from '../journey';
 
-export const featureGroups = ['全部', '电压', '电流', '功率', '温度', '其他'] as const;
+export const featureGroups = [
+  '全部',
+  '电压',
+  '电流',
+  '功率',
+  '温度',
+  '实测功率',
+  '预测功率',
+  '实测天气',
+  '预测天气',
+  '其他',
+] as const;
 export type FeatureGroup = (typeof featureGroups)[number];
 
 /** Display names come from the retained dictionary; indexes and source keys stay intact. */
@@ -19,6 +30,8 @@ export function featureName(feature: Feature) {
 }
 
 export function featureGroup(feature: Feature): FeatureGroup {
+  if (feature.group && featureGroups.includes(feature.group as FeatureGroup))
+    return feature.group as FeatureGroup;
   const description = feature.description;
   if (/TEMPERATURE|TEMP/.test(description)) return '温度';
   if (/VOLTAGE/.test(description)) return '电压';

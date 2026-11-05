@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { countMetrics, meanSeries, loadWindow, windowScores, pct } from '../journey';
 import { Heading, Section, ModelSelect, FeatureSelect, Confusion, Rates, colors } from './ReportUI';
 import Curve from './Curve';
@@ -38,6 +38,7 @@ export function DetectionChapter(p: DetectionProps) {
     [draftStart, setDraftStart] = useState<string | null>(null),
     [request, setRequest] = useState<{ key: string; attempt: number } | null>(null);
   const viewKey = `${model.run}:${model.id}:${start}`;
+  const pendingExample = useRef<{ key: string; point: number } | null>(null);
   const requestResult = () =>
     setRequest((previous) => ({ key: viewKey, attempt: (previous?.attempt ?? 0) + 1 }));
   useEffect(() => {
@@ -47,7 +48,12 @@ export function DetectionChapter(p: DetectionProps) {
     setError('');
     setBusy(false);
     const example = model.examples.find((item) => item.start === start);
-    setPoint(Math.min(window - 1, saved?.point ?? (example ? example.index - start : 24)));
+    const selectedPoint =
+      pendingExample.current?.key === viewKey ? pendingExample.current.point : null;
+    pendingExample.current = null;
+    setPoint(
+      Math.min(window - 1, selectedPoint ?? saved?.point ?? (example ? example.index - start : 24)),
+    );
   }, [viewKey, model.examples, start, window]);
   // Bind each request to its model and window; ignore responses after the selection changes.
   useEffect(() => {
@@ -113,8 +119,15 @@ export function DetectionChapter(p: DetectionProps) {
         {model.examples.map((e) => (
           <button
             key={e.code}
-            aria-pressed={start === e.start && feature === e.feature}
+            aria-pressed={start === e.start && feature === e.feature && point === e.index - e.start}
             onClick={() => {
+              pendingExample.current =
+                start === e.start
+                  ? null
+                  : {
+                      key: `${model.run}:${model.id}:${e.start}`,
+                      point: e.index - e.start,
+                    };
               setPoint(e.index - e.start);
               setStart(e.start);
               setFeature(e.feature);
@@ -197,7 +210,7 @@ export function DetectionChapter(p: DetectionProps) {
       )}
       <p className="quiet chart-label-key">
         <i />
-        真实异常区间
+        {data.dataset?.id === 'wind' ? '保留异常标签区间' : '真实异常区间'}
       </p>
       {inputCurve.data ? (
         <ReconstructionView

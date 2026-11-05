@@ -1,3 +1,4 @@
+import WindExplanation from './WindExplanation';
 import type { Journey } from '../journey';
 import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
@@ -8,6 +9,7 @@ import cleaning from './cleaning-data.json';
 import { featureName } from './featureNames';
 
 export default function ExplanationChapter({ data, address }: { data: Journey; address: string }) {
+  if (data.dataset?.id === 'wind') return <WindExplanation data={data} address={address} />;
   const params = new URLSearchParams(address.split('?')[1] ?? ''),
     requested = params.get('note');
   return (

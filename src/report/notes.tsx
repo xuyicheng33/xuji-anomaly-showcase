@@ -1,3 +1,4 @@
+import { isWind } from '../datasets';
 import { useEffect, type ReactNode } from 'react';
 import { presentationMemory } from './presentationMemory';
 
@@ -16,7 +17,11 @@ export const notes = [
   { id: 'thresholds', title: '阈值与评估规则', page: 'detection' },
   { id: 'point-metrics', title: '逐点指标与区间点调整', page: 'detection' },
   { id: 'window-aggregation', title: '连续回放与跨窗口合并', page: 'playback' },
-  { id: 'model-design', title: '两种模型的设计与结果', page: 'models' },
+  {
+    id: 'model-design',
+    title: isWind ? '方法二的设计与结果' : '两种模型的设计与结果',
+    page: 'models',
+  },
   { id: 'training-mse', title: '训练重建误差与优化目标', page: 'training' },
 ] as const;
 export type NoteId = (typeof notes)[number]['id'];

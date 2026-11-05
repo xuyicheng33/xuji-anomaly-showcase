@@ -1,3 +1,4 @@
+import { dataUrl } from './datasets';
 import { loadAsset, type Asset, type Metrics } from './journey';
 
 export type Insertion = 'replace' | 'blend';
@@ -40,9 +41,7 @@ export type CaseArrays = {
 };
 let manifest: Promise<{ version: string; cases: AnomalyCase[] }> | undefined;
 export function loadCases() {
-  return (manifest ??= fetch(
-    import.meta.env.BASE_URL + 'data/journey/anomaly-cases-v1/manifest.json',
-  )
+  return (manifest ??= fetch(dataUrl('anomaly-cases-v1/manifest.json'))
     .then(async (r) => {
       if (!r.ok) throw Error('案例读取失败');
       const d = await r.json();

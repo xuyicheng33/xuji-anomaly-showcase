@@ -31,6 +31,8 @@ export function ModelSelect({
     if (ref.current) o.observe(ref.current);
     return () => o.disconnect();
   }, [value, data]);
+  if (data.models.length === 1)
+    return <span className="model-identity">{data.models[0].name}</span>;
   return (
     <div ref={ref} className="segmented model-select" aria-label="选择模型">
       <i className="selection-indicator" style={{ left: box.x, width: box.width }} />

@@ -816,3 +816,16 @@
   padding-top: 30px;
   padding-bottom: 30px;
 }
+
+.wind-fields {
+  margin-top: 24px;
+}
+.wind-fields summary {
+  cursor: pointer;
+  color: var(--blue);
+  padding: 12px 0;
+}
+.wind-fields .reference-table-scroll {
+  margin-top: 12px;
+  max-height: 420px;
+}

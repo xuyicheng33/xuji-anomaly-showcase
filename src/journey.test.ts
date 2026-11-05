@@ -6,8 +6,18 @@ import {
   outcomeCode,
   meanSeries,
   metricPrefixes,
+  trainingScale,
 } from './journey';
 describe('journey navigation and numerical chain', () => {
+  it('preserves wind epsilon and out-of-range values without changing converter scaling', () => {
+    const values = Float64Array.from([10, 20]);
+    expect(trainingScale(values).normalize(15)).toBe(0.5);
+    const wind = trainingScale(values, 0.0001);
+    expect(wind.normalize(15)).toBe(5 / 10.0001);
+    expect(wind.normalize(25)).toBeGreaterThan(1);
+    expect(wind.normalize(5)).toBeLessThan(0);
+    expect(trainingScale(Float64Array.from([10, 10]), 0.0001).normalize(11)).toBe(10000);
+  });
   it('keeps threshold equality normal and limits prefix statistics', () => {
     const y = [0, 1, 1, 0],
       s = [0.5, 0.7, 0.2, 0.9];

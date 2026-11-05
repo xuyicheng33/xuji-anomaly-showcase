@@ -187,13 +187,13 @@ export default function MetricsChapter({ data }: { data: Journey }) {
         <p className="metrics-definition">F1 为精确率与召回率的调和平均。</p>
       </section>
 
-      <Section title="两种方法的评估结果">
+      <Section title={data.models.length > 1 ? '两种方法的评估结果' : '方法二的评估结果'}>
         <p className="reading-copy">同一测试集、统一阈值规则，分别统计逐点与区间点调整指标。</p>
         <TableScrollHint id="metrics-table-hint">左右滑动查看全部指标。</TableScrollHint>
         <div
           className="metrics-archive-scroll"
           role="region"
-          aria-label="两种方法的检测指标"
+          aria-label={data.models.length > 1 ? '两种方法的检测指标' : '方法二的检测指标'}
           tabIndex={0}
           aria-describedby="metrics-table-hint"
         >

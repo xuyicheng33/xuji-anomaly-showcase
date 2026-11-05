@@ -2,6 +2,19 @@ import { type Journey, type Model } from '../journey';
 import { Heading, Section, ModelSelect } from './ReportUI';
 import { Footnote } from './notes';
 
+const windDescription = {
+  title: '多尺度时间依赖与窗口重建',
+  intro:
+    '方法二以多尺度局部时间分支和全局时间分支重建风电窗口，结合异常增强、时间掩码与有界异常损失学习数据变化。',
+  details: [
+    ['多尺度局部依赖', '不同空洞率的TCN提取窗口内不同范围的变化，Transformer组织时间关联。'],
+    ['全局时间依赖', 'Global分支接收部分遮蔽的窗口，利用其余可见时刻还原风电功率与天气字段。'],
+    [
+      '融合与重建',
+      '当前保留实现以局部与全局时间特征融合后的结果生成重建值；逐点平方误差汇总为异常评分。',
+    ],
+  ],
+};
 const descriptions = {
   model1: {
     title: '双分支自监督重建',
@@ -52,7 +65,8 @@ export function ModelsChapter({
   setModel: (value: string) => void;
 }) {
   const multi = model.id === 'model2',
-    description = descriptions[multi ? 'model2' : 'model1'];
+    wind = data.dataset?.id === 'wind',
+    description = wind ? windDescription : descriptions[multi ? 'model2' : 'model1'];
   return (
     <div className="chapter-refined models-chapter">
       <Heading
@@ -65,9 +79,11 @@ export function ModelsChapter({
       >
         以窗口重建为基础，识别偏离正常模式的时间片段。
       </Heading>
-      <div className="model-selection-row">
-        <ModelSelect data={data} value={model.id} onChange={setModel} />
-      </div>
+      {data.models.length > 1 && (
+        <div className="model-selection-row">
+          <ModelSelect data={data} value={model.id} onChange={setModel} />
+        </div>
+      )}
       <div className="model-intro">
         <span>{model.name}</span>
         <h2>{description.title}</h2>
@@ -86,12 +102,12 @@ export function ModelsChapter({
       <Section title="从输入到异常评分">
         <div className="model-flow" aria-label="模型处理流程">
           {[
-            ['输入窗口', '64个时刻 × 125个测点'],
+            ['输入窗口', `${data.window}个时刻 × ${data.features.length}个测点`],
             [
-              multi ? '时间与空间编码' : '局部与全局编码',
-              multi ? '多尺度时间建模，测点间注意力' : 'TCN提取变化，Transformer学习关联',
+              multi && !wind ? '时间与空间编码' : '局部与全局编码',
+              multi && !wind ? '多尺度时间建模，测点间注意力' : 'TCN提取变化，Transformer学习关联',
             ],
-            [multi ? '时空融合与重建' : '特征融合与重建', '还原各时刻的测点数值'],
+            [multi && !wind ? '时空融合与重建' : '特征融合与重建', '还原各时刻的测点数值'],
             ['误差聚合与判定', '平方误差聚合为时刻分数'],
           ].map(([title, copy], i) => (
             <div key={title}>
@@ -146,20 +162,22 @@ export function ModelsChapter({
         </div>
       </Section>
 
-      <Section title="两种方法的侧重点">
-        <div className="model-comparison">
-          <div>
-            <span>STAM-AD</span>
-            <h3>局部与全局互补</h3>
-            <p>用两个时间分支分别捕捉短期变化与窗口整体规律。</p>
+      {!wind && (
+        <Section title="两种方法的侧重点">
+          <div className="model-comparison">
+            <div>
+              <span>STAM-AD</span>
+              <h3>局部与全局互补</h3>
+              <p>用两个时间分支分别捕捉短期变化与窗口整体规律。</p>
+            </div>
+            <div>
+              <span>SMST-AD</span>
+              <h3>多尺度时间与空间协同</h3>
+              <p>在多尺度时间建模之外，显式学习测点之间的依赖，并融合时空特征。</p>
+            </div>
           </div>
-          <div>
-            <span>SMST-AD</span>
-            <h3>多尺度时间与空间协同</h3>
-            <p>在多尺度时间建模之外，显式学习测点之间的依赖，并融合时空特征。</p>
-          </div>
-        </div>
-      </Section>
+        </Section>
+      )}
     </div>
   );
 }

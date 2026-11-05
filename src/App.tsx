@@ -1,3 +1,4 @@
+import { isWind, datasetHome } from './datasets';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { chapters, route } from './report/navigation';
 import { useJourney } from './report/useJourney';
@@ -15,7 +16,7 @@ export default function App() {
   const [page, setPage] = useState(route),
     [address, setAddress] = useState(location.hash),
     [contentPage, setContentPage] = useState(() => (route() === 'metrics' ? null : route())),
-    [modelId, setModel] = useState('model1'),
+    [modelId, setModel] = useState(isWind ? 'model2' : 'model1'),
     [feature, setFeature] = useState(5),
     [start, setStart] = useState(107),
     [viewFeature, setViewFeature] = useState(-1),
@@ -55,7 +56,9 @@ export default function App() {
     document.title =
       (page === 'metrics'
         ? '数据与评估说明'
-        : chapters.find((c) => c[0] === page)?.[1] || '从数据到异常判定') + '　许继电气';
+        : chapters.find((c) => c[0] === page)?.[1] || '从数据到异常判定') +
+      (isWind ? ' · 风电数据集' : '') +
+      '　许继电气';
     const frame = requestAnimationFrame(() => {
       const note = new URLSearchParams(address.split('?')[1] ?? '').get('note');
       const target = page === 'metrics' && note ? document.getElementById('note-' + note) : null;
@@ -93,7 +96,7 @@ export default function App() {
       <header className="site-header">
         <a href="#/" className="brand">
           <strong>许继电气</strong>
-          <span>异常检测研究</span>
+          <span>{isWind ? '风电异常检测研究' : '异常检测研究'}</span>
         </a>
         <button
           ref={menuButton}
@@ -139,11 +142,17 @@ export default function App() {
             <>
               <section className="home-hero">
                 <h1>
-                  换流设备
+                  {isWind ? '风电设备' : '换流设备'}
                   <br />
                   异常检测研究
                 </h1>
                 <div className="hero-bottom">
+                  <a
+                    className="inline-link dataset-switch"
+                    href={datasetHome(isWind ? 'converter' : 'wind')}
+                  >
+                    {isWind ? '换流数据集' : '风电数据集'} →
+                  </a>
                   <a className="primary" href="#/data">
                     开始查看
                   </a>

@@ -1,3 +1,4 @@
+import { dataUrl } from './datasets';
 import { fetchRanges, type ByteRange } from './rangeAssets';
 import { coveringWindows } from './dataGeometry';
 
@@ -33,8 +34,26 @@ export type Model = {
   contributions: { chunks: WindowChunk[]; features: number };
   examples: { code: string; index: number; start: number; feature: number }[];
 };
-export type Feature = { index: number; key: string; label: string; description: string };
+export type Feature = {
+  group?: string;
+  index: number;
+  key: string;
+  label: string;
+  description: string;
+};
 export type Journey = {
+  dataset?: {
+    id: string;
+    title: string;
+    sourceDate: string;
+    samplingMinutes: number;
+    sourceFiles: string[];
+    unmatchedRows: number;
+    missingValues: number;
+    labelCells: number;
+    outsideUnitRange: number;
+  };
+  normalization?: { epsilon: number; clip: boolean };
   datasets: Record<string, Asset & { keys: string[]; times: string[] }>;
   schemaVersion: number;
   resultVersion: string;
@@ -69,7 +88,7 @@ export type Journey = {
 export const fmt = (n: number, digits = 0) =>
   n.toLocaleString('zh-CN', { maximumFractionDigits: digits });
 export const pct = (n: number | null) => (n === null ? '—' : `${(n * 100).toFixed(2)}%`);
-export function trainingScale(values: Float64Array) {
+export function trainingScale(values: Float64Array, epsilon = 0) {
   let min = Infinity,
     max = -Infinity;
   for (const value of values) {
@@ -79,7 +98,8 @@ export function trainingScale(values: Float64Array) {
   return {
     min,
     max,
-    normalize: (value: number) => (min === max ? 0 : (value - min) / (max - min)),
+    normalize: (value: number) =>
+      min === max && epsilon === 0 ? 0 : (value - min) / (max - min + epsilon),
   };
 }
 export type OutcomeCode = 'tp' | 'fp' | 'fn' | 'tn';
@@ -178,7 +198,7 @@ export function loadAsset(asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>) {
   const key = asset.file + ':' + asset.sha256;
   const existing = assetCache.get(key);
   if (existing) return existing;
-  const request = fetch(`${import.meta.env.BASE_URL}data/journey/${asset.file}?v=${asset.sha256}`)
+  const request = fetch(`${dataUrl(asset.file)}?v=${asset.sha256}`)
     .then(async (r) => {
       if (!r.ok) throw Error('数据读取失败');
       const b = await r.arrayBuffer();
@@ -197,7 +217,7 @@ async function windowFile({ file, bytes, sha256 }: WindowChunk) {
   const key = file + ':' + sha256;
   let request = windowCache.get(key);
   if (request) return request;
-  request = fetch(`${import.meta.env.BASE_URL}data/journey/${file}?v=${sha256}`)
+  request = fetch(`${dataUrl(file)}?v=${sha256}`)
     .then(async (r) => {
       if (!r.ok) throw Error('窗口结果读取失败');
       const b = await r.arrayBuffer();

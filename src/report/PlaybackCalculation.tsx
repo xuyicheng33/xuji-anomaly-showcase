@@ -1,3 +1,4 @@
+import { dataUrl } from '../datasets';
 import { coveringWindows } from '../dataGeometry';
 import { useEffect, useRef, useState } from 'react';
 import { loadWindow, type Journey, type Model, type Asset } from '../journey';
@@ -13,7 +14,7 @@ type IndexManifest = { resultVersion: string; models: Record<string, Asset> };
 let indexRequest: Promise<IndexManifest> | null = null;
 function loadIndex() {
   if (!indexRequest)
-    indexRequest = fetch(import.meta.env.BASE_URL + 'data/journey/calculation-v1/manifest.json')
+    indexRequest = fetch(dataUrl('calculation-v1/manifest.json'))
       .then((r) => {
         if (!r.ok) throw Error('计算索引读取失败');
         return r.json() as Promise<IndexManifest>;
@@ -239,7 +240,7 @@ export function PlaybackCalculation({
                               );
                             }}
                           >
-                            查看125项
+                            查看{data.features.length}项
                           </button>
                         </td>
                       </tr>

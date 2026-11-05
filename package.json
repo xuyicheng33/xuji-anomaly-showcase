@@ -14,7 +14,7 @@
     "test:browser": "npm run build && node scripts/verify_browser.mjs",
     "test:site": "node scripts/verify_browser.mjs --remote",
     "typecheck": "tsc -b",
-    "verify:data": "python -X utf8 -B scripts/verify_runtime.py && npm run verify:windows && npm run verify:cases && python -X utf8 -B scripts/export_data_cleaning.py --check",
+    "verify:data": "python -X utf8 -B scripts/verify_runtime.py && npm run verify:windows && npm run verify:cases && python -X utf8 -B scripts/export_data_cleaning.py --check && npm run verify:wind",
     "export:data": "python -X utf8 -B scripts/export_journey.py",
     "verify": "npm run check && npm test && npm run test:python && npm run verify:data && npm run verify:research && npm run verify:font && npm run test:browser && node scripts/build_record.mjs verify",
     "verify:windows": "python -X utf8 -B scripts/verify_windows.py",
@@ -31,7 +31,9 @@
     "verify:playback": "node scripts/verify_playback_scale.mjs",
     "deploy": "python -X utf8 -B scripts/deploy_release.py",
     "backup": "python -X utf8 -B scripts/backup_project.py",
-    "measure:loading": "node scripts/measure_loading.mjs"
+    "measure:loading": "node scripts/measure_loading.mjs",
+    "verify:wind": "python -X utf8 -B scripts/verify_wind_source.py && python -X utf8 -B scripts/verify_runtime.py --dataset wind && python -X utf8 -B scripts/verify_windows.py --dataset wind && python -X utf8 -B scripts/verify_anomaly_cases.py --dataset wind",
+    "export:wind": "python -X utf8 -B scripts/export_runtime.py --dataset wind && python -X utf8 -B scripts/export_calculation_index.py --dataset wind && python -X utf8 -B scripts/export_curve_data.py --dataset wind && python -X utf8 -B scripts/install_anomaly_cases.py --source data/reference/wind/cases --target public/data/wind/anomaly-cases-v1 --journey data/reference/wind/manifest.json"
   },
   "dependencies": {
     "react": "19.3.1",
