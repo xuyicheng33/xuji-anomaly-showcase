@@ -111,3 +111,50 @@ class MaintenanceTests(unittest.TestCase):
         for name in backup.RETAINED:
             self.assertEqual((restored / name / "source.txt").read_text(), "retained experiment")
         git(restored, "log", "--all", "--oneline")
+
+    def test_restore_recovers_all_local_branches_without_temporary_remote(self):
+        modules = {}
+        for name in ("backup_project", "restore_project"):
+            spec = importlib.util.spec_from_file_location(name, ROOT / f"scripts/{name}.py")
+            modules[name] = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(modules[name])
+        original_branch = subprocess.check_output(
+            ['git', '-C', str(self.folder), 'branch', '--show-current'], text=True).strip()
+        git(self.folder, 'switch', '-c', 'codex/restore-test')
+        (self.folder / 'app.txt').write_text('branch contents')
+        git(self.folder, 'commit', '-am', 'Branch change')
+        git(self.folder, 'tag', 'recovery-test')
+        for name in modules['backup_project'].RETAINED:
+            (self.folder / name).mkdir(parents=True, exist_ok=True)
+        with patch.object(modules['backup_project'], 'ROOT', self.folder), patch('sys.argv', ['backup']):
+            with contextlib.redirect_stdout(io.StringIO()):
+                modules['backup_project'].main()
+        archive = next((self.folder / '.qa/backups').glob('*.zip'))
+        restored = modules['restore_project'].restore(archive, self.folder / 'restored')
+        def output(*args):
+            return subprocess.check_output(['git', '-C', str(restored), *args], text=True).strip()
+        self.assertEqual(output('branch', '--show-current'), 'codex/restore-test')
+        self.assertEqual(output('remote'), '')
+        git(restored, 'show-ref', '--verify', f'refs/heads/{original_branch}')
+        git(restored, 'show-ref', '--verify', 'refs/tags/recovery-test')
+        with self.assertRaises(FileExistsError):
+            modules['restore_project'].restore(archive, restored)
+
+    def test_release_evaluation_allows_verified_new_version_and_rejects_mismatch(self):
+        spec = importlib.util.spec_from_file_location('release_validation', ROOT / 'scripts/release_validation.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        model = {'id': 'new-model', 'threshold': .4, 'windowThreshold': .5,
+                 'scores': [.1, .7], 'metrics': {'f1': .8}}
+        manifest = {'resultVersion': 'next-verified-version', 'models': [model]}
+        source = {**manifest, 'evaluation': {'id': 'retained-policy'}}
+        evaluation = {'version': manifest['resultVersion'], 'policy': {'id': 'retained-policy'},
+                      'models': [{'id': model['id'], 'sequence': {'value': .4}, 'window': {'value': .5}}]}
+        (self.folder / 'manifest.json').write_text(json.dumps(manifest))
+        (self.folder / 'reference.json').write_text(json.dumps(source))
+        (self.folder / 'evaluation.json').write_text(json.dumps(evaluation))
+        module.validate_evaluation(self.folder, self.folder / 'reference.json')
+        evaluation['models'][0]['sequence']['value'] = .3
+        (self.folder / 'evaluation.json').write_text(json.dumps(evaluation))
+        with self.assertRaises(ValueError):
+            module.validate_evaluation(self.folder, self.folder / 'reference.json')

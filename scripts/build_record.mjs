@@ -31,7 +31,7 @@ function walk(directory) {
 walk('dist');
 const recordPath = '.qa/build.json';
 const mode = process.argv[2];
-if (mode === 'verify') {
+if (mode === 'verify' || mode === 'check') {
   const build = JSON.parse(readFileSync(recordPath, 'utf8'));
   const browser = JSON.parse(readFileSync('.qa/browser.json', 'utf8'));
   if (
@@ -46,6 +46,11 @@ if (mode === 'verify') {
       'Local browser verification does not match this build. Run npm run verify again.',
     );
   }
+  if (mode === 'check' && !build.verified) throw new Error('Build has not passed verification.');
+}
+if (mode === 'check') {
+  console.log(`Verified build remains unchanged: ${commit.slice(0, 7)}.`);
+  process.exit(0);
 }
 mkdirSync('.qa', { recursive: true });
 writeFileSync(

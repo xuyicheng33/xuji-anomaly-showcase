@@ -10,6 +10,8 @@ import zipfile
 
 def restore(archive, destination):
     destination = Path(destination).resolve()
+    if destination.exists():
+        raise FileExistsError(f"Restore requires a new directory: {destination}")
     with zipfile.ZipFile(archive) as package:
         records = json.loads(package.read("manifest.json"))
         for name, expected in records.items():
@@ -21,6 +23,24 @@ def restore(archive, destination):
             bundle = Path(temporary) / "repository.bundle"
             bundle.write_bytes(package.read("repository.bundle"))
             subprocess.run(["git", "clone", str(bundle), str(destination)], check=True)
+            # Clone creates only one local branch; restore the other branch names
+            # before removing the temporary origin and its remote-tracking refs.
+            refs = subprocess.check_output(["git", "bundle", "list-heads", str(bundle)], text=True)
+            for line in refs.splitlines():
+                commit, ref = line.split(" ", 1)
+                if ref.startswith(("refs/heads/", "refs/tags/")):
+                    subprocess.run(["git", "-C", str(destination), "update-ref", ref, commit], check=True)
+            subprocess.run(["git", "-C", str(destination), "remote", "remove", "origin"], check=True)
+            if "repository.json" in records:
+                metadata = json.loads(package.read("repository.json"))
+                target = metadata["branch"] or metadata["head"]
+                command = ["git", "-C", str(destination), "switch"]
+                if not metadata["branch"]:
+                    command.append("--detach")
+                subprocess.run([*command, target], check=True)
+                head = subprocess.check_output(["git", "-C", str(destination), "rev-parse", "HEAD"], text=True).strip()
+                if head != metadata["head"]:
+                    raise ValueError("Restored Git HEAD differs from the backup")
         for name, expected in records.items():
             if not name.startswith("workspace/"):
                 continue

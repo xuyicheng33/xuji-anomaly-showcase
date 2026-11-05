@@ -7,6 +7,7 @@ import shlex
 import subprocess
 import tarfile
 import paramiko
+from release_validation import validate_evaluation
 
 parser = argparse.ArgumentParser(description='Publish the verified dist to the dedicated 9010 site using the local SSH key.')
 parser.add_argument('--qa-dir', type=Path, default=Path('.qa/deployment'))
@@ -20,13 +21,14 @@ if subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).st
 record=json.loads((root/'.qa/build.json').read_text(encoding='utf-8'))
 if not record.get('verified') or record['commit'] != commit:
     raise RuntimeError('Run npm run verify on this commit before deployment.')
+subprocess.run(['node', 'scripts/build_record.mjs', 'check'], cwd=root, check=True)
 out=args.qa_dir.resolve()
 out.mkdir(parents=True, exist_ok=True)
 dist=root/'dist'
 records={p.relative_to(dist).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in dist.rglob('*') if p.is_file() and p.suffix!='.gz'}
 if records != record['files']:
     raise RuntimeError('Production files differ from the verified build.')
-assert records['data/journey/evaluation.json']=='c5bf0fdc5d272cba46be955c2d890fb704cb97eb297a40a0a7bed58640e20eab'
+validate_evaluation(dist / 'data/journey', root / 'data/reference/manifest.json')
 client=paramiko.SSHClient();client.load_host_keys(str(Path.home()/'.ssh/known_hosts'))
 client.connect('124.223.175.32',username='ubuntu',key_filename=str(Path.home()/'.ssh/xuji_showcase_ed25519'),look_for_keys=False,allow_agent=False,timeout=20)
 

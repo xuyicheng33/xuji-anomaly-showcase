@@ -55,6 +55,14 @@ def main():
             records["workspace/" + name] = sha256(file)
         package.write(bundle, "repository.bundle")
         records["repository.bundle"] = sha256(bundle)
+        branch = subprocess.run(["git", "symbolic-ref", "--quiet", "--short", "HEAD"],
+                                cwd=ROOT, capture_output=True, text=True).stdout.strip()
+        repository = json.dumps({
+            "head": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+            "branch": branch or None,
+        }).encode("utf-8")
+        package.writestr("repository.json", repository)
+        records["repository.json"] = hashlib.sha256(repository).hexdigest()
         package.writestr("manifest.json", json.dumps(records, indent=2))
     with zipfile.ZipFile(archive) as package:
         for name, expected in records.items():
