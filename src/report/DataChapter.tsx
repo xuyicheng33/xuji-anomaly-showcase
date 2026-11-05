@@ -78,12 +78,18 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           <small>{data.summary.features} 个保留测点</small>
         </div>
         <div>
-          <span>训练集</span>
+          <span>
+            训练集
+            <Footnote note="data-split" reference="ref-data-training-count" />
+          </span>
           <strong>{number(split.trainCount, 0)}</strong>
           <small>前 70%</small>
         </div>
         <div>
-          <span>测试集</span>
+          <span>
+            测试集
+            <Footnote note="data-split" reference="ref-data-test-count" />
+          </span>
           <strong>{number(split.testCount, 0)}</strong>
           <small>后 30%</small>
         </div>

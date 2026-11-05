@@ -82,6 +82,17 @@
   gap: 48px;
   min-width: 0;
 }
+.playback-statistics-context {
+  grid-column: 1 / -1;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: -28px;
+  font-variant-numeric: tabular-nums;
+}
+.playback-statistics-context time {
+  display: block;
+}
 @container (max-width: 280px) {
   .playback-statistics {
     grid-template-columns: minmax(0, 1fr);
@@ -228,6 +239,9 @@
   .playback-statistics .matrix-section,
   .playback-statistics > div:last-child {
     width: 100%;
+  }
+  .playback-statistics-context {
+    display: none;
   }
   .playback-statistics .rates {
     grid-template-columns: 1fr;

@@ -214,6 +214,12 @@ export function PlaybackChapter(p: PlaybackProps) {
           />
         </div>
         <div className="statistics playback-statistics">
+          <p className="playback-statistics-context" data-testid="statistics-context">
+            {count
+              ? `${scope === 'all' ? `截至第 ${idx + 1} 点` : `统计第 ${from + 1}—${idx + 1} 点`} · 已查看 ${count} / ${total} 点`
+              : '尚未开始统计'}
+            {count > 0 && <time>{data.times[idx]}</time>}
+          </p>
           <Confusion metrics={stats} active={active} caption="当前时刻累计结果" />
           <div>
             <div className="current-score">
