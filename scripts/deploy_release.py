@@ -7,7 +7,7 @@ import shlex
 import subprocess
 import tarfile
 import paramiko
-from release_validation import validate_evaluation
+from release_validation import validate_evaluation, window_location_config
 
 parser = argparse.ArgumentParser(description='Publish the verified dist to the dedicated 9010 site using the local SSH key.')
 parser.add_argument('--qa-dir', type=Path, default=Path('.qa/deployment'))
@@ -52,6 +52,14 @@ target='/var/www/xuji-showcase/releases/'+release
 run('mkdir -p '+shlex.quote(staging))
 sftp=client.open_sftp();sftp.put(str(archive),staging+'/changes.tar.gz')
 with sftp.open(staging+'/files.json','w') as file:file.write(json.dumps(records))
+# Install only the window location; preserve other applications in the site's configuration.
+config=(root/'deploy/nginx-9010.conf').read_text(encoding='utf8')
+begin=config.index('    location ^~ /data/journey/windows-v1/ {')
+end=config.index('\n    }',begin)+len('\n    }')
+with sftp.open(staging+'/window-location.conf','w') as file:file.write(config[begin:end])
+existing_config=remote_python("from pathlib import Path;print(Path('/etc/nginx/conf.d/xuji-showcase-9010.conf').read_text(),end='')")
+updated_config=window_location_config(existing_config,config[begin:end])
+with sftp.open(staging+'/site.conf','w') as file:file.write(updated_config)
 sftp.close()
 source=f'''
 from pathlib import Path
@@ -85,10 +93,48 @@ for file in target.rglob('*.gz'):
 print(json.dumps({{'verifiedFiles':len(expected),'release':str(target)}}))
 '''
 print(run('sudo -n python3 -c '+shlex.quote(source)),flush=True)
-run('sudo -n nginx -t')
-run('sudo -n ln -s '+shlex.quote(target)+' /var/www/xuji-showcase/current-next && sudo -n mv -Tf /var/www/xuji-showcase/current-next /var/www/xuji-showcase/current')
-run('sudo -n systemctl reload nginx')
-assert run('curl -fsS -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/')=='200'
+config_path='/etc/nginx/conf.d/xuji-showcase-9010.conf'
+config_backup='/var/www/xuji-showcase/config-backups/'+release+'.conf'
+config_update=f'''
+from pathlib import Path
+import hashlib
+config=Path({config_path!r});backup=Path({config_backup!r})
+text=config.read_text()
+assert hashlib.sha256(text.encode()).hexdigest()=={hashlib.sha256(existing_config.encode()).hexdigest()!r}
+assert not backup.exists()
+backup.parent.mkdir(parents=True,exist_ok=True);backup.write_text(text)
+config.write_bytes(Path({staging!r}+'/site.conf').read_bytes())
+'''
+try:
+    run('sudo -n python3 -c '+shlex.quote(config_update))
+    run('sudo -n nginx -t')
+    run('sudo -n ln -s '+shlex.quote(target)+' /var/www/xuji-showcase/current-next && sudo -n mv -Tf /var/www/xuji-showcase/current-next /var/www/xuji-showcase/current')
+    run('sudo -n systemctl reload nginx')
+    assert run('curl -fsS -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/')=='200'
+    # A browser sends Accept-Encoding automatically. Confirm offsets still refer to raw data.
+    chunk=json.loads((dist/'data/journey/manifest.json').read_text(encoding='utf8'))['models'][0]['windows']['chunks'][0]
+    probe=f'''
+from urllib.request import Request,urlopen
+from pathlib import Path
+url='http://127.0.0.1:9010/data/journey/'+{chunk['file']!r}
+response=urlopen(Request(url,headers={{'Range':'bytes=0-31999','Accept-Encoding':'gzip'}}))
+assert response.status==206 and response.headers.get('Content-Encoding') is None
+assert response.read()==Path({target!r}+'/data/journey/'+{chunk['file']!r}).read_bytes()[:32000]
+'''
+    remote_python(probe)
+except Exception:
+    restore=f'''
+from pathlib import Path
+import os
+backup=Path({config_backup!r})
+if backup.exists():Path({config_path!r}).write_bytes(backup.read_bytes())
+current=Path('/var/www/xuji-showcase/current-rollback')
+current.unlink(missing_ok=True);current.symlink_to({previous!r})
+os.replace(current,'/var/www/xuji-showcase/current')
+'''
+    run('sudo -n python3 -c '+shlex.quote(restore))
+    run('sudo -n nginx -t && sudo -n systemctl reload nginx')
+    raise
 record={'release':release,'previousRelease':Path(previous).name,'url':'http://124.223.175.32:9010/','releasePath':target,'verifiedFiles':len(records),'changedFiles':len(changed),'uploadedBytes':archive.stat().st_size,'scope':args.scope,'deployedAt':datetime.datetime.now(datetime.timezone.utc).isoformat()}
 run('sudo -n python3 -c '+shlex.quote("from pathlib import Path;Path('/var/www/xuji-showcase/deployment.json').write_text("+repr(json.dumps(record,indent=2))+')'))
 remote_python("from pathlib import Path;import shutil;p=Path("+repr(staging)+");assert p.parent==Path('/home/ubuntu') and p.name.startswith('xuji-home-data-');shutil.rmtree(p)")

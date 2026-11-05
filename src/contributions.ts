@@ -1,5 +1,4 @@
-import { coveringWindows } from './dataGeometry';
-import { loadWindow, type Model } from './journey';
+import { loadCoveringPredictions, type Model } from './journey';
 
 export function rankContributions(errors: Float64Array, features: number) {
   const rows = Array.from(errors, (error, feature) => ({
@@ -15,14 +14,11 @@ export function rankContributions(errors: Float64Array, features: number) {
 }
 
 export async function sensorWindows(model: Model, index: number, feature: number, input: number) {
-  const starts = coveringWindows(index, model.scores.length, model.windows.length);
-  return Promise.all(
-    starts.map(async (start) => {
-      const result = await loadWindow(model, start);
-      const prediction = result.recon[(index - start) * model.windows.features + feature];
-      return { start, prediction, input, error: (input - prediction) ** 2 };
-    }),
-  );
+  const rows = await loadCoveringPredictions(model, index);
+  return rows.map(({ start, predictions }) => {
+    const prediction = predictions[feature];
+    return { start, prediction, input, error: (input - prediction) ** 2 };
+  });
 }
 export type SensorWindow = Awaited<ReturnType<typeof sensorWindows>>[number];
 

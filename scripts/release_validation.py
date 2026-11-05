@@ -3,6 +3,22 @@ import json
 from pathlib import Path
 
 
+def window_location_config(existing, location):
+    """Replace the dedicated window rule, keeping every unrelated site directive."""
+    if 'listen 9010;' not in existing or 'root /var/www/xuji-showcase/current;' not in existing:
+        raise ValueError('Unexpected dedicated site configuration')
+    lines = existing.splitlines(keepends=True)
+    begin = next((i for i, line in enumerate(lines)
+                  if line.strip() == 'location ^~ /data/journey/windows-v1/ {'), None)
+    if begin is not None:
+        end = next(i for i in range(begin + 1, len(lines)) if lines[i].strip() == '}')
+        lines[begin:end + 1] = [location + '\n']
+    else:
+        begin = next(i for i, line in enumerate(lines) if line.strip().startswith('location ~ ^/data/'))
+        lines.insert(begin, location + '\n')
+    return ''.join(lines)
+
+
 def validate_evaluation(folder, reference):
     folder = Path(folder)
     manifest = json.loads((folder / 'manifest.json').read_text(encoding='utf8'))
