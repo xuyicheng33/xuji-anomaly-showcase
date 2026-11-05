@@ -26,7 +26,7 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def construct(clean):
+def construct(clean, selected_features=None):
     """Separate candidate construction from replacement/blending composition.
 
     Reference flipping, uniform value, peak selection and repeat-interleave
@@ -38,9 +38,12 @@ def construct(clean):
     # A fixed multivariate selection makes the aggregate score interpretable.
     features = [4, 5, 6, 9, 11, 13, 16, 17, 18, 20, 22, 24, 26, 28, 30, 32,
                 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64]
+    if selected_features is not None:
+        features = selected_features
+    feature_count = clean.shape[1]
     rng = np.random.default_rng(SEED)
-    mask = np.ones((64, 125), np.uint8)
-    for f, begin in enumerate(rng.integers(0, 49, 125)):
+    mask = np.ones((64, feature_count), np.uint8)
+    for f, begin in enumerate(rng.integers(0, 49, feature_count)):
         mask[begin:begin + 16, f] = 0
     cases = []
     for kind in ['reference', 'uniform', 'peak', 'length']:

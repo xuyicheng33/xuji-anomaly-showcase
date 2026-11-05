@@ -12,7 +12,7 @@ TARGET = ROOT / 'public/fonts/NotoSerifSC-Subset.ttf'
 
 def required_text():
     files = [p for p in (ROOT / 'src').rglob('*') if p.suffix in {'.ts', '.tsx', '.json'}]
-    files += [ROOT / 'public/data/journey/manifest.json']
+    files += list((ROOT / 'public/data').glob('*/manifest.json'))
     content = ''.join(p.read_text(encoding='utf-8') for p in files)
     chinese = set(re.findall(r'[\u3400-\u9fff]', content))
     return chinese, chinese | set(chr(i) for i in range(32, 127)) | set('，。；：！？、（）【】《》“”‘’—–−…→↑↗×÷％℃')

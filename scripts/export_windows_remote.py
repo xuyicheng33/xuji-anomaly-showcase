@@ -34,14 +34,14 @@ def adjusted(y, p):
     return p
 
 
-def mask_for(start, split, seed=20261027):
+def mask_for(start, split, seed=20261027, features=125, window=64):
     # The retained mask code uses a 16-step zero span for 64-step FFT windows.
     # Persist its realization; derive random choices from the window, never the batch.
     rng = np.random.default_rng(seed + start + (100000 if split == 'train' else 200000))
-    offsets = rng.integers(0, 49, 125)
-    mask = np.ones((64, 125), dtype=np.uint8)
+    offsets = rng.integers(0, window - window // 4 + 1, features)
+    mask = np.ones((window, features), dtype=np.uint8)
     for c, begin in enumerate(offsets):
-        mask[begin:begin+16, c] = 0
+        mask[begin:begin+window//4, c] = 0
     return mask
 
 

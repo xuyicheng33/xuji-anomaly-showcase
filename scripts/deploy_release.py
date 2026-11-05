@@ -29,6 +29,7 @@ records={p.relative_to(dist).as_posix():hashlib.sha256(p.read_bytes()).hexdigest
 if records != record['files']:
     raise RuntimeError('Production files differ from the verified build.')
 validate_evaluation(dist / 'data/journey', root / 'data/reference/manifest.json')
+validate_evaluation(dist / 'data/wind', root / 'data/reference/wind/manifest.json')
 client=paramiko.SSHClient();client.load_host_keys(str(Path.home()/'.ssh/known_hosts'))
 client.connect('124.223.175.32',username='ubuntu',key_filename=str(Path.home()/'.ssh/xuji_showcase_ed25519'),look_for_keys=False,allow_agent=False,timeout=20)
 
@@ -54,11 +55,12 @@ sftp=client.open_sftp();sftp.put(str(archive),staging+'/changes.tar.gz')
 with sftp.open(staging+'/files.json','w') as file:file.write(json.dumps(records))
 # Install only the window location; preserve other applications in the site's configuration.
 config=(root/'deploy/nginx-9010.conf').read_text(encoding='utf8')
-begin=config.index('    location ^~ /data/journey/windows-v1/ {')
-end=config.index('\n    }',begin)+len('\n    }')
-with sftp.open(staging+'/window-location.conf','w') as file:file.write(config[begin:end])
 existing_config=remote_python("from pathlib import Path;print(Path('/etc/nginx/conf.d/xuji-showcase-9010.conf').read_text(),end='')")
-updated_config=window_location_config(existing_config,config[begin:end])
+updated_config=existing_config
+for dataset in ['journey','wind']:
+    begin=config.index('    location ^~ /data/'+dataset+'/windows-v1/ {')
+    end=config.index('\n    }',begin)+len('\n    }')
+    updated_config=window_location_config(updated_config,config[begin:end])
 with sftp.open(staging+'/site.conf','w') as file:file.write(updated_config)
 sftp.close()
 source=f'''
@@ -112,16 +114,19 @@ try:
     run('sudo -n systemctl reload nginx')
     assert run('curl -fsS -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/')=='200'
     # A browser sends Accept-Encoding automatically. Confirm offsets still refer to raw data.
-    chunk=json.loads((dist/'data/journey/manifest.json').read_text(encoding='utf8'))['models'][0]['windows']['chunks'][0]
-    probe=f'''
+    for dataset in ['journey','wind']:
+        chunk=json.loads((dist/('data/'+dataset)/'manifest.json').read_text(encoding='utf8'))['models'][0]['windows']['chunks'][0]
+        probe=f'''
 from urllib.request import Request,urlopen
 from pathlib import Path
-url='http://127.0.0.1:9010/data/journey/'+{chunk['file']!r}
+relative='data/'+{dataset!r}+'/'+{chunk['file']!r}
+url='http://127.0.0.1:9010/'+relative
 response=urlopen(Request(url,headers={{'Range':'bytes=0-31999','Accept-Encoding':'gzip'}}))
 assert response.status==206 and response.headers.get('Content-Encoding') is None
-assert response.read()==Path({target!r}+'/data/journey/'+{chunk['file']!r}).read_bytes()[:32000]
+assert response.read()==(Path({target!r})/relative).read_bytes()[:32000]
 '''
-    remote_python(probe)
+        remote_python(probe)
+
 except Exception:
     restore=f'''
 from pathlib import Path

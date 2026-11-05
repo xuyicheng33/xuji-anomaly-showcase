@@ -50,13 +50,24 @@ try {
     'contributions',
     'feature_picker',
     'ranges',
+    'wind',
+    'wind_ranges',
   ]) {
     await new Promise((resolve, reject) => {
-      const child = spawn(process.execPath, [`scripts/verify_${name}.mjs`], {
-        stdio: 'inherit',
-        windowsHide: true,
-        env: { ...process.env, SHOWCASE_URL: base, QA_DIR: path.join(output, name) },
-      });
+      const child = spawn(
+        process.execPath,
+        [`scripts/verify_${name === 'wind_ranges' ? 'ranges' : name}.mjs`],
+        {
+          stdio: 'inherit',
+          windowsHide: true,
+          env: {
+            ...process.env,
+            SHOWCASE_URL: name === 'wind_ranges' ? new URL('?dataset=wind', base).href : base,
+            SHOWCASE_DATASET: name === 'wind_ranges' ? 'wind' : 'converter',
+            QA_DIR: path.join(output, name),
+          },
+        },
+      );
       child.once('error', reject);
       child.once('exit', (code) =>
         code === 0 ? resolve() : reject(new Error(`${name} failed (${code})`)),

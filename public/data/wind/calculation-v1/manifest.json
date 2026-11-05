@@ -1,0 +1,17 @@
+{
+  "resultVersion": "wind28-method2-20261105",
+  "window": 64,
+  "features": 28,
+  "models": {
+    "model2": {
+      "file": "calculation-v1/model2-scores.bin",
+      "shape": [
+        2565,
+        64
+      ],
+      "bytes": 1313280,
+      "sha256": "54a35aecc0e53ade06b00a0bf9cda0b509817e8d2bebb64f15f6e462ccbdf018",
+      "maxAggregateDifference": 1.3877787807814457e-16
+    }
+  }
+}

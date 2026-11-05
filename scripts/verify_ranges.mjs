@@ -4,7 +4,10 @@ import { launchBrowser, showcaseUrl } from './browser.mjs';
 
 const out = process.env.QA_DIR || '.qa/ranges';
 await mkdir(out, { recursive: true });
-const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
+const wind = process.env.SHOWCASE_DATASET === 'wind';
+const dataPath = wind ? 'wind' : 'journey';
+const referencePath = wind ? 'data/reference/wind/' : 'data/reference/';
+const data = JSON.parse(await readFile(`public/data/${dataPath}/manifest.json`, 'utf8'));
 const sourceFiles = new Map();
 for (const model of data.models)
   for (const chunk of model.windows.chunks) sourceFiles.set(chunk.file, chunk);
@@ -18,9 +21,9 @@ try {
     const requests = [];
     let mode = 'valid';
     await page.route('**/windows-v1/**/*.bin*', async (route) => {
-      const pathname = new URL(route.request().url()).pathname.split('/data/journey/')[1];
+      const pathname = new URL(route.request().url()).pathname.split(`/data/${dataPath}/`)[1];
       const chunk = sourceFiles.get(pathname);
-      const source = await readFile('data/reference/' + pathname);
+      const source = await readFile(referencePath + pathname);
       const range = route.request().headers().range;
       requests.push({ range, bytes: source.length });
       if (mode === 'fail') return route.fulfill({ status: 503, body: 'unavailable' });
@@ -65,7 +68,7 @@ try {
       });
     });
     await page.goto(showcaseUrl + '#/playback');
-    for (const count of [1, 132, 2397]) {
+    for (const count of [1, 132, data.times.length]) {
       await page.getByRole('slider', { name: '播放进度' }).fill(String(count));
       await page.getByTestId('contribution-total').waitFor();
       await page.locator('.contribution-row').first().click();
@@ -84,7 +87,7 @@ try {
         const chunk = data.models[0].windows.chunks.find(
           (c) => start >= c.start && start < c.start + c.count,
         );
-        const raw = await readFile('data/reference/' + chunk.file);
+        const raw = await readFile(referencePath + chunk.file);
         const offset =
           ((start - chunk.start) * data.window + count - 1 - start) * data.features.length +
           feature;

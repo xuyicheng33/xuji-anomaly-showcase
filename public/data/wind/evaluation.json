@@ -1,0 +1,47 @@
+{
+  "version": "wind28-method2-20261105",
+  "policy": {
+    "id": "pa-f1-exhaustive-v1",
+    "name": "事后回看评估",
+    "objective": "point_adjusted_f1",
+    "candidates": "midpoints between distinct scores plus bounds outside the score range",
+    "comparison": "score > threshold",
+    "tieBreak": [
+      "point_wise_f1",
+      "higher_threshold"
+    ],
+    "usesTestLabels": true,
+    "windowSegments": "each 64-point window is evaluated independently"
+  },
+  "models": [
+    {
+      "id": "model2",
+      "sequence": {
+        "value": 0.10038339405678683,
+        "candidateCount": 2629,
+        "sampleCount": 2628,
+        "abnormalCount": 483,
+        "sequenceCount": 1,
+        "pointWiseF1": 0.15661375661375662,
+        "pointAdjustedF1": 0.7134416543574594,
+        "tp": 74,
+        "fp": 388,
+        "paTp": 483,
+        "selectedCandidateIndex": 2166
+      },
+      "window": {
+        "value": 0.10162429565948944,
+        "candidateCount": 164161,
+        "sampleCount": 164160,
+        "abnormalCount": 29975,
+        "sequenceCount": 2565,
+        "pointWiseF1": 0.15705301595888557,
+        "pointAdjustedF1": 0.6741665957213918,
+        "tp": 4645,
+        "fp": 24532,
+        "paTp": 27716,
+        "selectedCandidateIndex": 134983
+      }
+    }
+  ]
+}

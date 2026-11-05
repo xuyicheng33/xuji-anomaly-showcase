@@ -406,5 +406,179 @@
     "bytes": 1593730,
     "sha256": "f48af2e60b06809cd81f596cbcf385611ea593ae0d32356e4f3ed1e4079e013e",
     "origin": "user-provided material"
+  },
+  {
+    "local": "data/source/wind/data/xuji_28/train.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/data/xuji_28/train.npy",
+    "bytes": 686800,
+    "sha256": "1db3cd96376fbe149a3b162ce6904e574e64048392a0806a3ba546477eaabecb"
+  },
+  {
+    "local": "data/source/wind/data/xuji_28/test.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/data/xuji_28/test.npy",
+    "bytes": 294464,
+    "sha256": "c7afccd12ff6eb37b9bfecc0a92b35a741aef9a43c92e7d385acdb7c3c27237a"
+  },
+  {
+    "local": "data/source/wind/data/xuji_28/labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/data/xuji_28/labels.npy",
+    "bytes": 294464,
+    "sha256": "d0bbb6b53abd9b58c1513357e4fb7b01813b6a4640a40464e221183817a83917"
+  },
+  {
+    "local": "data/source/wind/processed/xuji_28/train.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/processed/xuji_28/train.npy",
+    "bytes": 1373472,
+    "sha256": "01f41ebfa48aa60d3d5ebcd18f452771a1d6cb836ed550df7f1dac99f5cd2f13"
+  },
+  {
+    "local": "data/source/wind/processed/xuji_28/test.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/processed/xuji_28/test.npy",
+    "bytes": 588800,
+    "sha256": "d28a7304573bfe068ed1fecc261a091f3419ec09a7e656b23639598e6e58a3c3"
+  },
+  {
+    "local": "data/source/wind/processed/xuji_28/labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/processed/xuji_28/labels.npy",
+    "bytes": 588800,
+    "sha256": "fe9d44213e55e581b6c6005eaf7663c00f85d7c83b4529bb644a6a46f706f407"
+  },
+  {
+    "local": "data/source/wind/insertedData/xuji_28/test.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/insertedData/xuji_28/test.npy",
+    "bytes": 588800,
+    "sha256": "0f58671654a599ec1bf05b228c2dc802c0eb73250a52cc5e16150e88e612b6d1"
+  },
+  {
+    "local": "data/source/wind/insertedData/xuji_28/labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/insertedData/xuji_28/labels.npy",
+    "bytes": 588800,
+    "sha256": "11017a499e89fb450e132133d60fa93fa5d45714d22a9e784f27545406a7c223"
+  },
+  {
+    "local": "data/source/wind/reconstructed/epochtest_fusion.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/reconstructed/epochtest_fusion.npy",
+    "bytes": 588800,
+    "sha256": "723974fa9300c5117671af5f09d85c77df4706c1487c6bcb906ce705ec7a490d"
+  },
+  {
+    "local": "data/source/wind/newMain17.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/newMain17.py",
+    "bytes": 47996,
+    "sha256": "17051c75eceb191e46489f27bc50ae30e9a468939ee52d92c1860f40e872e132"
+  },
+  {
+    "local": "data/source/wind/preprocess.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/preprocess.py",
+    "bytes": 12352,
+    "sha256": "6cbba2c41356f86478ef593b29874ae55bcc86453c7eada9c5a6f531b2473736"
+  },
+  {
+    "local": "data/source/wind/demo11.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/demo11.py",
+    "bytes": 20940,
+    "sha256": "8d93775b9b358f24fa22a554f480f0ee7e99b0d1eed59d551d86bcb961d484f0"
+  },
+  {
+    "local": "data/source/wind/demoNew03.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/demoNew03.py",
+    "bytes": 13773,
+    "sha256": "1be1ef7eb9d3096ba7b60c51ad08a30941ef8c2e327b95ffc8718e558054887d"
+  },
+  {
+    "local": "data/source/wind/adaptive_mask.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/adaptive_mask.py",
+    "bytes": 4830,
+    "sha256": "745ea27a04b6d7709a9f60caa64be277d601345f49a8dd08e24548e26d1f418d"
+  },
+  {
+    "local": "data/source/wind/src/diagnosis.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/diagnosis.py",
+    "bytes": 964,
+    "sha256": "42a9176c722dfb18cab82d651138ccc994e0d8d13937b845965a1de25609cb1d"
+  },
+  {
+    "local": "data/source/wind/src/spot.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/spot.py",
+    "bytes": 66128,
+    "sha256": "7d68506d28421da21247e6ac76e9684ed1a687820426695fe3016416b68035bb"
+  },
+  {
+    "local": "data/source/wind/src/constants.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/constants.py",
+    "bytes": 4750,
+    "sha256": "c46d6dcda00c35e4149380c30de40ab761a9130da8ef03b1e316bdb62bf39c47"
+  },
+  {
+    "local": "data/source/wind/src/dlutils.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/dlutils.py",
+    "bytes": 13844,
+    "sha256": "67f938707a76b6ed371607a20c2a1c0831993529bd68cf4efb592c5d2669294f"
+  },
+  {
+    "local": "data/source/wind/src/pot.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/pot.py",
+    "bytes": 8603,
+    "sha256": "ae5339317ef191247363ef4697a769bd406632ce323a39027b2f006cfff617e3"
+  },
+  {
+    "local": "data/source/wind/src/utils.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/utils.py",
+    "bytes": 2056,
+    "sha256": "9a5ed10545103e3d6e803e55ca6616191a1e9e04eb72a856b6808ac0e0e37c5e"
+  },
+  {
+    "local": "data/source/wind/src/plotting.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/plotting.py",
+    "bytes": 2324,
+    "sha256": "6a8c11247ecfd76444c812c76ea395a0b052f7019c386640cafaed680eeea7be"
+  },
+  {
+    "local": "data/source/wind/src/models.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/models.py",
+    "bytes": 35340,
+    "sha256": "8a388c40fa395c163c35179f0a6290add9f14c6ffb9485fe049d9860b293d40a"
+  },
+  {
+    "local": "data/source/wind/src/folderconstants.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "local": "data/source/wind/src/parser.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/parser.py",
+    "bytes": 2973,
+    "sha256": "1c7d90ff5b81d69ff91595b3764cbe0881ce0a57e57f238ccc906c9f2182ed4d"
+  },
+  {
+    "local": "data/source/wind/src/gltcn.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/src/gltcn.py",
+    "bytes": 6382,
+    "sha256": "7b076b9fc252ce8f8a375a33876382682cce5cb4100853bfd18fff46199e5091"
+  },
+  {
+    "local": "data/source/wind/logs/xuji_28_DTAAD_e5_20261027_214640.log",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/logs/xuji_28_DTAAD_e5_20261027_214640.log",
+    "bytes": 166031,
+    "sha256": "dbddd541b6d2e54490dc46d9930df58724f29bd92a0f19d98b7de790f7e16f21"
+  },
+  {
+    "local": "data/source/wind/weather/extracted_data.csv",
+    "remote": "/root/gpufree-data/DTAAD/other/data/weather_forecast/extracted_data.csv",
+    "bytes": 3034394,
+    "sha256": "ebbb7803ec649e0d1870f757f49cddd1e00df21803785a4e04b8410bf1f22240"
+  },
+  {
+    "local": "data/source/wind/weather/1.py",
+    "remote": "/root/gpufree-data/DTAAD/other/data/weather_forecast/1.py",
+    "bytes": 2555,
+    "sha256": "b01a3044161cd743759041eff0715f9f9d30a912d67dcf902e01c7ef0021cc0a"
+  },
+  {
+    "local": "data/models/wind/method2.ckpt",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/checkpoints/DTAAD_xuji_28/model.ckpt",
+    "bytes": 5258666,
+    "sha256": "7a4abd770a61714810610b0e88833a2469111efbc9b84eb70cd724686093b9cd"
   }
 ]

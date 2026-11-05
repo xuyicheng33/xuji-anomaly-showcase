@@ -1,4 +1,5 @@
 """Check every shipped view against its retained source, without changing files."""
+from dataset_paths import selected_paths
 from pathlib import Path
 import hashlib
 import json
@@ -80,4 +81,5 @@ def verify():
 
 
 if __name__ == '__main__':
+    REFERENCE, PUBLIC = selected_paths()
     verify()

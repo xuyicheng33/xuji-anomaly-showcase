@@ -1,5 +1,6 @@
 """Check that a release uses the verified evaluation version, without choosing thresholds."""
 import json
+import re
 from pathlib import Path
 
 
@@ -8,8 +9,10 @@ def window_location_config(existing, location):
     if 'listen 9010;' not in existing or 'root /var/www/xuji-showcase/current;' not in existing:
         raise ValueError('Unexpected dedicated site configuration')
     lines = existing.splitlines(keepends=True)
-    begin = next((i for i, line in enumerate(lines)
-                  if line.strip() == 'location ^~ /data/journey/windows-v1/ {'), None)
+    header = location.strip().splitlines()[0].strip()
+    if not re.fullmatch(r'location \^~ /data/(journey|wind)/windows-v1/ \{', header):
+        raise ValueError('Unexpected window location')
+    begin = next((i for i, line in enumerate(lines) if line.strip() == header), None)
     if begin is not None:
         end = next(i for i in range(begin + 1, len(lines)) if lines[i].strip() == '}')
         lines[begin:end + 1] = [location + '\n']

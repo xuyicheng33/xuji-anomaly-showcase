@@ -19,9 +19,9 @@ def install(source, target, journey):
     source, target = Path(source), Path(target)
     target.mkdir(parents=True, exist_ok=True)
     data = json.loads(Path(journey).read_text(encoding='utf-8'))
-    exports = {m: json.loads((source / f'{m}.json').read_text(encoding='utf-8')) for m in ['model1', 'model2']}
-    clean = np.fromfile(Path(journey).parent / 'clean-test.bin', dtype='<f8').reshape(-1, 125)
-    expected = {c['id']: c for c in construct(clean)}
+    exports = {m: json.loads((source / f'{m}.json').read_text(encoding='utf-8')) for m in [v['id'] for v in data['models']]}
+    clean = np.fromfile(Path(journey).parent / 'clean-test.bin', dtype='<f8').reshape(-1, len(data['features']))
+    expected = {c['id']: c for c in construct(clean, list(range(len(data['features']))) if data.get('dataset', {}).get('id') == 'wind' else None)}
     records = []
     assets = {}
 
@@ -37,12 +37,13 @@ def install(source, target, journey):
         assets[key] = dict(file='anomaly-cases-v1/' + p.name, shape=list(a.shape), bytes=len(payload), sha256=digest)
         return assets[key]
 
-    first = exports['model1']['cases'][0]
+    first_id = data['models'][0]['id']
+    first = exports[first_id]['cases'][0]
     original = asset('original', first['original'])
     names = {'reference': '参考片段', 'uniform': '均匀值', 'peak': '峰值噪声', 'length': '长度调整'}
-    for c in exports['model1']['cases']:
+    for c in exports[first_id]['cases']:
         cid = c['id']
-        other = next(v for v in exports['model2']['cases'] if v['id'] == cid)
+        other = next(v for v in exports[data['models'][-1]['id']]['cases'] if v['id'] == cid)
         for key in ['original', 'candidate', 'weights', 'input', 'labels', 'mask']:
             assert np.array_equal(c[key], other[key]), (cid, key, 'model input differs')
             np.testing.assert_allclose(c[key], expected[cid][key], rtol=0, atol=1e-14)
@@ -68,7 +69,7 @@ def install(source, target, journey):
                                       scores=errors.mean(1).tolist(), threshold=threshold,
                                       metrics=metrics(labels.any(1), errors.mean(1) > threshold)))
         records.append(rec)
-    manifest = dict(version=VERSION, seed=20261028, cases=records,
+    manifest = dict(version=next(iter(exports.values()))['version'], seed=20261028, cases=records,
                     provenance={m: {'sources': e['sources'], 'device': e['device'], 'policy': e['policy']} for m, e in exports.items()},
                     construction='Four candidate generators crossed with replacement / 0.7 blending. Controlled new offline cases, not historical static/dynamic combinations.',
                     lengthPolicy='Repeat 8 points by scale 3 inside a 24-point interval; no tail shift or unlabelled feature changes.',
@@ -78,7 +79,7 @@ def install(source, target, journey):
     for p in target.glob('*.bin'):
         if p.name not in used:
             p.unlink()
-    print(f'PASS {len(records)} cases × 2 models; sources, composition, labels and all 125-feature errors verified')
+    print(f'PASS {len(records)} cases × {len(data["models"])} models; sources, composition, labels and all feature errors verified')
 
 
 if __name__ == '__main__':

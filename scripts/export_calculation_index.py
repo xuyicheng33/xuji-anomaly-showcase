@@ -1,4 +1,5 @@
 """Derive per-window scores from the published outputs, without running inference."""
+from dataset_paths import selected_paths
 from pathlib import Path
 import hashlib
 import json
@@ -43,4 +44,5 @@ def main():
 
 
 if __name__ == '__main__':
+    REFERENCE, ROOT = selected_paths()
     main()

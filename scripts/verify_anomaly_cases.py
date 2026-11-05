@@ -4,9 +4,10 @@ import json
 from pathlib import Path
 
 import numpy as np
+from dataset_paths import selected_paths
 
 
-ROOT = Path(__file__).resolve().parents[1] / 'public/data/journey'
+REFERENCE, ROOT = selected_paths()
 
 
 def read(asset):
@@ -21,8 +22,8 @@ def read(asset):
 def verify():
     manifest = json.loads((ROOT / 'anomaly-cases-v1/manifest.json').read_text(encoding='utf-8'))
     published = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
-    clean = np.fromfile(ROOT.parents[2] / 'data/reference/clean-test.bin', dtype='<f8').reshape(-1, 125)
-    reference = json.loads((ROOT.parents[2] / 'data/reference/cases/model1.json').read_text(encoding='utf-8'))
+    clean = np.fromfile(REFERENCE / 'clean-test.bin', dtype='<f8').reshape(-1, len(published['features']))
+    reference = json.loads((REFERENCE / ('cases/' + published['models'][0]['id'] + '.json')).read_text(encoding='utf-8'))
     masks = {c['id']: np.asarray(c['mask']) for c in reference['cases']}
     used = {'anomaly-cases-v1/manifest.json'}
     expected = {f'{mode}-{kind}' for mode in ['replace', 'blend'] for kind in ['reference', 'uniform', 'peak', 'length']}
@@ -63,7 +64,7 @@ def verify():
             counts = dict(tp=int((y & p).sum()), fp=int((~y & p).sum()), fn=int((y & ~p).sum()), tn=int((~y & ~p).sum()))
             for key, value in counts.items():
                 assert value == model['metrics'][key]
-        print('PASS', c['id'], 'source, material, composition, labels, masks and both model outputs')
+        print('PASS', c['id'], 'source, material, composition, labels, masks and all model outputs')
     actual = {p.relative_to(ROOT).as_posix() for p in (ROOT / 'anomaly-cases-v1').rglob('*') if p.is_file()}
     assert actual == used, {'extra': sorted(actual - used), 'missing': sorted(used - actual)}
     # Averaging can cancel opposing residuals; RMS retains the actual anomaly energy.

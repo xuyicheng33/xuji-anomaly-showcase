@@ -1,4 +1,5 @@
 """Publish only the exact data and indexes used by the browser."""
+from dataset_paths import selected_paths
 from pathlib import Path
 import json
 import numpy as np
@@ -15,6 +16,8 @@ def runtime_manifest(source):
     result = {key: source[key] for key in (
         'schemaVersion', 'resultVersion', 'window', 'features', 'times', 'labels',
         'input', 'labelMatrix', 'summary', 'removedFeatures')}
+    for key in ('dataset', 'normalization'):
+        if key in source: result[key] = source[key]
     result['datasets'] = {'train': source['datasets']['train']}
     result['models'] = []
     result['inputChunkRows'] = INPUT_CHUNK_ROWS
@@ -68,4 +71,5 @@ def export():
 
 
 if __name__ == '__main__':
+    REFERENCE, PUBLIC = selected_paths()
     export()

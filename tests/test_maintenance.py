@@ -183,3 +183,21 @@ class MaintenanceTests(unittest.TestCase):
         (self.folder / 'evaluation.json').write_text(json.dumps(evaluation))
         with self.assertRaises(ValueError):
             module.validate_evaluation(self.folder, self.folder / 'reference.json')
+
+    def test_wind_range_location_preserves_converter_and_other_routes(self):
+        spec = importlib.util.spec_from_file_location('release_validation', ROOT / 'scripts/release_validation.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        source = (ROOT / 'deploy/nginx-9010.conf').read_text()
+        first = source.index('    location ^~ /data/wind/windows-v1/ {')
+        last = source.index('\n    }', first) + len('\n    }')
+        wind = source[first:last]
+        converter_only = source[:first] + source[last:]
+        result = module.window_location_config(converter_only, wind)
+        self.assertEqual(result.count('location ^~ /data/wind/windows-v1/ {'), 1)
+        self.assertEqual(result.count('location ^~ /data/journey/windows-v1/ {'), 1)
+        self.assertIn('location /assets/ {', result)
+        again = module.window_location_config(result, wind)
+        self.assertEqual(again, result)
+        with self.assertRaises(ValueError):
+            module.window_location_config(source, 'location / {\n deny all;\n}')
