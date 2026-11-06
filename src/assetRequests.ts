@@ -38,7 +38,7 @@ export class RequestCache<T> {
 
 /** Timeout shared transfers without cancelling another view's request. */
 export const requestData = (file: string, init?: RequestInit) =>
-  fetch(dataUrl(file), { ...init, signal: AbortSignal.timeout(30000) });
+  fetch(dataUrl(file), { ...init, signal: init?.signal ?? AbortSignal.timeout(30000) });
 
 const binaryCache = new RequestCache<ArrayBuffer>(16 * 1024 * 1024);
 /** Also works on the dedicated HTTP site, where Web Crypto is unavailable. */
@@ -47,9 +47,12 @@ export function verifyBinary(raw: ArrayBuffer, asset: Pick<Asset, 'bytes' | 'sha
   if (bytesToHex(sha256(new Uint8Array(raw))) !== asset.sha256) throw Error('数据文件不匹配');
   return raw;
 }
-export function loadBinary(asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>) {
+export function loadBinary(
+  asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>,
+  cache?: RequestInit['cache'],
+) {
   return binaryCache.get(`${asset.file}:${asset.sha256}`, asset.bytes, async () => {
-    const response = await requestData(`${asset.file}?v=${asset.sha256}`);
+    const response = await requestData(`${asset.file}?v=${asset.sha256}`, { cache });
     if (!response.ok) throw Error('数据读取失败');
     return verifyBinary(await response.arrayBuffer(), asset);
   });

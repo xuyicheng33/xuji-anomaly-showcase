@@ -1,7 +1,29 @@
-import { describe, expect, it } from 'vitest';
-import { parseRanges } from './rangeAssets';
+import { describe, expect, it, vi } from 'vitest';
+import { fetchRanges, parseRanges } from './rangeAssets';
 
 describe('binary byte ranges', () => {
+  it('recovers a stalled response body from a fresh full-file read', async () => {
+    const raw = new Uint8Array([1, 2, 3, 4]).buffer;
+    const full = vi.fn().mockResolvedValue(raw);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        status: 206,
+        arrayBuffer: () => Promise.reject(new DOMException('Timed out', 'TimeoutError')),
+      }),
+    );
+    try {
+      const parts = await fetchRanges(
+        { file: 'stall.bin', bytes: 4, sha256: '', start: 0, count: 1 },
+        [{ start: 1, bytes: 2 }],
+        full,
+      );
+      expect(new Uint8Array(parts[0])).toEqual(new Uint8Array([2, 3]));
+      expect(full).toHaveBeenCalledOnce();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
   it('preserves binary CRLF and boundary-like bytes inside multipart data', () => {
     const first = new Uint8Array([13, 10, 45, 45, 97, 13, 10, 0]);
     const second = new Uint8Array([255, 0, 128, 13]);

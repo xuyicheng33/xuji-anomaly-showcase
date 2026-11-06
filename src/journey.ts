@@ -16,7 +16,7 @@ function windowRanges(chunk: WindowChunk, ranges: ByteRange[]) {
   return rangeCache.get(
     key,
     ranges.reduce((sum, range) => sum + range.bytes, 0),
-    () => fetchRanges(chunk, ranges, () => loadBinary(chunk)),
+    () => fetchRanges(chunk, ranges, () => loadBinary(chunk, 'reload')),
   );
 }
 export async function loadWindow(m: Model, start: number) {

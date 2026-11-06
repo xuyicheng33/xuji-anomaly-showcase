@@ -85,15 +85,17 @@ export async function fetchRanges(
     )
   )
     throw Error('无效窗口范围');
-  const response = await requestData(`${asset.file}?v=${asset.sha256}`, {
-    headers: {
-      Range:
-        'bytes=' +
-        ranges.map((range) => `${range.start}-${range.start + range.bytes - 1}`).join(','),
-    },
-  });
-  if (response.status === 206) {
-    try {
+  let response: Response | undefined;
+  try {
+    response = await requestData(`${asset.file}?v=${asset.sha256}`, {
+      signal: AbortSignal.timeout(5000),
+      headers: {
+        Range:
+          'bytes=' +
+          ranges.map((range) => `${range.start}-${range.start + range.bytes - 1}`).join(','),
+      },
+    });
+    if (response.status === 206) {
       return parseRanges(
         await response.arrayBuffer(),
         response.headers.get('Content-Type') ?? '',
@@ -101,13 +103,14 @@ export async function fetchRanges(
         ranges,
         asset.bytes,
       );
-    } catch {
-      // Some static hosts apply compression before slicing; recover from the original full file.
+    } else if (response.status === 200) {
+      const raw = verifyBinary(await response.arrayBuffer(), asset);
+      return ranges.map((range) => raw.slice(range.start, range.start + range.bytes));
     }
-  } else if (response.status === 200) {
-    const raw = verifyBinary(await response.arrayBuffer(), asset);
-    return ranges.map((range) => raw.slice(range.start, range.start + range.bytes));
-  } else if (response.status !== 416) throw Error('窗口结果读取失败');
+  } catch {
+    // A stalled or malformed partial response can recover from the retained full file.
+  }
+  if (response && ![200, 206, 416].includes(response.status)) throw Error('窗口结果读取失败');
   const raw = await full();
   return ranges.map((range) => raw.slice(range.start, range.start + range.bytes));
 }
