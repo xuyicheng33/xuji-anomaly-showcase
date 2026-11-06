@@ -4,6 +4,7 @@ from contextlib import closing
 from datetime import datetime, timezone
 import hashlib
 import json
+import os
 from pathlib import Path
 import shlex
 import subprocess
@@ -18,6 +19,7 @@ from release_validation import validate_evaluation, window_location_config
 
 SITE = '/var/www/xuji-showcase'
 CONFIG = '/etc/nginx/conf.d/xuji-showcase-9010.conf'
+URL = 'http://124.223.175.32:9010/'
 
 
 def run(client, command):
@@ -44,7 +46,7 @@ def release_call(client, staging, function, *args):
     ''', sudo=True)
 
 
-def activate(client, staging, target, previous, backup, config_digest, probes):
+def activate(client, staging, target, previous, backup, config_digest, probes, verify=None):
     try:
         release_call(client, staging, 'install_config', CONFIG, backup,
                      staging + '/site.conf', config_digest)
@@ -63,6 +65,8 @@ def activate(client, staging, target, previous, backup, config_digest, probes):
                     assert response.status == 206 and response.headers.get('Content-Encoding') is None
                     assert response.read() == (Path({target!r}) / {relative!r}).read_bytes()[:32000]
             ''')
+        if verify is not None:
+            verify()
     except Exception:
         release_call(client, staging, 'restore_config', CONFIG, backup)
         release_call(client, staging, 'switch_release', SITE + '/current', previous)
@@ -71,7 +75,7 @@ def activate(client, staging, target, previous, backup, config_digest, probes):
         raise
 
 
-def publish(client, root, output, commit, records, scope):
+def publish(client, root, output, commit, records, scope, verify=None):
     release = commit[:7]
     operation = release + '-' + datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')
     previous = run(client, 'readlink -f ' + SITE + '/current').strip()
@@ -113,10 +117,10 @@ def publish(client, root, output, commit, records, scope):
         release_call(client, staging, 'prepare_staged', previous, target, staging, changed)
         backup = SITE + '/config-backups/' + operation + '.conf'
         activate(client, staging, target, previous, backup,
-                 hashlib.sha256(existing.encode()).hexdigest(), probes)
+                 hashlib.sha256(existing.encode()).hexdigest(), probes, verify)
         result = {
             'release': release, 'previousRelease': Path(previous).name,
-            'url': 'http://124.223.175.32:9010/', 'releasePath': target,
+            'url': URL, 'releasePath': target,
             'verifiedFiles': len(records), 'changedFiles': len(changed),
             'uploadedBytes': upload_bytes, 'scope': scope,
             'deployedAt': datetime.now(timezone.utc).isoformat(),
@@ -160,7 +164,11 @@ def main():
         client.connect('124.223.175.32', username='ubuntu',
                        key_filename=str(Path.home() / '.ssh/xuji_showcase_ed25519'),
                        look_for_keys=False, allow_agent=False, timeout=20)
-        publish(client, root, output, commit, records, args.scope)
+        def verify_site():
+            subprocess.run(['node', 'scripts/verify_release.mjs'], cwd=root, check=True,
+                           env={**os.environ, 'SHOWCASE_URL': URL, 'QA_DIR': str(output / 'browser')})
+
+        publish(client, root, output, commit, records, args.scope, verify_site)
 
 
 if __name__ == '__main__':

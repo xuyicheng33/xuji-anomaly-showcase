@@ -1,18 +1,24 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl } from './browser.mjs';
+import { launchBrowser, showcaseUrl, readInput } from './browser.mjs';
 
 const out = process.env.QA_DIR || '.qa/contributions';
 await mkdir(out, { recursive: true });
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
-const reference = JSON.parse(await readFile('data/reference/manifest.json', 'utf8'));
-const f64 = async (path) => {
-  const b = await readFile(path);
+const f64 = (b) => {
   return new Float64Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
 };
-const input = await f64('data/reference/' + reference.input.file);
+const input = f64(await readInput('public/data/journey', data));
 const errorsByModel = await Promise.all(
-  reference.models.map((m) => f64('data/reference/' + m.errors.file)),
+  data.models.map(async (model) =>
+    f64(
+      Buffer.concat(
+        await Promise.all(
+          model.contributions.chunks.map((chunk) => readFile('public/data/journey/' + chunk.file)),
+        ),
+      ),
+    ),
+  ),
 );
 const browser = await launchBrowser();
 const errors = [],

@@ -6,7 +6,7 @@ const out = process.env.QA_DIR || '.qa/ranges';
 await mkdir(out, { recursive: true });
 const wind = process.env.SHOWCASE_DATASET === 'wind';
 const dataPath = wind ? 'wind' : 'journey';
-const referencePath = wind ? 'data/reference/wind/' : 'data/reference/';
+const referencePath = `public/data/${dataPath}/`;
 const data = JSON.parse(await readFile(`public/data/${dataPath}/manifest.json`, 'utf8'));
 const sourceFiles = new Map();
 for (const model of data.models)

@@ -51,7 +51,7 @@ class DeploymentTests(unittest.TestCase):
             self.assertIn('shutil.rmtree', sources[-1])
             self.assertFalse(list(folder.glob('*.tar.gz')))
 
-    def exercise_activation(self, failed_command=None, failed_probe=False):
+    def exercise_activation(self, failed_command=None, failed_probe=False, failed_browser=False):
         commands, functions = [], []
 
         def run(client, command):
@@ -70,13 +70,15 @@ class DeploymentTests(unittest.TestCase):
         with patch.object(deployment, 'run', side_effect=run):
             arguments = (object(), '/tmp/staging', '/releases/new', '/releases/old',
                          '/backups/current.conf', 'digest', ['data/journey/windows-v1/0.bin'])
-            if failed_command or failed_probe:
+            verify = MagicMock(side_effect=RuntimeError('browser mismatch') if failed_browser else None)
+            if failed_command or failed_probe or failed_browser:
                 with self.assertRaises(RuntimeError):
-                    deployment.activate(*arguments)
+                    deployment.activate(*arguments, verify)
                 self.assertIn('restore_config', functions[-2])
                 self.assertIn('/releases/old', functions[-1])
             else:
-                deployment.activate(*arguments)
+                deployment.activate(*arguments, verify)
+                verify.assert_called_once()
                 self.assertIn('/releases/new', functions[-1])
         return commands
 
@@ -87,3 +89,4 @@ class DeploymentTests(unittest.TestCase):
         self.exercise_activation(failed_command='sudo -n nginx -t')
         self.exercise_activation(failed_command='sudo -n systemctl reload nginx')
         self.exercise_activation(failed_probe=True)
+        self.exercise_activation(failed_browser=True)

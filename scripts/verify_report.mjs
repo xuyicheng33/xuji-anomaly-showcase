@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl, selectFeature } from './browser.mjs';
+import { launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
 const base = showcaseUrl;
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
+const inputBuffer = await readInput('public/data/journey', data);
+const input = new Float64Array(
+  inputBuffer.buffer.slice(inputBuffer.byteOffset, inputBuffer.byteOffset + inputBuffer.length),
+);
 const cases = JSON.parse(
   await readFile('public/data/journey/anomaly-cases-v1/manifest.json', 'utf8'),
 ).cases;
@@ -172,13 +176,6 @@ try {
         buffer = await readFile('public/data/journey/' + chunk.file),
         pred = new Float32Array(
           buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length),
-        );
-      const inputBuffer = await readFile('data/reference/input.bin'),
-        input = new Float64Array(
-          inputBuffer.buffer.slice(
-            inputBuffer.byteOffset,
-            inputBuffer.byteOffset + inputBuffer.length,
-          ),
         );
       const scores = Array.from({ length: 64 }, (_, i) => {
         let sum = 0;

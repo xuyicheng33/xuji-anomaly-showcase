@@ -1,7 +1,18 @@
 import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 export const showcaseUrl = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
+
+/** Browser checks use shipped rows; Python verification compares them to the originals. */
+export async function readInput(folder, data) {
+  const parts = await Promise.all(
+    data.inputRowHashes.map((_, index) =>
+      readFile(`${folder}/input-rows-v2/${data.input.sha256}/${index * data.inputChunkRows}.bin`),
+    ),
+  );
+  return Buffer.concat(parts);
+}
 
 /** Explicit override, system Edge on Windows, or Playwright's installed Chromium. */
 export function browserOptions() {

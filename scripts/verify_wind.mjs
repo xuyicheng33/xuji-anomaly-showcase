@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl, selectFeature } from './browser.mjs';
+import { launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
 
 const out = process.env.QA_DIR || '.qa/wind-integration/browser';
 await mkdir(out, { recursive: true });
 const data = JSON.parse(await readFile('public/data/wind/manifest.json', 'utf8'));
-const reference = JSON.parse(await readFile('data/reference/wind/manifest.json', 'utf8'));
 const model = data.models[0];
-const input = await readFile('data/reference/wind/' + reference.input.file);
+const input = await readInput('public/data/wind', data);
 const cases = JSON.parse(await readFile('public/data/wind/anomaly-cases-v1/manifest.json', 'utf8'));
 const browser = await launchBrowser();
 const base = new URL(showcaseUrl);
@@ -40,9 +39,9 @@ try {
     await selectFeature(page, 27, '归一化测点');
     await page.locator('.normalization-equation').waitFor();
     const key = data.features[27].key;
-    const train = await readFile('data/reference/wind/' + reference.datasets.train.file);
-    const column = Array.from({ length: reference.datasets.train.shape[0] }, (_, i) =>
-      train.readDoubleLE((i * 28 + 27) * 8),
+    const train = await readFile(`public/data/wind/curves-v1/${data.datasets.train.sha256}/27.bin`);
+    const column = Array.from({ length: data.datasets.train.shape[0] }, (_, i) =>
+      train.readDoubleLE(i * 8),
     );
     const expected =
       (column[5299] - Math.min(...column)) / (Math.max(...column) - Math.min(...column) + 0.0001);
@@ -64,7 +63,7 @@ try {
       await page.locator('.score-calculation').waitFor();
       assert.equal(await page.locator('.score-calculation tbody tr').count(), 28);
       const chunk = model.windows.chunks.find((c) => start >= c.start && start < c.start + c.count);
-      const predictions = await readFile('data/reference/wind/' + chunk.file);
+      const predictions = await readFile('public/data/wind/' + chunk.file);
       const point = Number(await page.locator('.score-calculation').getAttribute('data-point')) - 1;
       const local = point - start;
       const row = page.locator('.score-calculation tbody tr').nth(27);
