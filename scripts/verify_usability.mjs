@@ -133,7 +133,7 @@ try {
               .locator('tbody th')
               .first()
               .evaluate((e) => getComputedStyle(e).position),
-            'static',
+            'sticky',
           );
           const lastValue = table.locator('.selected-sensor td').last();
           const visible = await lastValue.evaluate((e) => {

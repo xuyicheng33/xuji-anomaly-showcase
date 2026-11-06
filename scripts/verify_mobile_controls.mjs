@@ -54,6 +54,36 @@ try {
     await page.waitForFunction(
       () => getComputedStyle(document.querySelector('.playback-controls')).position === 'static',
     );
+    await page.evaluate(() => {
+      document.documentElement.style.zoom = '';
+    });
+    await page.goto(showcaseUrl + '#/detection');
+    await page.getByRole('button', { name: /查看模型结果/ }).click();
+    await page.getByTestId('calculated-score').waitFor();
+    const table = page.locator('.calculation-table-scroll');
+    await table.scrollIntoViewIfNeeded();
+    await table.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+      element.scrollTop = 90;
+    });
+    await page.waitForFunction(() => {
+      const scroller = document.querySelector('.calculation-table-scroll');
+      const box = scroller.getBoundingClientRect();
+      const row = [...scroller.querySelectorAll('tbody th')].find((cell) => {
+        const rect = cell.getBoundingClientRect();
+        return rect.top > box.top + 45 && rect.bottom < box.bottom;
+      });
+      if (!row) return false;
+      const cell = row.getBoundingClientRect();
+      const corner = scroller.querySelector('thead th').getBoundingClientRect();
+      const hit = document.elementFromPoint(cell.x + 10, cell.y + 10);
+      return (
+        Math.abs(cell.left - box.left) < 2 &&
+        Math.abs(corner.left - box.left) < 2 &&
+        row.contains(hit)
+      );
+    });
+    await page.screenshot({ path: `${out}/${width}-calculation-right.png` });
     await page.close();
     console.log(
       `PASS ${width}px: picker layering, sticky pause, detail headings and 200% viewport`,

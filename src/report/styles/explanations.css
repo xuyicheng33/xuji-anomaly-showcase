@@ -207,6 +207,10 @@
   left: 0;
   z-index: 1;
 }
+.calculation-table thead th:first-child {
+  left: 0;
+  z-index: 3;
+}
 .selected-sensor td {
   background: #e8ede6 !important;
 }
@@ -506,9 +510,6 @@
   }
   .sensor-calculation-detail {
     display: block;
-  }
-  .calculation-table tbody th:first-child {
-    position: static;
   }
   .calculation-table th:first-child {
     min-width: 145px;
