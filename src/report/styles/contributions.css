@@ -115,7 +115,7 @@
 }
 .contribution-name small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   margin-top: 3px;
 }
@@ -161,7 +161,7 @@
 }
 .contribution-detail-anchor {
   min-width: 0;
-  scroll-margin-top: 22px;
+  scroll-margin-top: var(--playback-scroll-offset, 22px);
 }
 .sensor-window-detail {
   border-left: 1px solid var(--line);
@@ -371,7 +371,7 @@
     font-size: 14px;
   }
   .contribution-name small {
-    font-size: 12px;
+    font-size: 13px;
   }
   .contribution-track {
     grid-column: 1 / -1;

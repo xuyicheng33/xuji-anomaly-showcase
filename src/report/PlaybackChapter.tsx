@@ -1,4 +1,5 @@
 import { usePlayback } from './usePlayback';
+import { usePlaybackControls } from './usePlaybackControls';
 import ContributionView from './ContributionView';
 import TableScrollHint from './TableScrollHint';
 import { pct } from '../journey';
@@ -11,6 +12,7 @@ import { PlaybackCalculation } from './PlaybackCalculation';
 import type { PlaybackProps } from './detectionTypes';
 
 export function PlaybackChapter(p: PlaybackProps) {
+  const controls = usePlaybackControls();
   const { data, model, setModel, setFeature, start, viewFeature, setViewFeature } = p;
   const {
     scope,
@@ -64,7 +66,7 @@ export function PlaybackChapter(p: PlaybackProps) {
           }}
         />
       </div>
-      <div className="playback-controls">
+      <div className="playback-controls" ref={controls}>
         <button
           className="primary"
           onClick={() => {

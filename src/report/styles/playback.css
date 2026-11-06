@@ -4,7 +4,7 @@
 }
 .playback-calculation {
   margin: 30px 0;
-  scroll-margin-top: 24px;
+  scroll-margin-top: var(--playback-scroll-offset, 24px);
 }
 .playback-heading {
   display: flex;
@@ -292,10 +292,16 @@
     font-size: 29px;
   }
   .playback-controls {
+    position: var(--playback-controls-position, static);
+    top: 0;
+    z-index: 4;
+    background: var(--paper);
     gap: 8px;
-    padding-bottom: 12px;
+    padding: 8px 0 12px;
   }
   .site-main .playback-page > .toolbar {
+    position: relative;
+    z-index: 5;
     margin-bottom: 14px;
   }
   .playback-page .toolbar {
@@ -316,6 +322,9 @@
     gap: 10px;
   }
   .playback-status .outcome {
+    font-size: 14px;
+  }
+  .playback-controls select {
     font-size: 14px;
   }
   .playback-statistics {

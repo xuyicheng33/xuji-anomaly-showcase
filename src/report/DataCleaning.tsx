@@ -119,7 +119,11 @@ export default function DataCleaning({ data }: { data: Journey }) {
             <div>
               <span>末尾 744 条</span>
               <strong>第 8,017—8,760 条</strong>
-              <p>11-30 23:00 之后，无时间记录</p>
+              <p>
+                11-30 23:00 之后
+                <br />
+                无时间记录
+              </p>
             </div>
           </div>
           <div className="trim-action">

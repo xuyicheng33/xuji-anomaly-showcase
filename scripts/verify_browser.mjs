@@ -49,6 +49,7 @@ try {
     'playback_scale',
     'contributions',
     'feature_picker',
+    'mobile_controls',
     'ranges',
     'wind',
     'wind_ranges',

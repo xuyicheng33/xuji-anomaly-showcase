@@ -137,7 +137,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           </>
         }
       >
-        <p className="reading-copy">按时间顺序取前 70% 为训练集，后 30% 为测试集。</p>
+        <p className="reading-copy">按时间顺序划分：前 70% 训练，后 30% 测试。</p>
         <div className="balanced-split">
           {(
             [

@@ -336,7 +336,7 @@
   font-variant-numeric: tabular-nums;
 }
 .coverage-calculation {
-  scroll-margin-top: 24px;
+  scroll-margin-top: var(--playback-scroll-offset, 24px);
 }
 .coverage-calculation > p {
   padding: 24px 0;
