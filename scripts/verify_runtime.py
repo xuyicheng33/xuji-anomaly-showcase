@@ -5,17 +5,11 @@ import hashlib
 import json
 import numpy as np
 from data_geometry import geometry
+from array_assets import read_array as read
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / 'public/data/journey'
 REFERENCE = ROOT / 'data/reference'
-
-
-def read(base, asset, dtype='<f8'):
-    raw = (base / asset['file']).read_bytes()
-    assert len(raw) == asset['bytes']
-    assert hashlib.sha256(raw).hexdigest() == asset['sha256'], asset['file']
-    return np.frombuffer(raw, dtype=dtype).reshape(asset['shape'])
 
 
 def verify():
@@ -31,19 +25,24 @@ def verify():
     expected = {'manifest.json', 'evaluation.json'}
     for asset in [source['input'], source['datasets']['train'], source['labelMatrix'], *(m['recon'] for m in source['models'])]:
         values = arrays[asset['file']]
+        published_asset = next(a for a in [runtime['input'], runtime['datasets']['train'], runtime['labelMatrix'],
+                                           *(m['recon'] for m in runtime['models'])] if a['file'] == asset['file'])
         mean = np.zeros(len(values))
         for feature in range(values.shape[1]):
             name = f'curves-v1/{asset["sha256"]}/{feature}.bin'
             np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), values[:, feature])
+            assert hashlib.sha256((PUBLIC / name).read_bytes()).hexdigest() == published_asset['curves'][str(feature)], name
             mean += values[:, feature]
             expected.add(name)
         if asset['sha256'] not in (source['datasets']['train']['sha256'], source['labelMatrix']['sha256']):
             name = f'curves-v1/{asset["sha256"]}/mean.bin'
             np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), mean / values.shape[1])
+            assert hashlib.sha256((PUBLIC / name).read_bytes()).hexdigest() == published_asset['curves']['mean'], name
             expected.add(name)
     for start in range(0, len(raw), runtime['inputChunkRows']):
         name = f'input-rows-v2/{source["input"]["sha256"]}/{start}.bin'
         np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8').reshape(-1, features), raw[start:start + runtime['inputChunkRows']])
+        assert hashlib.sha256((PUBLIC / name).read_bytes()).hexdigest() == runtime['inputRowHashes'][start // runtime['inputChunkRows']], name
         expected.add(name)
     index = json.loads((PUBLIC / 'calculation-v1/manifest.json').read_text())
     expected.add('calculation-v1/manifest.json')

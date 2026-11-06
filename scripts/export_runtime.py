@@ -5,7 +5,7 @@ import json
 import numpy as np
 from data_geometry import geometry, INPUT_CHUNK_ROWS, CONTRIBUTION_CHUNK_ROWS
 import hashlib
-from array_assets import read_array, write_array
+from array_assets import read_array, write_array, curve_columns
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = ROOT / 'data/reference'
@@ -20,14 +20,25 @@ def runtime_manifest(source, reference=REFERENCE):
     result['dataset'] = dataset_info(source)
     for key in ('normalization',):
         if key in source: result[key] = source[key]
-    result['datasets'] = {'train': source['datasets']['train']}
+    def with_curves(asset, include_mean):
+        values = read_array(reference, asset)
+        curves = {name: hashlib.sha256(column.astype('<f8').tobytes()).hexdigest()
+                  for name, column in curve_columns(values, include_mean)}
+        return {**asset, 'curves': curves}
+
+    result['input'] = with_curves(source['input'], True)
+    result['labelMatrix'] = with_curves(source['labelMatrix'], False)
+    result['datasets'] = {'train': with_curves(source['datasets']['train'], False)}
     result['models'] = []
     result['inputChunkRows'] = INPUT_CHUNK_ROWS
     labels = np.asarray(source['labels'], dtype=bool)
     raw = read_array(reference, source['input'])
+    result['inputRowHashes'] = [hashlib.sha256(raw[start:start + INPUT_CHUNK_ROWS].astype('<f8').tobytes()).hexdigest()
+                                for start in range(0, rows, INPUT_CHUNK_ROWS)]
     for model in source['models']:
         current = {key: model[key] for key in (
             'id', 'name', 'threshold', 'windowThreshold', 'scores', 'history', 'recon', 'metrics', 'run')}
+        current['recon'] = with_curves(model['recon'], True)
         current['windows'] = {key: model['windows'][key] for key in ('chunks', 'count')}
         current['windows'].update(length=window, features=features)
         errors = read_array(reference, model['errors'])

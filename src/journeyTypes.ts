@@ -1,4 +1,10 @@
-export type Asset = { file: string; shape: number[]; bytes: number; sha256: string };
+export type Asset = {
+  file: string;
+  shape: number[];
+  bytes: number;
+  sha256: string;
+};
+export type CurveAsset = Asset & { curves: Record<string, string> };
 export type Metrics = {
   tp: number;
   fp: number;
@@ -21,7 +27,7 @@ export type Model = {
   threshold: number;
   scores: number[];
   history: { epoch: number; loss: number; lr: number }[];
-  recon: Asset;
+  recon: CurveAsset;
   focusFeatures: number[];
   metrics: { point_wise: Metrics; point_adjusted: Metrics; continuous_score_auc: number };
   windowThreshold: number;
@@ -50,17 +56,18 @@ export type Journey = {
     outsideUnitRange: number;
   };
   normalization?: { epsilon: number; clip: boolean };
-  datasets: Record<string, Asset & { keys: string[]; times: string[] }>;
+  datasets: Record<string, CurveAsset & { keys: string[]; times: string[] }>;
   schemaVersion: number;
   resultVersion: string;
   window: number;
   inputChunkRows: number;
+  inputRowHashes: string[];
   features: Feature[];
   times: string[];
   labels: number[];
   models: Model[];
-  input: Asset;
-  labelMatrix: Asset;
+  input: CurveAsset;
+  labelMatrix: CurveAsset;
   summary: {
     rawRows: number;
     rawFeatures: number;

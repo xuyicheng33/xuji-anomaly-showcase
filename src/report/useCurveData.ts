@@ -1,30 +1,25 @@
 import { useCallback } from 'react';
 import { useResource } from './useResource';
-import { loadAsset, type Asset } from '../journey';
+import { loadAsset, type CurveAsset, type Journey } from '../journey';
 import { useDataAsset } from './useDataAsset';
 import { rowChunks } from '../dataGeometry';
 
 /** Drawing a curve only needs one column; every number retains its original precision. */
-export function useCurveData(asset: Asset | null, feature: number) {
+export function useCurveData(asset: CurveAsset | null, feature: number) {
   return useDataAsset(
     asset
       ? {
           file: `curves-v1/${asset.sha256}/${feature < 0 ? 'mean' : feature}.bin`,
           shape: [asset.shape[0], 1],
           bytes: asset.shape[0] * 8,
-          sha256: asset.sha256,
+          sha256: asset.curves[feature < 0 ? 'mean' : feature],
         }
       : null,
   );
 }
 
-export function useWindowInput(
-  asset: Asset,
-  start: number,
-  enabled: boolean,
-  length: number,
-  chunkRows: number,
-) {
+export function useWindowInput(data: Journey, start: number, enabled: boolean) {
+  const { input: asset, window: length, inputChunkRows: chunkRows, inputRowHashes: hashes } = data;
   const sha256 = asset.sha256,
     rows = asset.shape[0],
     features = asset.shape[1];
@@ -35,7 +30,7 @@ export function useWindowInput(
         loadAsset({
           file: `input-rows-v2/${sha256}/${from}.bin`,
           bytes: Math.min(chunkRows, rows - from) * features * 8,
-          sha256,
+          sha256: hashes[from / chunkRows],
         }),
       ),
     );
@@ -49,6 +44,6 @@ export function useWindowInput(
       );
     }
     return result;
-  }, [sha256, rows, features, start, length, chunkRows]);
+  }, [sha256, rows, features, start, length, chunkRows, hashes]);
   return useResource(enabled ? `${sha256}:${start}:${length}` : null, read);
 }

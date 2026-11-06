@@ -77,13 +77,7 @@ export function DetectionChapter(p: DetectionProps) {
       active = false;
     };
   }, [request, viewKey, start, model]);
-  const inputAsset = useWindowInput(
-      data.input,
-      start,
-      request?.key === viewKey || !!result,
-      window,
-      data.inputChunkRows,
-    ),
+  const inputAsset = useWindowInput(data, start, request?.key === viewKey || !!result),
     input = inputAsset.data;
   const ready = !!input && result?.start === start && result.modelId === model.id,
     resultScores = useMemo(

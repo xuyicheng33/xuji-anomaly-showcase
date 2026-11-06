@@ -36,13 +36,7 @@ export function PlaybackCalculation({
     [windowAttempt, setWindowAttempt] = useState(0);
   const section = useRef<HTMLElement>(null),
     detail = useRef<HTMLDivElement>(null);
-  const inputAsset = useWindowInput(
-      data.input,
-      selected ?? 0,
-      selected !== null,
-      data.window,
-      data.inputChunkRows,
-    ),
+  const inputAsset = useWindowInput(data, selected ?? 0, selected !== null),
     input = inputAsset.data;
   const scoresAsset = useDataAsset(open && catalog ? catalog.models[model.id] : null);
   useEffect(() => {

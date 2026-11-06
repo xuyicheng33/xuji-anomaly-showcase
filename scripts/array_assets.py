@@ -6,7 +6,22 @@ import numpy as np
 
 
 def read_array(folder, asset, dtype='<f8'):
-    return np.fromfile(folder / asset['file'], dtype=dtype).reshape(asset['shape'])
+    path = folder / asset['file']
+    payload = path.read_bytes()
+    if len(payload) != asset['bytes'] or hashlib.sha256(payload).hexdigest() != asset['sha256']:
+        raise ValueError(f'Array checksum or length differs: {path}')
+    return np.frombuffer(payload, dtype=dtype).reshape(asset['shape'])
+
+
+def curve_columns(values, include_mean):
+    """Retain browser summation order when deriving the mean curve."""
+    mean = np.zeros(len(values))
+    for feature in range(values.shape[1]):
+        yield str(feature), values[:, feature]
+        if include_mean:
+            mean += values[:, feature]
+    if include_mean:
+        yield 'mean', mean / values.shape[1]
 
 
 def write_array(folder, name, values):

@@ -1,4 +1,4 @@
-import { requestData } from './assetRequests';
+import { requestData, verifyBinary } from './assetRequests';
 import type { WindowChunk } from './journey';
 
 export type ByteRange = { start: number; bytes: number };
@@ -105,8 +105,7 @@ export async function fetchRanges(
       // Some static hosts apply compression before slicing; recover from the original full file.
     }
   } else if (response.status === 200) {
-    const raw = await response.arrayBuffer();
-    if (raw.byteLength !== asset.bytes) throw Error('窗口文件长度不匹配');
+    const raw = verifyBinary(await response.arrayBuffer(), asset);
     return ranges.map((range) => raw.slice(range.start, range.start + range.bytes));
   } else if (response.status !== 416) throw Error('窗口结果读取失败');
   const raw = await full();

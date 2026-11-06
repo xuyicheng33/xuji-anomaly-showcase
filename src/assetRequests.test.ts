@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { RequestCache } from './assetRequests';
+import { describe, it, expect, vi } from 'vitest';
+import { loadBinary, RequestCache } from './assetRequests';
 
 describe('shared resource cache', () => {
   it('shares pending reads and retries a failed transfer', async () => {
@@ -33,5 +33,27 @@ describe('shared resource cache', () => {
     expect(await cache.get('b', 4, () => Promise.resolve(6))).toBe(6);
     await cache.get('large', 20, () => Promise.resolve(7));
     expect(await cache.get('large', 20, () => Promise.resolve(8))).toBe(8);
+  });
+
+  it('rejects equal-length changed content without caching it, then retries the original', async () => {
+    const original = new TextEncoder().encode('abc');
+    const asset = {
+      file: 'integrity-test.bin',
+      bytes: 3,
+      sha256: 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    };
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('abd'))
+      .mockResolvedValueOnce(new Response(original));
+    vi.stubGlobal('fetch', fetch);
+    try {
+      await expect(loadBinary(asset)).rejects.toThrow('数据文件不匹配');
+      expect(new Uint8Array(await loadBinary(asset))).toEqual(original);
+      await loadBinary(asset);
+      expect(fetch).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

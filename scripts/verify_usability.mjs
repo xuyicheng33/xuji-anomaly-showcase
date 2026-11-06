@@ -30,6 +30,18 @@ try {
   await page.close();
 
   checks.push({ manifestRetryKeepsDeepLink: true });
+  const invalid = structuredClone(manifest);
+  invalid.models[0].history = [];
+  const invalidPage = await browser.newPage();
+  invalidPage.on('pageerror', (e) => errors.push(String(e)));
+  await invalidPage.route('**/data/journey/manifest.json', (r) => r.fulfill({ json: invalid }));
+  await invalidPage.goto(base + '#/training');
+  await invalidPage.getByRole('alert').filter({ hasText: '资料版本不匹配' }).waitFor();
+  await invalidPage.unroute('**/data/journey/manifest.json');
+  await invalidPage.getByRole('button', { name: '重新读取', exact: true }).click();
+  await invalidPage.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
+  await invalidPage.close();
+  checks.push({ incompleteTrainingHistoryRejectedAndRetryable: true });
   for (const width of [1440, 768, 390, 320]) {
     const page = await browser.newPage({
       viewport: { width, height: 844 },

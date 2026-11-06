@@ -245,6 +245,20 @@ try {
     caseModelSwitchKeepsLayoutAndSelection: '1440px and 390px × 3',
     caseReconstructionRetry: true,
   });
+  const corrupt = await fresh('training', (page) =>
+    page.route('**/curves-v1/**/*.bin*', async (route) => {
+      const file = new URL(route.request().url()).pathname.split('/data/journey/')[1];
+      const raw = Buffer.from(await readFile('public/data/journey/' + file));
+      raw[0] ^= 1;
+      await route.fulfill({ body: raw, contentType: 'application/octet-stream' });
+    }),
+  );
+  await corrupt.page.getByRole('alert').filter({ hasText: '数据文件不匹配' }).waitFor();
+  await corrupt.page.unroute('**/curves-v1/**/*.bin*');
+  await corrupt.page.getByRole('button', { name: '重新读取', exact: true }).click();
+  await corrupt.page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
+  await corrupt.page.close();
+  summary.push({ equalLengthCurveCorruptionRejectedAndRetryable: true });
   assert.deepEqual(errors, []);
   await writeFile(out + '/loading-checks.json', JSON.stringify({ summary, errors }, null, 2));
   console.log(

@@ -40,6 +40,7 @@
     "backup:prune": "python -X utf8 -B scripts/backup_project.py --prune"
   },
   "dependencies": {
+    "@noble/hashes": "2.4.0",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   },
