@@ -1,6 +1,7 @@
-import { isWind, datasetHome } from './datasets';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { chapters, route } from './report/navigation';
+import { dataset, datasetHome } from './datasets';
+import { useState } from 'react';
+import { useReportNavigation } from './report/useReportNavigation';
+import { chapters } from './report/navigation';
 import { useJourney } from './report/useJourney';
 import DataChapter from './report/DataChapter';
 import AnomalyChapter from './report/AnomalyChapter';
@@ -10,73 +11,16 @@ import { DetectionChapter } from './report/DetectionChapter';
 import { PlaybackChapter } from './report/PlaybackChapter';
 import ExplanationChapter from './report/ExplanationChapter';
 import DataFailure from './report/DataFailure';
-import { getNoteOrigin, pausePresentation, rememberNoteOrigin } from './report/notes';
+import { pausePresentation, rememberNoteOrigin } from './report/notes';
 export default function App() {
   const { data, error, retry } = useJourney();
-  const [page, setPage] = useState(route),
-    [address, setAddress] = useState(location.hash),
-    [contentPage, setContentPage] = useState(() => (route() === 'metrics' ? null : route())),
-    [modelId, setModel] = useState(isWind ? 'model2' : 'model1'),
-    [feature, setFeature] = useState(5),
-    [start, setStart] = useState(107),
-    [viewFeature, setViewFeature] = useState(-1),
-    [menu, setMenu] = useState(false);
-  const previousPage = useRef(page),
-    menuButton = useRef<HTMLButtonElement>(null),
-    returning = useRef(false),
-    scrollPositions = useRef(new Map<string, number>());
-  const loaded = data !== null;
-  useEffect(() => {
-    const f = () => {
-      const next = route();
-      scrollPositions.current.set(previousPage.current, window.scrollY);
-      returning.current = previousPage.current === 'metrics' && next !== 'metrics';
-      pausePresentation();
-      setPage(next);
-      setAddress(location.hash);
-      if (next !== 'metrics') setContentPage(next);
-      previousPage.current = next;
-      setMenu(false);
-    };
-    window.addEventListener('hashchange', f);
-    return () => window.removeEventListener('hashchange', f);
-  }, []);
-  useEffect(() => {
-    if (!menu) return;
-    const close = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setMenu(false);
-        menuButton.current?.focus();
-      }
-    };
-    window.addEventListener('keydown', close);
-    return () => window.removeEventListener('keydown', close);
-  }, [menu]);
-  useLayoutEffect(() => {
-    document.title =
-      (page === 'metrics'
-        ? '数据与评估说明'
-        : chapters.find((c) => c[0] === page)?.[1] || '从数据到异常判定') +
-      (isWind ? ' · 风电数据集' : '') +
-      '　许继电气';
-    const frame = requestAnimationFrame(() => {
-      const note = new URLSearchParams(address.split('?')[1] ?? '').get('note');
-      const target = page === 'metrics' && note ? document.getElementById('note-' + note) : null;
-      if (target) {
-        target.scrollIntoView({ block: 'start' });
-        target.focus({ preventScroll: true });
-      } else if (returning.current) {
-        const origin = getNoteOrigin();
-        window.scrollTo(0, scrollPositions.current.get(page) ?? origin?.y ?? 0);
-        document.getElementById(origin?.reference ?? '')?.focus({ preventScroll: true });
-        returning.current = false;
-      } else {
-        window.scrollTo(0, 0);
-        document.getElementById('main')?.focus({ preventScroll: true });
-      }
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [page, address, loaded]);
+  const { page, address, contentPage, menu, setMenu, menuButton } = useReportNavigation(
+    data !== null,
+  );
+  const [modelId, setModel] = useState<string>(dataset.modelId);
+  const [feature, setFeature] = useState(5);
+  const [start, setStart] = useState(107);
+  const [viewFeature, setViewFeature] = useState(-1);
   const model = data?.models.find((m) => m.id === modelId) ?? data?.models[0];
   const selectedFeature = data ? Math.min(feature, data.features.length - 1) : feature;
   const selectedStart = data ? Math.min(start, data.times.length - data.window) : start;
@@ -96,7 +40,7 @@ export default function App() {
       <header className="site-header">
         <a href="#/" className="brand">
           <strong>许继电气</strong>
-          <span>{isWind ? '风电异常检测研究' : '异常检测研究'}</span>
+          <span>{dataset.brandSubtitle}</span>
         </a>
         <button
           ref={menuButton}
@@ -142,16 +86,13 @@ export default function App() {
             <>
               <section className="home-hero">
                 <h1>
-                  {isWind ? '风电设备' : '换流设备'}
+                  {dataset.title}
                   <br />
                   异常检测研究
                 </h1>
                 <div className="hero-bottom">
-                  <a
-                    className="inline-link dataset-switch"
-                    href={datasetHome(isWind ? 'converter' : 'wind')}
-                  >
-                    {isWind ? '换流数据集' : '风电数据集'} →
+                  <a className="inline-link dataset-switch" href={datasetHome(dataset.alternate)}>
+                    {dataset.alternateTitle} →
                   </a>
                   <a className="primary" href="#/data">
                     开始查看

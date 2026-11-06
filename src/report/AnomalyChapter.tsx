@@ -1,65 +1,15 @@
 import AnomalyResult from './AnomalyResult';
-import { useEffect, useRef, useState } from 'react';
-import { series, type Journey, type Model } from '../journey';
-import {
-  loadCases,
-  loadCaseArrays,
-  type AnomalyCase,
-  type CaseArrays,
-  type Insertion,
-  type Construction,
-} from '../anomalyCases';
+import type { Journey, Model } from '../journey';
 import { Heading, colors } from './ReportUI';
 import Curve from './Curve';
-import { curveDomain } from './curveScale';
-import { Footnote, usePauseOnNavigation } from './notes';
+import { Footnote } from './notes';
 import LengthConstruction from './LengthConstruction';
 import ReferenceConstruction from './ReferenceConstruction';
-import { useDataAsset } from './useDataAsset';
 import FeaturePicker from './FeaturePicker';
+import { useCaseConstruction } from './useCaseConstruction';
+import CaseNavigation from './CaseNavigation';
+import { kinds, steps } from './caseContent';
 
-const methods = [
-  {
-    id: 'replace' as const,
-    name: '替换',
-    copy: '用异常素材替代局部原值。',
-    formula: '结果 = 异常素材',
-  },
-  {
-    id: 'blend' as const,
-    name: '混合',
-    copy: '保留原始变化，按权重融入异常素材。',
-    formula: '结果 = 原始值 × (1 − 权重) + 素材 × 权重',
-  },
-];
-const kinds = [
-  {
-    id: 'reference' as const,
-    name: '参考片段',
-    copy: '从真实记录中取出一段序列，翻转时间顺序与数值方向，形成不同的变化形态。',
-    detail: '参考片段取自同一清洁测试集。先沿时间反转，再以 1 − 数值翻转幅值。',
-  },
-  {
-    id: 'uniform' as const,
-    name: '均匀值',
-    copy: '为选定测点构造一个固定值，使局部波动形成持续平台。',
-    detail: '区间内使用同一个构造值；替换形成平台，混合保留原曲线的部分波动。',
-  },
-  {
-    id: 'peak' as const,
-    name: '峰值噪声',
-    copy: '在一个时刻构造方向相反的极值，并为相邻时刻生成异常标签。',
-    detail: '原值较高时取接近 0 的值，原值较低时取接近 1 的值；前后各 4 点一并标记。',
-  },
-  {
-    id: 'length' as const,
-    name: '长度调整',
-    copy: '将 8 个采样点各重复 3 次，形成 24 点素材，写入固定区间。',
-    detail:
-      '来源为第 19—26 点，重复采样后写入第 19—42 点，覆盖或混合该区间原值；第 43—64 点保留原来的位置与数值。',
-  },
-];
-const steps = ['原始片段', '异常素材', '插入过程', '标签结果'];
 export default function AnomalyChapter({
   data,
   model,
@@ -69,251 +19,54 @@ export default function AnomalyChapter({
   model: Model;
   setModel: (id: string) => void;
 }) {
-  const [cases, setCases] = useState<AnomalyCase[]>([]),
-    [insertion, setInsertion] = useState<Insertion>('replace'),
-    [kind, setKind] = useState<Construction>('reference');
-  const [bundle, setBundle] = useState<{ key: string; arrays: CaseArrays } | null>(null),
-    [error, setError] = useState(''),
-    [attempt, setAttempt] = useState(0);
-  const [progress, setProgress] = useState(0),
-    [playing, setPlaying] = useState(false),
-    [point, setPoint] = useState(30),
-    [showResult, setShowResult] = useState(false);
-  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
-  const [pickerOpen, setPickerOpen] = useState(false);
-  usePauseOnNavigation(() => setPlaying(false));
-  const resultRef = useRef<HTMLDivElement>(null),
-    stageRef = useRef<HTMLDivElement>(null);
-  const selected = cases.find((c) => c.insertion === insertion && c.kind === kind),
-    cm = selected?.models.find((m) => m.id === model.id),
-    key = selected?.id ?? '';
-  const arrays = bundle?.key === key ? bundle.arrays : null;
-  const reconstruction = useDataAsset(cm?.recon ?? null);
-  useEffect(() => {
-    let active = true;
-    setError('');
-    loadCases()
-      .then((d) => {
-        if (active) setCases(d.cases);
-      })
-      .catch((e) => {
-        if (active) setError(e.message);
-      });
-    return () => {
-      active = false;
-    };
-  }, [attempt]);
-  useEffect(() => {
-    if (!selected) return;
-    let active = true;
-    setError('');
-    loadCaseArrays(selected)
-      .then((arrays) => {
-        if (active) setBundle({ key, arrays });
-      })
-      .catch((e) => {
-        if (active) setError(e.message);
-      });
-    return () => {
-      active = false;
-    };
-  }, [key, selected, attempt]);
-  useEffect(() => {
-    setProgress(0);
-    setPlaying(false);
-    setShowResult(false);
-    setPoint(30);
-    setSelectedFeature(null);
-  }, [selected?.id]);
-  useEffect(() => {
-    setPlaying(false);
-  }, [model.id]);
-  useEffect(() => {
-    if (!playing) return;
-    let frame = 0,
-      last: number | undefined;
-    const tick = (now: number) => {
-      if (last !== undefined && !document.hidden) {
-        const delta = now - last;
-        setProgress((p) => Math.min(1, p + delta / (kind === 'reference' ? 12000 : 8000)));
-      }
-      last = now;
-      frame = requestAnimationFrame(tick);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [playing, kind]);
-  useEffect(() => {
-    if (progress >= 1) setPlaying(false);
-  }, [progress]);
-  const method = methods.find((m) => m.id === insertion)!,
-    construction = kinds.find((k) => k.id === kind)!;
-  const feature = selectedFeature ?? selected?.feature ?? 4;
-  const phase = progress < 0.16 ? 0 : progress <= 0.58 ? 1 : progress < 0.9 ? 2 : 3;
-  const blend = Math.max(0, Math.min(1, (progress - 0.58) / 0.32));
-  const material = arrays
-    ? series(
-        arrays.material,
-        feature,
-        0,
-        selected?.times.length ?? data.window,
-        data.features.length,
-      )
-    : [];
-  const materialProgress = Math.max(0, Math.min(1, (progress - 0.16) / 0.42));
-  const base = arrays
-      ? series(
-          arrays.original,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [],
-    candidate = arrays
-      ? series(
-          arrays.candidate,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [],
-    after = arrays
-      ? series(
-          arrays.input,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [];
-  const labels = arrays
-      ? series(
-          arrays.labels,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [],
-    visibleLabels = labels.map((v) => (phase === 3 ? v : 0));
-  const weights = arrays
-    ? series(
-        arrays.weights,
-        feature,
-        0,
-        selected?.times.length ?? data.window,
-        data.features.length,
-      )
-    : [];
-  const activePoints = weights.flatMap((weight, index) => (weight > 0 ? [index] : []));
-  const writtenCount = Math.ceil(activePoints.length * blend - 1e-9);
-  const written = new Set(activePoints.slice(0, writtenCount));
-  const visible = base.map((value, index) =>
-    insertion === 'replace'
-      ? written.has(index)
-        ? after[index]
-        : value
-      : value + (after[index] - value) * blend,
-  );
-  const shownCandidate = candidate.map(
-    (v, i) => material[i] + (v - material[i]) * materialProgress,
-  );
-  const animatedWeight = (weights[point] ?? 0) * blend;
-  const stableRange = curveDomain([...base, ...candidate, ...material, ...after]);
-  const startPlaying = () => {
-    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!playing && matchMedia('(max-width: 820px)').matches)
-      stageRef.current?.scrollIntoView({
-        behavior: reduced ? 'instant' : 'smooth',
-        block: 'start',
-      });
-    if (reduced) {
-      setProgress(1);
-      setPlaying(false);
-      return;
-    }
-    if (progress >= 1) setProgress(0);
-    setPlaying((v) => !v);
-  };
-  const jump = (n: number) => {
-    setPlaying(false);
-    setProgress([0, 0.58, 0.74, 1][n]);
-  };
+  const state = useCaseConstruction(data, model);
+  const {
+    insertion,
+    kind,
+    error,
+    retry,
+    progress,
+    setProgress,
+    playing,
+    setPlaying,
+    point,
+    setPoint,
+    showResult,
+    setShowResult,
+    setSelectedFeature,
+    resultRef,
+    stageRef,
+    selected,
+    cm,
+    arrays,
+    reconstruction,
+    method,
+    construction,
+    feature,
+    phase,
+    blend,
+    material,
+    materialProgress,
+    base,
+    after,
+    labels,
+    visibleLabels,
+    weights,
+    activePoints,
+    writtenCount,
+    written,
+    visible,
+    shownCandidate,
+    animatedWeight,
+    stableRange,
+    startPlaying,
+    jump,
+  } = state;
   return (
     <div className="anomaly-page case-page">
       <Heading title="异常样本构造" />
       <div className="case-layout">
-        <aside className="case-navigation" aria-label="异常案例导航">
-          <button
-            className="case-selection-summary"
-            aria-expanded={pickerOpen}
-            aria-controls="case-navigation-options"
-            onClick={() => {
-              setPlaying(false);
-              setPickerOpen((open) => !open);
-            }}
-          >
-            <strong>
-              {method.name} · {construction.name}
-            </strong>
-            <span>{pickerOpen ? '收起选择' : '更换方式'}</span>
-          </button>
-          <div
-            id="case-navigation-options"
-            className={'case-navigation-options' + (pickerOpen ? ' is-open' : '')}
-          >
-            <div className="case-nav-group">
-              <h2>
-                插入方式
-                <Footnote note="anomaly-cases" />
-              </h2>
-              <div className="case-methods">
-                {methods.map((m) => (
-                  <button
-                    key={m.id}
-                    aria-pressed={insertion === m.id}
-                    onClick={() => {
-                      setInsertion(m.id);
-                      setPickerOpen(false);
-                    }}
-                  >
-                    <strong>{m.name}</strong>
-                    <span>{m.copy}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="case-nav-group">
-              <h2>构造方法</h2>
-              <div className="case-kinds">
-                {kinds.map((k, i) => (
-                  <button
-                    key={k.id}
-                    aria-pressed={kind === k.id}
-                    onClick={() => {
-                      setKind(k.id);
-                      setPickerOpen(false);
-                    }}
-                  >
-                    <span>0{i + 1}</span>
-                    <strong>{k.name}</strong>
-                    <span aria-hidden="true">→</span>
-                  </button>
-                ))}
-              </div>
-              <p className="case-kind-copy">{construction.copy}</p>
-            </div>
-            <p className="case-formula">{method.formula}</p>
-            <details className="case-mobile-explanation">
-              <summary>查看构造说明与公式</summary>
-              <p>{method.copy}</p>
-              <p>{construction.copy}</p>
-              <p>{method.formula}</p>
-            </details>
-          </div>
-        </aside>
+        <CaseNavigation state={state} />
         <div className="case-content">
           <div className="case-title">
             <div>
@@ -340,7 +93,7 @@ export default function AnomalyChapter({
           {error ? (
             <div role="alert" className="state-panel">
               <p>{error}</p>
-              <button onClick={() => setAttempt((v) => v + 1)}>重新读取案例</button>
+              <button onClick={() => retry()}>重新读取案例</button>
             </div>
           ) : !selected || !arrays || !cm ? (
             <div role="status" className="state-panel">

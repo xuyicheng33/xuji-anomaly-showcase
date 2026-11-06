@@ -1,4 +1,4 @@
-import { isWind } from '../datasets';
+import { dataset } from '../datasets';
 const converterChapters = [
   ['data', '数据整理', '监测数据预处理', '无效记录剔除、缺失填补与归一化'],
   ['anomalies', '异常构造', '异常样本构造', '四类异常的构造过程与标签'],
@@ -8,11 +8,8 @@ const converterChapters = [
   ['playback', '连续回放', '连续检测结果回放', '逐时刻检测与累计评估指标'],
 ];
 export const chapters = converterChapters.map((chapter) => {
-  if (!isWind) return chapter;
-  if (chapter[0] === 'data')
-    return ['data', '数据整理', '风电数据预处理', '功率与天气对齐、字段选择与归一化'];
-  if (chapter[0] === 'models')
-    return ['models', '检测方法', '方法二：异常检测模型', '多尺度时间分支、掩码与重建'];
+  if (chapter[0] === 'data' || chapter[0] === 'models')
+    return [chapter[0], ...dataset.chapterText[chapter[0]]];
   return chapter;
 });
 export function route() {

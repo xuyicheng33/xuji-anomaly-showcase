@@ -1,5 +1,5 @@
 import { dataUrl } from './datasets';
-import type { Asset } from './journey';
+import type { Asset } from './journeyTypes';
 
 /** Pending requests are shared; completed values use a byte-limited LRU cache. */
 export class RequestCache<T> {
