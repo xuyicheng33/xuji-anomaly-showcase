@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 import numpy as np
 from data_geometry import INPUT_CHUNK_ROWS
+from array_assets import read_array
 
 ROOT = Path(__file__).resolve().parents[1] / 'public/data/journey'
 REFERENCE = ROOT.parents[2] / 'data/reference'
@@ -14,7 +15,7 @@ def main(reference=REFERENCE, public=ROOT):
     assets = [data['input'], data['datasets']['train'], data['labelMatrix'], *(m['recon'] for m in data['models'])]
     written = 0
     for asset in assets:
-        values = np.fromfile(reference / asset['file'], dtype='<f8').reshape(asset['shape'])
+        values = read_array(reference, asset)
         folder = public / 'curves-v1' / asset['sha256']
         folder.mkdir(parents=True, exist_ok=True)
         for feature in range(values.shape[1]):
@@ -31,7 +32,7 @@ def main(reference=REFERENCE, public=ROOT):
                 mean += values[:, feature]
             (folder / 'mean.bin').write_bytes((mean / values.shape[1]).astype('<f8').tobytes())
             written += 1
-    values = np.fromfile(reference / data['input']['file'], dtype='<f8').reshape(data['input']['shape'])
+    values = read_array(reference, data['input'])
     folder = public / 'input-rows-v2' / data['input']['sha256']
     folder.mkdir(parents=True, exist_ok=True)
     for start in range(0, len(values), INPUT_CHUNK_ROWS):

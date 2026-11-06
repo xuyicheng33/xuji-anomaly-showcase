@@ -70,3 +70,12 @@ def counts(labels, prediction):
     }
 
 
+def point_adjust(labels, prediction):
+    adjusted = np.asarray(prediction, bool).copy()
+    truth = np.asarray(labels, bool)
+    for begin, end in np.flatnonzero(np.diff(np.r_[0, truth, 0])).reshape(-1, 2):
+        if adjusted[begin:end].any():
+            adjusted[begin:end] = True
+    return adjusted
+
+

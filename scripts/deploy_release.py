@@ -1,147 +1,167 @@
-from pathlib import Path
-import datetime
+"""Publish the verified build to the dedicated 9010 site, preserving rollback."""
 import argparse
+from contextlib import closing
+from datetime import datetime, timezone
 import hashlib
 import json
+from pathlib import Path
 import shlex
 import subprocess
 import tarfile
+from textwrap import dedent
+
 import paramiko
+
+from dataset_paths import DATASETS
+from release_files import hashes
 from release_validation import validate_evaluation, window_location_config
 
-parser = argparse.ArgumentParser(description='Publish the verified dist to the dedicated 9010 site using the local SSH key.')
-parser.add_argument('--qa-dir', type=Path, default=Path('.qa/deployment'))
-parser.add_argument('--scope', default='Verified production release', help='Describe the changes included in this release.')
-args = parser.parse_args()
-root=Path(__file__).resolve().parents[1]
-commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
-release=commit[:7]
-if subprocess.check_output(['git','status','--porcelain'],cwd=root,text=True).strip():
-    raise RuntimeError('Commit the release changes before deployment.')
-record=json.loads((root/'.qa/build.json').read_text(encoding='utf-8'))
-if not record.get('verified') or record['commit'] != commit:
-    raise RuntimeError('Run npm run verify on this commit before deployment.')
-subprocess.run(['node', 'scripts/build_record.mjs', 'check'], cwd=root, check=True)
-out=args.qa_dir.resolve()
-out.mkdir(parents=True, exist_ok=True)
-dist=root/'dist'
-records={p.relative_to(dist).as_posix():hashlib.sha256(p.read_bytes()).hexdigest() for p in dist.rglob('*') if p.is_file() and p.suffix!='.gz'}
-if records != record['files']:
-    raise RuntimeError('Production files differ from the verified build.')
-validate_evaluation(dist / 'data/journey', root / 'data/reference/manifest.json')
-validate_evaluation(dist / 'data/wind', root / 'data/reference/wind/manifest.json')
-client=paramiko.SSHClient();client.load_host_keys(str(Path.home()/'.ssh/known_hosts'))
-client.connect('124.223.175.32',username='ubuntu',key_filename=str(Path.home()/'.ssh/xuji_showcase_ed25519'),look_for_keys=False,allow_agent=False,timeout=20)
+SITE = '/var/www/xuji-showcase'
+CONFIG = '/etc/nginx/conf.d/xuji-showcase-9010.conf'
 
-def run(command):
-    _,stdout,stderr=client.exec_command(command,timeout=120)
-    text=stdout.read().decode();error=stderr.read().decode();status=stdout.channel.recv_exit_status()
-    if status:raise RuntimeError(f'Command failed ({status}): {error}\n{text}')
-    return text
 
-def remote_python(source):return run('python3 -c '+shlex.quote(source))
+def run(client, command):
+    _, stdout, stderr = client.exec_command(command, timeout=120)
+    output = stdout.read().decode()
+    error = stderr.read().decode()
+    status = stdout.channel.recv_exit_status()
+    if status:
+        raise RuntimeError(f'Command failed ({status}): {error}\n{output}')
+    return output
 
-previous=run('readlink -f /var/www/xuji-showcase/current').strip()
-old=json.loads(remote_python("from pathlib import Path;import hashlib,json;p=Path("+repr(previous)+");print(json.dumps({f.relative_to(p).as_posix():hashlib.sha256(f.read_bytes()).hexdigest() for f in p.rglob('*') if f.is_file() and f.suffix!='.gz'}))"))
-changed=[name for name,digest in records.items() if old.get(name)!=digest]
-archive=out/'release-changes.tar.gz'
-with tarfile.open(archive,'w:gz') as tar:
-    for name in changed:tar.add(dist/name,arcname=name)
-print(json.dumps({'release':release,'changedFiles':len(changed),'uploadBytes':archive.stat().st_size}),flush=True)
-staging='/home/ubuntu/xuji-home-data-'+release
-target='/var/www/xuji-showcase/releases/'+release
-run('mkdir -p '+shlex.quote(staging))
-sftp=client.open_sftp();sftp.put(str(archive),staging+'/changes.tar.gz')
-with sftp.open(staging+'/files.json','w') as file:file.write(json.dumps(records))
-# Install only the window location; preserve other applications in the site's configuration.
-config=(root/'deploy/nginx-9010.conf').read_text(encoding='utf8')
-existing_config=remote_python("from pathlib import Path;print(Path('/etc/nginx/conf.d/xuji-showcase-9010.conf').read_text(),end='')")
-updated_config=existing_config
-for dataset in ['journey','wind']:
-    begin=config.index('    location ^~ /data/'+dataset+'/windows-v1/ {')
-    end=config.index('\n    }',begin)+len('\n    }')
-    updated_config=window_location_config(updated_config,config[begin:end])
-with sftp.open(staging+'/site.conf','w') as file:file.write(updated_config)
-sftp.close()
-source=f'''
-from pathlib import Path
-import json,hashlib,gzip,shutil,tarfile,os
-previous=Path({previous!r});target=Path({target!r});staging=Path({staging!r})
-assert target.parent==Path('/var/www/xuji-showcase/releases')
-if target.exists():raise RuntimeError('Release already exists')
-shutil.copytree(previous,target)
-with tarfile.open(staging/'changes.tar.gz') as tar:
- for member in tar.getmembers():
-  assert (target/member.name).resolve().is_relative_to(target.resolve())
- tar.extractall(target,filter='data')
-expected=json.loads((staging/'files.json').read_text())
-for file in list(target.rglob('*')):
- if file.is_file() and file.suffix!='.gz' and file.relative_to(target).as_posix() not in expected:
-  file.unlink()
-for name,digest in expected.items():
- file=target/name;raw=file.read_bytes()
- assert hashlib.sha256(raw).hexdigest()==digest,name
- zipped=file.with_name(file.name+'.gz')
- if zipped.exists() and gzip.decompress(zipped.read_bytes()) != raw:zipped.unlink()
- if name in {changed!r} and len(raw)>=1024 and file.suffix in {{'.bin','.json','.js','.css','.svg','.html'}}:
-  packed=gzip.compress(raw,compresslevel=6,mtime=0)
-  if len(packed)<len(raw):
-   zipped.write_bytes(packed)
-   assert gzip.decompress(zipped.read_bytes())==raw
-for file in list(target.rglob('*.gz')):
- if not file.with_suffix('').exists():file.unlink()
-for file in target.rglob('*.gz'):
- assert gzip.decompress(file.read_bytes())==file.with_suffix('').read_bytes(),str(file)
-print(json.dumps({{'verifiedFiles':len(expected),'release':str(target)}}))
-'''
-print(run('sudo -n python3 -c '+shlex.quote(source)),flush=True)
-config_path='/etc/nginx/conf.d/xuji-showcase-9010.conf'
-config_backup='/var/www/xuji-showcase/config-backups/'+release+'.conf'
-config_update=f'''
-from pathlib import Path
-import hashlib
-config=Path({config_path!r});backup=Path({config_backup!r})
-text=config.read_text()
-assert hashlib.sha256(text.encode()).hexdigest()=={hashlib.sha256(existing_config.encode()).hexdigest()!r}
-assert not backup.exists()
-backup.parent.mkdir(parents=True,exist_ok=True);backup.write_text(text)
-config.write_bytes(Path({staging!r}+'/site.conf').read_bytes())
-'''
-try:
-    run('sudo -n python3 -c '+shlex.quote(config_update))
-    run('sudo -n nginx -t')
-    run('sudo -n ln -s '+shlex.quote(target)+' /var/www/xuji-showcase/current-next && sudo -n mv -Tf /var/www/xuji-showcase/current-next /var/www/xuji-showcase/current')
-    run('sudo -n systemctl reload nginx')
-    assert run('curl -fsS -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/')=='200'
-    # A browser sends Accept-Encoding automatically. Confirm offsets still refer to raw data.
-    for dataset in ['journey','wind']:
-        chunk=json.loads((dist/('data/'+dataset)/'manifest.json').read_text(encoding='utf8'))['models'][0]['windows']['chunks'][0]
-        probe=f'''
-from urllib.request import Request,urlopen
-from pathlib import Path
-relative='data/'+{dataset!r}+'/'+{chunk['file']!r}
-url='http://127.0.0.1:9010/'+relative
-response=urlopen(Request(url,headers={{'Range':'bytes=0-31999','Accept-Encoding':'gzip'}}))
-assert response.status==206 and response.headers.get('Content-Encoding') is None
-assert response.read()==(Path({target!r})/relative).read_bytes()[:32000]
-'''
-        remote_python(probe)
 
-except Exception:
-    restore=f'''
-from pathlib import Path
-import os
-backup=Path({config_backup!r})
-if backup.exists():Path({config_path!r}).write_bytes(backup.read_bytes())
-current=Path('/var/www/xuji-showcase/current-rollback')
-current.unlink(missing_ok=True);current.symlink_to({previous!r})
-os.replace(current,'/var/www/xuji-showcase/current')
-'''
-    run('sudo -n python3 -c '+shlex.quote(restore))
-    run('sudo -n nginx -t && sudo -n systemctl reload nginx')
-    raise
-record={'release':release,'previousRelease':Path(previous).name,'url':'http://124.223.175.32:9010/','releasePath':target,'verifiedFiles':len(records),'changedFiles':len(changed),'uploadedBytes':archive.stat().st_size,'scope':args.scope,'deployedAt':datetime.datetime.now(datetime.timezone.utc).isoformat()}
-run('sudo -n python3 -c '+shlex.quote("from pathlib import Path;Path('/var/www/xuji-showcase/deployment.json').write_text("+repr(json.dumps(record,indent=2))+')'))
-remote_python("from pathlib import Path;import shutil;p=Path("+repr(staging)+");assert p.parent==Path('/home/ubuntu') and p.name.startswith('xuji-home-data-');shutil.rmtree(p)")
-(out/'deploy-result.json').write_text(json.dumps(record,indent=2),encoding='utf8')
-archive.unlink();client.close();print(json.dumps(record),flush=True)
+def remote_python(client, source, *, sudo=False):
+    prefix = 'sudo -n ' if sudo else ''
+    return run(client, prefix + 'python3 -B -c ' + shlex.quote(dedent(source)))
+
+
+def release_call(client, staging, function, *args):
+    return remote_python(client, f'''
+        import sys
+        sys.path.insert(0, {staging!r})
+        import release_files
+        release_files.{function}(*{args!r})
+    ''', sudo=True)
+
+
+def activate(client, staging, target, previous, backup, config_digest, probes):
+    try:
+        release_call(client, staging, 'install_config', CONFIG, backup,
+                     staging + '/site.conf', config_digest)
+        run(client, 'sudo -n nginx -t')
+        release_call(client, staging, 'switch_release', SITE + '/current', target)
+        run(client, 'sudo -n systemctl reload nginx')
+        if run(client, 'curl -fsS -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/') != '200':
+            raise RuntimeError('Released home page did not return 200')
+        for relative in probes:
+            remote_python(client, f'''
+                from urllib.request import Request, urlopen
+                from pathlib import Path
+                request = Request('http://127.0.0.1:9010/' + {relative!r},
+                                  headers={{'Range': 'bytes=0-31999', 'Accept-Encoding': 'gzip'}})
+                with urlopen(request, timeout=20) as response:
+                    assert response.status == 206 and response.headers.get('Content-Encoding') is None
+                    assert response.read() == (Path({target!r}) / {relative!r}).read_bytes()[:32000]
+            ''')
+    except Exception:
+        release_call(client, staging, 'restore_config', CONFIG, backup)
+        release_call(client, staging, 'switch_release', SITE + '/current', previous)
+        run(client, 'sudo -n nginx -t')
+        run(client, 'sudo -n systemctl reload nginx')
+        raise
+
+
+def publish(client, root, output, commit, records, scope):
+    release = commit[:7]
+    operation = release + '-' + datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')
+    previous = run(client, 'readlink -f ' + SITE + '/current').strip()
+    old = json.loads(remote_python(client, f'''
+        from pathlib import Path
+        import hashlib, json
+        folder = Path({previous!r})
+        print(json.dumps({{p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
+                          for p in folder.rglob('*') if p.is_file() and p.suffix != '.gz'}}))
+    '''))
+    changed = [name for name, digest in records.items() if old.get(name) != digest]
+    archive = output / ('release-' + operation + '.tar.gz')
+    with tarfile.open(archive, 'w:gz') as package:
+        for name in changed:
+            package.add(root / 'dist' / name, arcname=name)
+    upload_bytes = archive.stat().st_size
+    print(json.dumps({'release': release, 'changedFiles': len(changed), 'uploadBytes': upload_bytes}), flush=True)
+    staging = '/home/ubuntu/xuji-home-data-' + operation
+    target = SITE + '/releases/' + release
+    run(client, 'mkdir -p ' + shlex.quote(staging))
+    try:
+        existing = remote_python(client, f'from pathlib import Path; print(Path({CONFIG!r}).read_text(), end="")')
+        config = (root / 'deploy/nginx-9010.conf').read_text(encoding='utf8')
+        updated = existing
+        probes = []
+        for _, public in DATASETS.values():
+            name = public.name
+            begin = config.index('    location ^~ /data/' + name + '/windows-v1/ {')
+            end = config.index('\n    }', begin) + len('\n    }')
+            updated = window_location_config(updated, config[begin:end])
+            manifest = json.loads((root / 'dist/data' / name / 'manifest.json').read_text(encoding='utf8'))
+            probes.append('data/' + name + '/' + manifest['models'][0]['windows']['chunks'][0]['file'])
+        with client.open_sftp() as sftp:
+            sftp.put(str(root / 'scripts/release_files.py'), staging + '/release_files.py')
+            sftp.put(str(archive), staging + '/changes.tar.gz')
+            for name, content in [('files.json', json.dumps(records)), ('site.conf', updated)]:
+                with sftp.open(staging + '/' + name, 'w') as file:
+                    file.write(content)
+        release_call(client, staging, 'prepare_staged', previous, target, staging, changed)
+        backup = SITE + '/config-backups/' + operation + '.conf'
+        activate(client, staging, target, previous, backup,
+                 hashlib.sha256(existing.encode()).hexdigest(), probes)
+        result = {
+            'release': release, 'previousRelease': Path(previous).name,
+            'url': 'http://124.223.175.32:9010/', 'releasePath': target,
+            'verifiedFiles': len(records), 'changedFiles': len(changed),
+            'uploadedBytes': upload_bytes, 'scope': scope,
+            'deployedAt': datetime.now(timezone.utc).isoformat(),
+        }
+        remote_python(client, f'from pathlib import Path; Path({SITE + "/deployment.json"!r}).write_text({json.dumps(result, indent=2)!r})', sudo=True)
+        (output / 'deploy-result.json').write_text(json.dumps(result, indent=2), encoding='utf8')
+        archive.unlink()
+        print(json.dumps(result), flush=True)
+    finally:
+        remote_python(client, f'''
+            from pathlib import Path
+            import shutil
+            folder = Path({staging!r}).resolve()
+            assert folder.parent == Path('/home/ubuntu') and folder.name == {Path(staging).name!r}
+            shutil.rmtree(folder)
+        ''', sudo=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--qa-dir', type=Path, default=Path('.qa/deployment'))
+    parser.add_argument('--scope', default='Verified production release')
+    args = parser.parse_args()
+    root = Path(__file__).resolve().parents[1]
+    commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
+    if subprocess.check_output(['git', 'status', '--porcelain'], cwd=root, text=True).strip():
+        raise RuntimeError('Commit the release changes before deployment.')
+    record = json.loads((root / '.qa/build.json').read_text(encoding='utf8'))
+    if not record.get('verified') or record['commit'] != commit:
+        raise RuntimeError('Run npm run verify on this commit before deployment.')
+    subprocess.run(['node', 'scripts/build_record.mjs', 'check'], cwd=root, check=True)
+    records = hashes(root / 'dist')
+    if records != record['files']:
+        raise RuntimeError('Production files differ from the verified build.')
+    for reference, public in DATASETS.values():
+        validate_evaluation(root / 'dist' / public.relative_to(root), reference / 'manifest.json')
+    output = args.qa_dir.resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    with closing(paramiko.SSHClient()) as client:
+        client.load_host_keys(str(Path.home() / '.ssh/known_hosts'))
+        client.connect('124.223.175.32', username='ubuntu',
+                       key_filename=str(Path.home() / '.ssh/xuji_showcase_ed25519'),
+                       look_for_keys=False, allow_agent=False, timeout=20)
+        publish(client, root, output, commit, records, args.scope)
+
+
+if __name__ == '__main__':
+    main()

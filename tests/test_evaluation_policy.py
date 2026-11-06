@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from evaluation_policy import select_threshold
+from evaluation_policy import select_threshold, point_adjust
 
 
 def brute_force(scores, labels):
@@ -36,6 +36,12 @@ def brute_force(scores, labels):
 
 
 class EvaluationPolicyTests(unittest.TestCase):
+    def test_point_adjust_only_extends_hit_abnormal_segments(self):
+        labels = [1, 1, 0, 1, 1, 0, 1]
+        prediction = np.array([0, 1, 1, 0, 0, 0, 0], dtype=bool)
+        np.testing.assert_array_equal(point_adjust(labels, prediction), [1, 1, 1, 0, 0, 0, 0])
+        np.testing.assert_array_equal(prediction, [0, 1, 1, 0, 0, 0, 0])
+
     def test_matches_exhaustive_search_with_ties_and_window_boundaries(self):
         rng = np.random.default_rng(27)
         for shape in [(13,), (4, 9)]:

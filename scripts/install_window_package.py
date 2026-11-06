@@ -5,20 +5,12 @@ from pathlib import Path
 import numpy as np
 from data_geometry import geometry
 import shutil
-from evaluation_policy import counts
+from evaluation_policy import counts, point_adjust
 from evaluation_policy import POLICY, RESULT_VERSION, select_threshold
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'data/reference'
 PUBLIC = ROOT / 'public/data/journey'
-
-
-def point_adjust(y, prediction):
-    p = prediction.copy()
-    for a, b in np.flatnonzero(np.diff(np.r_[0, y, 0])).reshape(-1, 2):
-        if p[a:b].any():
-            p[a:b] = True
-    return p
 
 
 def install():

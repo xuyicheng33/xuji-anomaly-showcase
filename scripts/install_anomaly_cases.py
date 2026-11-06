@@ -8,13 +8,7 @@ import numpy as np
 
 from export_anomaly_cases import construct, VERSION
 from dataset_paths import dataset_info
-
-def metrics(y, p):
-    y, p = np.asarray(y, bool), np.asarray(p, bool)
-    tp, fp, fn, tn = int((y & p).sum()), int((~y & p).sum()), int((y & ~p).sum()), int((~y & ~p).sum())
-    return dict(tp=tp, fp=fp, fn=fn, tn=tn, precision=tp/(tp+fp) if tp+fp else None,
-                recall=tp/(tp+fn) if tp+fn else None, f1=2*tp/(2*tp+fp+fn) if 2*tp+fp+fn else None)
-
+from evaluation_policy import counts
 
 def install(source, target, journey):
     source, target = Path(source), Path(target)
@@ -68,7 +62,7 @@ def install(source, target, journey):
             threshold = m['windowThreshold']
             rec['models'].append(dict(id=m['id'], name=m['name'], recon=asset(cid + '-' + m['id'], recon),
                                       scores=errors.mean(1).tolist(), threshold=threshold,
-                                      metrics=metrics(labels.any(1), errors.mean(1) > threshold)))
+                                      metrics=counts(labels.any(1), errors.mean(1) > threshold)))
         records.append(rec)
     manifest = dict(version=next(iter(exports.values()))['version'], seed=20261028, cases=records,
                     provenance={m: {'sources': e['sources'], 'device': e['device'], 'policy': e['policy']} for m, e in exports.items()},

@@ -5,6 +5,7 @@ import json
 import numpy as np
 from data_geometry import geometry, INPUT_CHUNK_ROWS, CONTRIBUTION_CHUNK_ROWS
 import hashlib
+from array_assets import read_array, write_array
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = ROOT / 'data/reference'
@@ -23,13 +24,13 @@ def runtime_manifest(source, reference=REFERENCE):
     result['models'] = []
     result['inputChunkRows'] = INPUT_CHUNK_ROWS
     labels = np.asarray(source['labels'], dtype=bool)
-    raw = np.fromfile(reference / source['input']['file'], dtype='<f8').reshape(-1, features)
+    raw = read_array(reference, source['input'])
     for model in source['models']:
         current = {key: model[key] for key in (
             'id', 'name', 'threshold', 'windowThreshold', 'scores', 'history', 'recon', 'metrics', 'run')}
         current['windows'] = {key: model['windows'][key] for key in ('chunks', 'count')}
         current['windows'].update(length=window, features=features)
-        errors = np.fromfile(reference / model['errors']['file'], dtype='<f8').reshape(-1, features)
+        errors = read_array(reference, model['errors'])
         chunks = []
         for start in range(0, rows, CONTRIBUTION_CHUNK_ROWS):
             payload = errors[start:start + CONTRIBUTION_CHUNK_ROWS].astype('<f8').tobytes()
@@ -63,11 +64,9 @@ def export(reference=REFERENCE, public=PUBLIC):
     result = runtime_manifest(source, reference)
     public.mkdir(parents=True, exist_ok=True)
     for original, model in zip(source['models'], result['models']):
-        errors = np.fromfile(reference / original['errors']['file'], dtype='<f8').reshape(original['errors']['shape'])
+        errors = read_array(reference, original['errors'])
         for chunk in model['contributions']['chunks']:
-            path = public / chunk['file']
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_bytes(errors[chunk['start']:chunk['start'] + chunk['count']].astype('<f8').tobytes())
+            write_array(public, chunk['file'], errors[chunk['start']:chunk['start'] + chunk['count']])
     (public / 'manifest.json').write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
     print(f'Runtime manifest: {(public / "manifest.json").stat().st_size} bytes')
 
