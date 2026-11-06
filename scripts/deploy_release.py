@@ -156,7 +156,7 @@ def main():
     if records != record['files']:
         raise RuntimeError('Production files differ from the verified build.')
     for reference, public in DATASETS.values():
-        validate_evaluation(root / 'dist' / public.relative_to(root), reference / 'manifest.json')
+        validate_evaluation(root / 'dist/data' / public.name, reference / 'manifest.json')
     output = args.qa_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     with closing(paramiko.SSHClient()) as client:

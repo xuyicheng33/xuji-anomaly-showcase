@@ -12,6 +12,31 @@ import deploy_release as deployment
 
 
 class DeploymentTests(unittest.TestCase):
+    def test_entry_checks_evaluation_in_dist_data_before_connecting(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / '.qa').mkdir()
+            (root / '.qa/build.json').write_text(json.dumps({
+                'verified': True, 'commit': 'abcdef0', 'files': {},
+            }), encoding='utf8')
+            datasets = {name: (root / 'reference' / name, root / 'public/data' / name)
+                        for name in ('journey', 'wind')}
+            with patch.object(deployment, '__file__', str(root / 'scripts/deploy_release.py')), \
+                 patch.object(deployment, 'DATASETS', datasets), \
+                 patch.object(deployment, 'validate_evaluation') as validate, \
+                 patch.object(deployment, 'hashes', return_value={}), \
+                 patch.object(deployment, 'publish') as publish, \
+                 patch.object(deployment.paramiko, 'SSHClient'), \
+                 patch.object(deployment.subprocess, 'check_output', side_effect=['abcdef0', '']), \
+                 patch.object(deployment.subprocess, 'run'), \
+                 patch('sys.argv', ['deploy', '--qa-dir', str(root / '.qa/deployment')]):
+                deployment.main()
+            self.assertEqual([call.args for call in validate.call_args_list], [
+                (root / 'dist/data' / name, root / 'reference' / name / 'manifest.json')
+                for name in ('journey', 'wind')
+            ])
+            self.assertTrue(callable(publish.call_args.args[-1]))
+
     def test_publish_builds_valid_sources_and_uses_public_dataset_paths(self):
         sources = []
         root = Path(__file__).resolve().parents[1]
