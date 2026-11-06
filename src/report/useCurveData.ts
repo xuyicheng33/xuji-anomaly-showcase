@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useResource } from './useResource';
 import { loadAsset, type Asset } from '../journey';
 import { useDataAsset } from './useDataAsset';
 import { rowChunks } from '../dataGeometry';
@@ -27,19 +28,9 @@ export function useWindowInput(
   const sha256 = asset.sha256,
     rows = asset.shape[0],
     features = asset.shape[1];
-  const key = asset.sha256 + ':' + start + ':' + length,
-    [attempt, setAttempt] = useState(0),
-    [state, setState] = useState<{ key: string; data: Float64Array | null; error: string }>({
-      key: '',
-      data: null,
-      error: '',
-    });
-  useEffect(() => {
-    if (!enabled) return;
-    let active = true;
-    setState((previous) => ({ key, data: previous.key === key ? previous.data : null, error: '' }));
+  const read = useCallback(async () => {
     const chunks = rowChunks(start, length, chunkRows);
-    Promise.all(
+    const parts = await Promise.all(
       chunks.map((from) =>
         loadAsset({
           file: `input-rows-v2/${sha256}/${from}.bin`,
@@ -47,28 +38,17 @@ export function useWindowInput(
           sha256,
         }),
       ),
-    )
-      .then((parts) => {
-        const result = new Float64Array(length * features);
-        for (let i = 0; i < length; i++) {
-          const row = start + i,
-            chunk = Math.floor(row / chunkRows) * chunkRows,
-            part = parts[chunks.indexOf(chunk)],
-            offset = (row - chunk) * features;
-          result.set(part.subarray(offset, offset + features), i * features);
-        }
-        if (active) setState({ key, data: result, error: '' });
-      })
-      .catch(() => {
-        if (active) setState({ key, data: null, error: '窗口输入读取失败。' });
-      });
-    return () => {
-      active = false;
-    };
-  }, [key, sha256, rows, start, enabled, attempt, length, chunkRows, features]);
-  return {
-    data: state.key === key ? state.data : null,
-    error: state.key === key ? state.error : '',
-    retry: () => setAttempt((n) => n + 1),
-  };
+    );
+    const result = new Float64Array(length * features);
+    for (let i = 0; i < chunks.length; i++) {
+      const from = Math.max(start, chunks[i]),
+        end = Math.min(start + length, chunks[i] + chunkRows);
+      result.set(
+        parts[i].subarray((from - chunks[i]) * features, (end - chunks[i]) * features),
+        (from - start) * features,
+      );
+    }
+    return result;
+  }, [sha256, rows, features, start, length, chunkRows]);
+  return useResource(enabled ? `${sha256}:${start}:${length}` : null, read);
 }

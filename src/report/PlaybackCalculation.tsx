@@ -1,4 +1,4 @@
-import { dataUrl } from '../datasets';
+import { loadJson } from '../assetRequests';
 import { coveringWindows } from '../dataGeometry';
 import { useEffect, useRef, useState } from 'react';
 import { loadWindow, type Journey, type Model, type Asset } from '../journey';
@@ -11,20 +11,7 @@ import { ScoreCalculation } from './ScoreCalculation';
 const decimal = (value: number) => value.toFixed(9);
 
 type IndexManifest = { resultVersion: string; models: Record<string, Asset> };
-let indexRequest: Promise<IndexManifest> | null = null;
-function loadIndex() {
-  if (!indexRequest)
-    indexRequest = fetch(dataUrl('calculation-v1/manifest.json'))
-      .then((r) => {
-        if (!r.ok) throw Error('计算索引读取失败');
-        return r.json() as Promise<IndexManifest>;
-      })
-      .catch((e) => {
-        indexRequest = null;
-        throw e;
-      });
-  return indexRequest;
-}
+const loadIndex = () => loadJson<IndexManifest>('calculation-v1/manifest.json');
 
 export function PlaybackCalculation({
   data,

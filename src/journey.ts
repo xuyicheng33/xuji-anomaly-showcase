@@ -1,4 +1,4 @@
-import { dataUrl } from './datasets';
+import { loadBinary, RequestCache } from './assetRequests';
 import { fetchRanges, type ByteRange } from './rangeAssets';
 import { coveringWindows } from './dataGeometry';
 
@@ -193,62 +193,19 @@ export function pointAdjusted(labels: number[], scores: number[], threshold: num
   }
   return p;
 }
-const assetCache = new Map<string, Promise<Float64Array>>();
-export function loadAsset(asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>) {
-  const key = asset.file + ':' + asset.sha256;
-  const existing = assetCache.get(key);
-  if (existing) return existing;
-  const request = fetch(`${dataUrl(asset.file)}?v=${asset.sha256}`)
-    .then(async (r) => {
-      if (!r.ok) throw Error('数据读取失败');
-      const b = await r.arrayBuffer();
-      if (b.byteLength !== asset.bytes) throw Error('数据文件长度不匹配');
-      return new Float64Array(b);
-    })
-    .catch((e) => {
-      assetCache.delete(key);
-      throw e;
-    });
-  assetCache.set(key, request);
-  return request;
+export async function loadAsset(asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>) {
+  return new Float64Array(await loadBinary(asset));
 }
-const windowCache = new Map<string, Promise<ArrayBuffer>>();
-async function windowFile({ file, bytes, sha256 }: WindowChunk) {
-  const key = file + ':' + sha256;
-  let request = windowCache.get(key);
-  if (request) return request;
-  request = fetch(`${dataUrl(file)}?v=${sha256}`)
-    .then(async (r) => {
-      if (!r.ok) throw Error('窗口结果读取失败');
-      const b = await r.arrayBuffer();
-      if (b.byteLength !== bytes) throw Error('窗口文件长度不匹配');
-      return b;
-    })
-    .catch((e) => {
-      windowCache.delete(key);
-      throw e;
-    });
-  windowCache.set(key, request);
-  if (windowCache.size > 10) windowCache.delete(windowCache.keys().next().value!);
-  return request;
-}
-const rangeCache = new Map<string, Promise<ArrayBuffer[]>>();
+const rangeCache = new RequestCache<ArrayBuffer[]>(4 * 1024 * 1024);
 function windowRanges(chunk: WindowChunk, ranges: ByteRange[]) {
   const key =
-    chunk.file +
-    ':' +
-    chunk.sha256 +
-    ':' +
+    `${chunk.file}:${chunk.sha256}:` +
     ranges.map((range) => `${range.start}/${range.bytes}`).join(',');
-  let request = rangeCache.get(key);
-  if (request) return request;
-  request = fetchRanges(chunk, ranges, () => windowFile(chunk)).catch((error) => {
-    rangeCache.delete(key);
-    throw error;
-  });
-  rangeCache.set(key, request);
-  if (rangeCache.size > 96) rangeCache.delete(rangeCache.keys().next().value!);
-  return request;
+  return rangeCache.get(
+    key,
+    ranges.reduce((sum, range) => sum + range.bytes, 0),
+    () => fetchRanges(chunk, ranges, () => loadBinary(chunk)),
+  );
 }
 export async function loadWindow(m: Model, start: number) {
   const pack = m.windows,

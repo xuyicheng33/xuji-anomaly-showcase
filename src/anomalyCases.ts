@@ -1,4 +1,4 @@
-import { dataUrl } from './datasets';
+import { loadJson } from './assetRequests';
 import { loadAsset, type Asset, type Metrics } from './journey';
 
 export type Insertion = 'replace' | 'blend';
@@ -39,19 +39,13 @@ export type CaseArrays = {
   input: Float64Array;
   labels: Float64Array;
 };
-let manifest: Promise<{ version: string; cases: AnomalyCase[] }> | undefined;
 export function loadCases() {
-  return (manifest ??= fetch(dataUrl('anomaly-cases-v1/manifest.json'))
-    .then(async (r) => {
-      if (!r.ok) throw Error('案例读取失败');
-      const d = await r.json();
+  return loadJson<{ version: string; cases: AnomalyCase[] }>(
+    'anomaly-cases-v1/manifest.json',
+    (d) => {
       if (d.cases?.length !== 8) throw Error('案例资料不完整');
-      return d;
-    })
-    .catch((e) => {
-      manifest = undefined;
-      throw e;
-    }));
+    },
+  );
 }
 export async function loadCaseArrays(c: AnomalyCase): Promise<CaseArrays> {
   const [original, material, candidate, weights, input, labels] = await Promise.all(

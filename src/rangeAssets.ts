@@ -1,4 +1,4 @@
-import { dataUrl } from './datasets';
+import { requestData } from './assetRequests';
 import type { WindowChunk } from './journey';
 
 export type ByteRange = { start: number; bytes: number };
@@ -85,7 +85,7 @@ export async function fetchRanges(
     )
   )
     throw Error('无效窗口范围');
-  const response = await fetch(`${dataUrl(asset.file)}?v=${asset.sha256}`, {
+  const response = await requestData(`${asset.file}?v=${asset.sha256}`, {
     headers: {
       Range:
         'bytes=' +
