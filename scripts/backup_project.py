@@ -17,12 +17,74 @@ def sha256(file):
         return hashlib.file_digest(stream, "sha256").hexdigest()
 
 
+def verify_archive(archive):
+    with zipfile.ZipFile(archive) as package:
+        records = json.loads(package.read('manifest.json'))
+        for name, expected in records.items():
+            if expected is None:
+                continue
+            with package.open(name) as stream:
+                actual = hashlib.file_digest(stream, 'sha256').hexdigest()
+            if actual != expected:
+                raise ValueError(f'Recovery archive checksum mismatch: {name}')
+
+
+def backup_inventory(output, keep):
+    """Retain the latest backup for each of the newest distinct releases."""
+    retained, records = set(), []
+    for archive in sorted(output.glob('xuji-*.zip'), reverse=True):
+        metadata = archive.with_suffix('.json')
+        result = json.loads(metadata.read_text(encoding='utf8')) if metadata.exists() else None
+        verified = result and result.get('verified')
+        remove = False
+        if verified and result['bytes'] == archive.stat().st_size:
+            release = result['release']
+            remove = release in retained or len(retained) >= keep
+            if not remove:
+                retained.add(release)
+        records.append({'archive': str(archive), 'bytes': archive.stat().st_size,
+                        'release': result['release'] if result else None,
+                        'verified': bool(verified),
+                        'action': 'candidate' if remove else 'keep'})
+    return records
+
+
+def prune_backups(output, keep, apply=False):
+    records = backup_inventory(output, keep)
+    if apply:
+        # Verify candidates and recovery copies before deleting any archive.
+        for row in records:
+            archive = Path(row['archive'])
+            metadata = archive.with_suffix('.json')
+            if not row['verified']:
+                continue
+            expected = json.loads(metadata.read_text(encoding='utf8'))['sha256']
+            if sha256(archive) != expected:
+                raise ValueError(f'Recovery archive checksum mismatch: {archive}')
+            verify_archive(archive)
+        for row in records:
+            if row['action'] == 'candidate':
+                archive = Path(row['archive'])
+                archive.unlink()
+                archive.with_suffix('.json').unlink()
+    return {'applied': apply, 'keepDistinctReleases': keep, 'archives': records,
+            'candidateBytes': sum(row['bytes'] for row in records if row['action'] == 'candidate')}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", type=Path, default=ROOT / ".qa/backups")
+    parser.add_argument('--prune', action='store_true', help='Preview old backup candidates')
+    parser.add_argument('--keep', type=int, default=3, help='Distinct releases to retain (default: 3)')
+    parser.add_argument('--apply', action='store_true', help='Apply the verified pruning plan')
     args = parser.parse_args()
+    if args.keep < 1 or (args.apply and not args.prune):
+        parser.error('--keep must be positive; --apply requires --prune')
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
+    if args.prune:
+        print(json.dumps(prune_backups(output, args.keep, args.apply), ensure_ascii=False))
+        return
     stamp = datetime.now(timezone(timedelta(hours=8))).strftime("%Y%m%d-%H%M%S")
     release = subprocess.check_output(
         ["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, text=True
@@ -64,14 +126,7 @@ def main():
         package.writestr("repository.json", repository)
         records["repository.json"] = hashlib.sha256(repository).hexdigest()
         package.writestr("manifest.json", json.dumps(records, indent=2))
-    with zipfile.ZipFile(archive) as package:
-        for name, expected in records.items():
-            if expected is None:
-                continue
-            with package.open(name) as stream:
-                actual = hashlib.file_digest(stream, "sha256").hexdigest()
-            if actual != expected:
-                raise ValueError(f"Recovery archive checksum mismatch: {name}")
+    verify_archive(archive)
     result = {
         "archive": str(archive), "release": release, "files": len(records),
         "bytes": archive.stat().st_size, "sha256": sha256(archive), "verified": True,

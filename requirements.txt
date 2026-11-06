@@ -1,5 +1,18 @@
-numpy>=1.26
-pandas>=2.0
-paramiko>=3.4
-openpyxl>=3.1
-fonttools>=4.0
+# Python 3.12 maintenance environment; archived model research uses its own environment.
+numpy==2.5.4
+pandas==3.0.6
+paramiko==5.0.0
+openpyxl==3.1.5
+fonttools==4.67.0
+brotli==1.2.1
+# Locked dependencies of the packages above.
+bcrypt==5.0.0
+cryptography==50.0.1
+cffi==2.1.1
+pycparser==3.0
+PyNaCl==1.6.2
+invoke==3.0.3
+python-dateutil==2.9.0.post0
+six==1.17.0
+tzdata==2026.5
+et-xmlfile==2.0.0

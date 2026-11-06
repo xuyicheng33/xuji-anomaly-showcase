@@ -4,6 +4,7 @@ import path from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
 
 const remote = process.argv.includes('--remote');
+const published = process.argv.includes('--published');
 if (process.env.SHOWCASE_URL && !remote)
   throw new Error('Release verification uses local dist. Use npm run test:site for another URL.');
 if (remote && !process.env.SHOWCASE_URL)
@@ -54,6 +55,9 @@ try {
     'wind',
     'wind_ranges',
   ]) {
+    // CI has only published assets; local delivery verifies retained sources too.
+    if (published && ['report', 'contributions', 'ranges', 'wind', 'wind_ranges'].includes(name))
+      continue;
     await new Promise((resolve, reject) => {
       const child = spawn(
         process.execPath,
