@@ -1,5 +1,5 @@
 """Publish only the exact data and indexes used by the browser."""
-from dataset_paths import selected_paths
+from dataset_paths import selected_paths, dataset_info
 from pathlib import Path
 import json
 import numpy as np
@@ -11,24 +11,25 @@ REFERENCE = ROOT / 'data/reference'
 PUBLIC = ROOT / 'public/data/journey'
 
 
-def runtime_manifest(source):
+def runtime_manifest(source, reference=REFERENCE):
     rows, features, window = geometry(source)
     result = {key: source[key] for key in (
         'schemaVersion', 'resultVersion', 'window', 'features', 'times', 'labels',
         'input', 'labelMatrix', 'summary', 'removedFeatures')}
-    for key in ('dataset', 'normalization'):
+    result['dataset'] = dataset_info(source)
+    for key in ('normalization',):
         if key in source: result[key] = source[key]
     result['datasets'] = {'train': source['datasets']['train']}
     result['models'] = []
     result['inputChunkRows'] = INPUT_CHUNK_ROWS
     labels = np.asarray(source['labels'], dtype=bool)
-    raw = np.fromfile(REFERENCE / source['input']['file'], dtype='<f8').reshape(-1, features)
+    raw = np.fromfile(reference / source['input']['file'], dtype='<f8').reshape(-1, features)
     for model in source['models']:
         current = {key: model[key] for key in (
             'id', 'name', 'threshold', 'windowThreshold', 'scores', 'history', 'recon', 'metrics', 'run')}
         current['windows'] = {key: model['windows'][key] for key in ('chunks', 'count')}
         current['windows'].update(length=window, features=features)
-        errors = np.fromfile(REFERENCE / model['errors']['file'], dtype='<f8').reshape(-1, features)
+        errors = np.fromfile(reference / model['errors']['file'], dtype='<f8').reshape(-1, features)
         chunks = []
         for start in range(0, rows, CONTRIBUTION_CHUNK_ROWS):
             payload = errors[start:start + CONTRIBUTION_CHUNK_ROWS].astype('<f8').tobytes()
@@ -41,7 +42,7 @@ def runtime_manifest(source):
         for example in model['examples']:
             start = example['start']
             chunk = next(c for c in model['windows']['chunks'] if c['start'] <= start < c['start'] + c['count'])
-            recon = np.fromfile(REFERENCE / chunk['file'], dtype='<f4').reshape(-1, window, features)[start - chunk['start']]
+            recon = np.fromfile(reference / chunk['file'], dtype='<f4').reshape(-1, window, features)[start - chunk['start']]
             squared = (raw[start:start + window] - recon.astype(float)) ** 2
             prediction = squared.mean(axis=1) > model['windowThreshold']
             code = example['code']
@@ -57,19 +58,19 @@ def runtime_manifest(source):
     return result
 
 
-def export():
-    source = json.loads((REFERENCE / 'manifest.json').read_text(encoding='utf-8'))
-    result = runtime_manifest(source)
+def export(reference=REFERENCE, public=PUBLIC):
+    source = json.loads((reference / 'manifest.json').read_text(encoding='utf-8'))
+    result = runtime_manifest(source, reference)
+    public.mkdir(parents=True, exist_ok=True)
     for original, model in zip(source['models'], result['models']):
-        errors = np.fromfile(REFERENCE / original['errors']['file'], dtype='<f8').reshape(original['errors']['shape'])
+        errors = np.fromfile(reference / original['errors']['file'], dtype='<f8').reshape(original['errors']['shape'])
         for chunk in model['contributions']['chunks']:
-            path = PUBLIC / chunk['file']
+            path = public / chunk['file']
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(errors[chunk['start']:chunk['start'] + chunk['count']].astype('<f8').tobytes())
-    (PUBLIC / 'manifest.json').write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
-    print(f'Runtime manifest: {(PUBLIC / "manifest.json").stat().st_size} bytes')
+    (public / 'manifest.json').write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
+    print(f'Runtime manifest: {(public / "manifest.json").stat().st_size} bytes')
 
 
 if __name__ == '__main__':
-    REFERENCE, PUBLIC = selected_paths()
-    export()
+    export(*selected_paths())

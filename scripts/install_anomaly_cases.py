@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 
 from export_anomaly_cases import construct, VERSION
+from dataset_paths import dataset_info
 
 def metrics(y, p):
     y, p = np.asarray(y, bool), np.asarray(p, bool)
@@ -21,7 +22,7 @@ def install(source, target, journey):
     data = json.loads(Path(journey).read_text(encoding='utf-8'))
     exports = {m: json.loads((source / f'{m}.json').read_text(encoding='utf-8')) for m in [v['id'] for v in data['models']]}
     clean = np.fromfile(Path(journey).parent / 'clean-test.bin', dtype='<f8').reshape(-1, len(data['features']))
-    expected = {c['id']: c for c in construct(clean, list(range(len(data['features']))) if data.get('dataset', {}).get('id') == 'wind' else None)}
+    expected = {c['id']: c for c in construct(clean, list(range(len(data['features']))) if dataset_info(data)['id'] == 'wind' else None)}
     records = []
     assets = {}
 
@@ -54,7 +55,7 @@ def install(source, target, journey):
         if c['kind'] == 'reference':
             material[c['begin']:c['end'], c['features']] = clean[175:199, c['features']]
         rec.update(name=('替换' if c['insertion'] == 'replace' else '混合') + '：' + names[c['kind']],
-                   times=data['times'][c['start']:c['start'] + 64], original=original,
+                   times=data['times'][c['start']:c['start'] + len(c['original'])], original=original,
                    material=asset(cid + '-material', material),
                    **{k: asset(cid + '-' + k, c[k]) for k in ['candidate', 'weights', 'input', 'labels']})
         rec['models'] = []

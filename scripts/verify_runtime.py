@@ -1,5 +1,5 @@
 """Check every shipped view against its retained source, without changing files."""
-from dataset_paths import selected_paths
+from dataset_paths import selected_paths, dataset_info
 from pathlib import Path
 import hashlib
 import json
@@ -22,6 +22,7 @@ def verify():
     source = json.loads((REFERENCE / 'manifest.json').read_text(encoding='utf-8'))
     runtime = json.loads((PUBLIC / 'manifest.json').read_text(encoding='utf-8'))
     _, features, window = geometry(source)
+    assert runtime['dataset'] == dataset_info(source)
     for key in ('features', 'times', 'labels', 'summary', 'removedFeatures', 'resultVersion'):
         assert runtime[key] == source[key], key
     arrays = {a['file']: read(REFERENCE, a) for a in [*source['assets'], *source['datasets'].values()]}

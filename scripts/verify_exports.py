@@ -1,0 +1,37 @@
+"""Regenerate browser payloads in a temporary directory and compare published bytes."""
+import json
+import tempfile
+from pathlib import Path
+
+from dataset_paths import DATASETS, dataset_info
+from export_runtime import export as export_runtime
+from export_curve_data import main as export_curves
+from export_calculation_index import main as export_calculation
+from install_anomaly_cases import install
+
+
+def verify():
+    for name, (reference, published) in DATASETS.items():
+        with tempfile.TemporaryDirectory(prefix='xuji-export-') as temporary:
+            target = Path(temporary)
+            export_runtime(reference, target)
+            export_curves(reference, target)
+            export_calculation(reference, target)
+            install(reference / 'cases', target / 'anomaly-cases-v1', reference / 'manifest.json')
+            files = [p for p in target.rglob('*') if p.is_file()]
+            for file in files:
+                relative = file.relative_to(target)
+                if file.suffix == '.json':
+                    actual = json.loads(file.read_text(encoding='utf8'))
+                    expected = json.loads((published / relative).read_text(encoding='utf8'))
+                    if relative.as_posix() == 'manifest.json':
+                        expected['dataset'] = dataset_info(expected)
+                    if actual != expected:
+                        raise ValueError(f'Regenerated metadata differs: {name}/{relative}')
+                elif file.read_bytes() != (published / relative).read_bytes():
+                    raise ValueError(f'Regenerated payload differs: {name}/{relative}')
+            print(f'PASS {name}: {len(files)} regenerated files match published payloads')
+
+
+if __name__ == '__main__':
+    verify()

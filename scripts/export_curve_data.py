@@ -9,13 +9,13 @@ ROOT = Path(__file__).resolve().parents[1] / 'public/data/journey'
 REFERENCE = ROOT.parents[2] / 'data/reference'
 
 
-def main():
-    data = json.loads((REFERENCE / 'manifest.json').read_text(encoding='utf8'))
+def main(reference=REFERENCE, public=ROOT):
+    data = json.loads((reference / 'manifest.json').read_text(encoding='utf8'))
     assets = [data['input'], data['datasets']['train'], *(m['recon'] for m in data['models'])]
     written = 0
     for asset in assets:
-        values = np.fromfile(REFERENCE / asset['file'], dtype='<f8').reshape(asset['shape'])
-        folder = ROOT / 'curves-v1' / asset['sha256']
+        values = np.fromfile(reference / asset['file'], dtype='<f8').reshape(asset['shape'])
+        folder = public / 'curves-v1' / asset['sha256']
         folder.mkdir(parents=True, exist_ok=True)
         for feature in range(values.shape[1]):
             payload = values[:, feature].astype('<f8').tobytes()
@@ -31,8 +31,8 @@ def main():
                 mean += values[:, feature]
             (folder / 'mean.bin').write_bytes((mean / values.shape[1]).astype('<f8').tobytes())
             written += 1
-    values = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(data['input']['shape'])
-    folder = ROOT / 'input-rows-v1' / data['input']['sha256']
+    values = np.fromfile(reference / data['input']['file'], dtype='<f8').reshape(data['input']['shape'])
+    folder = public / 'input-rows-v1' / data['input']['sha256']
     folder.mkdir(parents=True, exist_ok=True)
     for start in range(0, len(values), INPUT_CHUNK_ROWS):
         (folder / f'{start}.bin').write_bytes(values[start:start + INPUT_CHUNK_ROWS].astype('<f8').tobytes())
@@ -41,5 +41,4 @@ def main():
 
 
 if __name__ == '__main__':
-    REFERENCE, ROOT = selected_paths()
-    main()
+    main(*selected_paths())

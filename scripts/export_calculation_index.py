@@ -10,17 +10,17 @@ ROOT = Path(__file__).resolve().parents[1] / 'public/data/journey'
 REFERENCE = ROOT.parents[2] / 'data/reference'
 
 
-def main():
-    data = json.loads((REFERENCE / 'manifest.json').read_text(encoding='utf8'))
+def main(reference=REFERENCE, public=ROOT):
+    data = json.loads((reference / 'manifest.json').read_text(encoding='utf8'))
     _, features, window = geometry(data)
-    source = np.fromfile(REFERENCE / data['input']['file'], dtype='<f8').reshape(-1, features)
-    target = ROOT / 'calculation-v1'
+    source = np.fromfile(reference / data['input']['file'], dtype='<f8').reshape(-1, features)
+    target = public / 'calculation-v1'
     target.mkdir(exist_ok=True)
     manifest = {'resultVersion': data['resultVersion'], 'window': window, 'features': features, 'models': {}}
     for model in data['models']:
         scores = np.empty((model['windows']['count'], window), dtype='<f8')
         for chunk in model['windows']['chunks']:
-            recon = np.fromfile(REFERENCE / chunk['file'], dtype='<f4').reshape(chunk['count'], window, features)
+            recon = np.fromfile(reference / chunk['file'], dtype='<f4').reshape(chunk['count'], window, features)
             for local in range(chunk['count']):
                 start = chunk['start'] + local
                 scores[start] = ((source[start:start + window] - recon[local].astype(float)) ** 2).mean(axis=1)
@@ -35,7 +35,7 @@ def main():
         file = target / (model['id'] + '-scores.bin')
         file.write_bytes(scores.tobytes())
         manifest['models'][model['id']] = {
-            'file': file.relative_to(ROOT).as_posix(), 'shape': list(scores.shape),
+            'file': file.relative_to(public).as_posix(), 'shape': list(scores.shape),
             'bytes': file.stat().st_size, 'sha256': hashlib.sha256(file.read_bytes()).hexdigest(),
             'maxAggregateDifference': difference,
         }
@@ -44,5 +44,4 @@ def main():
 
 
 if __name__ == '__main__':
-    REFERENCE, ROOT = selected_paths()
-    main()
+    main(*selected_paths())
