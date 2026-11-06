@@ -1,7 +1,7 @@
 import { dataset, datasetHome } from './datasets';
 import { useState } from 'react';
 import { useReportNavigation } from './report/useReportNavigation';
-import { chapters } from './report/navigation';
+import { chapters, route } from './report/navigation';
 import { useJourney } from './report/useJourney';
 import DataChapter from './report/DataChapter';
 import AnomalyChapter from './report/AnomalyChapter';
@@ -13,7 +13,7 @@ import ExplanationChapter from './report/ExplanationChapter';
 import DataFailure from './report/DataFailure';
 import { pausePresentation, rememberNoteOrigin } from './report/notes';
 export default function App() {
-  const { data, error, retry } = useJourney();
+  const { data, error, retry } = useJourney(route() !== 'home');
   const { page, address, contentPage, menu, setMenu, menuButton } = useReportNavigation(
     data !== null,
   );

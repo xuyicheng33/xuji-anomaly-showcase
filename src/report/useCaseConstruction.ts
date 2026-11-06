@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { series, type Journey, type Model } from '../journey';
 import { loadCases, loadCaseArrays, type Insertion, type Construction } from '../anomalyCases';
 import { curveDomain } from './curveScale';
@@ -64,63 +64,31 @@ export function useCaseConstruction(data: Journey, model: Model) {
   const feature = selectedFeature ?? selected?.feature ?? 4;
   const phase = progress < 0.16 ? 0 : progress <= 0.58 ? 1 : progress < 0.9 ? 2 : 3;
   const blend = Math.max(0, Math.min(1, (progress - 0.58) / 0.32));
-  const material = arrays
-    ? series(
-        arrays.material,
-        feature,
-        0,
-        selected?.times.length ?? data.window,
-        data.features.length,
-      )
-    : [];
+  const length = selected?.times.length ?? data.window;
+  const features = data.features.length;
+  const { material, base, candidate, after, labels, weights, activePoints, stableRange } =
+    useMemo(() => {
+      const column = (values: Float64Array | undefined) =>
+        values ? series(values, feature, 0, length, features) : [];
+      const material = column(arrays?.material),
+        base = column(arrays?.original),
+        candidate = column(arrays?.candidate),
+        after = column(arrays?.input),
+        labels = column(arrays?.labels),
+        weights = column(arrays?.weights);
+      return {
+        material,
+        base,
+        candidate,
+        after,
+        labels,
+        weights,
+        activePoints: weights.flatMap((weight, index) => (weight > 0 ? [index] : [])),
+        stableRange: curveDomain([...base, ...candidate, ...material, ...after]),
+      };
+    }, [arrays, feature, length, features]);
   const materialProgress = Math.max(0, Math.min(1, (progress - 0.16) / 0.42));
-  const base = arrays
-      ? series(
-          arrays.original,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [],
-    candidate = arrays
-      ? series(
-          arrays.candidate,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [],
-    after = arrays
-      ? series(
-          arrays.input,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [];
-  const labels = arrays
-      ? series(
-          arrays.labels,
-          feature,
-          0,
-          selected?.times.length ?? data.window,
-          data.features.length,
-        )
-      : [],
-    visibleLabels = labels.map((v) => (phase === 3 ? v : 0));
-  const weights = arrays
-    ? series(
-        arrays.weights,
-        feature,
-        0,
-        selected?.times.length ?? data.window,
-        data.features.length,
-      )
-    : [];
-  const activePoints = weights.flatMap((weight, index) => (weight > 0 ? [index] : []));
+  const visibleLabels = labels.map((v) => (phase === 3 ? v : 0));
   const writtenCount = Math.ceil(activePoints.length * blend - 1e-9);
   const written = new Set(activePoints.slice(0, writtenCount));
   const visible = base.map((value, index) =>
@@ -134,7 +102,6 @@ export function useCaseConstruction(data: Journey, model: Model) {
     (v, i) => material[i] + (v - material[i]) * materialProgress,
   );
   const animatedWeight = (weights[point] ?? 0) * blend;
-  const stableRange = curveDomain([...base, ...candidate, ...material, ...after]);
   const startPlaying = () => {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!playing && matchMedia('(max-width: 820px)').matches)

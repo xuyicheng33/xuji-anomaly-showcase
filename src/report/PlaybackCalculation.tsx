@@ -1,12 +1,13 @@
 import { loadJson } from '../assetRequests';
 import { coveringWindows } from '../dataGeometry';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadWindow, type Journey, type Model, type Asset } from '../journey';
 import { Footnote } from './notes';
 import { useDataAsset } from './useDataAsset';
 import { useWindowInput } from './useCurveData';
 import Fraction from './Fraction';
 import { ScoreCalculation } from './ScoreCalculation';
+import { useResource } from './useResource';
 
 const decimal = (value: number) => value.toFixed(9);
 
@@ -27,58 +28,30 @@ export function PlaybackCalculation({
   pause: () => void;
 }) {
   const [open, setOpen] = useState(false),
-    [catalog, setCatalog] = useState<IndexManifest | null>(null),
-    [error, setError] = useState(''),
-    [attempt, setAttempt] = useState(0),
     [selected, setSelected] = useState<number | null>(null);
-  const [result, setResult] = useState<Awaited<ReturnType<typeof loadWindow>> | null>(null),
-    [windowError, setWindowError] = useState(''),
-    [windowAttempt, setWindowAttempt] = useState(0);
+  const readIndex = useCallback(async () => {
+    const catalog = await loadIndex();
+    if (catalog.resultVersion !== data.resultVersion) throw Error('计算索引版本不一致');
+    return catalog;
+  }, [data.resultVersion]);
+  const catalog = useResource(open ? data.resultVersion : null, readIndex);
+  const readWindow = useCallback(() => loadWindow(model, selected!), [model, selected]);
+  const windowAsset = useResource(
+    selected === null ? null : `${model.run}:${selected}`,
+    readWindow,
+  );
+  const result = windowAsset.data;
   const section = useRef<HTMLElement>(null),
     detail = useRef<HTMLDivElement>(null);
   const inputAsset = useWindowInput(data, selected ?? 0, selected !== null),
     input = inputAsset.data;
-  const scoresAsset = useDataAsset(open && catalog ? catalog.models[model.id] : null);
-  useEffect(() => {
-    if (!open) return;
-    let active = true;
-    setError('');
-    loadIndex()
-      .then((c) => {
-        if (c.resultVersion !== data.resultVersion) throw Error('计算索引版本不一致');
-        if (active) setCatalog(c);
-      })
-      .catch((e) => {
-        if (active) setError(e.message);
-      });
-    return () => {
-      active = false;
-    };
-  }, [open, attempt, data.resultVersion]);
+  const scoresAsset = useDataAsset(catalog.data?.models[model.id] ?? null);
   useEffect(() => {
     setSelected(null);
-    setResult(null);
-    setWindowError('');
   }, [index, model.id]);
   useEffect(() => {
     if (playing) setOpen(false);
   }, [playing]);
-  useEffect(() => {
-    if (selected === null) return;
-    let active = true;
-    setWindowError('');
-    setResult(null);
-    loadWindow(model, selected)
-      .then((r) => {
-        if (active) setResult(r);
-      })
-      .catch((e) => {
-        if (active) setWindowError(e.message);
-      });
-    return () => {
-      active = false;
-    };
-  }, [selected, model, windowAttempt]);
   const starts = index === null ? [] : coveringWindows(index, data.times.length, data.window);
   const rows =
     scoresAsset.data && index !== null
@@ -160,12 +133,12 @@ export function PlaybackCalculation({
             各窗口在同一时刻的{data.features.length}项平方误差取平均，再合并这 {starts.length}{' '}
             个窗口分数。
           </p>
-          {error || scoresAsset.error ? (
+          {catalog.error || scoresAsset.error ? (
             <div role="alert">
-              {error || scoresAsset.error}
+              {catalog.error || scoresAsset.error}
               <button
                 onClick={() => {
-                  setAttempt((n) => n + 1);
+                  catalog.retry();
                   scoresAsset.retry();
                 }}
               >
@@ -246,12 +219,12 @@ export function PlaybackCalculation({
           )}
           <div ref={detail} className="coverage-calculation">
             {selected !== null &&
-              (windowError || inputAsset.error ? (
+              (windowAsset.error || inputAsset.error ? (
                 <p role="alert">
-                  {windowError || inputAsset.error}
+                  {windowAsset.error || inputAsset.error}
                   <button
                     onClick={() => {
-                      setWindowAttempt((n) => n + 1);
+                      windowAsset.retry();
                       inputAsset.retry();
                     }}
                   >

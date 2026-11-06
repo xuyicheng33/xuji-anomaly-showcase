@@ -44,6 +44,6 @@ function validateJourney(d: Journey) {
 }
 const readJourney = () => loadJson<Journey>('manifest.json', validateJourney);
 
-export function useJourney() {
-  return useResource('manifest.json', readJourney);
+export function useJourney(enabled: boolean) {
+  return useResource(enabled ? 'manifest.json' : null, readJourney);
 }

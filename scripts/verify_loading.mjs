@@ -29,6 +29,14 @@ function only(requests, expected) {
   assert.deepEqual(actual(requests).sort(), expected.sort());
 }
 try {
+  const home = await fresh('');
+  await home.page.getByRole('link', { name: '开始查看', exact: true }).waitFor();
+  assert.deepEqual(home.requests, []);
+  await home.page.getByRole('link', { name: '开始查看', exact: true }).click();
+  await home.page.locator('.removed-sensors').waitFor();
+  assert.ok(home.requests.includes('manifest.json'));
+  await home.page.close();
+  summary.push({ homeDefersResearchManifest: true });
   const train = await fresh('training');
   await train.page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
   only(train.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
