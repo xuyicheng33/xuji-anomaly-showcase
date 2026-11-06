@@ -11,7 +11,7 @@ REFERENCE = ROOT.parents[2] / 'data/reference'
 
 def main(reference=REFERENCE, public=ROOT):
     data = json.loads((reference / 'manifest.json').read_text(encoding='utf8'))
-    assets = [data['input'], data['datasets']['train'], *(m['recon'] for m in data['models'])]
+    assets = [data['input'], data['datasets']['train'], data['labelMatrix'], *(m['recon'] for m in data['models'])]
     written = 0
     for asset in assets:
         values = np.fromfile(reference / asset['file'], dtype='<f8').reshape(asset['shape'])
@@ -22,7 +22,7 @@ def main(reference=REFERENCE, public=ROOT):
             assert np.array_equal(np.frombuffer(payload, dtype='<f8'), values[:, feature], equal_nan=True)
             (folder / f'{feature}.bin').write_bytes(payload)
             written += 1
-        if asset['sha256'] == data['datasets']['train']['sha256']:
+        if asset['sha256'] in (data['datasets']['train']['sha256'], data['labelMatrix']['sha256']):
             (folder / 'mean.bin').unlink(missing_ok=True)
         else:
             # Same left-to-right summation order as meanSeries in the browser.
@@ -32,7 +32,7 @@ def main(reference=REFERENCE, public=ROOT):
             (folder / 'mean.bin').write_bytes((mean / values.shape[1]).astype('<f8').tobytes())
             written += 1
     values = np.fromfile(reference / data['input']['file'], dtype='<f8').reshape(data['input']['shape'])
-    folder = public / 'input-rows-v1' / data['input']['sha256']
+    folder = public / 'input-rows-v2' / data['input']['sha256']
     folder.mkdir(parents=True, exist_ok=True)
     for start in range(0, len(values), INPUT_CHUNK_ROWS):
         (folder / f'{start}.bin').write_bytes(values[start:start + INPUT_CHUNK_ROWS].astype('<f8').tobytes())

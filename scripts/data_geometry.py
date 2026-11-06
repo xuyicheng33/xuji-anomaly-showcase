@@ -1,5 +1,5 @@
 """Storage chunking is independent of the retained experiment window."""
-INPUT_CHUNK_ROWS = 128
+INPUT_CHUNK_ROWS = 32
 CONTRIBUTION_CHUNK_ROWS = 128
 
 

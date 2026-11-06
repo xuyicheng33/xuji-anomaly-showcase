@@ -28,9 +28,8 @@ def verify():
     arrays = {a['file']: read(REFERENCE, a) for a in [*source['assets'], *source['datasets'].values()]}
     raw = arrays[source['input']['file']]
     labels = arrays[source['labelMatrix']['file']]
-    read(PUBLIC, runtime['labelMatrix'])
-    expected = {'manifest.json', runtime['labelMatrix']['file'], 'evaluation.json'}
-    for asset in [source['input'], source['datasets']['train'], *(m['recon'] for m in source['models'])]:
+    expected = {'manifest.json', 'evaluation.json'}
+    for asset in [source['input'], source['datasets']['train'], source['labelMatrix'], *(m['recon'] for m in source['models'])]:
         values = arrays[asset['file']]
         mean = np.zeros(len(values))
         for feature in range(values.shape[1]):
@@ -38,12 +37,12 @@ def verify():
             np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), values[:, feature])
             mean += values[:, feature]
             expected.add(name)
-        if asset['sha256'] != source['datasets']['train']['sha256']:
+        if asset['sha256'] not in (source['datasets']['train']['sha256'], source['labelMatrix']['sha256']):
             name = f'curves-v1/{asset["sha256"]}/mean.bin'
             np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8'), mean / values.shape[1])
             expected.add(name)
     for start in range(0, len(raw), runtime['inputChunkRows']):
-        name = f'input-rows-v1/{source["input"]["sha256"]}/{start}.bin'
+        name = f'input-rows-v2/{source["input"]["sha256"]}/{start}.bin'
         np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8').reshape(-1, features), raw[start:start + runtime['inputChunkRows']])
         expected.add(name)
     index = json.loads((PUBLIC / 'calculation-v1/manifest.json').read_text())

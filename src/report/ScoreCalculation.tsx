@@ -154,7 +154,7 @@ export function ScoreCalculation({
             <p className="calculation-help">
               第 {index + 1} 点，{featureName(data.features[focusFeature])}标签：
               <span className="note-anchor">
-                {labels[index * features + focusFeature] ? '异常' : '正常'}
+                {labels[index] ? '异常' : '正常'}
                 <Footnote note="anomaly-labels" reference={'ref-' + id + '-label'} />
               </span>
             </p>

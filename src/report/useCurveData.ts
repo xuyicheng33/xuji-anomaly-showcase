@@ -42,7 +42,7 @@ export function useWindowInput(
     Promise.all(
       chunks.map((from) =>
         loadAsset({
-          file: `input-rows-v1/${sha256}/${from}.bin`,
+          file: `input-rows-v2/${sha256}/${from}.bin`,
           bytes: Math.min(chunkRows, rows - from) * features * 8,
           sha256,
         }),

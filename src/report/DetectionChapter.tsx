@@ -3,7 +3,6 @@ import { countMetrics, meanSeries, loadWindow, windowScores, pct } from '../jour
 import { Heading, Section, ModelSelect, FeatureSelect, Confusion, Rates, colors } from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
-import { useDataAsset } from './useDataAsset';
 import { useCurveData, useWindowInput } from './useCurveData';
 import { Footnote } from './notes';
 import { ScoreCalculation } from './ScoreCalculation';
@@ -95,7 +94,7 @@ export function DetectionChapter(p: DetectionProps) {
     labs = data.labels.slice(start, start + window),
     stats = ready ? countMetrics(labs, resultScores, threshold) : null,
     index = start + point;
-  const labelAsset = useDataAsset(ready && viewFeature >= 0 ? data.labelMatrix : null);
+  const labelAsset = useCurveData(ready && viewFeature >= 0 ? data.labelMatrix : null, viewFeature);
   useEffect(() => {
     if (ready && result) presentationMemory.detection = { key: viewKey, result, point };
   }, [ready, result, point, viewKey]);

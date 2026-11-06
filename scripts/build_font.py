@@ -8,7 +8,7 @@ from fontTools import subset
 from fontTools.varLib.instancer import instantiateVariableFont
 
 ROOT = Path(__file__).resolve().parents[1]
-TARGET = ROOT / 'public/fonts/NotoSerifSC-Subset.ttf'
+TARGET = ROOT / 'public/fonts/NotoSerifSC-Subset.woff2'
 
 def required_text():
     files = [p for p in (ROOT / 'src').rglob('*') if p.suffix in {'.ts', '.tsx', '.json'}]
@@ -31,11 +31,12 @@ def main():
         worker.subset(font)
         if 'fvar' in font:
             font = instantiateVariableFont(font, {'wght': 500}, inplace=True)
+        font.flavor = "woff2"
         font.save(TARGET)
         digest = hashlib.sha256(TARGET.read_bytes()).hexdigest()[:12]
         stylesheet = ROOT / 'src/report/styles/base.css'
-        stylesheet.write_text(re.sub(r'NotoSerifSC-Subset\.ttf\?v=[a-f0-9]+',
-            'NotoSerifSC-Subset.ttf?v=' + digest, stylesheet.read_text(encoding='utf-8')),
+        stylesheet.write_text(re.sub(r'NotoSerifSC-Subset\.woff2\?v=[a-f0-9]+',
+            'NotoSerifSC-Subset.woff2?v=' + digest, stylesheet.read_text(encoding='utf-8')),
             encoding='utf-8')
     font = TTFont(TARGET)
     missing = sorted(c for c in chinese if ord(c) not in font.getBestCmap())

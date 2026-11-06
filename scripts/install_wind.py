@@ -66,7 +66,6 @@ def main(package):
     input_asset=asset('input.bin',x)
     clean_asset=asset('clean-test.bin',clean)
     label_asset=asset('labels.bin',labels)
-    shutil.copy2(REFERENCE/'labels.bin',PUBLIC/'labels.bin')
     shutil.copytree(package/'windows-v1',REFERENCE/'windows-v1',dirs_exist_ok=True)
     shutil.copytree(package/'windows-v1/model2',PUBLIC/'windows-v1/model2',dirs_exist_ok=True)
     # Continuous recon/errors are retained references; public curves are column exports.

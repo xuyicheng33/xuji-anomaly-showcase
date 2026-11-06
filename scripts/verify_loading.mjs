@@ -60,14 +60,23 @@ try {
   const chunk = d.models[0].windows.chunks.find((c) => 107 >= c.start && 107 < c.start + c.count);
   only(det.requests, [
     `curves-v1/${d.input.sha256}/mean.bin`,
-    `input-rows-v1/${d.input.sha256}/0.bin`,
-    `input-rows-v1/${d.input.sha256}/128.bin`,
+    ...Array.from(
+      {
+        length:
+          Math.floor((107 + d.window - 1) / d.inputChunkRows) -
+          Math.floor(107 / d.inputChunkRows) +
+          1,
+      },
+      (_, i) =>
+        `input-rows-v2/${d.input.sha256}/${(Math.floor(107 / d.inputChunkRows) + i) * d.inputChunkRows}.bin`,
+    ),
     chunk.file,
   ]);
   assert.equal(await det.page.locator('.aggregate-error').count(), 0);
   await selectFeature(det.page, '4');
   await det.page.locator('#ref-window-calculation-label').waitFor();
-  assert.ok(det.requests.includes('labels.bin'));
+  assert.ok(det.requests.includes(`curves-v1/${d.labelMatrix.sha256}/4.bin`));
+  assert.ok(!det.requests.includes('labels.bin'));
   summary.push({
     page: 'detection',
     initialBytes: 19176,

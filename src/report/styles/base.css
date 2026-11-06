@@ -15,11 +15,11 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/NotoSerifSC-Subset.ttf?v=c2f9ae8dc4cf) format('truetype');
+  src: url(/fonts/NotoSerifSC-Subset.woff2?v=0c5781133a23) format('woff2');
 }
 @font-face {
   font-family: Instrument Serif;
-  src: url('/fonts/InstrumentSerif-Regular.ttf') format('truetype');
+  src: url('/fonts/InstrumentSerif-Regular.woff2') format('woff2');
   font-display: swap;
 }
 :root {
