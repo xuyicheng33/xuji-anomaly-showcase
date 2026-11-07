@@ -51,3 +51,27 @@ class ReleaseFileTests(unittest.TestCase):
             self.assertEqual(config.read_bytes(), b'updated\n')
             restore_config(config, backup)
             self.assertEqual(config.read_bytes(), b'original\n')
+
+    def test_raw_range_windows_drop_inherited_gzip_and_never_generate_it(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            previous, target = root / 'old', root / 'new'
+            previous.mkdir()
+            window = previous / 'data/wind/windows-v1/model2/windows-0000.bin'
+            window.parent.mkdir(parents=True)
+            window.write_bytes(b'\x00' * 4096)
+            window.with_name(window.name + '.gz').write_bytes(gzip.compress(window.read_bytes()))
+            contribution = previous / 'data/wind/contributions-v1/model2/0.bin'
+            contribution.parent.mkdir(parents=True)
+            contribution.write_bytes(b'\x01' * 4096)
+            expected = hashes(previous)
+            archive = root / 'changes.tar.gz'
+            with tarfile.open(archive, 'w:gz'):
+                pass
+            prepare_release(previous, target, archive, expected, list(expected))
+            self.assertEqual(hashes(target), expected)
+            shipped_window = target / window.relative_to(previous)
+            shipped_contribution = target / contribution.relative_to(previous)
+            self.assertFalse(shipped_window.with_name(window.name + '.gz').exists())
+            self.assertTrue(shipped_contribution.with_name(contribution.name + '.gz').exists())
+            self.assertTrue(window.with_name(window.name + '.gz').exists())

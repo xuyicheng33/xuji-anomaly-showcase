@@ -33,6 +33,10 @@ def prepare_release(previous, target, archive, expected, changed):
             if hashlib.sha256(raw).hexdigest() != digest:
                 raise ValueError(f'Release checksum differs: {name}')
             zipped = file.with_name(file.name + '.gz')
+            # Nginx serves raw windows for exact byte ranges and disables gzip here.
+            if 'windows-v1' in file.relative_to(target).parts:
+                zipped.unlink(missing_ok=True)
+                continue
             if zipped.exists() and gzip.decompress(zipped.read_bytes()) != raw:
                 zipped.unlink()
             if name in changed and len(raw) >= 1024 and file.suffix in {'.bin', '.json', '.js', '.css', '.svg', '.html'}:
