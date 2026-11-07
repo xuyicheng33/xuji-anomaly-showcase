@@ -117,7 +117,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
       </NoteSection>
       <NoteSection id="anomaly-labels">
-        <p>本页的实验异常标签包含人为构造异常，用于实验评估，不代表现场故障记录。</p>
+        <p>本页的实验异常标签包含人为构造异常，标签来源为实验记录，用于检测效果评估。</p>
         <p>
           <strong>标签矩阵的一行对应一个时刻，一列对应一个测点。</strong>
           单元格为0表示正常，为1表示该测点在这个时刻处于构造异常区间。
