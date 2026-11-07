@@ -117,6 +117,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
       </NoteSection>
       <NoteSection id="anomaly-labels">
+        <p>本页的实验异常标签包含人为构造异常，用于实验评估，不代表现场故障记录。</p>
         <p>
           <strong>标签矩阵的一行对应一个时刻，一列对应一个测点。</strong>
           单元格为0表示正常，为1表示该测点在这个时刻处于构造异常区间。
@@ -253,10 +254,10 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="point-metrics">
         <p>
-          每个时刻比较真实标签与模型报警，得到检出、漏检、误报或正确正常。回放中的混淆矩阵和逐点F1累计统计已经查看的时刻。
+          每个时刻比较实验标签与模型报警，得到检出、漏检、误报或正确正常。回放中的混淆矩阵和逐点F1累计统计已经查看的时刻。
         </p>
         <p>
-          区间点调整用于评估计分：一个真实异常段内只要出现一次报警，就将整段计为检出；整段都没有报警则计为漏检。图中的报警点按模型实际判断显示。
+          区间点调整用于评估计分：一个实验异常标签区间内只要出现一次报警，就将整段计为检出；整段都没有报警则计为漏检。图中的报警点按模型实际判断显示。
         </p>
         <MetricsChapter data={data} />
       </NoteSection>

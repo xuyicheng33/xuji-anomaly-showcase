@@ -203,7 +203,7 @@ export function DetectionChapter(p: DetectionProps) {
       )}
       <p className="quiet chart-label-key">
         <i />
-        {data.dataset?.id === 'wind' ? '保留异常标签区间' : '真实异常区间'}
+        {data.dataset?.id === 'wind' ? '保留异常标签区间' : '实验异常标签区间'}
       </p>
       {inputCurve.data ? (
         <ReconstructionView

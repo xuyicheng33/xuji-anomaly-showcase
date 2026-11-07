@@ -153,7 +153,7 @@ export function PlaybackChapter(p: PlaybackProps) {
         onBlur={() => setScrubbing(false)}
       />
       <p className="quiet playback-caption">
-        {data.dataset?.id === 'wind' ? '橙色区域表示保留的异常标签' : '橙色区域表示真实异常'}
+        {data.dataset?.id === 'wind' ? '橙色区域表示保留的异常标签' : '橙色区域表示实验异常标签'}
         {viewFeature >= 0 ? `，下方分数综合全部 ${data.features.length} 个测点` : ''}
       </p>
       <div className="replay-workspace">
