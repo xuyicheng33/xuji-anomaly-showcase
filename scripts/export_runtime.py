@@ -2,7 +2,6 @@
 
 import hashlib
 import json
-from pathlib import Path
 
 import numpy as np
 from array_assets import curve_columns, read_array, write_array
@@ -10,10 +9,6 @@ from data_geometry import CONTRIBUTION_CHUNK_ROWS, INPUT_CHUNK_ROWS, geometry
 from dataset_paths import dataset_info, selected_paths
 from export_calculation_index import main as export_calculation
 from install_anomaly_cases import install as install_cases
-
-ROOT = Path(__file__).resolve().parents[1]
-REFERENCE = ROOT / "data/reference"
-PUBLIC = ROOT / "public/data/journey"
 
 
 def window_integrity(reference, chunk, window, features):
@@ -31,7 +26,7 @@ def window_integrity(reference, chunk, window, features):
     return np.frombuffer(b"".join(hashes), dtype="uint8").reshape(-1, 32)
 
 
-def runtime_manifest(source, reference=REFERENCE, public=None):
+def runtime_manifest(source, reference, public):
     rows, features, window = geometry(source)
     result = {
         key: source[key]
@@ -55,8 +50,9 @@ def runtime_manifest(source, reference=REFERENCE, public=None):
 
     def with_curves(asset, include_mean):
         values = read_array(reference, asset)
+        folder = public / "curves-v1" / asset["sha256"]
         curves = {
-            name: hashlib.sha256(column.astype("<f8").tobytes()).hexdigest()
+            name: write_array(folder, f"{name}.bin", column)["sha256"]
             for name, column in curve_columns(values, include_mean)
         }
         return {**asset, "curves": curves}
@@ -72,16 +68,18 @@ def runtime_manifest(source, reference=REFERENCE, public=None):
         bytes=len(time_payload),
         sha256=hashlib.sha256(time_payload).hexdigest(),
     )
-    if public is not None:
-        public.mkdir(parents=True, exist_ok=True)
-        (public / time_asset["file"]).write_bytes(time_payload)
+    (public / time_asset["file"]).write_bytes(time_payload)
     result["datasets"]["train"]["times"] = time_asset
     result["models"] = []
     result["inputChunkRows"] = INPUT_CHUNK_ROWS
     labels = np.asarray(source["labels"], dtype=bool)
     raw = read_array(reference, source["input"])
     result["inputRowHashes"] = [
-        hashlib.sha256(raw[start : start + INPUT_CHUNK_ROWS].astype("<f8").tobytes()).hexdigest()
+        write_array(
+            public,
+            f"input-rows-v2/{source['input']['sha256']}/{start}.bin",
+            raw[start : start + INPUT_CHUNK_ROWS],
+        )["sha256"]
         for start in range(0, rows, INPUT_CHUNK_ROWS)
     ]
     for model in source["models"]:
@@ -103,14 +101,9 @@ def runtime_manifest(source, reference=REFERENCE, public=None):
         window_chunks = []
         for chunk in model["windows"]["chunks"]:
             hashes = window_integrity(reference, chunk, window, features)
-            integrity = dict(
-                file=f"windows-integrity-v1/{model['id']}/{chunk['start']}.bin",
-                shape=list(hashes.shape),
-                bytes=hashes.nbytes,
-                sha256=hashlib.sha256(hashes.tobytes()).hexdigest(),
+            integrity = write_array(
+                public, f"windows-integrity-v1/{model['id']}/{chunk['start']}.bin", hashes, "uint8"
             )
-            if public is not None:
-                write_array(public, integrity["file"], hashes, "uint8")
             window_chunks.append({**chunk, "integrity": integrity})
         current["windows"] = dict(
             chunks=window_chunks, count=model["windows"]["count"], length=window, features=features
@@ -118,14 +111,14 @@ def runtime_manifest(source, reference=REFERENCE, public=None):
         errors = read_array(reference, model["errors"])
         chunks = []
         for start in range(0, rows, CONTRIBUTION_CHUNK_ROWS):
-            payload = errors[start : start + CONTRIBUTION_CHUNK_ROWS].astype("<f8").tobytes()
+            values = errors[start : start + CONTRIBUTION_CHUNK_ROWS]
+            asset = write_array(public, f"contributions-v1/{model['id']}/{start}.bin", values)
+            del asset["shape"]
             chunks.append(
                 {
                     "start": start,
-                    "count": min(CONTRIBUTION_CHUNK_ROWS, rows - start),
-                    "file": f"contributions-v1/{model['id']}/{start}.bin",
-                    "bytes": len(payload),
-                    "sha256": hashlib.sha256(payload).hexdigest(),
+                    "count": len(values),
+                    **asset,
                 }
             )
         current["contributions"] = {"chunks": chunks, "features": features}
@@ -162,20 +155,14 @@ def runtime_manifest(source, reference=REFERENCE, public=None):
     return result
 
 
-def export(reference=REFERENCE, public=PUBLIC):
+def export(reference, public):
     source = json.loads((reference / "manifest.json").read_text(encoding="utf-8"))
-    result = runtime_manifest(source, reference, public)
     public.mkdir(parents=True, exist_ok=True)
+    result = runtime_manifest(source, reference, public)
     result["cases"] = install_cases(
         reference / "cases", public / "anomaly-cases-v1", reference / "manifest.json"
     )
     result["calculation"] = export_calculation(reference, public)
-    for original, model in zip(source["models"], result["models"]):
-        errors = read_array(reference, original["errors"])
-        for chunk in model["contributions"]["chunks"]:
-            write_array(
-                public, chunk["file"], errors[chunk["start"] : chunk["start"] + chunk["count"]]
-            )
     (public / "manifest.json").write_text(
         json.dumps(result, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8"
     )

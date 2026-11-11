@@ -11,7 +11,6 @@ from pathlib import Path
 from data_versions import version_assets
 from dataset_paths import selected_paths
 from evaluation_policy import POLICY
-from export_curve_data import main as export_curves
 from export_runtime import export as export_runtime
 from release_validation import validate_evaluation
 
@@ -32,9 +31,8 @@ def build_export(reference, public):
             ):
                 raise ValueError(f"Retained window differs: {chunk['file']}")
             target = public / chunk["file"]
-            if not target.exists() or target.read_bytes() != payload:
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(original, target)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
     evaluation = {
         "version": source["resultVersion"],
         "policy": {key: source["evaluation"][key] for key in POLICY},
@@ -47,7 +45,6 @@ def build_export(reference, public):
         json.dumps(evaluation, ensure_ascii=False, indent=2), encoding="utf8"
     )
     export_runtime(reference, public)
-    export_curves(reference, public)
     version_assets(public)
     validate_evaluation(public, reference / "manifest.json")
 

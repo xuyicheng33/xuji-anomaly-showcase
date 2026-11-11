@@ -28,27 +28,26 @@ def version_assets(public):
         # are deliberately not part of the published payloads.
         if not source.is_file():
             return updated
-        if old not in mapped:
-            raw = source.read_bytes()
-            if len(raw) != value["bytes"] or hashlib.sha256(raw).hexdigest() != value["sha256"]:
-                raise ValueError(f"Asset changed before versioning: {old}")
-            if source.suffix == ".json":
-                raw = (
-                    json.dumps(visit(json.loads(raw)), ensure_ascii=False, separators=(",", ":"))
-                    + "\n"
-                ).encode("utf8")
+        raw = source.read_bytes()
+        checksum = hashlib.sha256(raw).hexdigest()
+        if len(raw) != value["bytes"] or checksum != value["sha256"]:
+            raise ValueError(f"Asset changed before versioning: {old}")
+        if source.suffix == ".json":
+            raw = (
+                json.dumps(visit(json.loads(raw)), ensure_ascii=False, separators=(",", ":")) + "\n"
+            ).encode("utf8")
             checksum = hashlib.sha256(raw).hexdigest()
-            parts = Path(old).parts
-            parent = Path(parts[0]) if len(parts) > 1 else Path("metadata-v1")
-            versioned = parent / checksum / Path(*parts[1:] if len(parts) > 1 else parts)
-            target = public / versioned
-            target.parent.mkdir(parents=True, exist_ok=True)
-            if source.suffix == ".json":
-                target.write_bytes(raw)
-                source.unlink()
-            else:
-                source.rename(target)
-            mapped[old] = {"file": versioned.as_posix(), "sha256": checksum, "bytes": len(raw)}
+        parts = Path(old).parts
+        parent = Path(parts[0]) if len(parts) > 1 else Path("metadata-v1")
+        versioned = parent / checksum / Path(*parts[1:] if len(parts) > 1 else parts)
+        target = public / versioned
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if source.suffix == ".json":
+            target.write_bytes(raw)
+            source.unlink()
+        else:
+            source.rename(target)
+        mapped[old] = {"file": versioned.as_posix(), "sha256": checksum, "bytes": len(raw)}
         updated.update(mapped[old])
         return updated
 
