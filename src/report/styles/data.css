@@ -207,10 +207,6 @@
   .normalization-heading .field {
     display: block;
   }
-  .normalization-heading select {
-    margin-top: 9px;
-    font-size: 12px;
-  }
   .normalization-facts {
     grid-template-columns: 1fr 1fr;
     row-gap: 22px;
@@ -786,10 +782,6 @@
   .data-chapter .balanced-split small {
     display: inline;
     margin-top: 0;
-  }
-  .data-chapter .normalization-heading select {
-    width: 100%;
-    max-width: 100%;
   }
 }
 @media (prefers-reduced-motion: reduce) {

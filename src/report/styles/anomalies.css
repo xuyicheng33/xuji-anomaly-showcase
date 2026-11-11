@@ -157,22 +157,6 @@
   color: var(--muted);
   flex-wrap: wrap;
 }
-.case-context label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  max-width: 100%;
-}
-.case-context select {
-  font-size: 12px;
-  max-width: 300px;
-  min-width: 0;
-  width: 100%;
-  flex: 1;
-  padding: 8px;
-  min-height: 38px;
-}
 .case-stage .curve-top strong {
   font-size: 14px;
 }
@@ -775,9 +759,6 @@
     gap: 10px;
     margin-bottom: 10px;
   }
-  .case-context select {
-    max-width: 275px;
-  }
   .case-context > span {
     display: none;
   }
@@ -921,15 +902,6 @@
   }
   .case-kinds strong {
     font-size: 13px;
-  }
-  .case-context label {
-    display: block;
-    width: 100%;
-  }
-  .case-context select {
-    display: block;
-    margin-top: 8px;
-    max-width: 100%;
   }
   .case-point {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 110px), 1fr));

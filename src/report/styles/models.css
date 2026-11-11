@@ -23,7 +23,7 @@
 .models-chapter .model-details {
   gap: 0;
   border-block: 1px solid var(--line);
-  padding: 25px 0;
+  padding: 30px 0;
   margin: 0;
 }
 .models-chapter .model-details > section {
@@ -103,16 +103,19 @@
 }
 .window-rules {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.7fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: center;
-  gap: 30px;
-  padding: 27px 0 0;
+  gap: 32px;
+  padding: 30px 0 0;
 }
 .window-rules > div {
   display: flex;
   flex-direction: column;
   gap: 7px;
   text-align: center;
+}
+.window-rules > div + div {
+  border-left: 1px solid var(--line);
 }
 .window-rules strong {
   font-family: 'Instrument Serif', serif;
@@ -165,12 +168,6 @@
 .training-metrics span {
   font-size: 12px;
 }
-@media (max-width: 1050px) {
-  .window-rules {
-    grid-template-columns: 1fr 1fr 1.5fr;
-    gap: 20px;
-  }
-}
 @media (max-width: 680px) {
   .models-chapter .model-intro {
     text-align: left;
@@ -183,10 +180,10 @@
     font-size: 15px;
   }
   .models-chapter .model-details {
-    gap: 0;
+    padding: 0;
   }
   .models-chapter .model-details > section {
-    padding: 22px 0 !important;
+    padding: 26px 0 !important;
     display: grid;
     grid-template-columns: 35px 1fr;
     column-gap: 13px;
@@ -222,10 +219,6 @@
   .training-window-header .field {
     display: block;
   }
-  .training-window-header select {
-    margin-top: 9px;
-    font-size: 12px;
-  }
   .window-position-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -236,14 +229,10 @@
     min-height: 40px;
   }
   .window-rules {
-    grid-template-columns: 1fr 1fr;
-    gap: 23px 16px;
+    gap: 20px;
   }
   .window-rules strong {
     font-size: 34px;
-  }
-  .window-rules span {
-    font-size: 12px;
   }
   .training-chapter .training-steps {
     gap: 25px 20px;
@@ -340,9 +329,6 @@
     grid-template-columns: 1fr;
     gap: 25px;
   }
-  .inline-facts {
-    flex-wrap: wrap;
-  }
   .model-intro h2 {
     font-size: 28px;
   }
@@ -362,7 +348,6 @@
 }
 @media (max-width: 680px) {
   .inline-facts {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 14px;
   }
   .inline-facts strong {
@@ -370,30 +355,6 @@
   }
   .inline-facts span {
     font-size: 12px;
-  }
-}
-.training-chapter .window-rules {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 32px;
-  padding-top: 30px;
-}
-.training-chapter .window-rules > div + div {
-  border-left: 1px solid var(--line);
-}
-.models-chapter .model-details {
-  padding-top: 30px;
-  padding-bottom: 30px;
-}
-@media (max-width: 680px) {
-  .models-chapter .model-details {
-    padding: 0;
-  }
-  .models-chapter .model-details > section {
-    padding-top: 26px !important;
-    padding-bottom: 26px !important;
-  }
-  .training-chapter .window-rules {
-    gap: 20px;
   }
 }
 .models-chapter .model-flow {
