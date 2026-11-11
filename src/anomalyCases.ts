@@ -1,5 +1,5 @@
-import { loadJson } from './assetRequests';
-import { loadAsset, type Asset, type Metrics } from './journey';
+import { loadBinary } from './assetRequests';
+import { loadAsset, type Asset, type Journey, type Metrics } from './journey';
 
 export type Insertion = 'replace' | 'blend';
 export type Construction = 'reference' | 'uniform' | 'peak' | 'length';
@@ -39,13 +39,9 @@ export type CaseArrays = {
   input: Float64Array;
   labels: Float64Array;
 };
-export function loadCases() {
-  return loadJson<{ version: string; cases: AnomalyCase[] }>(
-    'anomaly-cases-v1/manifest.json',
-    (d) => {
-      if (d.cases?.length !== 8) throw Error('案例资料不完整');
-    },
-  );
+export async function loadCases(asset: Journey['cases']) {
+  const raw = await loadBinary(asset);
+  return JSON.parse(new TextDecoder().decode(raw)) as { version: string; cases: AnomalyCase[] };
 }
 export async function loadCaseArrays(c: AnomalyCase): Promise<CaseArrays> {
   const [original, material, candidate, weights, input, labels] = await Promise.all(

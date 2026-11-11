@@ -20,8 +20,12 @@ def read(asset):
 
 
 def verify():
-    manifest = json.loads((ROOT / 'anomaly-cases-v1/manifest.json').read_text(encoding='utf-8'))
     published = json.loads((ROOT / 'manifest.json').read_text(encoding='utf-8'))
+    asset = published['cases']
+    payload = (ROOT / asset['file']).read_bytes()
+    assert len(payload) == asset['bytes']
+    assert hashlib.sha256(payload).hexdigest() == asset['sha256']
+    manifest = json.loads(payload)
     clean = np.fromfile(REFERENCE / 'clean-test.bin', dtype='<f8').reshape(-1, len(published['features']))
     reference = json.loads((REFERENCE / ('cases/' + published['models'][0]['id'] + '.json')).read_text(encoding='utf-8'))
     masks = {c['id']: np.asarray(c['mask']) for c in reference['cases']}
@@ -64,6 +68,10 @@ def verify():
             counts = dict(tp=int((y & p).sum()), fp=int((~y & p).sum()), fn=int((y & ~p).sum()), tn=int((~y & ~p).sum()))
             for key, value in counts.items():
                 assert value == model['metrics'][key]
+            tp, fp, fn = counts['tp'], counts['fp'], counts['fn']
+            assert model['metrics']['precision'] == (tp / (tp + fp) if tp + fp else None)
+            assert model['metrics']['recall'] == (tp / (tp + fn) if tp + fn else None)
+            assert model['metrics']['f1'] == (2 * tp / (2 * tp + fp + fn) if 2 * tp + fp + fn else None)
         print('PASS', c['id'], 'source, material, composition, labels, masks and all model outputs')
     actual = {p.relative_to(ROOT).as_posix() for p in (ROOT / 'anomaly-cases-v1').rglob('*') if p.is_file()}
     assert actual == used, {'extra': sorted(actual - used), 'missing': sorted(used - actual)}

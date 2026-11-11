@@ -7,7 +7,6 @@ from dataset_paths import DATASETS, dataset_info
 from export_runtime import export as export_runtime
 from export_curve_data import main as export_curves
 from export_calculation_index import main as export_calculation
-from install_anomaly_cases import install
 
 
 def verify():
@@ -17,7 +16,6 @@ def verify():
             export_runtime(reference, target)
             export_curves(reference, target)
             export_calculation(reference, target)
-            install(reference / 'cases', target / 'anomaly-cases-v1', reference / 'manifest.json')
             files = [p for p in target.rglob('*') if p.is_file()]
             for file in files:
                 relative = file.relative_to(target)

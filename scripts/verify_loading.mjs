@@ -268,6 +268,45 @@ try {
   await corrupt.page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
   await corrupt.page.close();
   summary.push({ equalLengthCurveCorruptionRejectedAndRetryable: true });
+  for (const dataset of ['converter', 'wind']) {
+    const folder = dataset === 'wind' ? 'wind' : 'journey';
+    const original = await readFile(`public/data/${folder}/anomaly-cases-v1/manifest.json`, 'utf8');
+    for (const field of ['threshold', 'scores', 'tp']) {
+      const pattern = new RegExp(`("${field}":\\s*(?:\\[\\s*)?)([0-9])`);
+      const changed = original.replace(
+        pattern,
+        (_, prefix, digit) => prefix + ((Number(digit) + 1) % 10),
+      );
+      assert.notEqual(changed, original);
+      assert.equal(Buffer.byteLength(changed), Buffer.byteLength(original));
+      const page = await browser.newPage({
+        viewport: { width: 390, height: 844 },
+        reducedMotion: 'reduce',
+      });
+      page.on('pageerror', (e) => errors.push(String(e)));
+      let reads = 0;
+      await page.route('**/anomaly-cases-v1/manifest.json*', (route) => {
+        reads++;
+        return route.fulfill({
+          body: reads === 1 ? changed : original,
+          contentType: 'application/json',
+        });
+      });
+      const url = new URL(base);
+      url.searchParams.set('dataset', dataset);
+      url.hash = '/anomalies';
+      await page.goto(url.href);
+      await page.getByRole('alert').filter({ hasText: '数据文件不匹配' }).waitFor();
+      assert.equal(await page.locator('.case-stage').count(), 0);
+      await page.getByRole('button', { name: '重新读取案例', exact: true }).click();
+      await page.locator('.case-stage').waitFor();
+      await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+      await page.locator('.case-reconstruction[aria-busy=false]').waitFor();
+      assert.equal(reads, 2);
+      await page.close();
+    }
+  }
+  summary.push({ changedCaseThresholdScoresAndCountsRejectedAndRetryable: 'both datasets' });
   assert.deepEqual(errors, []);
   await writeFile(out + '/loading-checks.json', JSON.stringify({ summary, errors }, null, 2));
   console.log(

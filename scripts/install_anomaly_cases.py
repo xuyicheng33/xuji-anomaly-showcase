@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from export_anomaly_cases import construct, VERSION
+from export_anomaly_cases import construct
 from dataset_paths import dataset_info
 from evaluation_policy import counts
 
@@ -69,12 +69,15 @@ def install(source, target, journey):
                     construction='Four candidate generators crossed with replacement / 0.7 blending. Controlled new offline cases, not historical static/dynamic combinations.',
                     lengthPolicy='Repeat 8 points by scale 3 inside a 24-point interval; no tail shift or unlabelled feature changes.',
                     thresholdPolicy='Reuse frozen independent-window thresholds; never optimize on these eight cases.')
-    (target / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
+    payload = json.dumps(manifest, ensure_ascii=False, indent=2).encode('utf-8')
+    (target / 'manifest.json').write_bytes(payload)
     used = {Path(a['file']).name for a in assets.values()}
     for p in target.glob('*.bin'):
         if p.name not in used:
             p.unlink()
     print(f'PASS {len(records)} cases × {len(data["models"])} models; sources, composition, labels and all feature errors verified')
+    return dict(file='anomaly-cases-v1/manifest.json', bytes=len(payload),
+                sha256=hashlib.sha256(payload).hexdigest())
 
 
 if __name__ == '__main__':
