@@ -2,6 +2,7 @@
 from dataset_paths import selected_paths
 from pathlib import Path
 import json
+import hashlib
 import numpy as np
 from data_geometry import geometry
 from array_assets import read_array, write_array, window_scores
@@ -34,8 +35,11 @@ def main(reference=REFERENCE, public=ROOT):
         assert coverage.tolist() == model['coverage']
         asset = write_array(public, f'calculation-v1/{model["id"]}-scores.bin', scores)
         manifest['models'][model['id']] = {**asset, 'maxAggregateDifference': difference}
-    (target / 'manifest.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf8')
+    payload = (json.dumps(manifest, indent=2) + '\n').encode('utf8')
+    (target / 'manifest.json').write_bytes(payload)
     print(json.dumps(manifest, ensure_ascii=False))
+    return dict(file='calculation-v1/manifest.json', bytes=len(payload),
+                sha256=hashlib.sha256(payload).hexdigest())
 
 
 if __name__ == '__main__':

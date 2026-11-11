@@ -132,9 +132,7 @@ if __name__ == '__main__':
     install()
     from export_runtime import export as export_runtime
     from export_curve_data import main as export_curves
-    from export_calculation_index import main as export_calculation
     from export_data_cleaning import export as export_cleaning
     export_runtime()
     export_curves()
-    export_calculation()
     export_cleaning()

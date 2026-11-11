@@ -307,6 +307,57 @@ try {
     }
   }
   summary.push({ changedCaseThresholdScoresAndCountsRejectedAndRetryable: 'both datasets' });
+  for (const dataset of ['converter', 'wind']) {
+    const folder = dataset === 'wind' ? 'wind' : 'journey';
+    const manifest = JSON.parse(await readFile(`public/data/${folder}/manifest.json`, 'utf8'));
+    const original = await readFile(`public/data/${folder}/${manifest.calculation.file}`, 'utf8');
+    const url = new URL(base);
+    url.searchParams.set('dataset', dataset);
+    url.hash = '/playback';
+    const missing = structuredClone(manifest);
+    missing.models[0].contributions.chunks = [];
+    const page = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+      reducedMotion: 'reduce',
+    });
+    page.on('pageerror', (e) => errors.push(String(e)));
+    let reads = 0;
+    await page.route(`**/data/${folder}/manifest.json`, (route) =>
+      route.fulfill({ json: ++reads === 1 ? missing : manifest }),
+    );
+    await page.goto(url.href);
+    await page.getByRole('alert').filter({ hasText: '资料版本不匹配' }).waitFor();
+    await page.getByRole('button', { name: '重新读取', exact: true }).click();
+    await page.getByRole('slider', { name: '播放进度' }).fill('133');
+    await page.getByTestId('contribution-total').waitFor();
+    assert.equal(reads, 2);
+    let indexReads = 0;
+    const changed = JSON.parse(original);
+    const id = manifest.models[0].id;
+    if (manifest.models.length > 1) changed.models[id] = changed.models[manifest.models[1].id];
+    else delete changed.models[id];
+    await page.route('**/calculation-v1/manifest.json*', (route) =>
+      route.fulfill({
+        body: ++indexReads === 1 ? JSON.stringify(changed) : original,
+        contentType: 'application/json',
+      }),
+    );
+    await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
+    await page.getByRole('alert').filter({ hasText: '数据文件' }).waitFor();
+    assert.equal(await page.getByTestId('aggregate-equation').count(), 0);
+    await page.getByRole('button', { name: '重试计算索引', exact: true }).click();
+    await page.getByTestId('aggregate-equation').waitFor();
+    assert.equal(indexReads, 2);
+    assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '133');
+    assert.equal(
+      await page.getByTestId('aggregate-equation').locator('strong').innerText(),
+      manifest.models[0].scores[132].toFixed(9),
+    );
+    await page.close();
+  }
+  summary.push({
+    missingContributionsAndChangedCalculationModelRejectedAndRetryable: 'both datasets',
+  });
   assert.deepEqual(errors, []);
   await writeFile(out + '/loading-checks.json', JSON.stringify({ summary, errors }, null, 2));
   console.log(

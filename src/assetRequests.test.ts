@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { loadBinary, RequestCache } from './assetRequests';
+import { loadBinary, loadJson, RequestCache } from './assetRequests';
 
 describe('shared resource cache', () => {
   it('shares pending reads and retries a failed transfer', async () => {
@@ -52,6 +52,42 @@ describe('shared resource cache', () => {
       expect(new Uint8Array(await loadBinary(asset))).toEqual(original);
       await loadBinary(asset);
       expect(fetch).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('revalidates cached JSON and refetches after rejection', async () => {
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ version: 1 }))
+      .mockResolvedValueOnce(Response.json({ version: 2 }));
+    vi.stubGlobal('fetch', fetch);
+    try {
+      await loadJson('cache-validation.json');
+      const validate = (value: { version: number }) => {
+        if (value.version !== 2) throw Error('stale');
+      };
+      await expect(loadJson('cache-validation.json', validate)).rejects.toThrow('stale');
+      expect(await loadJson('cache-validation.json', validate)).toEqual({ version: 2 });
+      expect(fetch).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('validates a shared JSON transfer separately for each caller', async () => {
+    const fetch = vi.fn().mockResolvedValue(Response.json({ version: 1 }));
+    vi.stubGlobal('fetch', fetch);
+    try {
+      const first = loadJson('shared-validation.json');
+      const second = loadJson('shared-validation.json', () => {
+        throw Error('incompatible');
+      });
+      const results = await Promise.allSettled([first, second]);
+      expect(results[0].status).toBe('fulfilled');
+      expect(results[1].status).toBe('rejected');
+      expect(fetch).toHaveBeenCalledTimes(1);
     } finally {
       vi.unstubAllGlobals();
     }

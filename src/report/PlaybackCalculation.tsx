@@ -1,7 +1,7 @@
-import { loadJson } from '../assetRequests';
+import { loadCalculationIndex } from '../calculationIndex';
 import { coveringWindows } from '../dataGeometry';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { loadWindow, type Journey, type Model, type Asset } from '../journey';
+import { loadWindow, type Journey, type Model } from '../journey';
 import { Footnote } from './notes';
 import { useDataAsset } from './useDataAsset';
 import { useWindowInput } from './useCurveData';
@@ -10,8 +10,6 @@ import { ScoreCalculation } from './ScoreCalculation';
 import { useResource } from './useResource';
 
 const decimal = (value: number) => value.toFixed(9);
-
-type IndexManifest = { resultVersion: string; models: Record<string, Asset> };
 
 export function PlaybackCalculation({
   data,
@@ -28,14 +26,8 @@ export function PlaybackCalculation({
 }) {
   const [open, setOpen] = useState(false),
     [selected, setSelected] = useState<number | null>(null);
-  const readIndex = useCallback(
-    () =>
-      loadJson<IndexManifest>('calculation-v1/manifest.json', (catalog) => {
-        if (catalog.resultVersion !== data.resultVersion) throw Error('计算索引版本不一致');
-      }),
-    [data.resultVersion],
-  );
-  const catalog = useResource(open ? data.resultVersion : null, readIndex);
+  const readIndex = useCallback(() => loadCalculationIndex(data), [data]);
+  const catalog = useResource(open ? data.calculation.sha256 : null, readIndex);
   const readWindow = useCallback(() => loadWindow(model, selected!), [model, selected]);
   const windowAsset = useResource(
     selected === null ? null : `${model.run}:${selected}`,

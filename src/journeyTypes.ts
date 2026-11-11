@@ -68,6 +68,7 @@ export type Journey = {
   inputChunkRows: number;
   inputRowHashes: string[];
   cases: Pick<Asset, 'file' | 'bytes' | 'sha256'>;
+  calculation: Pick<Asset, 'file' | 'bytes' | 'sha256'>;
   features: Feature[];
   times: string[];
   labels: number[];

@@ -44,8 +44,15 @@ def verify():
         np.testing.assert_array_equal(np.fromfile(PUBLIC / name, dtype='<f8').reshape(-1, features), raw[start:start + runtime['inputChunkRows']])
         assert hashlib.sha256((PUBLIC / name).read_bytes()).hexdigest() == runtime['inputRowHashes'][start // runtime['inputChunkRows']], name
         expected.add(name)
-    index = json.loads((PUBLIC / 'calculation-v1/manifest.json').read_text())
-    expected.add('calculation-v1/manifest.json')
+    calculation = runtime['calculation']
+    index_raw = (PUBLIC / calculation['file']).read_bytes()
+    assert len(index_raw) == calculation['bytes']
+    assert hashlib.sha256(index_raw).hexdigest() == calculation['sha256']
+    index = json.loads(index_raw)
+    assert index['resultVersion'] == source['resultVersion']
+    assert index['window'] == window and index['features'] == features
+    assert set(index['models']) == {m['id'] for m in source['models']}
+    expected.add(calculation['file'])
     for original, model in zip(source['models'], runtime['models']):
         for key in ('id', 'scores', 'history', 'threshold', 'windowThreshold', 'metrics', 'run'):
             assert model[key] == original[key], (model['id'], key)

@@ -6,7 +6,6 @@ from pathlib import Path
 from dataset_paths import DATASETS, dataset_info
 from export_runtime import export as export_runtime
 from export_curve_data import main as export_curves
-from export_calculation_index import main as export_calculation
 
 
 def verify():
@@ -15,7 +14,6 @@ def verify():
             target = Path(temporary)
             export_runtime(reference, target)
             export_curves(reference, target)
-            export_calculation(reference, target)
             files = [p for p in target.rglob('*') if p.is_file()]
             for file in files:
                 relative = file.relative_to(target)

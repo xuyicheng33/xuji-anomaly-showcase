@@ -32,13 +32,20 @@ export class RequestCache<T> {
     return value;
   }
 
-  get(key: string, bytes: number, read: () => Promise<T>): Promise<T> {
+  delete(key: string, value: T) {
+    const saved = this.values.get(key);
+    if (!saved || saved.value !== value) return;
+    this.bytes -= saved.bytes;
+    this.values.delete(key);
+  }
+
+  get(key: string, bytes: number | ((value: T) => number), read: () => Promise<T>): Promise<T> {
     const saved = this.peek(key);
     if (saved !== undefined) return Promise.resolve(saved);
     const existing = this.pending.get(key);
     if (existing) return existing;
     const request = read()
-      .then((value) => this.set(key, bytes, value))
+      .then((value) => this.set(key, typeof bytes === 'number' ? bytes : bytes(value), value))
       .finally(() => this.pending.delete(key));
     this.pending.set(key, request);
     return request;
@@ -70,13 +77,24 @@ export function loadBinary(asset: BinaryAsset, cache?: RequestInit['cache']) {
   });
 }
 
-const jsonCache = new RequestCache<unknown>(2 * 1024 * 1024);
-export function loadJson<T>(file: string, validate: (value: T) => void = () => {}) {
-  return jsonCache.get(file, 512 * 1024, async () => {
-    const response = await requestData(file);
-    if (!response.ok) throw Error('资料读取失败');
-    const value: T = await response.json();
-    validate(value);
-    return value;
-  }) as Promise<T>;
+const jsonCache = new RequestCache<{ value: unknown; bytes: number }>(2 * 1024 * 1024);
+export async function loadJson<T>(file: string, validate: (value: T) => void = () => {}) {
+  const saved = await jsonCache.get(
+    file,
+    (entry) => entry.bytes,
+    async () => {
+      const response = await requestData(file);
+      if (!response.ok) throw Error('资料读取失败');
+      const raw = await response.text();
+      return { value: JSON.parse(raw), bytes: new TextEncoder().encode(raw).byteLength };
+    },
+  );
+  try {
+    // A shared transfer must still satisfy each caller's current contract.
+    validate(saved.value as T);
+    return saved.value as T;
+  } catch (error) {
+    jsonCache.delete(file, saved);
+    throw error;
+  }
 }

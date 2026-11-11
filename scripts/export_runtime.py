@@ -7,6 +7,7 @@ from data_geometry import geometry, INPUT_CHUNK_ROWS, CONTRIBUTION_CHUNK_ROWS
 import hashlib
 from array_assets import read_array, write_array, curve_columns
 from install_anomaly_cases import install as install_cases
+from export_calculation_index import main as export_calculation
 
 ROOT = Path(__file__).resolve().parents[1]
 REFERENCE = ROOT / 'data/reference'
@@ -94,6 +95,7 @@ def export(reference=REFERENCE, public=PUBLIC):
     result = runtime_manifest(source, reference)
     public.mkdir(parents=True, exist_ok=True)
     result['cases'] = install_cases(reference / 'cases', public / 'anomaly-cases-v1', reference / 'manifest.json')
+    result['calculation'] = export_calculation(reference, public)
     for original, model in zip(source['models'], result['models']):
         errors = read_array(reference, original['errors'])
         for chunk in model['contributions']['chunks']:

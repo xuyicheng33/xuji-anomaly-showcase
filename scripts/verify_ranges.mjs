@@ -156,14 +156,15 @@ try {
     await page.getByTestId('sensor-mean-error').waitFor();
     assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '900');
     if (rep === 0) {
-      const catalog = JSON.parse(
-        await readFile(referencePath + 'calculation-v1/manifest.json', 'utf8'),
-      );
+      const original = await readFile(referencePath + 'calculation-v1/manifest.json', 'utf8');
+      const catalog = JSON.parse(original);
       let indexRequests = 0;
-      await page.route('**/calculation-v1/manifest.json', (route) => {
+      await page.route('**/calculation-v1/manifest.json*', (route) => {
         indexRequests++;
         return route.fulfill({
-          json: indexRequests === 1 ? { ...catalog, resultVersion: 'stale' } : catalog,
+          body:
+            indexRequests === 1 ? JSON.stringify({ ...catalog, resultVersion: 'stale' }) : original,
+          contentType: 'application/json',
         });
       });
       await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
