@@ -44,6 +44,7 @@ try {
         .slice(6)
         .split(',')
         .map((item) => item.split('-').map(Number));
+      if (mode === 'changed') source[parts[0][0]] ^= 1;
       if (parts.length === 1) {
         const [start, end] = parts[0];
         return route.fulfill({
@@ -107,12 +108,44 @@ try {
     await page.getByTestId('sensor-mean-error').waitFor();
     assert.ok(requests.some((request) => !request.range));
     await page.getByRole('button', { name: '收起明细', exact: true }).click();
+    mode = 'changed';
+    const beforeChanged = requests.length;
+    await page.getByRole('slider', { name: '播放进度' }).fill('400');
+    await page.getByTestId('contribution-total').waitFor();
+    await page.locator('.contribution-row').first().click();
+    await page.getByTestId('sensor-mean-error').waitFor();
+    assert.ok(requests.slice(beforeChanged).some((request) => !request.range));
+    await page.locator('.window-error-grid button').first().click();
+    const start = 400 - data.window;
+    const chunk = data.models[0].windows.chunks.find(
+      (c) => start >= c.start && start < c.start + c.count,
+    );
+    const raw = await readFile(referencePath + chunk.file);
+    const feature = Number(
+      await page.locator('.sensor-window-detail').getAttribute('data-feature'),
+    );
+    const offset =
+      ((start - chunk.start) * data.window + data.window - 1) * data.features.length + feature;
+    assert.equal(
+      await page.getByTestId('sensor-window-prediction').innerText(),
+      raw.readFloatLE(offset * 4).toFixed(9),
+    );
+    await page.getByRole('button', { name: '收起明细', exact: true }).click();
     mode = 'whole';
     await page.getByRole('slider', { name: '播放进度' }).fill('600');
     await page.getByTestId('contribution-total').waitFor();
     await page.locator('.contribution-row').first().click();
     await page.getByTestId('sensor-mean-error').waitFor();
     await page.getByRole('button', { name: '收起明细', exact: true }).click();
+    const afterWhole = requests.length;
+    for (const count of [601, 602]) {
+      await page.getByRole('slider', { name: '播放进度' }).fill(String(count));
+      await page.getByTestId('contribution-total').waitFor();
+      await page.locator('.contribution-row').first().click();
+      await page.getByTestId('sensor-mean-error').waitFor();
+      await page.getByRole('button', { name: '收起明细', exact: true }).click();
+    }
+    assert.equal(requests.length, afterWhole, 'adjacent windows reuse full-file responses');
     mode = 'fail';
     await page.getByRole('slider', { name: '播放进度' }).fill('900');
     await page.getByTestId('contribution-total').waitFor();
@@ -122,10 +155,27 @@ try {
     await page.getByRole('button', { name: '重试测点明细', exact: true }).click();
     await page.getByTestId('sensor-mean-error').waitFor();
     assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '900');
+    if (rep === 0) {
+      const catalog = JSON.parse(
+        await readFile(referencePath + 'calculation-v1/manifest.json', 'utf8'),
+      );
+      let indexRequests = 0;
+      await page.route('**/calculation-v1/manifest.json', (route) => {
+        indexRequests++;
+        return route.fulfill({
+          json: indexRequests === 1 ? { ...catalog, resultVersion: 'stale' } : catalog,
+        });
+      });
+      await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
+      await page.getByRole('button', { name: '重试计算索引', exact: true }).click();
+      await page.getByTestId('aggregate-equation').waitFor();
+      assert.equal(indexRequests, 2);
+      assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '900');
+    }
     await page.close();
   }
   console.log(
-    'PASS exact raw range results at both edges and middle, single/multipart, full-file fallback, malformed response and retry x3',
+    'PASS exact ranges, changed partial content, verified full-file reuse, failed transfer and stale-index retry x3',
   );
 } finally {
   await browser.close();

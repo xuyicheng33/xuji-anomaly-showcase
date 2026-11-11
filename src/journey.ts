@@ -1,7 +1,8 @@
 import { loadBinary, RequestCache } from './assetRequests';
 import { fetchRanges, type ByteRange } from './rangeAssets';
 import { coveringWindows } from './dataGeometry';
-import type { Asset, Model, WindowChunk } from './journeyTypes';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import type { Asset, Model } from './journeyTypes';
 export type * from './journeyTypes';
 export * from './journeyNumerics';
 
@@ -9,14 +10,16 @@ export async function loadAsset(asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>)
   return new Float64Array(await loadBinary(asset));
 }
 const rangeCache = new RequestCache<ArrayBuffer[]>(4 * 1024 * 1024);
-function windowRanges(chunk: WindowChunk, ranges: ByteRange[]) {
-  const key =
-    `${chunk.file}:${chunk.sha256}:` +
-    ranges.map((range) => `${range.start}/${range.bytes}`).join(',');
+type PredictionChunk = Model['windows']['chunks'][number];
+function windowRanges(chunk: PredictionChunk, ranges: ByteRange[], check: number) {
+  const key = `${chunk.file}:${chunk.integrity.sha256}:${check}`;
   return rangeCache.get(
     key,
     ranges.reduce((sum, range) => sum + range.bytes, 0),
-    () => fetchRanges(chunk, ranges, () => loadBinary(chunk, 'reload')),
+    async () => {
+      const hashes = await loadBinary(chunk.integrity);
+      return fetchRanges(chunk, ranges, bytesToHex(new Uint8Array(hashes, check * 32, 32)));
+    },
   );
 }
 export async function loadWindow(m: Model, start: number) {
@@ -25,7 +28,11 @@ export async function loadWindow(m: Model, start: number) {
   if (!chunk) throw Error('没有对应的完整窗口');
   const size = pack.length * pack.features;
   const offset = (start - chunk.start) * size;
-  const [raw] = await windowRanges(chunk, [{ start: offset * 4, bytes: size * 4 }]);
+  const [raw] = await windowRanges(
+    chunk,
+    [{ start: offset * 4, bytes: size * 4 }],
+    start - chunk.start,
+  );
   return {
     start,
     modelId: m.id,
@@ -37,7 +44,7 @@ export async function loadWindow(m: Model, start: number) {
 export async function loadCoveringPredictions(model: Model, index: number) {
   const pack = model.windows;
   const starts = coveringWindows(index, model.scores.length, pack.length);
-  const groups = new Map<WindowChunk, { start: number; range: ByteRange }[]>();
+  const groups = new Map<PredictionChunk, { start: number; range: ByteRange }[]>();
   for (const start of starts) {
     const chunk = pack.chunks.find(
       (item) => start >= item.start && start < item.start + item.count,
@@ -58,6 +65,7 @@ export async function loadCoveringPredictions(model: Model, index: number) {
       const raw = await windowRanges(
         chunk,
         rows.map((row) => row.range),
+        chunk.count + index - chunk.start,
       );
       return rows.map((row, i) => ({ start: row.start, predictions: new Float32Array(raw[i]) }));
     }),

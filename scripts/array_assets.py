@@ -24,8 +24,8 @@ def curve_columns(values, include_mean):
         yield 'mean', mean / values.shape[1]
 
 
-def write_array(folder, name, values):
-    values = np.asarray(values, dtype='<f8')
+def write_array(folder, name, values, dtype='<f8'):
+    values = np.asarray(values, dtype=dtype)
     payload = values.tobytes()
     path = folder / name
     path.parent.mkdir(parents=True, exist_ok=True)

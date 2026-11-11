@@ -12,7 +12,6 @@ import { useResource } from './useResource';
 const decimal = (value: number) => value.toFixed(9);
 
 type IndexManifest = { resultVersion: string; models: Record<string, Asset> };
-const loadIndex = () => loadJson<IndexManifest>('calculation-v1/manifest.json');
 
 export function PlaybackCalculation({
   data,
@@ -29,11 +28,13 @@ export function PlaybackCalculation({
 }) {
   const [open, setOpen] = useState(false),
     [selected, setSelected] = useState<number | null>(null);
-  const readIndex = useCallback(async () => {
-    const catalog = await loadIndex();
-    if (catalog.resultVersion !== data.resultVersion) throw Error('计算索引版本不一致');
-    return catalog;
-  }, [data.resultVersion]);
+  const readIndex = useCallback(
+    () =>
+      loadJson<IndexManifest>('calculation-v1/manifest.json', (catalog) => {
+        if (catalog.resultVersion !== data.resultVersion) throw Error('计算索引版本不一致');
+      }),
+    [data.resultVersion],
+  );
   const catalog = useResource(open ? data.resultVersion : null, readIndex);
   const readWindow = useCallback(() => loadWindow(model, selected!), [model, selected]);
   const windowAsset = useResource(

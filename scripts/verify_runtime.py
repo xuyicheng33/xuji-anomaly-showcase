@@ -65,6 +65,15 @@ def verify():
             assert hashlib.sha256(payload).hexdigest() == chunk['sha256']
             assert payload == (REFERENCE / chunk['file']).read_bytes()
             predictions = np.frombuffer(payload, '<f4').reshape(-1, window, features)
+            hashes = read(PUBLIC, chunk['integrity'], 'uint8')
+            expected_hashes = [hashlib.sha256(prediction.tobytes()).digest() for prediction in predictions]
+            for point in range(chunk['count'] + window - 1):
+                digest = hashlib.sha256()
+                for start in range(max(0, point - window + 1), min(chunk['count'], point + 1)):
+                    digest.update(predictions[start, point - start].tobytes())
+                expected_hashes.append(digest.digest())
+            assert hashes.tobytes() == b''.join(expected_hashes), chunk['integrity']['file']
+            expected.add(chunk['integrity']['file'])
             for i, prediction in enumerate(predictions):
                 start = chunk['start'] + i
                 np.testing.assert_array_equal(scores[start], ((raw[start:start + window] - prediction.astype(float)) ** 2).mean(1))

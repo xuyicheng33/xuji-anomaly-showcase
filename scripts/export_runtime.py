@@ -12,6 +12,17 @@ REFERENCE = ROOT / 'data/reference'
 PUBLIC = ROOT / 'public/data/journey'
 
 
+def window_integrity(reference, chunk, window, features):
+    predictions = read_array(reference, {**chunk, 'shape': [chunk['count'], window, features]}, '<f4')
+    hashes = [hashlib.sha256(values.tobytes()).digest() for values in predictions]
+    # Each covering-row request follows window-start order within this chunk.
+    for index in range(chunk['count'] + window - 1):
+        rows = b''.join(predictions[start, index - start].tobytes()
+                        for start in range(max(0, index - window + 1), min(index + 1, chunk['count'])))
+        hashes.append(hashlib.sha256(rows).digest())
+    return np.frombuffer(b''.join(hashes), dtype='uint8').reshape(-1, 32)
+
+
 def runtime_manifest(source, reference=REFERENCE):
     rows, features, window = geometry(source)
     result = {key: source[key] for key in (
@@ -39,8 +50,15 @@ def runtime_manifest(source, reference=REFERENCE):
         current = {key: model[key] for key in (
             'id', 'name', 'threshold', 'windowThreshold', 'scores', 'history', 'recon', 'metrics', 'run')}
         current['recon'] = with_curves(model['recon'], True)
-        current['windows'] = {key: model['windows'][key] for key in ('chunks', 'count')}
-        current['windows'].update(length=window, features=features)
+        window_chunks = []
+        for chunk in model['windows']['chunks']:
+            hashes = window_integrity(reference, chunk, window, features)
+            integrity = dict(file=f'windows-integrity-v1/{model["id"]}/{chunk["start"]}.bin',
+                             shape=list(hashes.shape), bytes=hashes.nbytes,
+                             sha256=hashlib.sha256(hashes.tobytes()).hexdigest())
+            window_chunks.append({**chunk, 'integrity': integrity})
+        current['windows'] = dict(chunks=window_chunks, count=model['windows']['count'],
+                                  length=window, features=features)
         errors = read_array(reference, model['errors'])
         chunks = []
         for start in range(0, rows, CONTRIBUTION_CHUNK_ROWS):
@@ -78,6 +96,9 @@ def export(reference=REFERENCE, public=PUBLIC):
         errors = read_array(reference, original['errors'])
         for chunk in model['contributions']['chunks']:
             write_array(public, chunk['file'], errors[chunk['start']:chunk['start'] + chunk['count']])
+        for chunk in model['windows']['chunks']:
+            write_array(public, chunk['integrity']['file'],
+                        window_integrity(reference, chunk, result['window'], len(result['features'])), 'uint8')
     (public / 'manifest.json').write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
     print(f'Runtime manifest: {(public / "manifest.json").stat().st_size} bytes')
 

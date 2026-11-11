@@ -1,4 +1,4 @@
-import { requestData, verifyBinary } from './assetRequests';
+import { cachedBinary, cacheBinary, loadBinary, requestData, verifyBinary } from './assetRequests';
 import type { WindowChunk } from './journey';
 
 export type ByteRange = { start: number; bytes: number };
@@ -69,11 +69,7 @@ export function parseRanges(
   });
 }
 
-export async function fetchRanges(
-  asset: WindowChunk,
-  ranges: ByteRange[],
-  full: () => Promise<ArrayBuffer>,
-) {
+export async function fetchRanges(asset: WindowChunk, ranges: ByteRange[], sha256: string) {
   if (!ranges.length) return [];
   if (
     ranges.some(
@@ -85,6 +81,10 @@ export async function fetchRanges(
     )
   )
     throw Error('无效窗口范围');
+  const slice = (raw: ArrayBuffer) =>
+    ranges.map((range) => raw.slice(range.start, range.start + range.bytes));
+  const cached = cachedBinary(asset);
+  if (cached) return slice(cached);
   let response: Response | undefined;
   try {
     response = await requestData(`${asset.file}?v=${asset.sha256}`, {
@@ -96,21 +96,27 @@ export async function fetchRanges(
       },
     });
     if (response.status === 206) {
-      return parseRanges(
+      const parts = parseRanges(
         await response.arrayBuffer(),
         response.headers.get('Content-Type') ?? '',
         response.headers.get('Content-Range'),
         ranges,
         asset.bytes,
       );
+      const joined = new Uint8Array(parts.reduce((sum, part) => sum + part.byteLength, 0));
+      let offset = 0;
+      for (const part of parts) {
+        joined.set(new Uint8Array(part), offset);
+        offset += part.byteLength;
+      }
+      verifyBinary(joined.buffer, { bytes: joined.byteLength, sha256 });
+      return parts;
     } else if (response.status === 200) {
-      const raw = verifyBinary(await response.arrayBuffer(), asset);
-      return ranges.map((range) => raw.slice(range.start, range.start + range.bytes));
+      return slice(cacheBinary(asset, await response.arrayBuffer()));
     }
   } catch {
-    // A stalled or malformed partial response can recover from the retained full file.
+    // Recover incomplete or changed partial data from the verified full file.
   }
   if (response && ![200, 206, 416].includes(response.status)) throw Error('窗口结果读取失败');
-  const raw = await full();
-  return ranges.map((range) => raw.slice(range.start, range.start + range.bytes));
+  return slice(await loadBinary(asset, 'reload'));
 }

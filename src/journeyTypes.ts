@@ -32,7 +32,12 @@ export type Model = {
   metrics: { point_wise: Metrics; point_adjusted: Metrics; continuous_score_auc: number };
   windowThreshold: number;
   run: string;
-  windows: { chunks: WindowChunk[]; count: number; length: number; features: number };
+  windows: {
+    chunks: (WindowChunk & { integrity: Asset })[];
+    count: number;
+    length: number;
+    features: number;
+  };
   contributions: { chunks: WindowChunk[]; features: number };
   examples: { code: string; index: number; start: number; feature: number }[];
 };

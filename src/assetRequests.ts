@@ -10,26 +10,35 @@ export class RequestCache<T> {
   private bytes = 0;
   constructor(private budget: number) {}
 
-  get(key: string, bytes: number, read: () => Promise<T>): Promise<T> {
+  peek(key: string) {
     const saved = this.values.get(key);
     if (saved) {
       this.values.delete(key);
       this.values.set(key, saved);
-      return Promise.resolve(saved.value);
     }
+    return saved?.value;
+  }
+
+  set(key: string, bytes: number, value: T) {
+    this.bytes -= this.values.get(key)?.bytes ?? 0;
+    this.values.delete(key);
+    this.values.set(key, { value, bytes });
+    this.bytes += bytes;
+    while (this.bytes > this.budget) {
+      const oldest = this.values.keys().next().value!;
+      this.bytes -= this.values.get(oldest)!.bytes;
+      this.values.delete(oldest);
+    }
+    return value;
+  }
+
+  get(key: string, bytes: number, read: () => Promise<T>): Promise<T> {
+    const saved = this.peek(key);
+    if (saved !== undefined) return Promise.resolve(saved);
     const existing = this.pending.get(key);
     if (existing) return existing;
     const request = read()
-      .then((value) => {
-        this.values.set(key, { value, bytes });
-        this.bytes += bytes;
-        while (this.bytes > this.budget) {
-          const oldest = this.values.keys().next().value!;
-          this.bytes -= this.values.get(oldest)!.bytes;
-          this.values.delete(oldest);
-        }
-        return value;
-      })
+      .then((value) => this.set(key, bytes, value))
       .finally(() => this.pending.delete(key));
     this.pending.set(key, request);
     return request;
@@ -41,17 +50,20 @@ export const requestData = (file: string, init?: RequestInit) =>
   fetch(dataUrl(file), { ...init, signal: init?.signal ?? AbortSignal.timeout(30000) });
 
 const binaryCache = new RequestCache<ArrayBuffer>(16 * 1024 * 1024);
+type BinaryAsset = Pick<Asset, 'file' | 'bytes' | 'sha256'>;
+const binaryKey = (asset: BinaryAsset) => `${asset.file}:${asset.sha256}`;
 /** Also works on the dedicated HTTP site, where Web Crypto is unavailable. */
 export function verifyBinary(raw: ArrayBuffer, asset: Pick<Asset, 'bytes' | 'sha256'>) {
   if (raw.byteLength !== asset.bytes) throw Error('数据文件长度不匹配');
   if (bytesToHex(sha256(new Uint8Array(raw))) !== asset.sha256) throw Error('数据文件不匹配');
   return raw;
 }
-export function loadBinary(
-  asset: Pick<Asset, 'file' | 'bytes' | 'sha256'>,
-  cache?: RequestInit['cache'],
-) {
-  return binaryCache.get(`${asset.file}:${asset.sha256}`, asset.bytes, async () => {
+export const cachedBinary = (asset: BinaryAsset) => binaryCache.peek(binaryKey(asset));
+export const cacheBinary = (asset: BinaryAsset, raw: ArrayBuffer) =>
+  binaryCache.set(binaryKey(asset), asset.bytes, verifyBinary(raw, asset));
+
+export function loadBinary(asset: BinaryAsset, cache?: RequestInit['cache']) {
+  return binaryCache.get(binaryKey(asset), asset.bytes, async () => {
     const response = await requestData(`${asset.file}?v=${asset.sha256}`, { cache });
     if (!response.ok) throw Error('数据读取失败');
     return verifyBinary(await response.arrayBuffer(), asset);

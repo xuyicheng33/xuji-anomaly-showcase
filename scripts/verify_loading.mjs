@@ -79,6 +79,7 @@ try {
         `input-rows-v2/${d.input.sha256}/${(Math.floor(107 / d.inputChunkRows) + i) * d.inputChunkRows}.bin`,
     ),
     chunk.file,
+    chunk.integrity.file,
   ]);
   assert.equal(await det.page.locator('.aggregate-error').count(), 0);
   await selectFeature(det.page, '4');
