@@ -195,16 +195,19 @@ class MaintenanceTests(unittest.TestCase):
         extra = '\n    include /etc/nginx/coffee-canvas-location.inc;\n    location /coffee/ {\n        if ($request_method = POST) { return 405; }\n        proxy_pass http://127.0.0.1:8080;\n    }\n'
         existing = converter_only[:converter_only.rfind('}')] + extra + '}\n'
         existing = existing.replace('gzip_comp_level 6;', 'gzip_comp_level 2;')
-        result = module.site_config(existing, source)
+        result = module.site_config(existing, source, '/var/www/xuji-showcase/releases/abcdef0')
         self.assertEqual(result.count('location ^~ /data/wind/windows-v1/ {'), 1)
         self.assertEqual(result.count('location ^~ /data/journey/windows-v1/ {'), 1)
         self.assertIn('location /assets/ {', result)
         self.assertIn(extra.strip(), result)
         self.assertIn('gzip_comp_level 6;', result)
         self.assertNotIn('gzip_comp_level 2;', result)
-        again = module.site_config(result, source)
+        self.assertIn('root /var/www/xuji-showcase/releases/abcdef0;', result)
+        again = module.site_config(result, source, '/var/www/xuji-showcase/releases/abcdef0')
         self.assertEqual(again, result)
         with self.assertRaises(ValueError):
             module.site_config(source, 'location / {\n deny all;\n}')
         with self.assertRaises(ValueError):
             module.site_config(source + '\nserver { listen 8080; }', source)
+        self.assertEqual(module.fallback_release(result, '/var/www/xuji-showcase/releases/1234567',
+                         '/var/www/xuji-showcase/releases/1234567'), '/var/www/xuji-showcase/releases/abcdef0')

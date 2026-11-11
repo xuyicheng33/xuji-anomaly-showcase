@@ -15,7 +15,7 @@ import paramiko
 
 from dataset_paths import DATASETS
 from release_files import hashes
-from release_validation import validate_evaluation, site_config
+from release_validation import validate_evaluation, site_config, fallback_release
 
 SITE = '/var/www/xuji-showcase'
 CONFIG = '/etc/nginx/conf.d/xuji-showcase-9010.conf'
@@ -99,7 +99,8 @@ def publish(client, root, output, commit, records, scope, verify=None):
     try:
         existing = remote_python(client, f'from pathlib import Path; print(Path({CONFIG!r}).read_text(), end="")')
         config = (root / 'deploy/nginx-9010.conf').read_text(encoding='utf8')
-        updated = site_config(existing, config)
+        fallback = fallback_release(existing, previous, target)
+        updated = site_config(existing, config, fallback)
         probes = []
         for _, public in DATASETS.values():
             name = public.name
@@ -116,16 +117,20 @@ def publish(client, root, output, commit, records, scope, verify=None):
         activate(client, staging, target, previous, backup,
                  hashlib.sha256(existing.encode()).hexdigest(), probes, verify)
         result = {
-            'release': release, 'previousRelease': Path(previous).name,
+            'release': release, 'previousRelease': Path(fallback).name,
             'url': URL, 'releasePath': target,
             'verifiedFiles': len(records), 'changedFiles': len(changed),
             'uploadedBytes': upload_bytes, 'scope': scope,
             'deployedAt': datetime.now(timezone.utc).isoformat(),
+            'rollbackConfig': backup,
         }
         remote_python(client, f'from pathlib import Path; Path({SITE + "/deployment.json"!r}).write_text({json.dumps(result, indent=2)!r})', sudo=True)
         (output / 'deploy-result.json').write_text(json.dumps(result, indent=2), encoding='utf8')
         archive.unlink()
         print(json.dumps(result), flush=True)
+        retention = release_call(client, staging, 'prune_releases', SITE, target, fallback, backup)
+        if retention.strip():
+            print(retention.strip(), flush=True)
     finally:
         remote_python(client, f'''
             from pathlib import Path

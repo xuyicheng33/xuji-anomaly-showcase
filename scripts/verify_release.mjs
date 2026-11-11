@@ -23,7 +23,10 @@ const datasets = await Promise.all(
   ['journey', 'wind'].map(async (folder) => {
     await matchesRelease(`data/${folder}/manifest.json`);
     await matchesRelease(`data/${folder}/evaluation.json`);
-    return JSON.parse(await readFile(`dist/data/${folder}/manifest.json`, 'utf8'));
+    const data = JSON.parse(await readFile(`dist/data/${folder}/manifest.json`, 'utf8'));
+    await matchesRelease(`data/${folder}/${data.calculation.file}`);
+    await matchesRelease(`data/${folder}/${data.datasets.train.times.file}`);
+    return data;
   }),
 );
 const browser = await launchBrowser();
@@ -44,6 +47,14 @@ try {
         const file = url.pathname.replace(new URL(base).pathname, '');
         if (response.status() >= 400) errors.push(`${response.status()} ${file}`);
       });
+      await page.goto(home + '#/');
+      await page.getByRole('link', { name: '开始查看', exact: true }).click();
+      await page.locator('.normalization-section').scrollIntoViewIfNeeded();
+      await page.locator('.normalization-equation strong').waitFor();
+      await page.goto(home + '#/anomalies');
+      await page.locator('.case-stage').waitFor();
+      await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+      await page.locator('.case-reconstruction[aria-busy=false]').waitFor();
       await page.goto(home + '#/training');
       await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
       await page.getByRole('button', { name: '末个窗口', exact: true }).click();
@@ -58,6 +69,17 @@ try {
       assert.equal(await page.locator('.score-calculation tbody tr').count(), data.features.length);
       await page.screenshot({ path: `${output}/${data.dataset.id}-${width}-detection.png` });
       await page.goto(home + '#/playback');
+      await page.getByRole('slider', { name: '播放进度' }).fill('133');
+      await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
+      await page.getByTestId('aggregate-equation').waitFor();
+      assert.equal(
+        await page.getByTestId('aggregate-equation').locator('strong').innerText(),
+        data.models[0].scores[132].toFixed(9),
+      );
+      await page.locator('#ref-playback-window-aggregation').click();
+      await page.locator('#note-window-aggregation:focus').waitFor();
+      await page.locator('#note-window-aggregation .note-return').click();
+      assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '133');
       await page.getByRole('button', { name: '查看末尾', exact: true }).click();
       await page.waitForFunction(
         (score) =>

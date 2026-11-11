@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from release_files import hashes, prepare_release, install_config, restore_config
+from release_files import hashes, prepare_release, install_config, restore_config, prune_releases
 
 
 class ReleaseFileTests(unittest.TestCase):
@@ -68,10 +68,77 @@ class ReleaseFileTests(unittest.TestCase):
             archive = root / 'changes.tar.gz'
             with tarfile.open(archive, 'w:gz'):
                 pass
-            prepare_release(previous, target, archive, expected, list(expected))
+            prepare_release(previous, target, archive, expected, [])
             self.assertEqual(hashes(target), expected)
             shipped_window = target / window.relative_to(previous)
             shipped_contribution = target / contribution.relative_to(previous)
             self.assertFalse(shipped_window.with_name(window.name + '.gz').exists())
             self.assertTrue(shipped_contribution.with_name(contribution.name + '.gz').exists())
             self.assertTrue(window.with_name(window.name + '.gz').exists())
+
+    def test_unchanged_files_share_storage_and_replacements_never_mutate_previous(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            previous, target = root / 'old', root / 'new'
+            previous.mkdir()
+            (previous / 'shared.bin').write_bytes(b'shared' * 1000)
+            (previous / 'shared.bin.gz').write_bytes(gzip.compress((previous / 'shared.bin').read_bytes()))
+            (previous / 'index.html').write_bytes(b'old' * 1000)
+            (previous / 'index.html.gz').write_bytes(gzip.compress((previous / 'index.html').read_bytes()))
+            before = {p.name: p.read_bytes() for p in previous.iterdir()}
+            fresh = root / 'index.html'
+            fresh.write_bytes(b'new' * 1000)
+            archive = root / 'changes.tar.gz'
+            with tarfile.open(archive, 'w:gz') as package:
+                package.add(fresh, arcname='index.html')
+            expected = {**hashes(previous), 'index.html': hashlib.sha256(fresh.read_bytes()).hexdigest()}
+            prepare_release(previous, target, archive, expected, ['index.html'])
+            self.assertEqual((target / 'shared.bin').stat().st_ino, (previous / 'shared.bin').stat().st_ino)
+            self.assertEqual((target / 'shared.bin.gz').stat().st_ino, (previous / 'shared.bin.gz').stat().st_ino)
+            self.assertNotEqual((target / 'index.html').stat().st_ino, (previous / 'index.html').stat().st_ino)
+            self.assertEqual(before, {p.name: p.read_bytes() for p in previous.iterdir()})
+            broken = root / 'broken'
+            with self.assertRaises(ValueError):
+                prepare_release(previous, broken, archive, {**expected, 'index.html': 'incorrect'}, ['index.html'])
+            self.assertFalse(broken.exists())
+            self.assertFalse(list(root.glob('.broken-*')))
+            self.assertEqual(before, {p.name: p.read_bytes() for p in previous.iterdir()})
+
+    def test_archive_rejects_unlisted_members_without_touching_previous(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            previous, target = root / 'old', root / 'new'
+            previous.mkdir()
+            (previous / 'index.html').write_text('old')
+            archive = root / 'changes.tar.gz'
+            with tarfile.open(archive, 'w:gz') as package:
+                package.add(previous / 'index.html', arcname='../outside.html')
+            with self.assertRaises(ValueError):
+                prepare_release(previous, target, archive, hashes(previous), [])
+            self.assertFalse(target.exists())
+            self.assertFalse((root / 'outside.html').exists())
+            self.assertEqual((previous / 'index.html').read_text(), 'old')
+
+    def test_retention_keeps_current_previous_unknown_folders_and_config(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            site = Path(temporary)
+            releases = site / 'releases'
+            releases.mkdir()
+            for name in ['aaaaaaa', 'bbbbbbb', 'ccccccc', 'unrelated']:
+                (releases / name).mkdir()
+                (releases / name / 'index.html').write_text(name)
+            # The current path is allowed to be a real directory in Windows tests.
+            current = releases / 'ccccccc'
+            previous = releases / 'bbbbbbb'
+            (site / 'config-backups').mkdir()
+            backup = site / 'config-backups/ccccccc-20261111000000000000.conf'
+            backup.write_text('verified rollback')
+            from unittest.mock import patch
+            original_resolve = Path.resolve
+            def resolve(path, *args, **kwargs):
+                return current if path == site / 'current' else original_resolve(path, *args, **kwargs)
+            with patch.object(Path, 'resolve', resolve):
+                result = prune_releases(site, current, previous, backup)
+            self.assertEqual(result['removedReleases'], ['aaaaaaa'])
+            self.assertEqual({p.name for p in releases.iterdir()}, {'bbbbbbb', 'ccccccc', 'unrelated'})
+            self.assertEqual(backup.read_text(), 'verified rollback')

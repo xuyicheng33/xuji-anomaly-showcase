@@ -58,11 +58,26 @@ def config_key(entry):
     return header.split()[0]
 
 
-def site_config(existing, desired):
+def fallback_release(existing, current, target):
+    """A repeated deployment retains the same preceding release."""
+    if current != target:
+        return current
+    match = re.search(r'location @previous_assets\s*\{\s*root\s+([^;]+);', existing)
+    fallback = match.group(1) if match else current
+    if Path(fallback).parent != Path(current).parent:
+        raise ValueError('Unexpected previous release path')
+    return fallback
+
+
+def site_config(existing, desired, previous=None):
     """Update all owned rules, retaining unrelated includes and locations."""
     for source in (existing, desired):
         if 'listen 9010;' not in source or 'root /var/www/xuji-showcase/current;' not in source:
             raise ValueError('Unexpected dedicated site configuration')
+    if previous is not None:
+        if Path(previous).parent != Path('/var/www/xuji-showcase/releases'):
+            raise ValueError('Unexpected previous release path')
+        desired = desired.replace('/var/www/xuji-showcase/previous', previous)
     current_entries, _ = config_entries(existing)
     wanted_entries, end = config_entries(desired)
     owned = {config_key(entry) for entry in wanted_entries}

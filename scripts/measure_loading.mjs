@@ -55,6 +55,7 @@ try {
         if (route === 'anomalies') await page.locator('.case-stage').waitFor();
         if (['detection', 'playback'].includes(route))
           await page.locator('.reconstruction-view').waitFor();
+        await page.evaluate(() => document.fonts.ready);
         const readyMs = Math.round(performance.now() - started);
         const initial = await resources(page);
         const details = [];
