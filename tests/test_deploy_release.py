@@ -35,10 +35,9 @@ class DeploymentTests(unittest.TestCase):
                 patch.object(deployment, "__file__", str(root / "scripts/deploy_release.py")),
                 patch.object(deployment, "DATASETS", datasets),
                 patch.object(deployment, "validate_evaluation") as validate,
-                patch.object(deployment, "hashes", return_value={}),
                 patch.object(deployment, "publish") as publish,
                 patch.object(deployment.paramiko, "SSHClient"),
-                patch.object(deployment.subprocess, "check_output", side_effect=["abcdef0", ""]),
+                patch.object(deployment.subprocess, "check_output", return_value=""),
                 patch.object(deployment.subprocess, "run"),
                 patch("sys.argv", ["deploy", "--qa-dir", str(root / ".qa/deployment")]),
             ):

@@ -11,9 +11,9 @@ from recovery_archive import (
     GitObjects,
     extract_bundle,
     git,
-    index_entries,
     read_content,
     read_records,
+    repository_state,
     safe_path,
     sha256,
     validate_workspace,
@@ -22,10 +22,12 @@ from recovery_archive import (
 
 def restore_refs(package, records, bundle, destination):
     refs = git(destination, "bundle", "list-heads", str(bundle)).decode()
+    updates = []
     for line in refs.splitlines():
         oid, ref = line.split(" ", 1)
         if ref.startswith(("refs/heads/", "refs/tags/")) or ref == "refs/stash":
-            git(destination, "update-ref", ref, oid)
+            updates.append(f"update {ref} {oid}\n")
+    git(destination, "update-ref", "--stdin", input="".join(updates).encode())
     git(destination, "remote", "remove", "origin")
     if "repository.json" in records:
         metadata = json.loads(package.read("repository.json"))
@@ -33,11 +35,9 @@ def restore_refs(package, records, bundle, destination):
             git(destination, "switch", "--force", metadata["branch"])
         else:
             git(destination, "switch", "--detach", "--force", metadata["head"])
-        if git(destination, "rev-parse", "HEAD").decode().strip() != metadata["head"]:
-            raise ValueError("Restored Git HEAD differs from the backup")
-        for ref, expected in metadata.get("refs", {}).items():
-            if git(destination, "rev-parse", ref).decode().strip() != expected:
-                raise ValueError(f"Restored Git ref differs: {ref}")
+        actual = repository_state(destination)
+        if any(actual[key] != value for key, value in metadata.items()):
+            raise ValueError("Restored Git state differs from the backup")
 
 
 def restore_v2(package, destination):
@@ -83,7 +83,6 @@ def restore_v2(package, destination):
     for name in workspace["deleted"]:
         if safe_path(destination, name).exists():
             raise ValueError(f"Restored workspace deletion mismatch: {name}")
-    return set(workspace["intentToAdd"])
 
 
 def restore_legacy(package, records, destination):
@@ -99,30 +98,6 @@ def restore_legacy(package, records, destination):
         actual = sha256(file) if file.exists() else None
         if actual != expected:
             raise ValueError(f"Restored workspace mismatch: {name}")
-    return set()
-
-
-def refresh_clean_files(destination, intent):
-    # A raw CRLF snapshot can be unchanged under Git's normalization rules.
-    # Refresh these entries only, preserving genuine staged and unstaged edits.
-    changed = git(destination, "diff-files", "--name-only", "-z").decode("utf8").split("\0")
-    names = [
-        name for name in changed if name and name not in intent and (destination / name).is_file()
-    ]
-    if not names:
-        return
-    index = index_entries(destination)
-    paths = "".join(json.dumps(name, ensure_ascii=False) + "\n" for name in names).encode("utf8")
-    hashes = git(destination, "hash-object", "--stdin-paths", input=paths).decode().splitlines()
-    clean = [name for name, oid in zip(names, hashes, strict=True) if index[name]["oid"] == oid]
-    if clean:
-        git(
-            destination,
-            "add",
-            "--pathspec-from-file=-",
-            "--pathspec-file-nul",
-            input="".join(name + "\0" for name in clean).encode("utf8"),
-        )
 
 
 def restore(archive, destination):
@@ -140,12 +115,12 @@ def restore(archive, destination):
             extract_bundle(package, bundle)
             git(temporary, "clone", "--quiet", str(bundle), str(candidate))
             restore_refs(package, records, bundle, candidate)
-            intent = (
+            if "workspace.json" in records:
                 restore_v2(package, candidate)
-                if "workspace.json" in records
-                else restore_legacy(package, records, candidate)
-            )
-            refresh_clean_files(candidate, intent)
+            else:
+                restore_legacy(package, records, candidate)
+            # Let Git refresh normalized file metadata without staging workspace changes.
+            git(candidate, "status", "--porcelain", "--untracked-files=no")
             if destination.exists():
                 raise FileExistsError(
                     f"Restore destination was created during recovery: {destination}"

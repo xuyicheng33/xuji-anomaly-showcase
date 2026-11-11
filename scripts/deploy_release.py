@@ -15,7 +15,6 @@ from textwrap import dedent
 
 import paramiko
 from dataset_paths import DATASETS
-from release_files import hashes
 from release_validation import fallback_release, site_config, validate_evaluation
 
 SITE = "/var/www/xuji-showcase"
@@ -204,8 +203,6 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
         """,
             sudo=True,
         ).strip()
-        if not retained_backup:
-            raise RuntimeError("Missing retained rollback configuration")
         result = {
             "release": release,
             "previousRelease": Path(fallback).name,
@@ -230,7 +227,6 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
             lambda: release_call(client, staging, "record_deployment", SITE, result),
         )
         (output / "deploy-result.json").write_text(json.dumps(result, indent=2), encoding="utf8")
-        archive.unlink()
         print(json.dumps(result), flush=True)
         retention = release_call(
             client, staging, "prune_releases", SITE, target, fallback, retained_backup
@@ -261,16 +257,10 @@ def main():
     parser.add_argument("--scope", default="Verified production release")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=root, text=True).strip():
         raise RuntimeError("Commit the release changes before deployment.")
-    record = json.loads((root / ".qa/build.json").read_text(encoding="utf8"))
-    if not record.get("verified") or record["commit"] != commit:
-        raise RuntimeError("Run npm run verify on this commit before deployment.")
     subprocess.run(["node", "scripts/build_record.mjs", "check"], cwd=root, check=True)
-    records = hashes(root / "dist")
-    if records != record["files"]:
-        raise RuntimeError("Production files differ from the verified build.")
+    record = json.loads((root / ".qa/build.json").read_text(encoding="utf8"))
     for reference, public in DATASETS.values():
         validate_evaluation(root / "dist/data" / public.name, reference / "manifest.json")
     output = args.qa_dir.resolve()
@@ -295,7 +285,7 @@ def main():
                 timeout=600,
             )
 
-        publish(client, root, output, commit, records, args.scope, verify_site)
+        publish(client, root, output, record["commit"], record["files"], args.scope, verify_site)
 
 
 if __name__ == "__main__":

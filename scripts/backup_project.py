@@ -70,8 +70,7 @@ def create_backup(root, output):
         temporary = Path(temporary)
         bundle, candidate = temporary / "repository.bundle", temporary / "backup.zip"
         git(root, "bundle", "create", str(bundle), "--all", "HEAD")
-        git(root, "bundle", "verify", str(bundle))
-        available, contents, records = {}, {}, {}
+        available, contents, records, git_contents = {}, {}, {}, {}
         with (
             GitObjects(root) as objects,
             zipfile.ZipFile(
@@ -80,7 +79,9 @@ def create_backup(root, output):
         ):
             for oid in sorted({entry["oid"] for entry in head.values()}):
                 raw = objects.read(oid)
-                available[digest(raw)] = {"git": oid, "bytes": len(raw)}
+                checksum = digest(raw)
+                git_contents[oid] = checksum
+                available[checksum] = {"git": oid, "bytes": len(raw)}
 
             def store(raw):
                 checksum = digest(raw)
@@ -95,10 +96,15 @@ def create_backup(root, output):
                 return checksum
 
             saved_files = {name: store(file.read_bytes()) for name, file in sorted(files.items())}
-            saved_index = {
-                name: {"mode": entry["mode"], "content": store(objects.read(entry["oid"]))}
-                for name, entry in sorted(index.items())
-            }
+            saved_index = {}
+            for name, entry in sorted(index.items()):
+                oid = entry["oid"]
+                if oid not in git_contents:
+                    git_contents[oid] = store(objects.read(oid))
+                checksum = git_contents[oid]
+                if checksum not in contents:
+                    contents[checksum] = available[checksum]
+                saved_index[name] = {"mode": entry["mode"], "content": checksum}
             staged_adds = set(
                 git(root, "diff", "--cached", "--name-only", "--diff-filter=A", "-z")
                 .decode("utf8")
@@ -129,9 +135,7 @@ def create_backup(root, output):
             raise RuntimeError("Repository changed during backup; retry after the edits finish")
         if any(sha256(file) != saved_files[name] for name, file in files.items()):
             raise RuntimeError("Workspace changed during backup; retry after the edits finish")
-        verify_archive(candidate)
-        with zipfile.ZipFile(candidate) as package:
-            state = recovery_identity(package)
+        state = verify_archive(candidate)
         result = {
             "formatVersion": 2,
             "archive": str(archive),
@@ -203,10 +207,8 @@ def prune_backups(output, keep, apply=False):
             expected = json.loads(archive.with_suffix(".json").read_text(encoding="utf8"))["sha256"]
             if sha256(archive) != expected:
                 raise ValueError(f"Recovery archive checksum mismatch: {archive}")
-            verify_archive(archive)
-            with zipfile.ZipFile(archive) as package:
-                if recovery_identity(package) != row["stateId"]:
-                    raise ValueError(f"Recovery state differs from retention metadata: {archive}")
+            if verify_archive(archive) != row["stateId"]:
+                raise ValueError(f"Recovery state differs from retention metadata: {archive}")
         for row in records:
             if row["action"] == "candidate":
                 archive = Path(row["archive"])

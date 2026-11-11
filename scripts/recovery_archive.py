@@ -177,10 +177,11 @@ def validate_workspace(workspace):
 
 
 def verify_archive(archive):
+    """Read back the archive and return the verified recovery identity."""
     with zipfile.ZipFile(archive) as package:
         records = read_records(package)
         if "workspace.json" not in records:
-            return
+            return recovery_identity(package)
         workspace = json.loads(package.read("workspace.json"))
         validate_workspace(workspace)
         with tempfile.TemporaryDirectory(prefix="xuji-backup-verify-") as temporary:
@@ -191,6 +192,7 @@ def verify_archive(archive):
             with GitObjects(repository) as objects:
                 for expected, content in workspace["contents"].items():
                     read_content(package, objects, content, expected)
+        return recovery_identity(package)
 
 
 def recovery_identity(package):
