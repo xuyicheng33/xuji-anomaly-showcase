@@ -1,6 +1,5 @@
-import { loadBinary } from './assetRequests';
+import { loadJsonAsset } from './assetRequests';
 import type { Asset, Journey, WindowChunk } from './journeyTypes';
-import { validChunks } from './journeyValidation';
 import { coveringWindows } from './dataGeometry';
 import { loadAsset } from './journey';
 
@@ -10,31 +9,6 @@ export type CalculationIndex = {
   features: number;
   models: Record<string, { chunks: (WindowChunk & Asset)[] }>;
 };
-
-export function validateCalculation(catalog: CalculationIndex, data: Journey) {
-  if (
-    !catalog ||
-    catalog.resultVersion !== data.resultVersion ||
-    catalog.window !== data.window ||
-    catalog.features !== data.features.length ||
-    !catalog.models ||
-    Object.keys(catalog.models).length !== data.models.length ||
-    data.models.some((model) => {
-      const pack = catalog.models[model.id];
-      return (
-        !pack ||
-        !validChunks(pack.chunks, data.times.length, data.window * 8) ||
-        pack.chunks.some(
-          (chunk) =>
-            chunk.shape.length !== 2 ||
-            chunk.shape[0] !== chunk.count ||
-            chunk.shape[1] !== data.window,
-        )
-      );
-    })
-  )
-    throw Error('计算索引版本不一致');
-}
 
 export async function loadPointScores(
   catalog: CalculationIndex,
@@ -52,9 +26,5 @@ export async function loadPointScores(
   return starts.map((start, slot) => ({ start, score: scores[offset + slot] }));
 }
 
-export async function loadCalculationIndex(data: Journey) {
-  const raw = await loadBinary(data.calculation);
-  const catalog: CalculationIndex = JSON.parse(new TextDecoder().decode(raw));
-  validateCalculation(catalog, data);
-  return catalog;
-}
+export const loadCalculationIndex = (data: Journey) =>
+  loadJsonAsset<CalculationIndex>(data.calculation);

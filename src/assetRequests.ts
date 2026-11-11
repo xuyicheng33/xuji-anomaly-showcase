@@ -92,6 +92,11 @@ export function loadBinary(asset: BinaryAsset, cache?: RequestInit['cache']) {
   });
 }
 
+/** Versioned JSON is accepted only when its bytes match the published manifest. */
+export async function loadJsonAsset<T>(asset: BinaryAsset): Promise<T> {
+  return JSON.parse(new TextDecoder().decode(await loadBinary(asset)));
+}
+
 const jsonCache = new RequestCache<{ value: unknown; bytes: number }>(2 * 1024 * 1024);
 export async function loadJson<T>(file: string, validate: (value: T) => void = () => {}) {
   const saved = await jsonCache.get(

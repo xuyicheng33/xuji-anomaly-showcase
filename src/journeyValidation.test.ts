@@ -1,14 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import type { Journey } from './journeyTypes';
-import { validateJourney } from './journeyValidation';
-import { validateCases, type CaseCatalog } from './anomalyCases';
-import {
-  loadCalculationIndex,
-  loadPointScores,
-  validateCalculation,
-  type CalculationIndex,
-} from './calculationIndex';
+import { validChunks, validateJourney } from './journeyValidation';
+import { countMetrics, pointAdjusted } from './journeyNumerics';
+import { loadCases, type CaseCatalog } from './anomalyCases';
+import { loadCalculationIndex, loadPointScores, type CalculationIndex } from './calculationIndex';
 
 for (const [id, folder] of [
   ['converter', 'journey'],
@@ -20,55 +16,87 @@ for (const [id, folder] of [
   describe(`${id} manifest contract`, () => {
     it('accepts the shipped source geometry and calculation index', () => {
       expect(() => validateJourney(data, id)).not.toThrow();
-      expect(() => validateCalculation(catalog, data)).not.toThrow();
+      expect(catalog).toMatchObject({
+        resultVersion: data.resultVersion,
+        window: data.window,
+        features: data.features.length,
+      });
+      expect(Object.keys(catalog.models).sort()).toEqual(data.models.map((m) => m.id).sort());
+      for (const pack of Object.values(catalog.models)) {
+        expect(validChunks(pack.chunks, data.times.length, data.window * 8)).toBe(true);
+        for (const chunk of pack.chunks) expect(chunk.shape).toEqual([chunk.count, data.window]);
+      }
     });
 
-    it.each([
-      'labels',
-      'counts',
-      'ratios',
-      'run',
-      'summary',
-      'examples',
-      'history',
-      'missingShape',
-    ])('rejects invalid %s without accepting plausible geometry', (field) => {
-      const changed = structuredClone(data);
-      if (field === 'labels') changed.labels.fill(2);
-      if (field === 'counts') changed.models[0].metrics.point_wise.tp = -1;
-      if (field === 'ratios') changed.models[0].metrics.point_wise.f1 = 42;
-      if (field === 'run') changed.models[0].run += '-other';
-      if (field === 'summary') changed.summary.anomalousRows++;
-      if (field === 'examples') changed.models[0].examples[0].index = -1;
-      if (field === 'history')
-        changed.models[0].history[1].epoch = changed.models[0].history[0].epoch;
-      if (field === 'missingShape') Reflect.deleteProperty(changed.input, 'shape');
-      expect(() => validateJourney(changed, id)).toThrow('资料版本不匹配');
+    it.each(['labels', 'run', 'missingShape'])(
+      'rejects invalid %s at the data boundary',
+      (field) => {
+        const changed = structuredClone(data);
+        if (field === 'labels') changed.labels.fill(2);
+        if (field === 'run') changed.models[0].run += '-other';
+        if (field === 'missingShape') Reflect.deleteProperty(changed.input, 'shape');
+        expect(() => validateJourney(changed, id)).toThrow('资料版本不匹配');
+      },
+    );
+
+    it('verifies published metrics, history and summary before release', () => {
+      for (const model of data.models) {
+        expect(model.metrics.point_wise).toEqual(
+          countMetrics(data.labels, model.scores, model.threshold),
+        );
+        expect(model.metrics.point_adjusted).toEqual(
+          countMetrics(
+            data.labels,
+            pointAdjusted(data.labels, model.scores, model.threshold).map(Number),
+            0.5,
+          ),
+        );
+        for (const [i, row] of model.history.entries()) {
+          expect(row.epoch).toBeGreaterThan(i ? model.history[i - 1].epoch : 0);
+          for (const value of [row.loss, row.lr]) {
+            expect(Number.isFinite(value)).toBe(true);
+            expect(value).toBeGreaterThanOrEqual(0);
+          }
+        }
+      }
+      const s = data.summary;
+      expect(s.rawRows - s.emptyRows).toBe(s.cleanRows);
+      expect(s.rawFeatures - s.emptyFeatures).toBe(data.features.length);
+      expect(s.features).toBe(data.features.length);
+      expect(s.trainRows).toBe(data.datasets.train.shape[0]);
+      expect(s.testRows).toBe(data.times.length);
+      expect(s.anomalousRows).toBe(data.labels.reduce((sum, value) => sum + value, 0));
+      expect(s.trainRows + s.testRows + s.omittedTimes.length).toBe(s.cleanRows);
+      expect(s.emptyFeatures).toBe(data.removedFeatures.length);
+      expect([s.testStart, s.testEnd]).toEqual([data.times[0], data.times.at(-1)]);
     });
 
-    it('rejects internally consistent counts that disagree with the labels and scores', () => {
-      const changed = structuredClone(data);
-      const metrics = changed.models[0].metrics.point_wise;
-      metrics.tp++;
-      metrics.fn--;
-      metrics.precision = metrics.tp / (metrics.tp + metrics.fp);
-      metrics.recall = metrics.tp / (metrics.tp + metrics.fn);
-      metrics.f1 = (2 * metrics.tp) / (2 * metrics.tp + metrics.fp + metrics.fn);
-      expect(() => validateJourney(changed, id)).toThrow('资料版本不匹配');
-    });
-
-    it('validates case geometry and rejects missing cases, models and invalid metrics', () => {
+    it('verifies published case coverage and geometry before release', () => {
       const cases: CaseCatalog = JSON.parse(
         readFileSync(`public/data/${folder}/${data.cases.file}`, 'utf8'),
       );
-      expect(() => validateCases(cases, data)).not.toThrow();
-      for (const field of ['case', 'model', 'metrics', 'bounds']) {
-        const changed = structuredClone(cases);
-        if (field === 'case') changed.cases.pop();
-        if (field === 'model') changed.cases[0].models.pop();
-        if (field === 'metrics') changed.cases[0].models[0].metrics.precision = -1;
-        if (field === 'bounds') changed.cases[0].feature = data.features.length;
-        expect(() => validateCases(changed, data)).toThrow('案例资料版本不匹配');
+      expect(cases.cases.map((c) => `${c.insertion}/${c.kind}`).sort()).toEqual(
+        ['replace', 'blend']
+          .flatMap((mode) =>
+            ['reference', 'uniform', 'peak', 'length'].map((kind) => `${mode}/${kind}`),
+          )
+          .sort(),
+      );
+      for (const c of cases.cases) {
+        expect(c.times).toEqual(data.times.slice(c.start, c.start + data.window));
+        expect(c.features).toContain(c.feature);
+        expect(c.models.map((m) => m.id)).toEqual(data.models.map((m) => m.id));
+        for (const asset of [
+          c.original,
+          c.material,
+          c.candidate,
+          c.weights,
+          c.input,
+          c.labels,
+          ...c.models.map((m) => m.recon),
+        ]) {
+          expect(asset.shape).toEqual([data.window, data.features.length]);
+        }
       }
     });
 
@@ -86,19 +114,13 @@ for (const [id, folder] of [
       },
     );
 
-    it('rejects absent windows, missing row integrity, and a missing calculation model', () => {
+    it('rejects absent windows and missing row integrity', () => {
       const changed = structuredClone(data);
       changed.models[0].windows.chunks.pop();
       expect(() => validateJourney(changed, id)).toThrow();
       const badHashes = structuredClone(data);
       badHashes.models[0].windows.chunks[0].integrity.bytes -= 32;
       expect(() => validateJourney(badHashes, id)).toThrow();
-      const missing = structuredClone(catalog);
-      delete missing.models[data.models[0].id];
-      expect(() => validateCalculation(missing, data)).toThrow('计算索引版本不一致');
-      const gap = structuredClone(catalog);
-      gap.models[data.models[0].id].chunks[1].start++;
-      expect(() => validateCalculation(gap, data)).toThrow('计算索引版本不一致');
     });
 
     it('loads exact first, boundary, interior and last scores and reuses adjacent chunks', async () => {
@@ -142,6 +164,24 @@ for (const [id, folder] of [
         await expect(loadCalculationIndex(data)).rejects.toThrow(/数据文件/);
         expect(await loadCalculationIndex(data)).toEqual(catalog);
         expect(fetch).toHaveBeenCalledTimes(2);
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it('rejects altered case results by content hash and retries the published catalog', async () => {
+      const raw = readFileSync(`public/data/${folder}/${data.cases.file}`);
+      const changed: CaseCatalog = JSON.parse(raw.toString());
+      changed.cases[0].models[0].metrics.precision = -1;
+      const fetch = vi
+        .fn()
+        .mockResolvedValueOnce(Response.json(changed))
+        .mockResolvedValueOnce(new Response(raw));
+      vi.stubGlobal('fetch', fetch);
+      try {
+        await expect(loadCases(data)).rejects.toThrow(/数据文件/);
+        expect(await loadCases(data)).toEqual(JSON.parse(raw.toString()));
+        expect(fetch.mock.calls[1][1].cache).toBe('reload');
       } finally {
         vi.unstubAllGlobals();
       }
