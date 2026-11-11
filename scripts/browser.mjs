@@ -27,7 +27,9 @@ export function browserOptions() {
 }
 
 export async function launchBrowser() {
-  const browser = await chromium.launch(browserOptions());
+  const browser = process.env.SHOWCASE_BROWSER_WS
+    ? await chromium.connect(process.env.SHOWCASE_BROWSER_WS)
+    : await chromium.launch(browserOptions());
   const newPage = browser.newPage.bind(browser);
   browser.newPage = async (...args) => {
     const page = await newPage(...args);

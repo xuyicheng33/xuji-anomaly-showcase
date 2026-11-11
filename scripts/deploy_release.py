@@ -15,7 +15,7 @@ import paramiko
 
 from dataset_paths import DATASETS
 from release_files import hashes
-from release_validation import validate_evaluation, window_location_config
+from release_validation import validate_evaluation, site_config
 
 SITE = '/var/www/xuji-showcase'
 CONFIG = '/etc/nginx/conf.d/xuji-showcase-9010.conf'
@@ -99,13 +99,10 @@ def publish(client, root, output, commit, records, scope, verify=None):
     try:
         existing = remote_python(client, f'from pathlib import Path; print(Path({CONFIG!r}).read_text(), end="")')
         config = (root / 'deploy/nginx-9010.conf').read_text(encoding='utf8')
-        updated = existing
+        updated = site_config(existing, config)
         probes = []
         for _, public in DATASETS.values():
             name = public.name
-            begin = config.index('    location ^~ /data/' + name + '/windows-v1/ {')
-            end = config.index('\n    }', begin) + len('\n    }')
-            updated = window_location_config(updated, config[begin:end])
             manifest = json.loads((root / 'dist/data' / name / 'manifest.json').read_text(encoding='utf8'))
             probes.append('data/' + name + '/' + manifest['models'][0]['windows']['chunks'][0]['file'])
         with client.open_sftp() as sftp:

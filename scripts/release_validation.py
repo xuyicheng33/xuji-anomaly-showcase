@@ -4,22 +4,72 @@ import re
 from pathlib import Path
 
 
-def window_location_config(existing, location):
-    """Replace the dedicated window rule, keeping every unrelated site directive."""
-    if 'listen 9010;' not in existing or 'root /var/www/xuji-showcase/current;' not in existing:
-        raise ValueError('Unexpected dedicated site configuration')
-    lines = existing.splitlines(keepends=True)
-    header = location.strip().splitlines()[0].strip()
-    if not re.fullmatch(r'location \^~ /data/(journey|wind)/windows-v1/ \{', header):
-        raise ValueError('Unexpected window location')
-    begin = next((i for i, line in enumerate(lines) if line.strip() == header), None)
-    if begin is not None:
-        end = next(i for i in range(begin + 1, len(lines)) if lines[i].strip() == '}')
-        lines[begin:end + 1] = [location + '\n']
-    else:
-        begin = next(i for i, line in enumerate(lines) if line.strip().startswith('location ~ ^/data/'))
-        lines.insert(begin, location + '\n')
-    return ''.join(lines)
+def config_entries(source):
+    """Read top-level directives of this project's single server block."""
+    match = re.search(r'^\s*server\s*\{', source, re.MULTILINE)
+    if not match:
+        raise ValueError('Missing dedicated server block')
+    begin = match.end()
+    entries = []
+    depth, quote, comment, escaped = 0, None, False, False
+    for position in range(begin, len(source)):
+        char = source[position]
+        if comment:
+            if char == '\n':
+                comment = False
+            continue
+        if escaped:
+            escaped = False
+            continue
+        if char == '\\':
+            escaped = True
+            continue
+        if quote:
+            if char == quote:
+                quote = None
+            continue
+        if char in ('"', "'"):
+            quote = char
+        elif char == '#':
+            comment = True
+        elif char == '{':
+            depth += 1
+        elif char == '}':
+            if depth == 0:
+                if source[position + 1:].strip():
+                    raise ValueError('Unexpected content outside the dedicated server')
+                return entries, position
+            depth -= 1
+            if depth == 0:
+                entries.append(source[begin:position + 1])
+                begin = position + 1
+        elif char == ';' and depth == 0:
+            entries.append(source[begin:position + 1])
+            begin = position + 1
+    raise ValueError('Unclosed dedicated server block')
+
+
+def config_key(entry):
+    header = re.sub(r'(?m)^\s*#.*$', '', entry).strip()
+    if header.startswith('location '):
+        return ' '.join(header.split('{', 1)[0].split())
+    if header.startswith('include '):
+        return ' '.join(header.split(';', 1)[0].split())
+    return header.split()[0]
+
+
+def site_config(existing, desired):
+    """Update all owned rules, retaining unrelated includes and locations."""
+    for source in (existing, desired):
+        if 'listen 9010;' not in source or 'root /var/www/xuji-showcase/current;' not in source:
+            raise ValueError('Unexpected dedicated site configuration')
+    current_entries, _ = config_entries(existing)
+    wanted_entries, end = config_entries(desired)
+    owned = {config_key(entry) for entry in wanted_entries}
+    extra = [entry for entry in current_entries if config_key(entry) not in owned]
+    if not extra:
+        return desired
+    return desired[:end].rstrip() + ''.join(extra) + '\n' + desired[end:]
 
 
 def validate_evaluation(folder, reference):

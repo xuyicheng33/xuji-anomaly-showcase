@@ -1,7 +1,6 @@
 """Deterministic retrospective evaluation for the frozen showcase outputs."""
 import numpy as np
 
-RESULT_VERSION = 'retrospective-v2-20261027'
 POLICY = {
     'id': 'pa-f1-exhaustive-v1', 'name': '事后回看评估',
     'objective': 'point_adjusted_f1',

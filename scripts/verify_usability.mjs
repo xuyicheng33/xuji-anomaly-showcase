@@ -127,10 +127,23 @@ try {
       await page.evaluate(() => (document.documentElement.style.zoom = '1'));
     }
     await page.evaluate(() => document.fonts.ready);
-    const chartTop = await page
-      .locator('.reconstruction-view svg')
-      .evaluate((e) => e.getBoundingClientRect().top);
-    if (width === 390) assert.ok(chartTop < 720, 'Mobile plot starts too low: ' + chartTop);
+    const plot = page.locator('.reconstruction-view svg');
+    await plot.evaluate((element) =>
+      element.scrollIntoView({ block: 'center', behavior: 'instant' }),
+    );
+    const chart = await plot.evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      return {
+        top: box.top,
+        bottom: box.bottom,
+        left: box.left,
+        right: box.right,
+        viewportHeight: innerHeight,
+        viewportWidth: innerWidth,
+      };
+    });
+    assert.ok(chart.top >= 0 && chart.bottom <= chart.viewportHeight, JSON.stringify(chart));
+    assert.ok(chart.left >= 0 && chart.right <= chart.viewportWidth, JSON.stringify(chart));
     if (width <= 768) {
       const hint = page.locator('#window-calculation-scroll-hint');
       assert.equal(await hint.isVisible(), true);
@@ -253,7 +266,7 @@ try {
     }
     checks.push({
       width,
-      chartTop,
+      chart,
       trainingRangeIndependent: true,
       mseRoundTrip: true,
       tableHint: true,

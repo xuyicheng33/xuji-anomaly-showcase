@@ -1,7 +1,6 @@
 """Verify shipped cases independently of the authoring UI and remote runtime."""
 import hashlib
 import json
-from pathlib import Path
 
 import numpy as np
 from dataset_paths import selected_paths

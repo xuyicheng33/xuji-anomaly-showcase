@@ -1,29 +1,7 @@
-"""Export eight controlled construction cases and actual retained-model outputs.
-
-Run separately for each model on the research host (CPU is sufficient). This is
-an offline demonstration package, not a recreation of the historical injection
-seed or a replacement for the published test set. Never writes research inputs,
-labels, checkpoints, or the original test metrics.
-"""
-import argparse
-import hashlib
-import json
-from pathlib import Path
-import sys
-
+"""Reproduce the frozen case inputs for local export verification only."""
 import numpy as np
 
-
-VERSION = 'anomaly-cases-v1-20261028'
 START, BEGIN, END, SEED = 107, 18, 42, 20261028
-EXPECTED = {
-    'model1': '8ced8979ad743d66dab27b88a0c969c4125b87c79980d5d6d1ba5a0b73e4f6ab',
-    'model2': '2a26778d1521bf4c6eda09d1dd0faf1a9d99d6334d06efe9df3fa3aad2c4b28e',
-}
-
-
-def sha(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def construct(clean, selected_features=None):
@@ -96,52 +74,3 @@ def construct(clean, selected_features=None):
                               features=features, source=source, original=base.copy(), candidate=candidate.copy(),
                               weights=weights.copy(), input=after, labels=labels.copy(), mask=mask.copy()))
     return cases
-
-
-def run(model_id, project, output):
-    import torch
-    project, output = Path(project).resolve(), Path(output).resolve()
-    output.mkdir(parents=True, exist_ok=True)
-    checkpoint = project / 'checkpoints/DTAAD_converter/model.ckpt'
-    assert sha(checkpoint) == EXPECTED[model_id], 'Checkpoint differs from accepted experiment'
-    clean_path = project / 'processed/converterold/converter_test.npy'
-    assert sha(clean_path) == 'c5bd71d3d4379cbf89092861fe5b4cc16a736732218ffcfb2de854ad5dfcf591'
-    clean = np.load(clean_path)
-    cases = construct(clean)
-    torch.set_num_threads(2)
-    torch.manual_seed(SEED)
-    sys.path.insert(0, str(project))
-    sys.argv = ['export-cases', '--dataset', 'converter', '--model', 'DTAAD', '--Device', 'cpu']
-    from src.models import DTAAD
-    model = DTAAD(125).double().cpu().eval()
-    model.load_state_dict(torch.load(checkpoint, map_location='cpu', weights_only=False)['model_state_dict'], strict=True)
-    if hasattr(model, 'save_attn'):
-        model.save_attn = False
-    sources = {str(p): sha(p) for p in [checkpoint, clean_path, project / 'demoNew03.py', project / 'src/models.py']}
-    records = []
-    for case in cases:
-        value = torch.from_numpy(case['input'][None])
-        masked = torch.from_numpy((case['input'] * case['mask'])[None])
-        with torch.inference_mode():
-            pred = model(value.permute(0, 2, 1), masked.permute(0, 2, 1)) if model_id == 'model1' else model(value, masked)
-        recon = pred.cpu().numpy()[0].astype('<f4')
-        assert recon.shape == (64, 125) and np.isfinite(recon).all()
-        errors = (case['input'] - recon.astype(float)) ** 2
-        assert np.all(np.abs(case['input'] - case['original'])[case['labels'] == 0] < 1e-12)
-        payload = {key: value.tolist() if isinstance(value, np.ndarray) else value for key, value in case.items()}
-        payload.update(recon=recon.tolist(), errors=errors.tolist(), scores=errors.mean(1).tolist())
-        records.append(payload)
-        print(json.dumps({'model': model_id, 'case': case['id'], 'maxScore': float(errors.mean(1).max())}), flush=True)
-    result = {'version': VERSION, 'model': model_id, 'device': 'cpu', 'seed': SEED,
-              'sources': sources, 'cases': records,
-              'policy': 'controlled offline examples; new inputs; retained weights; fixed masks; no training; original test metrics unchanged'}
-    (output / f'{model_id}.json').write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')), encoding='utf-8')
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--model-id', required=True, choices=list(EXPECTED))
-    parser.add_argument('--project', required=True)
-    parser.add_argument('--output', required=True)
-    args = parser.parse_args()
-    run(args.model_id, args.project, args.output)

@@ -1,4 +1,4 @@
-"""Validate remote exports and install an independently versioned static package."""
+"""Verify retained case outputs and publish the exact static display package."""
 import argparse
 import hashlib
 import json
@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from export_anomaly_cases import construct
+from case_construction import construct
 from dataset_paths import dataset_info
 from evaluation_policy import counts
 

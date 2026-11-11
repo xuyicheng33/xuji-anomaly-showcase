@@ -2,6 +2,8 @@ import { spawn } from 'node:child_process';
 import { setTimeout } from 'node:timers/promises';
 import path from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
+import { chromium } from 'playwright';
+import { browserOptions } from './browser.mjs';
 
 const remote = process.argv.includes('--remote');
 if (process.env.SHOWCASE_URL && !remote)
@@ -11,7 +13,7 @@ if (remote && !process.env.SHOWCASE_URL)
 const base = remote ? process.env.SHOWCASE_URL : 'http://127.0.0.1:4175/';
 const output = process.env.QA_DIR || '.qa/verification';
 const build = remote ? null : JSON.parse(await readFile('.qa/build.json', 'utf8'));
-let server;
+let server, browser;
 try {
   if (!remote) {
     server = spawn(
@@ -40,6 +42,7 @@ try {
     }
     if (!ready) throw new Error('Preview server did not become ready.');
   }
+  browser = await chromium.launchServer(browserOptions());
   for (const name of [
     'report',
     'calculation',
@@ -64,6 +67,7 @@ try {
           windowsHide: true,
           env: {
             ...process.env,
+            SHOWCASE_BROWSER_WS: browser.wsEndpoint(),
             SHOWCASE_URL: name === 'wind_ranges' ? new URL('?dataset=wind', base).href : base,
             SHOWCASE_DATASET: name === 'wind_ranges' ? 'wind' : 'converter',
             QA_DIR: path.join(output, name),
@@ -78,5 +82,6 @@ try {
   }
   if (build) await writeFile('.qa/browser.json', JSON.stringify(build) + '\n');
 } finally {
+  await browser?.close();
   server?.kill();
 }
