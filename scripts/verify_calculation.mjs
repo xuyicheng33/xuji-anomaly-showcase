@@ -1,10 +1,10 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
-import { readFile, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl } from './browser.mjs';
 const base = showcaseUrl;
-const out = process.env.QA_DIR || '.qa/calculation';
+const out = qaDirectory('calculation');
 await mkdir(out, { recursive: true });
-const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const browser = await launchBrowser();
 const errors = [],
   checks = [];

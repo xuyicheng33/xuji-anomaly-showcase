@@ -1,8 +1,9 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { launchBrowser, showcaseUrl } from './browser.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 const base = showcaseUrl;
-const folder = process.env.QA_DIR || '.qa/acceptance';
+const folder = qaDirectory('acceptance');
 await mkdir(folder, { recursive: true });
 const b = await launchBrowser();
 const errors = [],

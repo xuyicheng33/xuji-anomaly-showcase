@@ -33,7 +33,7 @@ try {
     for (let attempt = 0; attempt < 100; attempt++) {
       if (server.exitCode !== null) throw new Error('Preview server exited before startup.');
       try {
-        ready = (await fetch(base)).ok;
+        ready = (await fetch(base, { signal: AbortSignal.timeout(1000) })).ok;
       } catch {
         /* Wait for preview startup. */
       }
@@ -66,6 +66,7 @@ try {
         {
           stdio: 'inherit',
           windowsHide: true,
+          timeout: 600000,
           env: {
             ...process.env,
             SHOWCASE_BROWSER_WS: browser.wsEndpoint(),

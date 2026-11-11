@@ -1,8 +1,10 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
+import path from 'node:path';
 
 export const showcaseUrl = process.env.SHOWCASE_URL || 'http://127.0.0.1:4175/';
+export const qaDirectory = (name) => process.env.QA_DIR || path.join('.qa', 'verification', name);
 
 /** Browser checks use shipped rows; Python verification compares them to the originals. */
 export async function readInput(folder, data) {

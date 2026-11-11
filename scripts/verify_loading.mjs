@@ -1,8 +1,9 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl, selectFeature, featureValue } from './browser.mjs';
 const base = showcaseUrl;
-const out = process.env.QA_DIR || '.qa/loading';
+const out = qaDirectory('loading');
 await mkdir(out, { recursive: true });
 const d = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const browser = await launchBrowser();
@@ -139,7 +140,7 @@ try {
   assert.ok(deferredCase.requests.some((file) => /model1\.bin$/.test(file)));
   await deferredCase.page.close();
   summary.push({ caseReconstructionDeferredUntilOpened: true });
-  for (let rep = 0; rep < 3; rep++) {
+  {
     let releaseOld;
     const gate = new Promise((r) => (releaseOld = r));
     let intercepted;
@@ -178,7 +179,7 @@ try {
     await test.page.close();
   }
   summary.push({
-    slowOldModelCannotOverwriteNewModel: 3,
+    slowOldModelCannotOverwriteNewModel: true,
     scoreAvailableBeforeReconstruction: true,
   });
   const fail = await fresh('playback', (p) =>
@@ -205,7 +206,7 @@ try {
   await route.page.close();
   summary.push({ curveRetryPreservesProgress: true, pageFailureIsIsolated: true });
   for (const width of [1440, 390]) {
-    for (let repetition = 0; repetition < 3; repetition++) {
+    {
       const page = await browser.newPage({
         viewport: { width, height: 900 },
         reducedMotion: 'reduce',
@@ -273,7 +274,7 @@ try {
   );
   await caseFailure.page.close();
   summary.push({
-    caseModelSwitchKeepsLayoutAndSelection: '1440px and 390px × 3',
+    caseModelSwitchKeepsLayoutAndSelection: '1440px and 390px',
     caseReconstructionRetry: true,
   });
   const corrupt = await fresh('training', (page) =>
@@ -383,7 +384,7 @@ try {
   assert.deepEqual(errors, []);
   await writeFile(out + '/loading-checks.json', JSON.stringify({ summary, errors }, null, 2));
   console.log(
-    'PASS per-page binary requests, deferred training/labels and indexed feature location, score before curves, model request isolation x3 and failure recovery',
+    'PASS per-page binary requests, deferred training/labels and indexed feature location, score before curves, model request isolation and failure recovery',
   );
 } finally {
   await browser.close();

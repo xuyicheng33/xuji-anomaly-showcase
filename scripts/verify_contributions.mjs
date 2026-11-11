@@ -1,8 +1,9 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl, readInput } from './browser.mjs';
 
-const out = process.env.QA_DIR || '.qa/contributions';
+const out = qaDirectory('contributions');
 await mkdir(out, { recursive: true });
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const f64 = (b) => {

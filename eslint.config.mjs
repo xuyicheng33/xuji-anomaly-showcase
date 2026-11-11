@@ -6,6 +6,12 @@ import globals from 'globals';
 export default tseslint.config(
   { ignores: ['dist/**', 'node_modules/**', '.qa/**', 'public/**', 'data/**'] },
   {
+    files: ['scripts/*.mjs', 'eslint.config.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    rules: { 'no-unused-vars': ['error', { argsIgnorePattern: '^_' }] },
+  },
+  {
     files: ['src/**/*.{ts,tsx}', 'vite.config.ts'],
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },

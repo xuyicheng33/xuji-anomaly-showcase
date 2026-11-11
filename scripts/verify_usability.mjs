@@ -1,9 +1,10 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl, selectFeature } from './browser.mjs';
 
 const base = showcaseUrl;
-const out = process.env.QA_DIR || '.qa/usability';
+const out = qaDirectory('usability');
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
 const manifest = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));

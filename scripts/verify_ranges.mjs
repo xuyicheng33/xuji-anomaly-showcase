@@ -1,8 +1,9 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl } from './browser.mjs';
 
-const out = process.env.QA_DIR || '.qa/ranges';
+const out = qaDirectory('ranges');
 await mkdir(out, { recursive: true });
 const wind = process.env.SHOWCASE_DATASET === 'wind';
 const dataPath = wind ? 'wind' : 'journey';

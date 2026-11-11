@@ -1,8 +1,9 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { mkdir } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl } from './browser.mjs';
 
-const out = process.env.QA_DIR || '.qa/mobile-controls';
+const out = qaDirectory('mobile_controls');
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
 try {

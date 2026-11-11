@@ -1,3 +1,4 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
@@ -7,7 +8,7 @@ import { launchBrowser } from './browser.mjs';
 
 // Playwright routing disables the HTTP cache, so this regression needs a real server.
 const root = path.resolve('dist');
-const output = process.env.QA_DIR || '.qa/verification/http_cache';
+const output = qaDirectory('http_cache');
 const types = {
   '.html': 'text/html',
   '.js': 'application/javascript',

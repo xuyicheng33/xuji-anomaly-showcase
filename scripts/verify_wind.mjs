@@ -1,8 +1,9 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
 
-const out = process.env.QA_DIR || '.qa/wind-integration/browser';
+const out = qaDirectory('wind');
 await mkdir(out, { recursive: true });
 const data = JSON.parse(await readFile('public/data/wind/manifest.json', 'utf8'));
 const model = data.models[0];

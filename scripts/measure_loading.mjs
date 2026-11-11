@@ -1,9 +1,10 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { launchBrowser, showcaseUrl } from './browser.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 const base = showcaseUrl;
-const out = process.env.QA_DIR || '.qa/loading-times';
+const out = qaDirectory('loading-times');
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
 const result = [];

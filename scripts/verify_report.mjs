@@ -1,3 +1,4 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
@@ -12,7 +13,7 @@ const cases = JSON.parse(
 ).cases;
 const browser = await launchBrowser();
 const errors = [];
-const out = process.env.QA_DIR || '.qa/report';
+const out = qaDirectory('report');
 await mkdir(out, { recursive: true });
 async function go(page, name) {
   await page.goto(base + '#/' + name);

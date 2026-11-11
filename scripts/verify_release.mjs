@@ -1,3 +1,4 @@
+import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
@@ -5,7 +6,7 @@ import { launchBrowser, showcaseUrl } from './browser.mjs';
 
 const base = showcaseUrl;
 const build = JSON.parse(await readFile('.qa/build.json', 'utf8'));
-const output = process.env.QA_DIR || '.qa/deployment/browser';
+const output = qaDirectory('release');
 await mkdir(output, { recursive: true });
 const digest = (raw) => createHash('sha256').update(raw).digest('hex');
 async function matchesRelease(file) {
