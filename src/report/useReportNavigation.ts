@@ -1,9 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { dataset } from '../datasets';
 import { chapters, route } from './navigation';
 import { getNoteOrigin, pausePresentation } from './notes';
 
-export function useReportNavigation(loaded: boolean) {
+export function useReportNavigation() {
   const [page, setPage] = useState(route);
   const [address, setAddress] = useState(location.hash);
   const [contentPage, setContentPage] = useState(() => (route() === 'metrics' ? null : route()));
@@ -45,6 +45,9 @@ export function useReportNavigation(loaded: boolean) {
         : chapters.find((c) => c[0] === page)?.[1] || '从数据到异常判定') +
       dataset.titleSuffix +
       '　许继电气';
+  }, [page]);
+  // Run after the visible chapter commits, including a deferred chapter's first load.
+  const reveal = useCallback(() => {
     const frame = requestAnimationFrame(() => {
       const note = new URLSearchParams(address.split('?')[1] ?? '').get('note');
       const target = page === 'metrics' && note ? document.getElementById('note-' + note) : null;
@@ -62,6 +65,6 @@ export function useReportNavigation(loaded: boolean) {
       }
     });
     return () => cancelAnimationFrame(frame);
-  }, [page, address, loaded]);
-  return { page, address, contentPage, menu, setMenu, menuButton };
+  }, [page, address]);
+  return { page, address, contentPage, menu, setMenu, menuButton, reveal };
 }

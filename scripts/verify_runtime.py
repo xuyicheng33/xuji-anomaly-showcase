@@ -23,6 +23,12 @@ def verify():
     raw = arrays[source['input']['file']]
     labels = arrays[source['labelMatrix']['file']]
     expected = {'manifest.json', 'evaluation.json'}
+    time_asset = runtime['datasets']['train']['times']
+    time_payload = (PUBLIC / time_asset['file']).read_bytes()
+    assert len(time_payload) == time_asset['bytes']
+    assert hashlib.sha256(time_payload).hexdigest() == time_asset['sha256']
+    assert json.loads(time_payload) == source['datasets']['train']['times']
+    expected.add(time_asset['file'])
     for asset in [source['input'], source['datasets']['train'], source['labelMatrix'], *(m['recon'] for m in source['models'])]:
         values = arrays[asset['file']]
         published_asset = next(a for a in [runtime['input'], runtime['datasets']['train'], runtime['labelMatrix'],
@@ -65,8 +71,21 @@ def verify():
             np.testing.assert_allclose(values.mean(1), model['scores'][chunk['start']:chunk['start'] + chunk['count']], rtol=0, atol=1e-15)
             expected.add(chunk['file'])
         np.testing.assert_array_equal(errors.argmax(1), model['focusFeatures'])
-        scores = read(PUBLIC, index['models'][model['id']])
-        expected.add(index['models'][model['id']]['file'])
+        scores = np.empty((model['windows']['count'], window), dtype='<f8')
+        next_point = 0
+        for chunk in index['models'][model['id']]['chunks']:
+            assert chunk['start'] == next_point and chunk['count'] > 0
+            values = read(PUBLIC, chunk)
+            assert values.shape == (chunk['count'], window)
+            for local, row in enumerate(values):
+                point = chunk['start'] + local
+                starts = np.arange(max(0, point - window + 1), min(point + 1, len(scores)))
+                scores[starts, point - starts] = row[:len(starts)]
+                assert np.all(row[len(starts):] == 0)
+                assert abs(row[:len(starts)].mean() - model['scores'][point]) < 1e-12
+            next_point += chunk['count']
+            expected.add(chunk['file'])
+        assert next_point == len(raw)
         for chunk in model['windows']['chunks']:
             payload = (PUBLIC / chunk['file']).read_bytes()
             assert hashlib.sha256(payload).hexdigest() == chunk['sha256']

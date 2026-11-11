@@ -7,6 +7,7 @@ import { Footnote } from './notes';
 import { useCurveData } from './useCurveData';
 import FeaturePicker from './FeaturePicker';
 import { featureName } from './featureNames';
+import { useTrainingTimes } from './useTrainingTimes';
 
 type TrainingProps = {
   data: Journey;
@@ -25,7 +26,9 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
     train = data.datasets.train;
   const trainingAsset = useCurveData(train, train.keys.indexOf(point.key)),
     training = trainingAsset.data,
-    error = trainingAsset.error;
+    timeline = useTrainingTimes(data),
+    times = timeline.data,
+    error = trainingAsset.error || timeline.error;
   const stats = useMemo(
     () => (training ? trainingScale(training, data.normalization?.epsilon) : null),
     [training, data.normalization?.epsilon],
@@ -76,9 +79,16 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
           {error ? (
             <div className="chapter-loading" role="alert">
               <p>{error}</p>
-              <button onClick={trainingAsset.retry}>重新读取</button>
+              <button
+                onClick={() => {
+                  trainingAsset.retry();
+                  timeline.retry();
+                }}
+              >
+                重新读取
+              </button>
             </div>
-          ) : training && stats ? (
+          ) : training && stats && times ? (
             <>
               <div className="chart-context">
                 <span className="training-selection-key">
@@ -86,13 +96,13 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
                   选定窗口，{data.window} 点
                 </span>
                 <span>
-                  {train.times[start]} — {train.times[start + data.window - 1]}
+                  {times[start]} — {times[start + data.window - 1]}
                 </span>
               </div>
               <Curve
                 title="归一化训练数据"
                 lines={[{ name: featureName(point), values, color: colors.input }]}
-                times={train.times.slice(contextStart, contextStart + contextLength)}
+                times={times.slice(contextStart, contextStart + contextLength)}
                 selection={{
                   start: start - contextStart,
                   end: start - contextStart + data.window - 1,

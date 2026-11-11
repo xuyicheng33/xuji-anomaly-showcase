@@ -32,19 +32,32 @@ try {
   const home = await fresh('');
   await home.page.getByRole('link', { name: '开始查看', exact: true }).waitFor();
   assert.deepEqual(home.requests, []);
+  const homeScripts = await home.page.evaluate(() =>
+    performance
+      .getEntriesByType('resource')
+      .filter((r) => /\/assets\/.*\.js$/.test(new URL(r.name).pathname))
+      .map((r) => new URL(r.name).pathname),
+  );
+  assert.ok(
+    homeScripts.every((name) => !/Chapter|Curve|calculationIndex|cleaning-data/.test(name)),
+    homeScripts.join(', '),
+  );
   await home.page.getByRole('link', { name: '开始查看', exact: true }).click();
   await home.page.locator('.removed-sensors').waitFor();
   assert.ok(home.requests.includes('manifest.json'));
   await home.page.close();
   summary.push({ homeDefersResearchManifest: true });
+  summary.push({ homeDefersChapterCode: homeScripts });
   const train = await fresh('training');
   await train.page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
   only(train.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
+  assert.ok(train.requests.includes(d.datasets.train.times.file));
   summary.push({ page: 'training', binaryFiles: actual(train.requests), bytes: 44744 });
   await train.page.close();
   const data = await fresh('data');
   await data.page.locator('.removed-sensors').waitFor();
   only(data.requests, []);
+  assert.ok(!data.requests.includes(d.datasets.train.times.file));
   await data.page.locator('.normalization-section').scrollIntoViewIfNeeded();
   await data.page.locator('.normalization-equation strong').waitFor();
   only(data.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
@@ -63,6 +76,7 @@ try {
   const det = await fresh('detection');
   await det.page.locator('.reconstruction-view').waitFor();
   only(det.requests, [`curves-v1/${d.input.sha256}/mean.bin`]);
+  assert.ok(!det.requests.includes(d.datasets.train.times.file));
   await det.page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
   await det.page.getByTestId('calculated-score').waitFor();
   const chunk = d.models[0].windows.chunks.find((c) => 107 >= c.start && 107 < c.start + c.count);
@@ -117,6 +131,14 @@ try {
     focusNeedsNoMatrix: true,
   });
   await replay.page.close();
+  const deferredCase = await fresh('anomalies');
+  await deferredCase.page.locator('.case-stage').waitFor();
+  assert.ok(!deferredCase.requests.some((file) => /model[12]\.bin$/.test(file)));
+  await deferredCase.page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+  await deferredCase.page.locator('.case-reconstruction[aria-busy=false]').waitFor();
+  assert.ok(deferredCase.requests.some((file) => /model1\.bin$/.test(file)));
+  await deferredCase.page.close();
+  summary.push({ caseReconstructionDeferredUntilOpened: true });
   for (let rep = 0; rep < 3; rep++) {
     let releaseOld;
     const gate = new Promise((r) => (releaseOld = r));
@@ -336,7 +358,7 @@ try {
     const id = manifest.models[0].id;
     if (manifest.models.length > 1) changed.models[id] = changed.models[manifest.models[1].id];
     else delete changed.models[id];
-    await page.route('**/calculation-v1/manifest.json*', (route) =>
+    await page.route('**/calculation-v2/manifest.json*', (route) =>
       route.fulfill({
         body: ++indexReads === 1 ? JSON.stringify(changed) : original,
         contentType: 'application/json',

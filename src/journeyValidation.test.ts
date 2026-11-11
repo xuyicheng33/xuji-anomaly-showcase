@@ -4,6 +4,7 @@ import type { Journey } from './journeyTypes';
 import { validateJourney } from './journeyValidation';
 import {
   loadCalculationIndex,
+  loadPointScores,
   validateCalculation,
   type CalculationIndex,
 } from './calculationIndex';
@@ -45,13 +46,43 @@ for (const [id, folder] of [
       const missing = structuredClone(catalog);
       delete missing.models[data.models[0].id];
       expect(() => validateCalculation(missing, data)).toThrow('计算索引版本不一致');
+      const gap = structuredClone(catalog);
+      gap.models[data.models[0].id].chunks[1].start++;
+      expect(() => validateCalculation(gap, data)).toThrow('计算索引版本不一致');
+    });
+
+    it('loads exact first, boundary, interior and last scores and reuses adjacent chunks', async () => {
+      const fetch = vi.fn(async (url: string) => {
+        const file = url.split(/\/data\/(?:journey|wind)\//)[1].split('?')[0];
+        return new Response(readFileSync(`public/data/${folder}/${file}`));
+      });
+      vi.stubGlobal('fetch', fetch);
+      try {
+        for (const model of data.models) {
+          for (const index of [0, 31, 32, 132, 133, data.times.length - 1]) {
+            const rows = await loadPointScores(catalog, model.id, index, data.times.length);
+            expect(rows[0].start).toBe(Math.max(0, index - data.window + 1));
+            expect(rows.at(-1)!.start).toBe(Math.min(index, model.windows.count - 1));
+            expect(rows.reduce((sum, row) => sum + row.score, 0) / rows.length).toBeCloseTo(
+              model.scores[index],
+              14,
+            );
+          }
+        }
+        expect(fetch).toHaveBeenCalledTimes(4 * data.models.length);
+        await expect(loadPointScores(catalog, 'missing', 10, data.times.length)).rejects.toThrow(
+          '没有对应的窗口分数',
+        );
+      } finally {
+        vi.unstubAllGlobals();
+      }
     });
 
     it('rejects a changed model mapping or score hash, then retries verified bytes', async () => {
       const changed = structuredClone(catalog);
       const first = data.models[0].id;
       if (data.models.length > 1) changed.models[first] = changed.models[data.models[1].id];
-      else changed.models[first].sha256 = '0'.repeat(64);
+      else changed.models[first].chunks[0].sha256 = '0'.repeat(64);
       const fetch = vi
         .fn()
         .mockResolvedValueOnce(new Response(JSON.stringify(changed)))

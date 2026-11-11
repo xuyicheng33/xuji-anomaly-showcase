@@ -56,7 +56,7 @@ export function validateJourney(d: Journey, datasetId: string) {
     !d.inputRowHashes.every(digest) ||
     !d.datasets?.train ||
     d.datasets.train.shape[0] < d.window ||
-    d.datasets.train.times.length !== d.datasets.train.shape[0] ||
+    !validAsset(d.datasets.train.times) ||
     d.datasets.train.keys.length !== d.datasets.train.shape[1] ||
     d.features.some(
       (feature, index) => feature.index !== index || !d.datasets.train.keys.includes(feature.key),

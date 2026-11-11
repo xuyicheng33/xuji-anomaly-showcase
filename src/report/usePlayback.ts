@@ -67,14 +67,18 @@ export function usePlayback(p: PlaybackProps) {
     setPlaying(false);
     setCount(n);
   };
-  const nextPoints = useMemo(() => {
-    const points: Partial<Record<OutcomeCode, number>> = {};
-    for (let i = from + count; i < from + total; i++) {
+  const nextByCount = useMemo(() => {
+    const next: Partial<Record<OutcomeCode, number>>[] = Array.from(
+      { length: total + 1 },
+      () => ({}),
+    );
+    for (let i = from + total - 1; i >= from; i--) {
       const code = outcomeCode(data.labels[i], model.scores[i], threshold);
-      points[code] ??= i;
+      next[i - from] = { ...next[i - from + 1], [code]: i };
     }
-    return points;
-  }, [data.labels, model, threshold, from, count, total]);
+    return next;
+  }, [data.labels, model, threshold, from, total]);
+  const nextPoints = nextByCount[count];
   const nextOutcome = (found: number) => {
     seek(found - from + 1);
     if (viewFeature >= 0) {

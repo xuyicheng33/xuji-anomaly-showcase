@@ -25,7 +25,7 @@ def window_integrity(reference, chunk, window, features):
     return np.frombuffer(b''.join(hashes), dtype='uint8').reshape(-1, 32)
 
 
-def runtime_manifest(source, reference=REFERENCE):
+def runtime_manifest(source, reference=REFERENCE, public=None):
     rows, features, window = geometry(source)
     result = {key: source[key] for key in (
         'schemaVersion', 'resultVersion', 'window', 'features', 'times', 'labels',
@@ -42,6 +42,13 @@ def runtime_manifest(source, reference=REFERENCE):
     result['input'] = with_curves(source['input'], True)
     result['labelMatrix'] = with_curves(source['labelMatrix'], False)
     result['datasets'] = {'train': with_curves(source['datasets']['train'], False)}
+    time_payload = (json.dumps(source['datasets']['train']['times'], separators=(',', ':')) + '\n').encode('utf8')
+    time_asset = dict(file='training-times-v1.json', bytes=len(time_payload),
+                      sha256=hashlib.sha256(time_payload).hexdigest())
+    if public is not None:
+        public.mkdir(parents=True, exist_ok=True)
+        (public / time_asset['file']).write_bytes(time_payload)
+    result['datasets']['train']['times'] = time_asset
     result['models'] = []
     result['inputChunkRows'] = INPUT_CHUNK_ROWS
     labels = np.asarray(source['labels'], dtype=bool)
@@ -58,6 +65,8 @@ def runtime_manifest(source, reference=REFERENCE):
             integrity = dict(file=f'windows-integrity-v1/{model["id"]}/{chunk["start"]}.bin',
                              shape=list(hashes.shape), bytes=hashes.nbytes,
                              sha256=hashlib.sha256(hashes.tobytes()).hexdigest())
+            if public is not None:
+                write_array(public, integrity['file'], hashes, 'uint8')
             window_chunks.append({**chunk, 'integrity': integrity})
         current['windows'] = dict(chunks=window_chunks, count=model['windows']['count'],
                                   length=window, features=features)
@@ -92,7 +101,7 @@ def runtime_manifest(source, reference=REFERENCE):
 
 def export(reference=REFERENCE, public=PUBLIC):
     source = json.loads((reference / 'manifest.json').read_text(encoding='utf-8'))
-    result = runtime_manifest(source, reference)
+    result = runtime_manifest(source, reference, public)
     public.mkdir(parents=True, exist_ok=True)
     result['cases'] = install_cases(reference / 'cases', public / 'anomaly-cases-v1', reference / 'manifest.json')
     result['calculation'] = export_calculation(reference, public)
@@ -100,9 +109,6 @@ def export(reference=REFERENCE, public=PUBLIC):
         errors = read_array(reference, original['errors'])
         for chunk in model['contributions']['chunks']:
             write_array(public, chunk['file'], errors[chunk['start']:chunk['start'] + chunk['count']])
-        for chunk in model['windows']['chunks']:
-            write_array(public, chunk['integrity']['file'],
-                        window_integrity(reference, chunk, result['window'], len(result['features'])), 'uint8')
     (public / 'manifest.json').write_text(json.dumps(result, ensure_ascii=False, separators=(',', ':')) + '\n', encoding='utf-8')
     print(f'Runtime manifest: {(public / "manifest.json").stat().st_size} bytes')
 

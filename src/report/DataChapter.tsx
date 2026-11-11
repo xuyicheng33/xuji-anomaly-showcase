@@ -11,6 +11,7 @@ import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
 import FeaturePicker from './FeaturePicker';
 import { featureName } from './featureNames';
+import { useTrainingTimes } from './useTrainingTimes';
 
 type Props = { data: Journey; feature: number; setFeature: (feature: number) => void };
 const number = (value: number, digits = 3) =>
@@ -29,6 +30,8 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
     [normalizationVisible, setNormalizationVisible] = useState(false);
   const [sample, setSample] = useState(0);
   const { train } = data.datasets;
+  const timeline = useTrainingTimes(data, normalizationVisible),
+    times = timeline.data;
   const trainAsset = useCurveData(
     normalizationVisible ? train : null,
     train.keys.indexOf(point.key),
@@ -186,7 +189,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
               name="归一化测点"
             />
           </div>
-          {norm ? (
+          {norm && times ? (
             <>
               <div className="normalization-facts">
                 <div>
@@ -199,14 +202,14 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                 </div>
                 <div>
                   <span>当前样本时间</span>
-                  <strong className="sample-time">{train.times[norm.start + sampleIndex]}</strong>
+                  <strong className="sample-time">{times[norm.start + sampleIndex]}</strong>
                 </div>
               </div>
               <div className="normalization-plots">
                 <Curve
                   title="原始单位"
                   lines={[{ name: featureName(point), values: norm.values, color: colors.input }]}
-                  times={train.times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
+                  times={times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}
                   range={chartRange(norm.values)}
                   height={205}
@@ -217,7 +220,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                   lines={[
                     { name: featureName(point), values: norm.normalized, color: colors.recon },
                   ]}
-                  times={train.times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
+                  times={times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}
                   height={205}
                   onSelect={setSample}
@@ -263,10 +266,17 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                 </span>
               </div>
             </>
-          ) : trainAsset.error ? (
+          ) : trainAsset.error || timeline.error ? (
             <div className="chapter-loading" role="alert">
-              <p>{trainAsset.error}</p>
-              <button onClick={trainAsset.retry}>重新读取训练样本</button>
+              <p>{trainAsset.error || timeline.error}</p>
+              <button
+                onClick={() => {
+                  trainAsset.retry();
+                  timeline.retry();
+                }}
+              >
+                重新读取训练样本
+              </button>
             </div>
           ) : (
             <p className="chapter-loading" role="status">

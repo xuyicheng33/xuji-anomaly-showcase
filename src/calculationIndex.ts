@@ -1,12 +1,14 @@
 import { loadBinary } from './assetRequests';
-import type { Asset, Journey } from './journeyTypes';
-import { validAsset } from './journeyValidation';
+import type { Asset, Journey, WindowChunk } from './journeyTypes';
+import { validChunks } from './journeyValidation';
+import { coveringWindows } from './dataGeometry';
+import { loadAsset } from './journey';
 
 export type CalculationIndex = {
   resultVersion: string;
   window: number;
   features: number;
-  models: Record<string, Asset>;
+  models: Record<string, { chunks: (WindowChunk & Asset)[] }>;
 };
 
 export function validateCalculation(catalog: CalculationIndex, data: Journey) {
@@ -18,17 +20,36 @@ export function validateCalculation(catalog: CalculationIndex, data: Journey) {
     !catalog.models ||
     Object.keys(catalog.models).length !== data.models.length ||
     data.models.some((model) => {
-      const asset = catalog.models[model.id];
+      const pack = catalog.models[model.id];
       return (
-        !validAsset(asset) ||
-        asset.shape.length !== 2 ||
-        asset.shape[0] !== model.windows.count ||
-        asset.shape[1] !== data.window ||
-        asset.bytes !== model.windows.count * data.window * 8
+        !pack ||
+        !validChunks(pack.chunks, data.times.length, data.window * 8) ||
+        pack.chunks.some(
+          (chunk) =>
+            chunk.shape.length !== 2 ||
+            chunk.shape[0] !== chunk.count ||
+            chunk.shape[1] !== data.window,
+        )
       );
     })
   )
     throw Error('计算索引版本不一致');
+}
+
+export async function loadPointScores(
+  catalog: CalculationIndex,
+  modelId: string,
+  index: number,
+  rows: number,
+) {
+  const starts = coveringWindows(index, rows, catalog.window);
+  const chunk = catalog.models[modelId]?.chunks.find(
+    (part) => index >= part.start && index < part.start + part.count,
+  );
+  if (!starts.length || !chunk) throw Error('没有对应的窗口分数');
+  const scores = await loadAsset(chunk);
+  const offset = (index - chunk.start) * catalog.window;
+  return starts.map((start, slot) => ({ start, score: scores[offset + slot] }));
 }
 
 export async function loadCalculationIndex(data: Journey) {

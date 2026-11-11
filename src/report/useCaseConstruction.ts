@@ -31,7 +31,7 @@ export function useCaseConstruction(data: Journey, model: Model) {
     catalog.retry();
     bundle.retry();
   };
-  const reconstruction = useDataAsset(cm?.recon ?? null);
+  const reconstruction = useDataAsset(showResult ? (cm?.recon ?? null) : null);
   useEffect(() => {
     setProgress(0);
     setPlaying(false);

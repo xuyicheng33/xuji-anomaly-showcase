@@ -1,9 +1,8 @@
-import { loadCalculationIndex } from '../calculationIndex';
+import { loadCalculationIndex, loadPointScores } from '../calculationIndex';
 import { coveringWindows } from '../dataGeometry';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { loadWindow, type Journey, type Model } from '../journey';
 import { Footnote } from './notes';
-import { useDataAsset } from './useDataAsset';
 import { useWindowInput } from './useCurveData';
 import Fraction from './Fraction';
 import { ScoreCalculation } from './ScoreCalculation';
@@ -38,7 +37,16 @@ export function PlaybackCalculation({
     detail = useRef<HTMLDivElement>(null);
   const inputAsset = useWindowInput(data, selected ?? 0, selected !== null),
     input = inputAsset.data;
-  const scoresAsset = useDataAsset(catalog.data?.models[model.id] ?? null);
+  const readScores = useCallback(
+    () => loadPointScores(catalog.data!, model.id, index!, data.times.length),
+    [catalog.data, model.id, index, data.times.length],
+  );
+  const scoresAsset = useResource(
+    open && catalog.data && index !== null
+      ? `${data.calculation.sha256}:${model.id}:${index}`
+      : null,
+    readScores,
+  );
   useEffect(() => {
     setSelected(null);
   }, [index, model.id]);
@@ -46,13 +54,7 @@ export function PlaybackCalculation({
     if (playing) setOpen(false);
   }, [playing]);
   const starts = index === null ? [] : coveringWindows(index, data.times.length, data.window);
-  const rows =
-    scoresAsset.data && index !== null
-      ? starts.map((start) => ({
-          start,
-          score: scoresAsset.data![start * data.window + index - start],
-        }))
-      : [];
+  const rows = scoresAsset.data ?? [];
   const total = rows.reduce((sum, row) => sum + row.score, 0),
     score = index === null ? null : model.scores[index];
   const ready =

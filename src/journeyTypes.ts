@@ -61,7 +61,10 @@ export type Journey = {
     outsideUnitRange: number;
   };
   normalization?: { epsilon: number; clip: boolean };
-  datasets: Record<string, CurveAsset & { keys: string[]; times: string[] }>;
+  datasets: Record<
+    string,
+    CurveAsset & { keys: string[]; times: Pick<Asset, 'file' | 'bytes' | 'sha256'> }
+  >;
   schemaVersion: number;
   resultVersion: string;
   window: number;
