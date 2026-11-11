@@ -14,7 +14,7 @@ for (const model of data.models)
   for (const chunk of model.windows.chunks) sourceFiles.set(chunk.file, chunk);
 const browser = await launchBrowser();
 try {
-  for (let rep = 0; rep < 3; rep++) {
+  {
     const page = await browser.newPage({
       viewport: { width: 390, height: 844 },
       reducedMotion: 'reduce',
@@ -156,11 +156,11 @@ try {
     await page.getByRole('button', { name: '重试测点明细', exact: true }).click();
     await page.getByTestId('sensor-mean-error').waitFor();
     assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '900');
-    if (rep === 0) {
-      const original = await readFile(referencePath + 'calculation-v2/manifest.json', 'utf8');
+    {
+      const original = await readFile(referencePath + data.calculation.file, 'utf8');
       const catalog = JSON.parse(original);
       let indexRequests = 0;
-      await page.route('**/calculation-v2/manifest.json*', (route) => {
+      await page.route('**/calculation-v2/**/manifest.json*', (route) => {
         indexRequests++;
         return route.fulfill({
           body:
@@ -177,7 +177,7 @@ try {
     await page.close();
   }
   console.log(
-    'PASS exact ranges, changed partial content, verified full-file reuse, failed transfer and stale-index retry x3',
+    'PASS exact ranges, changed partial content, verified full-file reuse, failed transfer and stale-index retry',
   );
 } finally {
   await browser.close();

@@ -1,25 +1,30 @@
 import { dataset, datasetHome } from './datasets';
-import { lazy, Suspense, useLayoutEffect, useState, type ReactNode } from 'react';
+import { lazyChapter } from './report/lazyChapter';
+import { Suspense, useLayoutEffect, useState, type ReactNode } from 'react';
 import { useReportNavigation } from './report/useReportNavigation';
 import { chapters, route } from './report/navigation';
 import { useJourney } from './report/useJourney';
 import DataFailure from './report/DataFailure';
 import { pausePresentation, rememberNoteOrigin } from './report/notes';
-const DataChapter = lazy(() => import('./report/DataChapter'));
-const AnomalyChapter = lazy(() => import('./report/AnomalyChapter'));
-const ModelsChapter = lazy(() =>
-  import('./report/ModelsChapter').then((module) => ({ default: module.ModelsChapter })),
-);
-const TrainingChapter = lazy(() =>
-  import('./report/TrainingChapter').then((module) => ({ default: module.TrainingChapter })),
-);
-const DetectionChapter = lazy(() =>
-  import('./report/DetectionChapter').then((module) => ({ default: module.DetectionChapter })),
-);
-const PlaybackChapter = lazy(() =>
-  import('./report/PlaybackChapter').then((module) => ({ default: module.PlaybackChapter })),
-);
-const ExplanationChapter = lazy(() => import('./report/ExplanationChapter'));
+const DataChapter = lazyChapter(() => import('./report/DataChapter'));
+const AnomalyChapter = lazyChapter(() => import('./report/AnomalyChapter'));
+const ModelsChapter = lazyChapter(async () => {
+  const module = await import('./report/ModelsChapter');
+  return { default: module.ModelsChapter };
+});
+const TrainingChapter = lazyChapter(async () => {
+  const module = await import('./report/TrainingChapter');
+  return { default: module.TrainingChapter };
+});
+const DetectionChapter = lazyChapter(async () => {
+  const module = await import('./report/DetectionChapter');
+  return { default: module.DetectionChapter };
+});
+const PlaybackChapter = lazyChapter(async () => {
+  const module = await import('./report/PlaybackChapter');
+  return { default: module.PlaybackChapter };
+});
+const ExplanationChapter = lazyChapter(() => import('./report/ExplanationChapter'));
 
 function ChapterReady({
   active,
@@ -149,45 +154,55 @@ export default function App() {
                 </>
               ) : error ? (
                 <DataFailure message={error} retry={retry} />
-              ) : !data || !model ? (
-                <div className="state-panel" role="status">
-                  正在读取研究资料…
-                </div>
               ) : contentPage === 'data' ? (
-                <DataChapter data={data} feature={selectedFeature} setFeature={setFeature} />
+                <DataChapter
+                  content={data ? { data, feature: selectedFeature, setFeature } : null}
+                />
               ) : contentPage === 'models' ? (
-                <ModelsChapter data={data} model={model} setModel={setModel} />
+                <ModelsChapter content={data && model ? { data, model, setModel } : null} />
               ) : contentPage === 'anomalies' ? (
-                <AnomalyChapter data={data} model={model} setModel={setModel} />
+                <AnomalyChapter content={data && model ? { data, model, setModel } : null} />
               ) : contentPage === 'training' ? (
                 <TrainingChapter
-                  data={data}
-                  model={model}
-                  setModel={setModel}
-                  feature={selectedFeature}
-                  setFeature={setFeature}
+                  content={
+                    data && model
+                      ? { data, model, setModel, feature: selectedFeature, setFeature }
+                      : null
+                  }
                 />
               ) : contentPage === 'detection' ? (
                 <DetectionChapter
-                  data={data}
-                  model={model}
-                  setModel={setModel}
-                  feature={selectedFeature}
-                  setFeature={setFeature}
-                  start={selectedStart}
-                  setStart={setStart}
-                  viewFeature={selectedView}
-                  setViewFeature={setViewFeature}
+                  content={
+                    data && model
+                      ? {
+                          data,
+                          model,
+                          setModel,
+                          feature: selectedFeature,
+                          setFeature,
+                          start: selectedStart,
+                          setStart,
+                          viewFeature: selectedView,
+                          setViewFeature,
+                        }
+                      : null
+                  }
                 />
               ) : contentPage === 'playback' ? (
                 <PlaybackChapter
-                  data={data}
-                  model={model}
-                  setModel={setModel}
-                  setFeature={setFeature}
-                  start={selectedStart}
-                  viewFeature={selectedView}
-                  setViewFeature={setViewFeature}
+                  content={
+                    data && model
+                      ? {
+                          data,
+                          model,
+                          setModel,
+                          setFeature,
+                          start: selectedStart,
+                          viewFeature: selectedView,
+                          setViewFeature,
+                        }
+                      : null
+                  }
                 />
               ) : null}
             </ChapterReady>
@@ -198,10 +213,8 @@ export default function App() {
             <ChapterReady active={!!data || !!error} reveal={reveal}>
               {error ? (
                 <DataFailure message={error} retry={retry} />
-              ) : data ? (
-                <ExplanationChapter data={data} address={address} />
               ) : (
-                <p role="status">正在读取说明资料…</p>
+                <ExplanationChapter content={data ? { data, address } : null} />
               )}
             </ChapterReady>
           </Suspense>

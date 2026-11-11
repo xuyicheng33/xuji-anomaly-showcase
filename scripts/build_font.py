@@ -45,9 +45,9 @@ def main():
             re.sub(
                 r"NotoSerifSC-Subset\.woff2\?v=[a-f0-9]+",
                 "NotoSerifSC-Subset.woff2?v=" + digest,
-                stylesheet.read_text(encoding="utf-8"),
+                stylesheet.read_text(encoding="utf8"),
             ),
-            encoding="utf-8",
+            encoding="utf8",
         )
     font = TTFont(TARGET)
     missing = sorted(c for c in chinese if ord(c) not in font.getBestCmap())

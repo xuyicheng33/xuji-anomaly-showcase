@@ -84,7 +84,9 @@ def cleanup(action, description):
         print(f"{description}: {error}", file=sys.stderr, flush=True)
 
 
-def activate(client, staging, target, previous, backup, config_digest, probes, verify=None):
+def activate(
+    client, staging, target, previous, backup, config_digest, probes, verify=None, accepted=None
+):
     configured = switched = False
     try:
         release_call(
@@ -118,6 +120,8 @@ def activate(client, staging, target, previous, backup, config_digest, probes, v
             )
         if verify is not None:
             verify()
+        if accepted is not None:
+            accepted()
     except BaseException as failure:
         try:
             if switched:
@@ -152,7 +156,8 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
     """,
         )
     )
-    changed = [name for name, digest in records.items() if old.get(name) != digest]
+    available = set(old.values())
+    changed = [name for name, digest in records.items() if digest not in available]
     archive = output / ("release-" + operation + ".tar.gz")
     with tarfile.open(archive, "w:gz") as package:
         for name in changed:
@@ -201,16 +206,6 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
         ).strip()
         if not retained_backup:
             raise RuntimeError("Missing retained rollback configuration")
-        activate(
-            client,
-            staging,
-            target,
-            previous,
-            backup,
-            hashlib.sha256(existing.encode()).hexdigest(),
-            probes,
-            verify,
-        )
         result = {
             "release": release,
             "previousRelease": Path(fallback).name,
@@ -223,7 +218,17 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
             "deployedAt": datetime.now(timezone.utc).isoformat(),
             "rollbackConfig": retained_backup,
         }
-        release_call(client, staging, "record_deployment", SITE, result)
+        activate(
+            client,
+            staging,
+            target,
+            previous,
+            backup,
+            hashlib.sha256(existing.encode()).hexdigest(),
+            probes,
+            verify,
+            lambda: release_call(client, staging, "record_deployment", SITE, result),
+        )
         (output / "deploy-result.json").write_text(json.dumps(result, indent=2), encoding="utf8")
         archive.unlink()
         print(json.dumps(result), flush=True)

@@ -177,21 +177,21 @@ try {
   }
   for (let repetition = 0; repetition < 3; repetition++) {
     const page = await browser.newPage({ viewport: { width: 390, height: 900 } });
-    await page.route('**/contributions-v1/model1/*.bin*', (r) =>
+    await page.route('**/contributions-v1/**/model1/*.bin*', (r) =>
       r.fulfill({ status: 503, body: 'failed' }),
     );
     await page.goto(showcaseUrl + '#/playback');
     await page.getByRole('slider', { name: '播放进度' }).fill('132');
     await page.getByRole('button', { name: '重试贡献数据' }).waitFor();
-    await page.unroute('**/contributions-v1/model1/*.bin*');
+    await page.unroute('**/contributions-v1/**/model1/*.bin*');
     await page.getByRole('button', { name: '重试贡献数据' }).click();
     await page.getByTestId('contribution-total').waitFor();
-    await page.route('**/windows-v1/model1/*.bin*', (r) =>
+    await page.route('**/windows-v1/**/model1/*.bin*', (r) =>
       r.fulfill({ status: 503, body: 'failed' }),
     );
     await page.locator('.contribution-row').first().click();
     await page.getByRole('button', { name: '重试测点明细' }).waitFor();
-    await page.unroute('**/windows-v1/model1/*.bin*');
+    await page.unroute('**/windows-v1/**/model1/*.bin*');
     await page.getByRole('button', { name: '重试测点明细' }).click();
     await page.getByTestId('sensor-mean-error').waitFor();
     assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '132');

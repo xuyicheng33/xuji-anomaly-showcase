@@ -8,9 +8,7 @@ const inputBuffer = await readInput('public/data/journey', data);
 const input = new Float64Array(
   inputBuffer.buffer.slice(inputBuffer.byteOffset, inputBuffer.byteOffset + inputBuffer.length),
 );
-const cases = JSON.parse(
-  await readFile('public/data/journey/anomaly-cases-v1/manifest.json', 'utf8'),
-).cases;
+const cases = JSON.parse(await readFile(`public/data/journey/${data.cases.file}`, 'utf8')).cases;
 const browser = await launchBrowser();
 const errors = [];
 const out = qaDirectory('report');
@@ -283,7 +281,10 @@ try {
   await page.close();
   const failPage = await browser.newPage();
   let fail = true;
-  await failPage.route('**/windows-v1/model1/windows-0096.bin*', (r) =>
+  const retryChunk = data.models[0].windows.chunks.find(
+    (chunk) => 107 >= chunk.start && 107 < chunk.start + chunk.count,
+  );
+  await failPage.route('**/' + retryChunk.file + '*', (r) =>
     fail ? r.fulfill({ status: 503, body: 'failed' }) : r.continue(),
   );
   await go(failPage, 'detection');

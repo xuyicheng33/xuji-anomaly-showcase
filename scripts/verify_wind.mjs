@@ -8,7 +8,7 @@ await mkdir(out, { recursive: true });
 const data = JSON.parse(await readFile('public/data/wind/manifest.json', 'utf8'));
 const model = data.models[0];
 const input = await readInput('public/data/wind', data);
-const cases = JSON.parse(await readFile('public/data/wind/anomaly-cases-v1/manifest.json', 'utf8'));
+const cases = JSON.parse(await readFile(`public/data/wind/${data.cases.file}`, 'utf8'));
 const browser = await launchBrowser();
 const base = new URL(showcaseUrl);
 base.search = '?dataset=wind';

@@ -8,8 +8,9 @@ await mkdir(folder, { recursive: true });
 const b = await launchBrowser();
 const errors = [],
   checks = [];
+const manifest = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const cases = JSON.parse(
-  await readFile('public/data/journey/anomaly-cases-v1/manifest.json', 'utf8'),
+  await readFile(`public/data/journey/${manifest.cases.file}`, 'utf8'),
 ).cases;
 const values = async (asset) => {
   const buffer = await readFile('public/data/journey/' + asset.file);

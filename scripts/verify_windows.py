@@ -12,6 +12,7 @@ from evaluation_policy import POLICY, select_threshold
 def verify():
     reference, folder = selected_paths()
     data = json.loads((reference / "manifest.json").read_text("utf8"))
+    published = json.loads((folder / "manifest.json").read_text("utf8"))
     _, features, window = geometry(data)
     raw = np.fromfile(reference / data["input"]["file"], dtype="<f8").reshape(-1, features)
     labels = np.fromfile(reference / data["labelMatrix"]["file"], dtype="<f8").reshape(-1, features)
@@ -19,6 +20,7 @@ def verify():
     assert len(data["models"]) >= 1
     assert data["evaluation"]["id"] == POLICY["id"]
     for m in data["models"]:
+        public_model = next(model for model in published["models"] if model["id"] == m["id"])
         total = np.zeros_like(raw)
         loss = np.zeros_like(raw)
         count = np.zeros(len(raw), int)
@@ -26,7 +28,14 @@ def verify():
         window_scores = []
         for chunk in m["windows"]["chunks"]:
             assert chunk["start"] == next_start
-            p = folder / chunk["file"]
+            public_chunk = next(
+                c for c in public_model["windows"]["chunks"] if c["start"] == chunk["start"]
+            )
+            assert (
+                public_chunk["count"] == chunk["count"]
+                and public_chunk["sha256"] == chunk["sha256"]
+            )
+            p = folder / public_chunk["file"]
             b = p.read_bytes()
             assert len(b) == chunk["bytes"] and hashlib.sha256(b).hexdigest() == chunk["sha256"]
             preds = np.frombuffer(b, dtype="<f4").reshape(chunk["count"], window, features)

@@ -132,7 +132,11 @@ def verify():
         for chunk in model["windows"]["chunks"]:
             payload = (PUBLIC / chunk["file"]).read_bytes()
             assert hashlib.sha256(payload).hexdigest() == chunk["sha256"]
-            assert payload == (REFERENCE / chunk["file"]).read_bytes()
+            original_chunk = next(
+                c for c in original["windows"]["chunks"] if c["start"] == chunk["start"]
+            )
+            assert chunk["count"] == original_chunk["count"]
+            assert payload == (REFERENCE / original_chunk["file"]).read_bytes()
             predictions = np.frombuffer(payload, "<f4").reshape(-1, window, features)
             hashes = read(PUBLIC, chunk["integrity"], "uint8")
             expected_hashes = [

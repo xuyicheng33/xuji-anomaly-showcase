@@ -49,6 +49,29 @@ try {
   await home.page.close();
   summary.push({ homeDefersResearchManifest: true });
   summary.push({ homeDefersChapterCode: homeScripts });
+  {
+    const page = await browser.newPage();
+    let releaseManifest;
+    const gate = new Promise((resolve) => {
+      releaseManifest = resolve;
+    });
+    await page.route('**/data/journey/manifest.json', async (route) => {
+      await gate;
+      await route.continue();
+    });
+    const chapter = page.waitForRequest((request) =>
+      /\/TrainingChapter-[^/]+\.js$/.test(new URL(request.url()).pathname),
+    );
+    await page.goto(base + '#/training', { waitUntil: 'domcontentloaded' });
+    try {
+      await chapter;
+    } finally {
+      releaseManifest();
+    }
+    await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
+    await page.close();
+    summary.push({ chapterRequestStartsBeforeManifestCompletes: true });
+  }
   const train = await fresh('training');
   await train.page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
   only(train.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
@@ -214,7 +237,7 @@ try {
       page.on('pageerror', (e) => errors.push(String(e)));
       let release;
       const gate = new Promise((resolve) => (release = resolve));
-      await page.route('**/anomaly-cases-v1/*model2.bin*', async (route) => {
+      await page.route('**/anomaly-cases-v1/**/*model2.bin*', async (route) => {
         await gate;
         await route.continue();
       });
@@ -255,7 +278,7 @@ try {
     }
   }
   const caseFailure = await fresh('anomalies', (page) =>
-    page.route('**/anomaly-cases-v1/*model1.bin*', (route) =>
+    page.route('**/anomaly-cases-v1/**/*model1.bin*', (route) =>
       route.fulfill({ status: 503, body: 'failed' }),
     ),
   );
@@ -263,7 +286,7 @@ try {
   await caseFailure.page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
   await caseFailure.page.getByRole('button', { name: '重试重建', exact: true }).waitFor();
   await caseFailure.page.locator('.case-label-cells button').nth(31).click({ force: true });
-  await caseFailure.page.unroute('**/anomaly-cases-v1/*model1.bin*');
+  await caseFailure.page.unroute('**/anomaly-cases-v1/**/*model1.bin*');
   await caseFailure.page.getByRole('button', { name: '重试重建', exact: true }).click();
   await caseFailure.page.locator('.case-reconstruction[aria-busy=false]').waitFor();
   assert.match(
@@ -293,7 +316,8 @@ try {
   summary.push({ equalLengthCurveCorruptionRejectedAndRetryable: true });
   for (const dataset of ['converter', 'wind']) {
     const folder = dataset === 'wind' ? 'wind' : 'journey';
-    const original = await readFile(`public/data/${folder}/anomaly-cases-v1/manifest.json`, 'utf8');
+    const manifest = JSON.parse(await readFile(`public/data/${folder}/manifest.json`, 'utf8'));
+    const original = await readFile(`public/data/${folder}/${manifest.cases.file}`, 'utf8');
     for (const field of ['threshold', 'scores', 'tp']) {
       const pattern = new RegExp(`("${field}":\\s*(?:\\[\\s*)?)([0-9])`);
       const changed = original.replace(
@@ -308,7 +332,7 @@ try {
       });
       page.on('pageerror', (e) => errors.push(String(e)));
       let reads = 0;
-      await page.route('**/anomaly-cases-v1/manifest.json*', (route) => {
+      await page.route('**/anomaly-cases-v1/**/manifest.json*', (route) => {
         reads++;
         return route.fulfill({
           body: reads === 1 ? changed : original,
@@ -359,7 +383,7 @@ try {
     const id = manifest.models[0].id;
     if (manifest.models.length > 1) changed.models[id] = changed.models[manifest.models[1].id];
     else delete changed.models[id];
-    await page.route('**/calculation-v2/manifest.json*', (route) =>
+    await page.route('**/calculation-v2/**/manifest.json*', (route) =>
       route.fulfill({
         body: ++indexReads === 1 ? JSON.stringify(changed) : original,
         contentType: 'application/json',

@@ -21,6 +21,24 @@ from release_files import (
 
 
 class ReleaseFileTests(unittest.TestCase):
+    def test_renamed_immutable_payload_reuses_previous_bytes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            previous, target = root / "old", root / "new"
+            previous.mkdir()
+            original = previous / "data/windows-v1/model/0.bin"
+            original.parent.mkdir(parents=True)
+            original.write_bytes(b"exact retained float32" * 1000)
+            checksum = hashlib.sha256(original.read_bytes()).hexdigest()
+            name = f"data/windows-v1/{checksum}/model/0.bin"
+            archive = root / "changes.tar.gz"
+            with tarfile.open(archive, "w:gz"):
+                pass
+            prepare_release(previous, target, archive, {name: checksum}, [])
+            self.assertEqual((target / name).read_bytes(), original.read_bytes())
+            self.assertEqual((target / name).stat().st_ino, original.stat().st_ino)
+            self.assertFalse((target / (name + ".gz")).exists())
+
     def test_repeat_deployment_keeps_predecessor_config_not_active_config(self):
         with tempfile.TemporaryDirectory() as temporary:
             site = Path(temporary)

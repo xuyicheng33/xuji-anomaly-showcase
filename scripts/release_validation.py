@@ -55,7 +55,8 @@ def config_entries(source):
 def config_key(entry):
     header = re.sub(r"(?m)^\s*#.*$", "", entry).strip()
     if header.startswith("location "):
-        return " ".join(header.split("{", 1)[0].split())
+        location = re.match(r"""location\s+(?:"[^"]*"|'[^']*'|[^{'"])*""", header)
+        return " ".join(location.group(0).split())
     if header.startswith("include "):
         return " ".join(header.split(";", 1)[0].split())
     return header.split()[0]

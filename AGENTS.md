@@ -3,7 +3,7 @@
 - 实验服务器 `183.147.142.40:30060` 为外部研究环境，仅允许只读检查；禁止上传、写入、删除、清理、安装、训练或启动会修改文件的程序。项目维护和部署不得改动该服务器。
 - 本项目只展示保留的真实实验结果。保持输入、重建、标签、训练记录、阈值和评分精度；模型研究与重新训练不属于界面维护范围。
 - 原始材料保留在 `materials/`、`data/source/`、`data/models/`；复核数据在 `data/reference/`，网站只发布 `public/` 中实际使用的资源。历史过程查 Git，不新增累计交接文档。
-- 窗口原件在 `data/reference/windows-v1/`，导出从复核目录读取并发布副本；测点数、窗口长度来自清单，显示长度和存储分块独立配置。新增贡献数据须逐项对照原始平方误差，不改实验口径。
+- 窗口原件在 `data/reference/windows-v1/`，导出从复核目录读取，在临时目录验证后整体替换公开资源；公开文件按内容哈希路径发布，读取路径以清单为准。测点数、窗口长度来自清单，显示长度和存储分块独立配置。新增贡献数据须逐项对照原始平方误差，不改实验口径。
 - 样式由 `src/report/styles.css` 导入，按基础、共用组件、页面职责组织。修改对应规则和断点，不追加 overrides、patch、refinements 等补丁层。
 - 日常检查 `npm run check`（前端、维护脚本格式和静态检查）；交付前运行 `npm run verify`。数据变更需验证来源、全部窗口及派生载荷；界面整理需检查桌面和手机实际画面。npm 中的 Python 入口优先使用项目 `.venv`，CI 使用已配置的 Python。
 - 维护环境固定为 `.node-version` 和 `.python-version`；使用 `npm ci`，并在 `.venv` 中执行 `python -m pip install -r requirements.txt`（PowerShell 激活：`.venv/Scripts/Activate.ps1`）。`npm run verify:ci` 检查代码及公开资源的浏览器流程，完整来源、全部窗口和派生数据仍由本地 `npm run verify` 验证。`minimatch` 暂时覆盖为已修复版本；上游依赖覆盖修复版本后再移除该覆盖。

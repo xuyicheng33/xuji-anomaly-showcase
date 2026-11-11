@@ -47,6 +47,10 @@ def prepare_release(previous, target, archive, expected, changed):
         raise ValueError("Release target must be in the current release directory")
     if target.exists():
         return prepare_existing(target, expected)
+    previous_files = hashes(previous)
+    by_digest = {}
+    for name, checksum in previous_files.items():
+        by_digest.setdefault(checksum, name)
     # Only expose the final directory after every raw and compressed byte is verified.
     with tempfile.TemporaryDirectory(prefix=f".{target.name}-", dir=target.parent) as temporary:
         candidate = Path(temporary) / "release"
@@ -69,8 +73,11 @@ def prepare_release(previous, target, archive, expected, changed):
                     shutil.copyfileobj(source, destination)
         for name, digest in expected.items():
             file = release_path(candidate, name)
+            inherited_name = name if previous_files.get(name) == digest else by_digest.get(digest)
             if name not in changed:
-                link_or_copy(release_path(previous, name), file)
+                if inherited_name is None:
+                    raise ValueError(f"No retained bytes available for release: {name}")
+                link_or_copy(release_path(previous, inherited_name), file)
             raw = file.read_bytes()
             if hashlib.sha256(raw).hexdigest() != digest:
                 raise ValueError(f"Release checksum differs: {name}")
@@ -87,7 +94,7 @@ def prepare_release(previous, target, archive, expected, changed):
             }:
                 continue
             zipped = file.with_name(file.name + ".gz")
-            inherited = release_path(previous, name + ".gz")
+            inherited = release_path(previous, (inherited_name or name) + ".gz")
             if (
                 name not in changed
                 and inherited.exists()

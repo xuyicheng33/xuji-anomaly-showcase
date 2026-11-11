@@ -5,8 +5,10 @@ import json
 import os
 import shutil
 import tempfile
+import time
 from pathlib import Path
 
+from data_versions import version_assets
 from dataset_paths import selected_paths
 from evaluation_policy import POLICY
 from export_curve_data import main as export_curves
@@ -46,7 +48,19 @@ def build_export(reference, public):
     )
     export_runtime(reference, public)
     export_curves(reference, public)
+    version_assets(public)
     validate_evaluation(public, reference / "manifest.json")
+
+
+def replace_directory(source, target):
+    for attempt in range(6):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if attempt == 5:
+                raise
+            time.sleep(0.1 * (attempt + 1))
 
 
 def export(reference, public):
@@ -65,13 +79,13 @@ def export(reference, public):
         build_export(reference, candidate)
         existed = public.exists()
         if existed:
-            os.replace(public, previous)
+            replace_directory(public, previous)
         try:
-            os.replace(candidate, public)
+            replace_directory(candidate, public)
         except BaseException as failure:
             if existed:
                 try:
-                    os.replace(previous, public)
+                    replace_directory(previous, public)
                 except OSError as restore_error:
                     preserve = True
                     failure.add_note(f"Previous export retained at {previous}: {restore_error}")

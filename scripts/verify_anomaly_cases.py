@@ -32,7 +32,7 @@ def verify(REFERENCE, ROOT):
         )
     )
     masks = {c["id"]: np.asarray(c["mask"]) for c in reference["cases"]}
-    used = {"anomaly-cases-v1/manifest.json"}
+    used = {asset["file"]}
     expected = {
         f"{mode}-{kind}"
         for mode in ["replace", "blend"]
