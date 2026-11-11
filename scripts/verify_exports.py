@@ -15,6 +15,8 @@ def verify():
             target = Path(temporary)
             export(reference, target)
             files = [p for p in target.rglob('*') if p.is_file()]
+            if {p.relative_to(target) for p in files} != {p.relative_to(published) for p in published.rglob('*') if p.is_file()}:
+                raise ValueError(f'Published resource set differs: {name}')
             for file in files:
                 relative = file.relative_to(target)
                 if file.suffix == '.json':

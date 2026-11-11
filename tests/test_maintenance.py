@@ -170,15 +170,26 @@ class MaintenanceTests(unittest.TestCase):
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         model = {'id': 'new-model', 'threshold': .4, 'windowThreshold': .5,
-                 'scores': [.1, .7], 'metrics': {'f1': .8}}
+                 'scores': [.1, .7], 'metrics': {'f1': .8}, 'run': 'next-verified-version',
+                 'evaluation': {'sequence': {'value': .4, 'pointAdjustedF1': .8}, 'window': {'value': .5}}}
         manifest = {'resultVersion': 'next-verified-version', 'models': [model]}
-        source = {**manifest, 'evaluation': {'id': 'retained-policy'}}
-        evaluation = {'version': manifest['resultVersion'], 'policy': {'id': 'retained-policy'},
-                      'models': [{'id': model['id'], 'sequence': {'value': .4}, 'window': {'value': .5}}]}
+        source = {**manifest, 'evaluation': module.POLICY}
+        evaluation = {'version': manifest['resultVersion'], 'policy': dict(module.POLICY),
+                      'models': [{'id': model['id'], **model['evaluation']}]}
         (self.folder / 'manifest.json').write_text(json.dumps(manifest))
         (self.folder / 'reference.json').write_text(json.dumps(source))
         (self.folder / 'evaluation.json').write_text(json.dumps(evaluation))
         module.validate_evaluation(self.folder, self.folder / 'reference.json')
+        original = json.dumps(evaluation)
+        for changed in ['policy', 'record', 'duplicate']:
+            evaluation = json.loads(original)
+            if changed == 'policy': evaluation['policy']['usesTestLabels'] = False
+            if changed == 'record': evaluation['models'][0]['sequence']['pointAdjustedF1'] = -99
+            if changed == 'duplicate': evaluation['models'].append(evaluation['models'][0])
+            (self.folder / 'evaluation.json').write_text(json.dumps(evaluation))
+            with self.assertRaises(ValueError):
+                module.validate_evaluation(self.folder, self.folder / 'reference.json')
+        evaluation = json.loads(original)
         evaluation['models'][0]['sequence']['value'] = .3
         (self.folder / 'evaluation.json').write_text(json.dumps(evaluation))
         with self.assertRaises(ValueError):

@@ -1,6 +1,7 @@
 """Exercise interrupted release preparation and repeat publication."""
 import hashlib
 import gzip
+import json
 import sys
 import tarfile
 import tempfile
@@ -8,10 +9,27 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from release_files import hashes, prepare_release, install_config, restore_config, prune_releases
+from release_files import hashes, prepare_release, install_config, restore_config, prune_releases, rollback_config
 
 
 class ReleaseFileTests(unittest.TestCase):
+    def test_repeat_deployment_keeps_predecessor_config_not_active_config(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            site = Path(temporary)
+            (site / 'config-backups').mkdir()
+            saved = site / 'config-backups/original.conf'
+            saved.write_text('configuration for previous release')
+            current = str(site / 'releases/current')
+            previous = str(site / 'releases/previous')
+            (site / 'deployment.json').write_text(json.dumps({
+                'releasePath': current, 'previousRelease': 'previous', 'rollbackConfig': str(saved),
+            }))
+            self.assertEqual(rollback_config(site, current, current, previous, 'new.conf'), str(saved))
+            self.assertEqual(rollback_config(site, previous, current, previous, 'new.conf'), 'new.conf')
+            saved.unlink()
+            with self.assertRaises(ValueError):
+                rollback_config(site, current, current, previous, 'new.conf')
+
     def test_failed_copy_can_retry_and_completed_release_is_reusable(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

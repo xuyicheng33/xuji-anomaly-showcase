@@ -1,6 +1,6 @@
 """Publish the verified build to the dedicated 9010 site, preserving rollback."""
 import argparse
-from contextlib import closing
+from contextlib import closing, contextmanager
 from datetime import datetime, timezone
 import hashlib
 import json
@@ -9,6 +9,7 @@ from pathlib import Path
 import shlex
 import subprocess
 import tarfile
+import sys
 from textwrap import dedent
 
 import paramiko
@@ -46,14 +47,48 @@ def release_call(client, staging, function, *args):
     ''', sudo=True)
 
 
+@contextmanager
+def deployment_lock(client):
+    """The remote OS releases this lock if the SSH session disappears."""
+    source = dedent(f'''
+        import fcntl, sys
+        with open({SITE + '/.deploy.lock'!r}, 'a') as lock:
+            try:
+                fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                sys.exit('Another deployment owns the dedicated 9010 site')
+            print('locked', flush=True)
+            sys.stdin.read()
+    ''')
+    stdin, stdout, stderr = client.exec_command('sudo -n python3 -u -B -c ' + shlex.quote(source), timeout=20)
+    try:
+        if stdout.readline().strip() != 'locked':
+            raise RuntimeError(stderr.read().decode() or 'Could not acquire deployment lock')
+        yield
+    finally:
+        stdin.channel.shutdown_write()
+        stdout.channel.close()
+
+
+def cleanup(action, description):
+    """A cleanup failure must not replace the original deployment error."""
+    try:
+        action()
+    except Exception as error:
+        print(f'{description}: {error}', file=sys.stderr, flush=True)
+
+
 def activate(client, staging, target, previous, backup, config_digest, probes, verify=None):
+    configured = switched = False
     try:
         release_call(client, staging, 'install_config', CONFIG, backup,
                      staging + '/site.conf', config_digest)
+        configured = True
         run(client, 'sudo -n nginx -t')
-        release_call(client, staging, 'switch_release', SITE + '/current', target)
+        release_call(client, staging, 'switch_release', SITE + '/current', target, previous)
+        switched = True
         run(client, 'sudo -n systemctl reload nginx')
-        if run(client, 'curl -fsS -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/') != '200':
+        if run(client, 'curl -fsS --max-time 20 -o /dev/null -w "%{http_code}" http://127.0.0.1:9010/') != '200':
             raise RuntimeError('Released home page did not return 200')
         for relative in probes:
             remote_python(client, f'''
@@ -67,15 +102,25 @@ def activate(client, staging, target, previous, backup, config_digest, probes, v
             ''')
         if verify is not None:
             verify()
-    except Exception:
-        release_call(client, staging, 'restore_config', CONFIG, backup)
-        release_call(client, staging, 'switch_release', SITE + '/current', previous)
-        run(client, 'sudo -n nginx -t')
-        run(client, 'sudo -n systemctl reload nginx')
+    except BaseException as failure:
+        try:
+            if switched:
+                release_call(client, staging, 'switch_release', SITE + '/current', previous, target)
+            if configured:
+                release_call(client, staging, 'restore_config', CONFIG, backup)
+                run(client, 'sudo -n nginx -t')
+                run(client, 'sudo -n systemctl reload nginx')
+        except Exception as rollback_error:
+            failure.add_note(f'Rollback also failed: {rollback_error}')
         raise
 
 
 def publish(client, root, output, commit, records, scope, verify=None):
+    with deployment_lock(client):
+        publish_locked(client, root, output, commit, records, scope, verify)
+
+
+def publish_locked(client, root, output, commit, records, scope, verify=None):
     release = commit[:7]
     operation = release + '-' + datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S%f')
     previous = run(client, 'readlink -f ' + SITE + '/current').strip()
@@ -114,6 +159,14 @@ def publish(client, root, output, commit, records, scope, verify=None):
                     file.write(content)
         release_call(client, staging, 'prepare_staged', previous, target, staging, changed)
         backup = SITE + '/config-backups/' + operation + '.conf'
+        retained_backup = remote_python(client, f'''
+            import sys
+            sys.path.insert(0, {staging!r})
+            from release_files import rollback_config
+            print(rollback_config({SITE!r}, {previous!r}, {target!r}, {fallback!r}, {backup!r}))
+        ''', sudo=True).strip()
+        if not retained_backup:
+            raise RuntimeError('Missing retained rollback configuration')
         activate(client, staging, target, previous, backup,
                  hashlib.sha256(existing.encode()).hexdigest(), probes, verify)
         result = {
@@ -122,23 +175,24 @@ def publish(client, root, output, commit, records, scope, verify=None):
             'verifiedFiles': len(records), 'changedFiles': len(changed),
             'uploadedBytes': upload_bytes, 'scope': scope,
             'deployedAt': datetime.now(timezone.utc).isoformat(),
-            'rollbackConfig': backup,
+            'rollbackConfig': retained_backup,
         }
-        remote_python(client, f'from pathlib import Path; Path({SITE + "/deployment.json"!r}).write_text({json.dumps(result, indent=2)!r})', sudo=True)
+        release_call(client, staging, 'record_deployment', SITE, result)
         (output / 'deploy-result.json').write_text(json.dumps(result, indent=2), encoding='utf8')
         archive.unlink()
         print(json.dumps(result), flush=True)
-        retention = release_call(client, staging, 'prune_releases', SITE, target, fallback, backup)
+        retention = release_call(client, staging, 'prune_releases', SITE, target, fallback, retained_backup)
         if retention.strip():
             print(retention.strip(), flush=True)
     finally:
-        remote_python(client, f'''
+        cleanup(lambda: remote_python(client, f'''
             from pathlib import Path
             import shutil
             folder = Path({staging!r}).resolve()
             assert folder.parent == Path('/home/ubuntu') and folder.name == {Path(staging).name!r}
             shutil.rmtree(folder)
-        ''', sudo=True)
+        ''', sudo=True), 'Staging cleanup failed')
+        cleanup(lambda: archive.unlink(missing_ok=True), 'Local release archive cleanup failed')
 
 
 def main():
@@ -168,7 +222,7 @@ def main():
                        look_for_keys=False, allow_agent=False, timeout=20)
         def verify_site():
             subprocess.run(['node', 'scripts/verify_release.mjs'], cwd=root, check=True,
-                           env={**os.environ, 'SHOWCASE_URL': URL, 'QA_DIR': str(output / 'browser')})
+                           env={**os.environ, 'SHOWCASE_URL': URL, 'QA_DIR': str(output / 'browser')}, timeout=600)
 
         publish(client, root, output, commit, records, args.scope, verify_site)
 

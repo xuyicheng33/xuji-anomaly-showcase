@@ -52,6 +52,8 @@ describe('shared resource cache', () => {
       expect(new Uint8Array(await loadBinary(asset))).toEqual(original);
       await loadBinary(asset);
       expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch.mock.calls[0][1].cache).toBeUndefined();
+      expect(fetch.mock.calls[1][1].cache).toBe('reload');
     } finally {
       vi.unstubAllGlobals();
     }
@@ -71,6 +73,7 @@ describe('shared resource cache', () => {
       await expect(loadJson('cache-validation.json', validate)).rejects.toThrow('stale');
       expect(await loadJson('cache-validation.json', validate)).toEqual({ version: 2 });
       expect(fetch).toHaveBeenCalledTimes(2);
+      expect(fetch.mock.calls[1][1].cache).toBe('reload');
     } finally {
       vi.unstubAllGlobals();
     }

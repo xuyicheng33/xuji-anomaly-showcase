@@ -9,7 +9,7 @@ const output = process.env.QA_DIR || '.qa/deployment/browser';
 await mkdir(output, { recursive: true });
 const digest = (raw) => createHash('sha256').update(raw).digest('hex');
 async function matchesRelease(file) {
-  const response = await fetch(new URL(file, base));
+  const response = await fetch(new URL(file, base), { signal: AbortSignal.timeout(30000) });
   assert.ok(response.ok, `Released file unavailable: ${file}`);
   assert.equal(digest(Buffer.from(await response.arrayBuffer())), build.files[file], file);
 }

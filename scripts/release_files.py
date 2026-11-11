@@ -7,6 +7,7 @@ import shutil
 import tarfile
 import tempfile
 import re
+import uuid
 from pathlib import Path
 
 
@@ -97,6 +98,20 @@ def prepare_staged(previous, target, staging, changed):
     prepare_release(previous, target, staging / 'changes.tar.gz', expected, changed)
 
 
+def atomic_write(file, content):
+    file = Path(file)
+    temporary = file.with_name('.' + file.name + '-' + uuid.uuid4().hex)
+    try:
+        with temporary.open('xb') as output:
+            output.write(content)
+            output.flush()
+            os.fsync(output.fileno())
+        os.chmod(temporary, file.stat().st_mode & 0o777 if file.exists() else 0o644)
+        os.replace(temporary, file)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
 def install_config(config, backup, replacement, expected_digest):
     config, backup = Path(config), Path(backup)
     content = config.read_bytes()
@@ -105,21 +120,42 @@ def install_config(config, backup, replacement, expected_digest):
     backup.parent.mkdir(parents=True, exist_ok=True)
     with backup.open('xb') as file:
         file.write(content)
-    config.write_bytes(Path(replacement).read_bytes())
+    atomic_write(config, Path(replacement).read_bytes())
 
 
 def restore_config(config, backup):
     backup = Path(backup)
     if backup.exists():
-        Path(config).write_bytes(backup.read_bytes())
+        atomic_write(config, backup.read_bytes())
 
 
-def switch_release(current, target):
+def switch_release(current, target, expected=None):
     current = Path(current)
-    temporary = current.with_name(current.name + '-next')
-    temporary.unlink(missing_ok=True)
-    temporary.symlink_to(target, target_is_directory=True)
-    os.replace(temporary, current)
+    if expected is not None and current.resolve() != Path(expected).resolve():
+        raise ValueError('Active release changed before switching')
+    temporary = current.with_name('.' + current.name + '-' + uuid.uuid4().hex)
+    try:
+        temporary.symlink_to(target, target_is_directory=True)
+        os.replace(temporary, current)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def rollback_config(site, current, target, previous, backup):
+    """Repeating a release must retain the original predecessor's configuration."""
+    site = Path(site)
+    if current != target or previous == target:
+        return backup
+    record = json.loads((site / 'deployment.json').read_text())
+    saved = Path(record['rollbackConfig'])
+    if (record['releasePath'] != target or record['previousRelease'] != Path(previous).name or
+            saved.parent != site / 'config-backups' or not saved.is_file()):
+        raise ValueError('Previous release rollback configuration is unavailable')
+    return str(saved)
+
+
+def record_deployment(site, result):
+    atomic_write(Path(site) / 'deployment.json', json.dumps(result, indent=2).encode())
 
 
 def prune_releases(site, current, previous, backup):

@@ -55,6 +55,8 @@ class DeploymentTests(unittest.TestCase):
                     return '{}'
                 if 'print(Path' in source:
                     return config
+                if 'print(rollback_config' in source:
+                    return '/var/www/xuji-showcase/config-backups/abcdef0.conf'
             return ''
 
         with tempfile.TemporaryDirectory() as temporary:
@@ -68,7 +70,7 @@ class DeploymentTests(unittest.TestCase):
                     'models': [{'windows': {'chunks': [{'file': 'windows-v1/0.bin'}]}}],
                 }), encoding='utf8')
             with patch.object(deployment, 'run', side_effect=run):
-                deployment.publish(MagicMock(), folder, folder, 'abcdef0123', {}, 'test publication')
+                deployment.publish_locked(MagicMock(), folder, folder, 'abcdef0123', {}, 'test publication')
             probes = [source for source in sources if 'urlopen' in source]
             self.assertEqual(len(probes), 2)
             self.assertIn('data/journey/windows-v1/', probes[0])
@@ -99,8 +101,11 @@ class DeploymentTests(unittest.TestCase):
             if failed_command or failed_probe or failed_browser:
                 with self.assertRaises(RuntimeError):
                     deployment.activate(*arguments, verify)
-                self.assertIn('restore_config', functions[-2])
-                self.assertIn('/releases/old', functions[-1])
+                self.assertIn('restore_config', functions[-1])
+                if failed_command == 'sudo -n nginx -t':
+                    self.assertFalse(any('switch_release' in function for function in functions))
+                else:
+                    self.assertIn('/releases/old', functions[-2])
             else:
                 deployment.activate(*arguments, verify)
                 verify.assert_called_once()
@@ -115,3 +120,29 @@ class DeploymentTests(unittest.TestCase):
         self.exercise_activation(failed_command='sudo -n systemctl reload nginx')
         self.exercise_activation(failed_probe=True)
         self.exercise_activation(failed_browser=True)
+
+    def test_failed_config_precondition_does_not_switch_or_restore(self):
+        with patch.object(deployment, 'release_call', side_effect=ValueError('configuration changed')) as call:
+            with self.assertRaisesRegex(ValueError, 'configuration changed'):
+                deployment.activate(None, 'staging', 'new', 'old', 'backup', 'digest', [])
+            self.assertEqual(call.call_count, 1)
+
+    def test_lock_contention_stops_before_publication(self):
+        client = MagicMock()
+        stdin, stdout, stderr = MagicMock(), MagicMock(), MagicMock()
+        client.exec_command.return_value = stdin, stdout, stderr
+        stdout.readline.return_value = ''
+        stderr.read.return_value = b'Another deployment owns the dedicated 9010 site'
+        with patch.object(deployment, 'publish_locked') as publish:
+            with self.assertRaisesRegex(RuntimeError, 'Another deployment'):
+                deployment.publish(client, None, None, '', {}, '')
+            publish.assert_not_called()
+        stdin.channel.shutdown_write.assert_called_once()
+
+    def test_rollback_failure_preserves_primary_error(self):
+        with patch.object(deployment, 'release_call') as call, patch.object(deployment, 'run') as run:
+            call.side_effect = [None, RuntimeError('restore failed')]
+            run.side_effect = RuntimeError('invalid nginx configuration')
+            with self.assertRaisesRegex(RuntimeError, 'invalid nginx configuration') as error:
+                deployment.activate(None, 'staging', 'new', 'old', 'backup', 'digest', [])
+            self.assertIn('restore failed', error.exception.__notes__[0])

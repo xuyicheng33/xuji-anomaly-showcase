@@ -57,6 +57,11 @@ export const requestData = (file: string, init?: RequestInit) =>
   fetch(dataUrl(file), { ...init, signal: init?.signal ?? AbortSignal.timeout(30000) });
 
 const binaryCache = new RequestCache<ArrayBuffer>(16 * 1024 * 1024);
+// A failed response may still live in the browser's immutable HTTP cache.
+// Keep retry state bounded, and bypass that cache until a verified read succeeds.
+const failedRequests = new RequestCache<boolean>(128);
+const failed = (key: string) => failedRequests.set(key, 1, true);
+const recovered = (key: string) => failedRequests.delete(key, true);
 type BinaryAsset = Pick<Asset, 'file' | 'bytes' | 'sha256'>;
 const binaryKey = (asset: BinaryAsset) => `${asset.file}:${asset.sha256}`;
 /** Also works on the dedicated HTTP site, where Web Crypto is unavailable. */
@@ -70,10 +75,20 @@ export const cacheBinary = (asset: BinaryAsset, raw: ArrayBuffer) =>
   binaryCache.set(binaryKey(asset), asset.bytes, verifyBinary(raw, asset));
 
 export function loadBinary(asset: BinaryAsset, cache?: RequestInit['cache']) {
-  return binaryCache.get(binaryKey(asset), asset.bytes, async () => {
-    const response = await requestData(`${asset.file}?v=${asset.sha256}`, { cache });
-    if (!response.ok) throw Error('数据读取失败');
-    return verifyBinary(await response.arrayBuffer(), asset);
+  const key = binaryKey(asset);
+  return binaryCache.get(key, asset.bytes, async () => {
+    try {
+      const response = await requestData(`${asset.file}?v=${asset.sha256}`, {
+        cache: failedRequests.peek(key) ? 'reload' : cache,
+      });
+      if (!response.ok) throw Error('数据读取失败');
+      const raw = verifyBinary(await response.arrayBuffer(), asset);
+      recovered(key);
+      return raw;
+    } catch (error) {
+      failed(key);
+      throw error;
+    }
   });
 }
 
@@ -83,18 +98,27 @@ export async function loadJson<T>(file: string, validate: (value: T) => void = (
     file,
     (entry) => entry.bytes,
     async () => {
-      const response = await requestData(file);
-      if (!response.ok) throw Error('资料读取失败');
-      const raw = await response.text();
-      return { value: JSON.parse(raw), bytes: new TextEncoder().encode(raw).byteLength };
+      try {
+        const response = await requestData(file, {
+          cache: failedRequests.peek(file) ? 'reload' : undefined,
+        });
+        if (!response.ok) throw Error('资料读取失败');
+        const raw = await response.text();
+        return { value: JSON.parse(raw), bytes: new TextEncoder().encode(raw).byteLength };
+      } catch (error) {
+        failed(file);
+        throw error;
+      }
     },
   );
   try {
     // A shared transfer must still satisfy each caller's current contract.
     validate(saved.value as T);
+    recovered(file);
     return saved.value as T;
   } catch (error) {
     jsonCache.delete(file, saved);
+    failed(file);
     throw error;
   }
 }

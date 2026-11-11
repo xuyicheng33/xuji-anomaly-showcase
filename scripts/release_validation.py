@@ -3,6 +3,8 @@ import json
 import re
 from pathlib import Path
 
+from evaluation_policy import POLICY
+
 
 def config_entries(source):
     """Read top-level directives of this project's single server block."""
@@ -94,17 +96,25 @@ def validate_evaluation(folder, reference):
     source = json.loads(Path(reference).read_text(encoding='utf8'))
     if not manifest['resultVersion'] == evaluation['version'] == source['resultVersion']:
         raise ValueError('Evaluation versions differ')
-    if evaluation['policy']['id'] != source['evaluation']['id']:
+    if evaluation['policy'] != {key: source['evaluation'][key] for key in POLICY}:
         raise ValueError('Evaluation policy differs')
-    expected = {model['id']: model for model in source['models']}
-    actual = {model['id']: model for model in manifest['models']}
-    records = {model['id']: model for model in evaluation['models']}
+    def models_by_id(models):
+        result = {model['id']: model for model in models}
+        if not models or len(result) != len(models):
+            raise ValueError('Empty or duplicate evaluation models')
+        return result
+    expected = models_by_id(source['models'])
+    actual = models_by_id(manifest['models'])
+    records = models_by_id(evaluation['models'])
     if not expected.keys() == actual.keys() == records.keys():
         raise ValueError('Evaluation model sets differ')
     for name, model in actual.items():
-        for key in ('threshold', 'windowThreshold', 'scores', 'metrics'):
+        for key in ('threshold', 'windowThreshold', 'scores', 'metrics', 'run'):
             if model[key] != expected[name][key]:
                 raise ValueError(f'Evaluation result differs: {name}/{key}')
-        if (model['threshold'] != records[name]['sequence']['value'] or
-                model['windowThreshold'] != records[name]['window']['value']):
-            raise ValueError(f'Evaluation thresholds differ: {name}')
+        if model['run'] != manifest['resultVersion']:
+            raise ValueError(f'Evaluation run differs: {name}')
+        for key, threshold in [('sequence', 'threshold'), ('window', 'windowThreshold')]:
+            if (records[name][key] != expected[name]['evaluation'][key] or
+                    model[threshold] != records[name][key]['value']):
+                raise ValueError(f'Evaluation record differs: {name}/{key}')

@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import type { Journey } from './journeyTypes';
 import { validateJourney } from './journeyValidation';
+import { validateCases, type CaseCatalog } from './anomalyCases';
 import {
   loadCalculationIndex,
   loadPointScores,
@@ -20,6 +21,55 @@ for (const [id, folder] of [
     it('accepts the shipped source geometry and calculation index', () => {
       expect(() => validateJourney(data, id)).not.toThrow();
       expect(() => validateCalculation(catalog, data)).not.toThrow();
+    });
+
+    it.each([
+      'labels',
+      'counts',
+      'ratios',
+      'run',
+      'summary',
+      'examples',
+      'history',
+      'missingShape',
+    ])('rejects invalid %s without accepting plausible geometry', (field) => {
+      const changed = structuredClone(data);
+      if (field === 'labels') changed.labels.fill(2);
+      if (field === 'counts') changed.models[0].metrics.point_wise.tp = -1;
+      if (field === 'ratios') changed.models[0].metrics.point_wise.f1 = 42;
+      if (field === 'run') changed.models[0].run += '-other';
+      if (field === 'summary') changed.summary.anomalousRows++;
+      if (field === 'examples') changed.models[0].examples[0].index = -1;
+      if (field === 'history')
+        changed.models[0].history[1].epoch = changed.models[0].history[0].epoch;
+      if (field === 'missingShape') Reflect.deleteProperty(changed.input, 'shape');
+      expect(() => validateJourney(changed, id)).toThrow('资料版本不匹配');
+    });
+
+    it('rejects internally consistent counts that disagree with the labels and scores', () => {
+      const changed = structuredClone(data);
+      const metrics = changed.models[0].metrics.point_wise;
+      metrics.tp++;
+      metrics.fn--;
+      metrics.precision = metrics.tp / (metrics.tp + metrics.fp);
+      metrics.recall = metrics.tp / (metrics.tp + metrics.fn);
+      metrics.f1 = (2 * metrics.tp) / (2 * metrics.tp + metrics.fp + metrics.fn);
+      expect(() => validateJourney(changed, id)).toThrow('资料版本不匹配');
+    });
+
+    it('validates case geometry and rejects missing cases, models and invalid metrics', () => {
+      const cases: CaseCatalog = JSON.parse(
+        readFileSync(`public/data/${folder}/${data.cases.file}`, 'utf8'),
+      );
+      expect(() => validateCases(cases, data)).not.toThrow();
+      for (const field of ['case', 'model', 'metrics', 'bounds']) {
+        const changed = structuredClone(cases);
+        if (field === 'case') changed.cases.pop();
+        if (field === 'model') changed.cases[0].models.pop();
+        if (field === 'metrics') changed.cases[0].models[0].metrics.precision = -1;
+        if (field === 'bounds') changed.cases[0].feature = data.features.length;
+        expect(() => validateCases(changed, data)).toThrow('案例资料版本不匹配');
+      }
     });
 
     it.each(['missing', 'gap', 'overlap', 'truncated', 'bytes'])(

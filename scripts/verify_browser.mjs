@@ -47,6 +47,7 @@ try {
     'report',
     'calculation',
     'loading',
+    'http_cache',
     'acceptance',
     'usability',
     'playback_scale',

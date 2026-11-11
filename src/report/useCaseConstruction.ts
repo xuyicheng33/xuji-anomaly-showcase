@@ -19,7 +19,7 @@ export function useCaseConstruction(data: Journey, model: Model) {
   usePauseOnNavigation(() => setPlaying(false));
   const resultRef = useRef<HTMLDivElement>(null),
     stageRef = useRef<HTMLDivElement>(null);
-  const readCases = useCallback(() => loadCases(data.cases), [data.cases]);
+  const readCases = useCallback(() => loadCases(data), [data]);
   const catalog = useResource(data.cases.sha256, readCases);
   const selected = catalog.data?.cases.find((c) => c.insertion === insertion && c.kind === kind);
   const cm = selected?.models.find((m) => m.id === model.id);
