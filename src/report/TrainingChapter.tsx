@@ -48,11 +48,14 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
   const activeEpoch = Math.min(epoch, model.history.length - 1),
     record = model.history[activeEpoch];
   return (
-    <div className="chapter-refined training-chapter">
+    <div className="training-chapter">
       <Heading title="模型训练过程">
         以{' '}
-        <span className="note-anchor">
-          {data.window} × {data.features.length} 数据窗口
+        <span>
+          <span className="window-scope">
+            {data.window} × {data.features.length}
+          </span>{' '}
+          数据窗口
           <Footnote note="window-settings" reference="ref-training-window-shape" />
         </span>
         为输入，逐步优化参数。

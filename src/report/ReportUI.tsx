@@ -3,12 +3,12 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { pct, outcomeCode } from '../journey';
 import FeaturePicker from './FeaturePicker';
 export const colors = {
-  input: '#283c4c',
-  recon: '#258077',
-  score: '#3566a1',
-  anomaly: '#bd653c',
-  ink: '#62665e',
-  muted: '#96988f',
+  input: 'var(--chart-input)',
+  recon: 'var(--chart-recon)',
+  score: 'var(--chart-score)',
+  anomaly: 'var(--chart-threshold)',
+  ink: 'var(--muted)',
+  muted: 'var(--chart-muted)',
 };
 export function ModelSelect({
   data,

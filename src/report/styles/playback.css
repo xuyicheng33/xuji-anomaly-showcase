@@ -6,21 +6,8 @@
   margin: 30px 0;
   scroll-margin-top: var(--playback-scroll-offset, 24px);
 }
-.playback-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 25px;
+.playback-page > .chapter-heading {
   padding: 30px 0 26px;
-}
-.playback-heading > div {
-  display: flex;
-  align-items: center;
-  gap: 22px;
-}
-.playback-heading h1 {
-  font-size: 36px;
 }
 .playback-controls {
   display: flex;
@@ -31,27 +18,26 @@
   border-bottom: 1px solid var(--line);
 }
 .playback-controls button {
-  font-size: 14px;
-  padding: 8px 13px;
-  min-height: 36px;
+  font-size: var(--text-control);
+  padding: 9px 13px;
+  min-height: var(--control-height);
 }
 .playback-controls .primary {
   min-width: 78px;
-  min-height: 42px;
+  min-height: var(--control-height);
 }
 .playback-controls label {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--text-small);
   color: var(--muted);
   max-width: 100%;
   min-width: 0;
 }
 .playback-controls select {
-  min-height: 34px;
-  padding: 5px 8px;
-  font-size: 13px;
+  min-height: var(--control-height);
+  font-size: var(--text-control);
   min-width: 0;
   max-width: 100%;
 }
@@ -87,7 +73,7 @@
   font-size: 13px;
   line-height: 1.7;
   color: var(--muted);
-  margin-bottom: -28px;
+  margin-bottom: -16px;
   font-variant-numeric: tabular-nums;
 }
 .playback-statistics-context time {
@@ -197,7 +183,8 @@
   gap: 18px;
 }
 .replay-links .text-button {
-  font-size: 13px;
+  font-size: var(--text-control);
+  color: var(--blue);
 }
 @media (min-width: 1060px) {
   .replay-workspace {
@@ -275,21 +262,9 @@
     margin-top: 20px;
   }
 }
-@media (max-width: 1050px) {
-  .playback-heading {
-    align-items: flex-start;
-  }
-}
 @media (max-width: 680px) {
-  .playback-heading {
-    padding: 12px 0 16px;
-  }
-  .playback-heading > div {
-    display: block;
-  }
-  .playback-heading h1 {
-    margin-top: 0;
-    font-size: 29px;
+  .playback-page > .chapter-heading {
+    padding: 20px 0 20px;
   }
   .playback-controls {
     position: var(--playback-controls-position, static);
@@ -324,9 +299,6 @@
   .playback-status .outcome {
     font-size: 14px;
   }
-  .playback-controls select {
-    font-size: 14px;
-  }
   .playback-statistics {
     gap: 28px;
   }
@@ -350,6 +322,6 @@
   }
   .playback-page .table-scroll thead th:first-child {
     z-index: 3;
-    background: #eeeee8;
+    background: var(--surface);
   }
 }

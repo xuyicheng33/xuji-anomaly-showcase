@@ -235,7 +235,7 @@ export function DetectionChapter(p: DetectionProps) {
         </div>
       )}
       {inputAsset.error && (
-        <div role="alert">
+        <div role="alert" className="inline-error">
           {inputAsset.error}
           <button onClick={inputAsset.retry}>重试输入</button>
         </div>
@@ -295,7 +295,7 @@ export function DetectionChapter(p: DetectionProps) {
             labels={labelAsset.data}
           />
           {viewFeature >= 0 && labelAsset.error && (
-            <p role="alert">
+            <p role="alert" className="inline-error">
               {labelAsset.error}
               <button onClick={labelAsset.retry}>重试标签</button>
             </p>

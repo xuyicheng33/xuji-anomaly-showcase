@@ -27,24 +27,29 @@
   line-height: 0;
   font-weight: 500;
   vertical-align: super;
-  margin-left: 3px;
+  margin-left: 2px;
 }
 .footnote a {
   color: var(--blue);
-  display: inline-block;
-  padding: 9px 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  min-width: 28px;
+  margin-block: -8px;
+  padding: 6px;
+  line-height: 1;
   text-decoration: none;
-  min-width: 18px;
   text-align: center;
-  border-radius: 3px;
-  transition: background 0.15s;
+  border-radius: var(--radius-small);
+  transition: background var(--motion-fast);
 }
 .footnote a:hover {
-  background: #e4e9e5;
+  background: var(--selected);
   outline: 1px solid var(--blue);
 }
 .footnote a:focus-visible {
-  background: #e4e9e5;
+  background: var(--selected);
   outline: 1px solid var(--blue);
 }
 .score-calculation {
@@ -61,9 +66,6 @@
 }
 .calculation-heading h2 {
   font-size: 25px;
-  margin: 0 0 12px;
-}
-.aggregation-summary h2 {
   margin: 0 0 12px;
 }
 .calculation-heading p {
@@ -188,19 +190,19 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  background: #eeeee7;
+  background: var(--surface);
 }
 .window-score-scroll thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: #eeeee7;
+  background: var(--surface);
 }
 .reference-table-scroll thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: #eeeee7;
+  background: var(--surface);
 }
 .calculation-table tbody th:first-child {
   position: sticky;
@@ -251,7 +253,7 @@
   color: var(--blue);
 }
 .calculation-comparison {
-  font-size: 13px !important;
+  font-size: var(--text-control);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   margin: 12px 0;
@@ -314,11 +316,6 @@
   padding: 12px 18px;
 }
 .window-score-scroll button {
-  font-size: 14px;
-  padding: 4px 0;
-  border: 0;
-  border-bottom: 1px solid #355f7b55;
-  border-radius: 0;
   white-space: nowrap;
 }
 .window-score-total {
@@ -384,7 +381,7 @@
   margin-bottom: 22px;
 }
 .explanation-number {
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--numeral);
   color: var(--blue);
   font-size: 30px;
   min-width: 30px;
@@ -525,9 +522,6 @@
   .calculation-equation strong {
     flex-basis: auto;
   }
-  .calculation-comparison {
-    font-size: 14px !important;
-  }
   .calculation-time {
     font-size: 13px;
   }
@@ -581,9 +575,6 @@
   }
   .explanation-entry {
     padding: 28px 0;
-  }
-  .footnote a {
-    padding: 10px 6px;
   }
   .window-score-total {
     font-size: 14px;
@@ -752,7 +743,7 @@
   height: 32px;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
-  background: #eeeee7;
+  background: var(--surface);
   color: #6c7066;
   border: 1px solid transparent;
   border-radius: 2px;
@@ -777,7 +768,7 @@
   height: 44px;
   border-color: #b5bcb2;
   background: var(--paper);
-  border-radius: 4px;
+  border-radius: var(--radius-small);
 }
 .metrics-alarm-track .metrics-point:hover {
   background: #e4e9ea;

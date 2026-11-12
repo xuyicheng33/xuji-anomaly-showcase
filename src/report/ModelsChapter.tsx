@@ -68,7 +68,7 @@ export function ModelsChapter({
     wind = data.dataset?.id === 'wind',
     description = wind ? windDescription : descriptions[multi ? 'model2' : 'model1'];
   return (
-    <div className="chapter-refined models-chapter">
+    <div className="models-chapter">
       <Heading
         title={
           <>

@@ -75,8 +75,10 @@ export default function ContributionView({
   }, [ready]);
   const percentage = (n: number) => (ranked?.total ? (n / ranked.total) * 100 : 0);
   const revealDetail = useCallback(() => {
-    if (matchMedia('(max-width: 760px)').matches)
-      detail.current?.scrollIntoView({
+    const panel = detail.current;
+    const list = panel?.previousElementSibling;
+    if (panel && list && panel.getBoundingClientRect().top >= list.getBoundingClientRect().bottom)
+      panel.scrollIntoView({
         block: 'start',
         behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
       });
@@ -87,11 +89,14 @@ export default function ContributionView({
     setSelection({ key, feature });
   };
   const closeDetail = () => {
+    const panel = detail.current;
+    const list = panel?.previousElementSibling;
+    const stacked =
+      !!panel && !!list && panel.getBoundingClientRect().top >= list.getBoundingClientRect().bottom;
     setSelection(null);
     requestAnimationFrame(() => {
       origin.current?.focus({ preventScroll: true });
-      if (matchMedia('(max-width: 760px)').matches)
-        origin.current?.scrollIntoView({ block: 'nearest' });
+      if (stacked) origin.current?.scrollIntoView({ block: 'nearest' });
     });
   };
   return (
@@ -130,7 +135,7 @@ export default function ContributionView({
       {index === null ? (
         <div className="contribution-empty">—</div>
       ) : asset.error ? (
-        <p role="alert" style={{ minHeight: lastHeight }}>
+        <p role="alert" className="inline-error" style={{ minHeight: lastHeight }}>
           贡献数据读取失败。<button onClick={asset.retry}>重试贡献数据</button>
         </p>
       ) : ranked ? (

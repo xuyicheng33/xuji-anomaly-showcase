@@ -142,7 +142,7 @@ export default function Curve({
               x2={W - R}
               y1={y(lo + (hi - lo) * t)}
               y2={y(lo + (hi - lo) * t)}
-              stroke="#deded6"
+              stroke="var(--line)"
             />
             <text x={L - 10} y={y(lo + (hi - lo) * t) + 4} textAnchor="end">
               {curveTick(lo + (hi - lo) * t, hi - lo)}
@@ -159,7 +159,7 @@ export default function Curve({
               y={T}
               width={x(selection.end) - x(selection.start)}
               height={height - T - B}
-              fill="#355f7b"
+              fill="var(--blue)"
               opacity=".12"
             />
           )}
@@ -173,7 +173,7 @@ export default function Curve({
                 x2={x(interval.end)}
                 y1={T}
                 y2={height - B}
-                stroke="#d99763"
+                stroke="var(--chart-label)"
                 strokeWidth="3"
                 opacity=".35"
               />
@@ -186,7 +186,7 @@ export default function Curve({
                 y={T}
                 width={x(interval.end) - x(interval.start)}
                 height={height - T - B}
-                fill="#d99763"
+                fill="var(--chart-label)"
                 opacity=".16"
               />
             ),
@@ -221,7 +221,7 @@ export default function Curve({
                 x2={x(selected)}
                 y1={T}
                 y2={height - B}
-                stroke="#77796c"
+                stroke="var(--chart-cursor)"
                 strokeDasharray="3 4"
               />
               {lines.map(

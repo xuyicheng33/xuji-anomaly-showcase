@@ -80,7 +80,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
   const operand = (value: number) =>
     value < 0 ? `(−${number(Math.abs(value), 4)})` : number(value, 4);
   return (
-    <div className="chapter-refined data-chapter">
+    <div className="data-chapter">
       <Heading title="监测数据预处理">
         {wind
           ? '整理功率与天气记录，完成时间对应、数据划分与归一化。'
@@ -165,6 +165,13 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
             </div>
           ))}
         </div>
+        {!wind && (
+          <p className="split-context quiet">
+            模型使用时，两段各跳过首条记录：训练 {number(data.summary.trainRows, 0)} 条，测试{' '}
+            {number(data.summary.testRows, 0)} 条。
+            <Footnote note="data-split" reference="ref-data-model-records" />
+          </p>
+        )}
       </Section>
 
       <div ref={normalizationRef} className="normalization-section">

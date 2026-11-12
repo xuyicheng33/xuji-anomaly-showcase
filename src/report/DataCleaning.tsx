@@ -13,38 +13,45 @@ export function MissingExample({ data, example }: { data: Journey; example: numb
         <code>{point.key}</code>
         <span>{sample.rows[0].time.slice(0, 10)}</span>
       </div>
-      <table aria-label="缺失值填零前后对照">
-        <thead>
-          <tr>
-            <th scope="col">时间</th>
-            <th scope="col">处理前</th>
-            <th scope="col">处理后</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sample.rows.map((row) => (
-            <tr key={row.time} className={row.before === null ? 'filled-row' : undefined}>
-              <th scope="row">{row.time.slice(11)}</th>
-              <td>
-                {row.before === null ? (
-                  <span className="missing-value">缺失</span>
-                ) : (
-                  row.before.toFixed(4)
-                )}
-              </td>
-              <td>
-                {row.before === null ? (
-                  <strong className="filled-value">
-                    0<span>已填补</span>
-                  </strong>
-                ) : (
-                  row.after.toFixed(4)
-                )}
-              </td>
+      <div
+        className="reference-table-scroll"
+        tabIndex={0}
+        role="region"
+        aria-label="缺失值填零前后对照，可左右滚动"
+      >
+        <table aria-label="缺失值填零前后对照">
+          <thead>
+            <tr>
+              <th scope="col">时间</th>
+              <th scope="col">处理前</th>
+              <th scope="col">处理后</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {sample.rows.map((row) => (
+              <tr key={row.time} className={row.before === null ? 'filled-row' : undefined}>
+                <th scope="row">{row.time.slice(11)}</th>
+                <td>
+                  {row.before === null ? (
+                    <span className="missing-value">缺失</span>
+                  ) : (
+                    row.before.toFixed(4)
+                  )}
+                </td>
+                <td>
+                  {row.before === null ? (
+                    <strong className="filled-value">
+                      0<span>已填补</span>
+                    </strong>
+                  ) : (
+                    row.after.toFixed(4)
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

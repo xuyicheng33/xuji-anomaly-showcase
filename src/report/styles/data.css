@@ -1,9 +1,12 @@
 /* Data styles. Edit existing rules and breakpoints here. */
+.data-chapter {
+  container: data-chapter / inline-size;
+}
 .data-ledger {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-block: 1px solid var(--line);
-  padding: 25px 0;
+  padding: 30px 0;
 }
 .data-ledger > div {
   display: flex;
@@ -25,7 +28,7 @@
   color: var(--muted);
 }
 .data-ledger strong {
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--numeral);
   font-size: 46px;
   font-weight: 400;
   line-height: 1.1;
@@ -33,7 +36,7 @@
   font-variant-numeric: tabular-nums;
 }
 .small-step {
-  font-size: 12px;
+  font-size: var(--text-small);
   letter-spacing: 0.04em;
   color: var(--blue);
   display: block;
@@ -41,14 +44,14 @@
 }
 .balanced-split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 7fr 3fr;
   gap: 2px;
-  border-radius: 7px;
+  border-radius: var(--radius-panel);
   overflow: hidden;
 }
 .balanced-split > div {
   padding: 26px 32px;
-  background: #e9eeea;
+  background: var(--selected);
 }
 .balanced-split > div + div {
   background: #edf0f1;
@@ -59,8 +62,9 @@
 }
 .balanced-split strong {
   display: block;
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--numeral);
   font-size: 43px;
+  color: var(--blue);
   font-weight: 400;
   margin: 12px 0;
 }
@@ -139,23 +143,25 @@
   margin-top: 9px;
 }
 .normalization-equation {
+  font-family: var(--sans);
+  line-height: 1.65;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
   padding: 26px 20px;
   margin-top: 24px;
-  background: #eeefe7;
-  color: var(--muted);
-  border-radius: 6px;
-  font-size: 15px;
+  background: var(--surface-soft);
+  color: var(--ink);
+  border-radius: var(--radius-panel);
+  font-size: 22px;
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
 .normalization-equation strong {
-  font-family: 'Instrument Serif', serif;
-  font-size: 38px;
-  font-weight: 400;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
   color: var(--blue);
 }
 @media (max-width: 1050px) {
@@ -173,7 +179,7 @@
 }
 @media (max-width: 680px) {
   .data-ledger {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 24px;
     padding: 23px 0;
   }
@@ -205,7 +211,8 @@
     white-space: nowrap;
   }
   .normalization-heading .field {
-    display: block;
+    flex-direction: column;
+    align-items: stretch;
   }
   .normalization-facts {
     grid-template-columns: 1fr 1fr;
@@ -237,12 +244,9 @@
   }
   .normalization-equation {
     flex-wrap: wrap;
-    gap: 8px 16px;
-    padding: 22px 12px;
-    font-size: 12px;
-  }
-  .normalization-equation > span:first-child {
-    width: 100%;
+    gap: 12px;
+    padding: 22px 10px;
+    font-size: 16px;
   }
 }
 .data-page-intro {
@@ -255,8 +259,7 @@
   font-size: 14px;
 }
 .data-page-intro > span {
-  flex-shrink: 0;
-  white-space: nowrap;
+  min-width: 0;
 }
 .data-page-intro .footnote {
   white-space: nowrap;
@@ -288,12 +291,13 @@
 }
 .cleaning-count {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 16px;
   margin-top: 22px;
 }
 .cleaning-count strong {
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--numeral);
   font-size: 38px;
   font-weight: 400;
   color: var(--blue);
@@ -316,12 +320,10 @@
 .removed-sensors summary {
   padding: 12px 0;
   border-block: 1px solid var(--line);
-  color: var(--blue);
-  font-size: 14px;
-  cursor: pointer;
 }
 .removed-sensors summary span {
-  float: right;
+  margin-left: auto;
+  flex-shrink: 0;
   color: var(--muted);
   font-size: 13px;
 }
@@ -424,8 +426,9 @@
 .trim-action button {
   flex-shrink: 0;
   font-size: 14px;
+  min-height: var(--control-height);
   color: var(--blue);
-  border-color: #b4c4cb;
+  border-color: var(--selected-border);
 }
 .trim-action > span {
   font-size: 13px;
@@ -463,6 +466,7 @@
   margin-left: auto;
 }
 .missing-example {
+  min-width: 0;
   animation: arrive 0.25s ease-out;
 }
 .missing-example th {
@@ -493,31 +497,16 @@
   font-size: 12px;
   color: var(--muted);
 }
-.data-chapter .balanced-split {
-  grid-template-columns: 7fr 3fr;
-}
-.data-chapter .balanced-split strong {
-  color: var(--blue);
-}
 .data-chapter .balanced-split strong small {
   margin-left: 8px;
+}
+.split-context {
+  margin-top: 16px;
 }
 .split-ratio {
   display: inline-block;
   margin-left: 10px;
   color: var(--muted);
-}
-.data-chapter .normalization-equation {
-  font-family: var(--sans);
-  font-size: 22px;
-  color: var(--ink);
-  gap: 20px;
-  line-height: 1.65;
-}
-.data-chapter .normalization-equation strong {
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 500;
 }
 .constant-equation {
   font-size: 16px;
@@ -620,7 +609,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 .split-dates time {
   white-space: nowrap;
@@ -650,7 +639,7 @@
     gap: 12px;
   }
   .cleaning-step {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 22px;
     padding: 28px 0;
   }
@@ -726,12 +715,6 @@
   .split-ratio {
     margin-left: 5px;
   }
-  .data-chapter .normalization-equation {
-    font-size: 16px;
-    padding: 22px 10px;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
   .record-examples .record-example-tabs {
     width: 100%;
     display: grid;
@@ -800,25 +783,40 @@
     padding-inline: 20px;
   }
 }
-@media (max-width: 680px) {
-  .data-chapter .normalization-equation > .math-fraction {
-    width: auto;
-  }
-}
-.data-ledger {
-  padding-top: 30px;
-  padding-bottom: 30px;
-}
 
 .wind-fields {
   margin-top: 24px;
 }
 .wind-fields summary {
-  cursor: pointer;
-  color: var(--blue);
   padding: 12px 0;
 }
 .wind-fields .reference-table-scroll {
   margin-top: 12px;
   max-height: 420px;
+}
+@container data-chapter (max-width: 240px) {
+  .data-ledger,
+  .normalization-facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .data-ledger > div + div,
+  .normalization-facts > div + div {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+  }
+  .normalization-facts strong {
+    overflow-wrap: anywhere;
+  }
+  .split-dates time {
+    white-space: normal;
+  }
+  .normalization-equation .math-fraction {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .normalization-equation .math-fraction > span {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }

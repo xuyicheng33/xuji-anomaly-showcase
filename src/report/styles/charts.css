@@ -11,14 +11,14 @@
   padding: 8px 0;
 }
 .curve-top strong {
-  font-size: 15px;
+  font-size: var(--text-control);
   font-weight: 500;
 }
 .legend {
   display: flex;
   gap: 20px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--text-small);
   flex-wrap: wrap;
   justify-content: flex-end;
   row-gap: 7px;
@@ -35,10 +35,10 @@
 }
 .legend .dashed {
   height: 0;
-  border-top: 2px dashed #bd653c;
+  border-top: 2px dashed var(--chart-threshold);
 }
 .curve text {
-  fill: #62665e;
+  fill: var(--muted);
   font-family: var(--sans);
   font-variant-numeric: tabular-nums;
   font-size: 12px;

@@ -3,7 +3,16 @@ import { usePlaybackControls } from './usePlaybackControls';
 import ContributionView from './ContributionView';
 import TableScrollHint from './TableScrollHint';
 import { pct } from '../journey';
-import { Section, ModelSelect, FeatureSelect, Confusion, Rates, Outcome, colors } from './ReportUI';
+import {
+  Heading,
+  Section,
+  ModelSelect,
+  FeatureSelect,
+  Confusion,
+  Rates,
+  Outcome,
+  colors,
+} from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
 import { useCurveData } from './useCurveData';
@@ -49,11 +58,7 @@ export function PlaybackChapter(p: PlaybackProps) {
   const holdScale = playing || scrubbing;
   return (
     <div className="playback-page">
-      <div className="playback-heading">
-        <div>
-          <h1>检测结果回放</h1>
-        </div>
-      </div>
+      <Heading title="检测结果回放" />
       <div className="toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect

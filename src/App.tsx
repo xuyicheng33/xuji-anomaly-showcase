@@ -73,7 +73,10 @@ export default function App() {
       <header className="site-header">
         <a href="#/" className="brand">
           <strong>许继电气</strong>
-          <span>{dataset.brandSubtitle}</span>
+          <span className="brand-context">
+            <span>{dataset.title}</span>
+            <span className="brand-description">异常检测研究</span>
+          </span>
         </a>
         <button
           ref={menuButton}
@@ -107,13 +110,7 @@ export default function App() {
           </a>
         </nav>
       </header>
-      <main
-        id="main"
-        tabIndex={-1}
-        className={
-          'site-main ' + (page === 'home' ? 'home-main' : page === 'playback' ? 'wide-main' : '')
-        }
-      >
+      <main id="main" tabIndex={-1} className="site-main">
         <div hidden={page === 'metrics'} key={contentPage}>
           <Suspense fallback={loading}>
             <ChapterReady

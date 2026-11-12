@@ -20,8 +20,10 @@
   white-space: nowrap;
 }
 .hero-bottom .primary {
-  min-width: 156px;
+  min-width: min(156px, 100%);
+  max-width: 100%;
   padding: 14px 28px;
+  white-space: normal;
 }
 .chapter-list {
   display: grid;
@@ -38,7 +40,7 @@
   transition: color 0.2s;
 }
 .large-index {
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--numeral);
   font-size: 43px;
   color: #7c8577;
   line-height: 1.1;

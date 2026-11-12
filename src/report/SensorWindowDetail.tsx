@@ -173,7 +173,7 @@ export default function SensorWindowDetail({
         第 {index + 1} 点 · {data.times[index]}
       </p>
       {error || inputAsset.error ? (
-        <p role="alert">
+        <p role="alert" className="inline-error">
           {error || inputAsset.error}
           <button
             onClick={() => {

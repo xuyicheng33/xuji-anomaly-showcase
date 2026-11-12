@@ -87,7 +87,7 @@
   text-align: left;
   padding: 13px 10px;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: var(--radius-small);
   min-height: 69px;
 }
 .has-detail .contribution-row {
@@ -96,17 +96,19 @@
 }
 .contribution-row[aria-pressed='true'] {
   border-color: var(--blue);
-  background: #eef1f0;
+  background: var(--selected);
 }
 .contribution-chevron {
   width: 12px;
   height: 12px;
   fill: none;
-  stroke: var(--blue);
+  stroke: var(--muted);
   stroke-width: 1.5;
+  transition: transform var(--motion-fast);
 }
 .contribution-row[aria-pressed='true'] .contribution-chevron {
   transform: rotate(90deg);
+  stroke: var(--blue);
 }
 .contribution-name {
   font-size: 13px;
@@ -127,7 +129,7 @@
 .contribution-track i {
   display: block;
   height: 100%;
-  background: #3566a1;
+  background: var(--chart-score);
   transition: width 140ms ease-out;
 }
 .contribution-list[data-playing='true'] .contribution-track i {
@@ -150,7 +152,7 @@
   margin-top: 8px;
 }
 .contribution-other .contribution-track i {
-  background: #96988f;
+  background: var(--chart-muted);
 }
 .contribution-empty {
   min-height: 110px;
@@ -183,8 +185,8 @@
 }
 .sensor-detail-heading button {
   white-space: nowrap;
-  font-size: 13px;
-  padding: 4px 0;
+  font-size: var(--text-control);
+  padding: 8px;
 }
 .sensor-detail-loading {
   min-height: 260px;

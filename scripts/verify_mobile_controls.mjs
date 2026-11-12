@@ -7,12 +7,39 @@ const out = qaDirectory('mobile_controls');
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
 try {
+  const tablet = await browser.newPage({
+    viewport: { width: 900, height: 900 },
+    reducedMotion: 'reduce',
+  });
+  await tablet.goto(showcaseUrl + '#/playback');
+  await tablet.getByRole('slider', { name: '播放进度' }).fill('132');
+  await tablet.getByTestId('contribution-total').waitFor();
+  await tablet.locator('.contribution-heading').scrollIntoViewIfNeeded();
+  await tablet.locator('.contribution-row').first().click();
+  await tablet.getByTestId('sensor-mean-error').waitFor();
+  await tablet.waitForFunction(() => {
+    const heading = document.querySelector('.sensor-detail-heading').getBoundingClientRect();
+    return heading.top >= 0 && heading.bottom <= innerHeight;
+  });
+  await tablet.getByRole('button', { name: '收起明细', exact: true }).click();
+  await tablet.waitForFunction(() => {
+    const row = document.querySelector('.contribution-row');
+    const box = row.getBoundingClientRect();
+    return row === document.activeElement && box.top >= -1 && box.bottom <= innerHeight;
+  });
+  await tablet.close();
+  console.log('PASS tablet contribution detail stays visible and returns to its origin');
+
   for (const width of [390, 320]) {
     const page = await browser.newPage({
       viewport: { width, height: 844 },
       reducedMotion: 'reduce',
     });
     await page.goto(showcaseUrl + '#/playback');
+    const controlHeights = await page
+      .locator('.playback-controls > button:not(.text-button), .playback-controls select')
+      .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
+    assert.ok(Math.max(...controlHeights) - Math.min(...controlHeights) <= 1);
     await page.getByRole('slider', { name: '播放进度' }).fill('132');
     await page.getByTestId('contribution-total').waitFor();
     await page.getByRole('button', { name: '选择测点', exact: true }).click();
@@ -85,6 +112,42 @@ try {
       );
     });
     await page.screenshot({ path: `${out}/${width}-calculation-right.png` });
+    await page.goto(showcaseUrl + '#/training');
+    await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
+    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+    assert.ok(
+      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+      `Training must reflow at ${width}px and 200% zoom`,
+    );
+    await page.screenshot({ path: `${out}/${width}-training-200.png` });
+    for (const query of ['', '?dataset=wind']) {
+      await page.goto(showcaseUrl + query + '#/');
+      await page.locator('main h1').waitFor();
+      await page.evaluate(() => document.fonts.ready);
+      await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+      assert.ok(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        `Home must reflow at ${width}px and 200% zoom (${query || 'converter'})`,
+      );
+      await page.goto(showcaseUrl + query + '#/data');
+      await page.locator('.normalization-section').scrollIntoViewIfNeeded();
+      await page.locator('.normalization-facts').waitFor();
+      assert.ok(
+        await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
+        `Data must reflow at ${width}px and 200% zoom (${query || 'converter'})`,
+      );
+      if (!query) {
+        const comparison = page.getByRole('region', {
+          name: '缺失值填零前后对照，可左右滚动',
+        });
+        await comparison.evaluate((element) => (element.scrollLeft = element.scrollWidth));
+        assert.ok(await comparison.evaluate((element) => element.scrollLeft > 0));
+      }
+      await page.screenshot({
+        path: `${out}/${width}-${query ? 'wind' : 'converter'}-data-200.png`,
+      });
+    }
     await page.close();
     console.log(
       `PASS ${width}px: picker layering, sticky pause, detail headings and 200% viewport`,

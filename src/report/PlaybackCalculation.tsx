@@ -129,7 +129,7 @@ export function PlaybackCalculation({
             个窗口分数。
           </p>
           {catalog.error || scoresAsset.error ? (
-            <div role="alert">
+            <div role="alert" className="inline-error">
               {catalog.error || scoresAsset.error}
               <button
                 onClick={() => {
@@ -215,7 +215,7 @@ export function PlaybackCalculation({
           <div ref={detail} className="coverage-calculation">
             {selected !== null &&
               (windowAsset.error || inputAsset.error ? (
-                <p role="alert">
+                <p role="alert" className="inline-error">
                   {windowAsset.error || inputAsset.error}
                   <button
                     onClick={() => {

@@ -84,7 +84,7 @@ export default function ReferenceConstruction({
               x2={width - right}
               y1={y(lo + (hi - lo) * fraction)}
               y2={y(lo + (hi - lo) * fraction)}
-              stroke="#deded6"
+              stroke="var(--line)"
             />
             <text x={left - 10} y={y(lo + (hi - lo) * fraction) + 4} textAnchor="end">
               {curveTick(lo + (hi - lo) * fraction, hi - lo)}

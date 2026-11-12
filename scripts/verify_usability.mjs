@@ -67,7 +67,10 @@ try {
     }
     assert.equal(await page.locator('.curve-selection').count(), 1);
     assert.equal(await page.locator('[data-anomaly-start]').count(), 0);
-    assert.equal(await page.locator('.curve-selection').getAttribute('fill'), '#355f7b');
+    assert.equal(
+      await page.locator('.curve-selection').evaluate((element) => getComputedStyle(element).fill),
+      'rgb(53, 95, 123)',
+    );
     await page.getByRole('slider', { name: '训练窗口位置' }).fill('320');
     await page.getByRole('slider', { name: '训练轮次' }).fill('7');
     await page.locator('#ref-training-mse-section').click();

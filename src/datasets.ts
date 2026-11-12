@@ -1,7 +1,6 @@
 export const datasetConfigs = {
   converter: {
     title: '换流设备',
-    brandSubtitle: '异常检测研究',
     titleSuffix: '',
     root: 'data/journey/',
     modelId: 'model1',
@@ -14,7 +13,6 @@ export const datasetConfigs = {
   },
   wind: {
     title: '风电设备',
-    brandSubtitle: '风电异常检测研究',
     titleSuffix: ' · 风电数据集',
     root: 'data/wind/',
     modelId: 'model2',
