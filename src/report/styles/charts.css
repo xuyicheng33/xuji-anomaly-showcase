@@ -43,6 +43,14 @@
   font-variant-numeric: tabular-nums;
   font-size: 12px;
 }
+.curve-range {
+  margin-top: 4px;
+  font-size: var(--text-small);
+  color: var(--muted);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
 @media (max-width: 680px) {
   .curve text {
     font-size: 13px;

@@ -277,6 +277,11 @@ export default function Curve({
           );
         })}
       </svg>
+      {width < 240 && (
+        <p className="curve-range">
+          {times ? `${times[0]} — ${times[n - 1]}` : `第 ${start + 1}—${start + n} ${axisUnit}`}
+        </p>
+      )}
     </div>
   );
 }

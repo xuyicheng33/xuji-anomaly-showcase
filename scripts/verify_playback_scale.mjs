@@ -26,6 +26,8 @@ const readScale = (page) =>
       paths: [...curve.querySelectorAll('path')].map((path) => path.getAttribute('d')),
       width: curve.querySelector('svg').viewBox.baseVal.width,
       height: curve.querySelector('svg').viewBox.baseVal.height,
+      plotLeft: Number(curve.querySelector('clipPath rect').getAttribute('x')),
+      plotWidth: Number(curve.querySelector('clipPath rect').getAttribute('width')),
     })),
   );
 const bounds = (scale) => [scale.low, scale.high];
@@ -41,13 +43,11 @@ const near = (actual, expected, tolerance = 1e-10) =>
   assert.ok(Math.abs(actual - expected) < tolerance, `${actual} != ${expected}`);
 const verifySamples = (scale, count, values) => {
   const start = Math.max(0, Math.min(2397 - 64, count - 1 - 40));
-  const left = scale.width < 550 ? 48 : 62,
-    right = scale.width < 550 ? 12 : 18;
   for (let j = 0; j < values.length; j++) {
     const vertices = [...scale.paths[j].matchAll(/[ML]([\d.-]+),([\d.-]+)/g)];
     assert.equal(vertices.length, count - start);
     for (let i = 0; i < vertices.length; i++) {
-      near(Number(vertices[i][1]), left + (i / 63) * (scale.width - left - right), 0.006);
+      near(Number(vertices[i][1]), scale.plotLeft + (i / 63) * scale.plotWidth, 0.006);
       near(
         Number(vertices[i][2]),
         20 + ((scale.high - values[j][start + i]) / (scale.high - scale.low)) * (scale.height - 52),
