@@ -1,4 +1,7 @@
 /* Model structure, training controls and window presentation. */
+.models-chapter {
+  container-type: inline-size;
+}
 .training-metrics {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 27px 0 0;
@@ -555,5 +558,31 @@
     font-size: var(--text-small);
     white-space: normal;
     overflow-wrap: anywhere;
+  }
+}
+@container (max-width: 320px) {
+  .models-chapter .model-flow,
+  .training-chapter .training-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .model-flow > div,
+  .training-chapter .training-steps > li {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: 14px;
+    padding: 0;
+  }
+  .model-flow > div > span,
+  .training-steps li > span {
+    grid-row: 1 / 3;
+  }
+  .model-flow h3,
+  .training-chapter .training-steps h3 {
+    margin: 0 0 8px;
+  }
+  .model-flow p,
+  .training-chapter .training-steps p {
+    font-size: var(--text-control);
   }
 }

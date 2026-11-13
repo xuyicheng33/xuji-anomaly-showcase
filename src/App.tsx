@@ -123,9 +123,12 @@ export default function App() {
                   <>
                     <section className="home-hero">
                       <h1>
-                        {dataset.title}
-                        <br />
-                        异常检测研究
+                        <span className="hero-subject">{dataset.title}</span>
+                        <span className="hero-title">
+                          <span>异常</span>
+                          <span>检测</span>
+                          <span>研究</span>
+                        </span>
                       </h1>
                       <div className="hero-bottom">
                         <a

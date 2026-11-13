@@ -49,14 +49,16 @@ export default function Curve({
   const [width, setWidth] = useState(1100);
   useEffect(() => {
     if (!container.current) return;
-    const observer = new ResizeObserver(([e]) => setWidth(Math.max(280, e.contentRect.width)));
+    const observer = new ResizeObserver(([e]) => {
+      if (e.contentRect.width > 0) setWidth(e.contentRect.width);
+    });
     observer.observe(container.current);
     return () => observer.disconnect();
   }, []);
   const uid = useId().replace(/:/g, '');
   const W = width,
-    L = width < 550 ? 48 : 62,
-    R = width < 550 ? 12 : 18,
+    L = Math.min(width * 0.48, width < 550 ? 60 : 62),
+    R = width < 550 ? 8 : 18,
     T = 20,
     B = 32,
     n = Math.max(2, ...lines.map((l) => l.values.length));
@@ -254,12 +256,19 @@ export default function Curve({
             </g>
           )}
         </g>
-        {(width < 550 ? [0, 0.5, 1] : [0, 0.25, 0.5, 0.75, 1]).map((t) => {
+        {(width < 240
+          ? [0.5]
+          : width < 420
+            ? [0, 1]
+            : width < (times ? 800 : 550)
+              ? [0, 0.5, 1]
+              : [0, 0.25, 0.5, 0.75, 1]
+        ).map((t) => {
           const i = Math.round(t * (n - 1));
           return (
             <text
               key={t}
-              x={x(i)}
+              x={width < 240 ? W / 2 : x(i)}
               y={height - 7}
               textAnchor={t === 0 ? 'start' : t === 1 ? 'end' : 'middle'}
             >

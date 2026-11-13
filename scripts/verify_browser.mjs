@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process';
-import { setTimeout } from 'node:timers/promises';
+import { setTimeout as delay } from 'node:timers/promises';
 import path from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
 import { chromium } from 'playwright';
@@ -27,8 +27,33 @@ try {
         '4175',
         '--strictPort',
       ],
-      { stdio: 'inherit', windowsHide: true },
+      { stdio: ['ignore', 'pipe', 'pipe'], windowsHide: true },
     );
+    await new Promise((resolve, reject) => {
+      let started = false;
+      let output = '';
+      const timeout = setTimeout(() => {
+        reject(new Error('Preview server did not announce startup.'));
+      }, 10000);
+      const failed = (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      };
+      server.stdout.on('data', (chunk) => {
+        process.stdout.write(chunk);
+        output += chunk.toString();
+        if (output.includes(base)) {
+          started = true;
+          clearTimeout(timeout);
+          resolve();
+        }
+      });
+      server.stderr.on('data', (chunk) => process.stderr.write(chunk));
+      server.once('error', failed);
+      server.once('exit', (code) => {
+        if (!started) failed(new Error(`Preview server exited before startup (${code}).`));
+      });
+    });
     let ready = false;
     for (let attempt = 0; attempt < 100; attempt++) {
       if (server.exitCode !== null) throw new Error('Preview server exited before startup.');
@@ -38,7 +63,7 @@ try {
         /* Wait for preview startup. */
       }
       if (ready) break;
-      await setTimeout(100);
+      await delay(100);
     }
     if (!ready) throw new Error('Preview server did not become ready.');
   }

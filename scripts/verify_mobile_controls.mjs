@@ -15,6 +15,43 @@ try {
     await page.goto(showcaseUrl + '#/playback');
     await page.getByRole('slider', { name: '播放进度' }).fill('132');
     await page.getByTestId('contribution-total').waitFor();
+    if (width <= 390) {
+      await page.getByRole('button', { name: '下一处检出', exact: true }).click();
+      await page.waitForFunction(() => {
+        const status = document.querySelector('.playback-status').getBoundingClientRect();
+        const controls = document.querySelector('.playback-controls').getBoundingClientRect();
+        return status.top >= controls.bottom && status.bottom < innerHeight;
+      });
+      const wrapped = await page.locator('.replay-links button').evaluateAll((buttons) =>
+        buttons.some((button) => {
+          const range = document.createRange();
+          range.selectNodeContents(button);
+          return (
+            range.getBoundingClientRect().height >
+            parseFloat(getComputedStyle(button).lineHeight) + 1
+          );
+        }),
+      );
+      assert.equal(wrapped, false, 'Outcome jump labels stay on one line');
+      await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+      await page.waitForFunction(() => {
+        const svg = document.querySelector('.reconstruction-view svg');
+        return Math.abs(svg.getBoundingClientRect().width / 2 - svg.viewBox.baseVal.width) < 1;
+      });
+      const font = await page
+        .locator('.reconstruction-view svg text')
+        .first()
+        .evaluate((text) => parseFloat(getComputedStyle(text).fontSize) * text.getScreenCTM().a);
+      assert.ok(font >= 24, 'Chart tick text enlarges with the page at 200%');
+      await page.evaluate(() => (document.documentElement.style.zoom = ''));
+      await page.goto(showcaseUrl + '#/');
+      await page.locator('.hero-title').waitFor();
+      const title = await page.locator('.hero-title').evaluate((element) => {
+        const tops = [...element.children].map((word) => word.getBoundingClientRect().top);
+        return new Set(tops).size;
+      });
+      assert.equal(title, 1, 'The mobile hero title fits without orphan characters');
+    }
     if (width === 768) {
       assert.ok((await page.locator('.site-header').boundingBox()).height <= 110);
     }
@@ -80,7 +117,7 @@ try {
     });
     await page.goto(showcaseUrl + '#/playback');
     const controlHeights = await page
-      .locator('.playback-controls > button:not(.text-button), .playback-controls select')
+      .locator('.playback-transport button, .playback-controls select')
       .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
     assert.ok(Math.max(...controlHeights) - Math.min(...controlHeights) <= 1);
     await page.getByRole('slider', { name: '播放进度' }).fill('132');

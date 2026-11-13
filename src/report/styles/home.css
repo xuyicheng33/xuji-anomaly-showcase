@@ -1,7 +1,15 @@
 /* Home styles. Edit existing rules and breakpoints here. */
 .home-hero {
+  container-type: inline-size;
   padding: 62px 0 54px;
   border-bottom: 1px solid var(--line);
+}
+.hero-subject,
+.hero-title {
+  display: block;
+}
+.hero-title > span {
+  display: inline-block;
 }
 .home-hero h1 {
   font-size: clamp(54px, 6.2vw, 84px);
@@ -63,7 +71,7 @@
     padding: 40px 0;
   }
   .home-hero h1 {
-    font-size: 58px;
+    font-size: clamp(32px, 16cqi, 58px);
   }
   .hero-bottom {
     flex-wrap: wrap;

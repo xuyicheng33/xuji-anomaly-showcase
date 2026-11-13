@@ -1,4 +1,5 @@
 import { usePlayback } from './usePlayback';
+import { useRef } from 'react';
 import { usePlaybackControls } from './usePlaybackControls';
 import ContributionView from './ContributionView';
 import TableScrollHint from './TableScrollHint';
@@ -56,6 +57,24 @@ export function PlaybackChapter(p: PlaybackProps) {
   const curvesReady = !!inputAsset.data && !!reconAsset.data;
   const scaleContext = `${model.id}:${scope}:${start}`;
   const holdScale = playing || scrubbing;
+  const overview = useRef<HTMLDivElement>(null);
+  const jumpToOutcome = (index: number) => {
+    nextOutcome(index);
+    requestAnimationFrame(() => {
+      const status = overview.current;
+      const toolbar = controls.current;
+      if (!status || !toolbar) return;
+      const top =
+        getComputedStyle(toolbar).position === 'sticky'
+          ? toolbar.getBoundingClientRect().height
+          : 0;
+      if (status.getBoundingClientRect().top < top)
+        status.scrollIntoView({
+          block: 'start',
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+        });
+    });
+  };
   return (
     <div className="playback-page">
       <Heading title="检测结果回放" />
@@ -72,48 +91,52 @@ export function PlaybackChapter(p: PlaybackProps) {
         />
       </div>
       <div className="playback-controls" ref={controls}>
-        <button
-          className="primary"
-          onClick={() => {
-            if (count === total) setCount(0);
-            setPlaying((v) => !v);
-          }}
-        >
-          {playing ? '暂停' : count === total ? '重新播放' : '播放'}
-        </button>
-        <button onClick={() => seek(Math.min(total, count + 1))} disabled={count === total}>
-          单步
-        </button>
-        <button onClick={() => seek(0)}>重置</button>
-        <label>
-          速度
-          <select aria-label="播放速度" value={speed} onChange={(e) => setSpeed(+e.target.value)}>
-            {[1, 2, 4, 8, 16].map((v) => (
-              <option key={v} value={v}>
-                {v}×
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          范围
-          <select
-            aria-label="播放范围"
-            value={scope}
-            onChange={(e) => {
-              seek(0);
-              setScope(e.target.value);
+        <div className="playback-transport" role="group" aria-label="播放控制">
+          <button
+            className="primary"
+            onClick={() => {
+              if (count === total) setCount(0);
+              setPlaying((v) => !v);
             }}
           >
-            <option value="all">完整测试集，{data.times.length.toLocaleString('en-US')}点</option>
-            <option value="window">选定片段，{data.window}点</option>
-          </select>
-        </label>
-        <button className="text-button" onClick={() => seek(total)}>
-          查看末尾
-        </button>
+            {playing ? '暂停' : count === total ? '重新播放' : '播放'}
+          </button>
+          <button onClick={() => seek(Math.min(total, count + 1))} disabled={count === total}>
+            单步
+          </button>
+          <button onClick={() => seek(0)}>重置</button>
+        </div>
+        <div className="playback-settings">
+          <label>
+            速度
+            <select aria-label="播放速度" value={speed} onChange={(e) => setSpeed(+e.target.value)}>
+              {[1, 2, 4, 8, 16].map((v) => (
+                <option key={v} value={v}>
+                  {v}×
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            范围
+            <select
+              aria-label="播放范围"
+              value={scope}
+              onChange={(e) => {
+                seek(0);
+                setScope(e.target.value);
+              }}
+            >
+              <option value="all">完整测试集</option>
+              <option value="window">选定片段</option>
+            </select>
+          </label>
+          <button className="text-button" onClick={() => seek(total)}>
+            查看末尾
+          </button>
+        </div>
       </div>
-      <div className="playback-status">
+      <div className="playback-status" ref={overview}>
         <span>{count ? data.times[idx] : '准备开始'}</span>
         {count ? (
           <Outcome label={data.labels[idx]} score={model.scores[idx]} model={model} />
@@ -255,7 +278,7 @@ export function PlaybackChapter(p: PlaybackProps) {
               className="text-button"
               disabled={nextPoints[code] === undefined}
               title={nextPoints[code] === undefined ? '后续没有此类结果' : undefined}
-              onClick={() => nextOutcome(nextPoints[code]!)}
+              onClick={() => jumpToOutcome(nextPoints[code]!)}
             >
               下一处{{ tp: '检出', fp: '误报', fn: '漏检' }[code]}
             </button>
