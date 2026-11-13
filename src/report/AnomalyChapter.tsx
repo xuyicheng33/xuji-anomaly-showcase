@@ -109,7 +109,7 @@ export default function AnomalyChapter({
                 data-written={writtenCount}
               >
                 <div className="case-stage-toolbar">
-                  <div className="case-steps" role="group" aria-label="构造步骤">
+                  <div className="segmented case-steps" role="group" aria-label="构造步骤">
                     {steps.map((s, i) => (
                       <button key={s} aria-pressed={phase === i} onClick={() => jump(i)}>
                         {s}
@@ -199,17 +199,50 @@ export default function AnomalyChapter({
                     </span>
                     <small>0 正常，1 异常</small>
                   </div>
-                  <div className="case-label-cells">
+                  <div className="case-label-cells" role="group" aria-label="所选测点逐点标签">
                     {visibleLabels.map((v, i) => (
                       <button
                         key={i}
                         aria-label={`第 ${i + 1} 点，标签 ${v}`}
                         aria-pressed={point === i}
+                        tabIndex={point === i ? 0 : -1}
                         className={v ? 'marked' : ''}
                         onClick={() => setPoint(i)}
+                        onKeyDown={(event) => {
+                          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key))
+                            return;
+                          event.preventDefault();
+                          const next =
+                            event.key === 'Home'
+                              ? 0
+                              : event.key === 'End'
+                                ? visibleLabels.length - 1
+                                : Math.max(
+                                    0,
+                                    Math.min(
+                                      visibleLabels.length - 1,
+                                      i + (event.key === 'ArrowRight' ? 1 : -1),
+                                    ),
+                                  );
+                          setPoint(next);
+                          const buttons =
+                            event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>(
+                              'button',
+                            );
+                          buttons?.[next]?.focus();
+                        }}
                       />
                     ))}
                   </div>
+                  <input
+                    className="case-point-slider"
+                    type="range"
+                    aria-label="案例查看时刻"
+                    min="0"
+                    max={visibleLabels.length - 1}
+                    value={point}
+                    onChange={(event) => setPoint(Number(event.target.value))}
+                  />
                 </div>
                 <div className="case-point" aria-live="polite">
                   <span className="case-point-navigation">

@@ -1,26 +1,4 @@
-/* Models and training: shared facts, model structure, training controls. */
-.inline-facts strong {
-  font-family: var(--numeral);
-  font-size: 38px;
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-weight: 400;
-}
-.inline-facts span {
-  font-family: var(--sans);
-  display: block;
-  font-size: var(--text-small);
-  color: var(--muted);
-  margin-top: 8px;
-}
-
-.inline-facts {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px;
-  padding: 26px 0;
-}
-
+/* Model structure, training controls and window presentation. */
 .training-metrics {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 27px 0 0;
@@ -28,7 +6,8 @@
   text-align: center;
 }
 .training-metrics strong {
-  font-size: 36px;
+  font-size: 30px;
+  font-variant-numeric: tabular-nums;
   padding-inline: 12px;
   color: var(--blue);
   white-space: nowrap;
@@ -245,8 +224,8 @@
   border-left: 1px solid var(--line);
 }
 .window-rules strong {
-  font-family: var(--numeral);
-  font-size: 40px;
+  font-family: var(--metric);
+  font-size: 36px;
   font-weight: 400;
   color: var(--blue);
 }
@@ -395,15 +374,6 @@
 }
 
 @media (max-width: 680px) {
-  .inline-facts {
-    gap: 14px;
-  }
-  .inline-facts strong {
-    font-size: 28px;
-  }
-  .inline-facts span {
-    font-size: var(--text-small);
-  }
   .model-details {
     grid-template-columns: 1fr;
     gap: 25px;
@@ -502,7 +472,7 @@
     font-size: 13px;
   }
   .training-metrics strong {
-    font-size: 28px;
+    font-size: 26px;
   }
   .training-metrics span {
     font-size: var(--text-small);
@@ -562,5 +532,28 @@
   }
   .training-chapter .training-steps > li {
     padding-right: 0;
+  }
+}
+@container (max-width: 260px) {
+  .window-position-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .window-rules {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .window-rules > div + div {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .window-rules strong {
+    font-size: 26px;
+  }
+  .training-chapter .model-select button {
+    padding-inline: 3px;
+    font-size: var(--text-small);
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 }

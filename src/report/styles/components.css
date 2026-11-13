@@ -487,6 +487,29 @@ details[open] > summary::before {
 .outcome.tn {
   color: var(--normal);
 }
+.inline-facts strong {
+  font-family: var(--metric);
+  font-size: 32px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.inline-facts span {
+  font-family: var(--sans);
+  display: block;
+  font-size: var(--text-small);
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.inline-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 32px;
+  padding: 26px 0;
+}
+
 .statistics {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -585,6 +608,39 @@ details[open] > summary::before {
   max-height: 480px;
   scrollbar-gutter: stable;
 }
+.reference-table-scroll {
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-block: 1px solid var(--line);
+  scrollbar-gutter: stable;
+  max-height: 350px;
+  margin: 20px 0;
+  max-width: 100%;
+}
+.reference-table-scroll table {
+  width: 100%;
+  min-width: 570px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.reference-table-scroll th {
+  padding: 10px 18px;
+}
+.reference-table-scroll td {
+  padding: 10px 18px;
+}
+.reference-table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface);
+}
+.reference-table-hint {
+  display: none;
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
 .math-fraction {
   display: inline-grid;
   grid-template-rows: auto auto;
@@ -611,6 +667,40 @@ details[open] > summary::before {
   gap: 8px;
   white-space: nowrap;
   color: var(--muted);
+}
+.note-anchor {
+  white-space: nowrap;
+}
+.footnote {
+  font-family: var(--sans);
+  font-size: 12px;
+  line-height: 0;
+  font-weight: 500;
+  vertical-align: super;
+  margin-left: 2px;
+}
+.footnote a {
+  color: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  min-width: 28px;
+  margin-block: -8px;
+  padding: 6px;
+  line-height: 1;
+  text-decoration: none;
+  text-align: center;
+  border-radius: var(--radius-small);
+  transition: background var(--motion-fast);
+}
+.footnote a:hover {
+  background: var(--selected);
+  outline: 1px solid var(--blue);
+}
+.footnote a:focus-visible {
+  background: var(--selected);
+  outline: 1px solid var(--blue);
 }
 .window-scope {
   white-space: nowrap;
@@ -642,6 +732,11 @@ details[open] > summary::before {
 }
 .result-reveal {
   animation: arrive var(--motion-normal) ease-out;
+}
+@media (max-width: 1050px) {
+  .reference-table-hint {
+    display: block;
+  }
 }
 @media (max-width: 1120px) {
   .site-header {
@@ -781,6 +876,15 @@ details[open] > summary::before {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
+  }
+  .inline-facts {
+    gap: 14px;
+  }
+  .inline-facts strong {
+    font-size: 26px;
+  }
+  .inline-facts span {
+    font-size: var(--text-small);
   }
   .statistics {
     grid-template-columns: minmax(0, 1fr);

@@ -120,6 +120,14 @@ try {
     if (width <= 390) await selectFeature(page, '5');
     await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
+    assert.match(
+      await page.locator('.calculation-scope').innerText(),
+      /当前时刻整体判定.*全部 125 个测点/,
+    );
+    assert.match(
+      await page.locator('#window-calculation-scroll-hint').innerText(),
+      /125 个测点.*上下滑动.*左右滑动/,
+    );
     if (width === 768) {
       const layout = await page.locator('.calculation-layout > div').evaluateAll((elements) =>
         elements.map((element) => {
@@ -146,6 +154,11 @@ try {
     }
     await page.evaluate(() => document.fonts.ready);
     const plot = page.locator('.reconstruction-view svg');
+    await plot.focus();
+    await page.keyboard.press('Home');
+    assert.equal(await page.getByRole('slider', { name: '片段查看时刻' }).inputValue(), '0');
+    await page.keyboard.press('End');
+    assert.equal(await page.getByRole('slider', { name: '片段查看时刻' }).inputValue(), '63');
     await plot.evaluate((element) =>
       element.scrollIntoView({ block: 'center', behavior: 'instant' }),
     );
@@ -216,6 +229,20 @@ try {
       await page.getByText('查看构造说明与公式', { exact: true }).click();
       await page.getByRole('button', { name: '标签结果', exact: true }).click();
       const selected = () => page.locator('.case-label-cells [aria-pressed=true]');
+      assert.equal(await page.locator('.case-label-cells button[tabindex="0"]').count(), 1);
+      await selected().focus();
+      await page.keyboard.press('ArrowRight');
+      assert.match(await selected().getAttribute('aria-label'), /^第 32 点/);
+      assert.equal(
+        await selected().evaluate((element) => element === document.activeElement),
+        true,
+      );
+      await page.keyboard.press('Home');
+      assert.match(await selected().getAttribute('aria-label'), /^第 1 点/);
+      await page.keyboard.press('End');
+      assert.match(await selected().getAttribute('aria-label'), /^第 64 点/);
+      await page.getByRole('slider', { name: '案例查看时刻' }).fill('30');
+      assert.match(await selected().getAttribute('aria-label'), /^第 31 点/);
       await page.getByRole('button', { name: '前一点', exact: true }).click();
       assert.match(await selected().getAttribute('aria-label'), /^第 30 点/);
       await page.getByRole('button', { name: '后一点', exact: true }).click();

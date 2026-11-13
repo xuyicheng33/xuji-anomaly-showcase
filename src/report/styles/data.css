@@ -28,8 +28,8 @@
   color: var(--muted);
 }
 .data-ledger strong {
-  font-family: var(--numeral);
-  font-size: 46px;
+  font-family: var(--metric);
+  font-size: 40px;
   font-weight: 400;
   line-height: 1.1;
   color: var(--blue);
@@ -62,8 +62,9 @@
 }
 .balanced-split strong {
   display: block;
-  font-family: var(--numeral);
-  font-size: 43px;
+  font-family: var(--metric);
+  font-size: 36px;
+  font-variant-numeric: tabular-nums;
   color: var(--blue);
   font-weight: 400;
   margin: 12px 0;
@@ -187,7 +188,7 @@
     border-left: 0;
   }
   .data-ledger strong {
-    font-size: 40px;
+    font-size: 34px;
   }
   .data-ledger small {
     font-size: 12px;
@@ -199,7 +200,7 @@
     padding: 21px 12px;
   }
   .balanced-split strong {
-    font-size: 35px;
+    font-size: 29px;
   }
   .balanced-split small {
     display: block;
@@ -297,8 +298,9 @@
   margin-top: 22px;
 }
 .cleaning-count strong {
-  font-family: var(--numeral);
-  font-size: 38px;
+  font-family: var(--metric);
+  font-size: 32px;
+  font-variant-numeric: tabular-nums;
   font-weight: 400;
   color: var(--blue);
 }
@@ -809,6 +811,29 @@
 .wind-fields .reference-table-scroll {
   margin-top: 12px;
   max-height: 420px;
+}
+@container data-chapter (max-width: 440px) {
+  .inline-facts {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+  .inline-facts strong {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px 16px;
+    padding: 16px 0;
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+  .inline-facts strong + strong {
+    border-top: 1px solid var(--line);
+  }
+  .inline-facts span {
+    margin-top: 0;
+    white-space: normal;
+  }
 }
 @container data-chapter (max-width: 240px) {
   .data-ledger,

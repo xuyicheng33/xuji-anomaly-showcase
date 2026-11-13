@@ -74,12 +74,20 @@ export default function FeaturePicker({
         : down
           ? box.bottom + gap
           : Math.max(topEdge + margin, box.top - gap - height);
-      setPlacement({
+      const next = {
         left: left / zoom,
         top: top / zoom,
         width: width / zoom,
         maxHeight: height / zoom,
-      });
+      };
+      setPlacement((current) =>
+        current.left === next.left &&
+        current.top === next.top &&
+        current.width === next.width &&
+        current.maxHeight === next.maxHeight
+          ? current
+          : next,
+      );
     };
     update();
     const observer = new ResizeObserver(update);

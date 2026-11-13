@@ -44,6 +44,7 @@
   --serif: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'SimSun', serif;
   --sans: 'Inter', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   --numeral: 'Instrument Serif', var(--serif);
+  --metric: var(--sans);
   --text-small: 13px;
   --text-control: 14px;
   --text-body: 15px;

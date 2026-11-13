@@ -109,7 +109,9 @@ export function ScoreCalculation({
               </dl>
             </div>
           )}
-          <TableScrollHint id={id + '-scroll-hint'}>左右滑动查看输入、重建与误差。</TableScrollHint>
+          <TableScrollHint id={id + '-scroll-hint'}>
+            共 {features} 个测点，上下滑动查看全部测点，左右滑动查看输入、重建与误差。
+          </TableScrollHint>
           <div
             className="calculation-table-scroll"
             tabIndex={0}
@@ -152,7 +154,7 @@ export function ScoreCalculation({
           <p className="calculation-help">平方误差 =（输入 − 重建）²。</p>
           {focusFeature >= 0 && labels && (
             <p className="calculation-help">
-              第 {index + 1} 点，{featureName(data.features[focusFeature])}标签：
+              当前测点标签：第 {index + 1} 点，{featureName(data.features[focusFeature])}，
               <span className="note-anchor">
                 {labels[index] ? '异常' : '正常'}
                 <Footnote note="anomaly-labels" reference={'ref-' + id + '-label'} />
@@ -192,6 +194,7 @@ export function ScoreCalculation({
             score={calculation.score}
             model={{ ...model, threshold: model.windowThreshold }}
           />
+          <p className="calculation-scope">当前时刻整体判定，综合全部 {features} 个测点。</p>
         </div>
       </div>
     </section>

@@ -117,6 +117,21 @@ export default function Curve({
         viewBox={'0 0 ' + W + ' ' + height}
         role="img"
         aria-label={title}
+        tabIndex={onSelect ? 0 : undefined}
+        onKeyDown={(event) => {
+          if (!onSelect || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          onSelect(
+            event.key === 'Home'
+              ? 0
+              : event.key === 'End'
+                ? n - 1
+                : Math.max(
+                    0,
+                    Math.min(n - 1, (selected ?? 0) + (event.key === 'ArrowRight' ? 1 : -1)),
+                  ),
+          );
+        }}
         onClick={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
           onSelect?.(
