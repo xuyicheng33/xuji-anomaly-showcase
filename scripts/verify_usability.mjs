@@ -43,6 +43,20 @@ try {
   await invalidPage.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
   await invalidPage.close();
   checks.push({ incompleteTrainingHistoryRejectedAndRetryable: true });
+  const brokenChapter = await browser.newPage();
+  await brokenChapter.route(
+    /\/(?:assets\/ModelsChapter-[^/]+\.js|src\/report\/ModelsChapter\.tsx)(?:\?|$)/,
+    (request) => request.fulfill({ status: 503, body: 'unavailable' }),
+  );
+  await brokenChapter.goto(base + '#/models');
+  await brokenChapter.getByRole('alert').waitFor();
+  assert.equal(await brokenChapter.locator('.site-header').isVisible(), true);
+  const failure = await brokenChapter.getByRole('alert').boundingBox();
+  assert.ok(failure.x > 0 && failure.width < 1440, 'Chapter failures retain the page margins');
+  await brokenChapter.getByRole('link', { name: '数据整理', exact: true }).click();
+  await brokenChapter.getByRole('heading', { name: '监测数据预处理', exact: true }).waitFor();
+  await brokenChapter.close();
+  checks.push({ failedChapterRetainsNavigation: true });
   for (const width of [1440, 768, 390, 320]) {
     const page = await browser.newPage({
       viewport: { width, height: 844 },

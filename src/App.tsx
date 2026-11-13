@@ -5,6 +5,7 @@ import { useReportNavigation } from './report/useReportNavigation';
 import { chapters, route } from './report/navigation';
 import { useJourney } from './report/useJourney';
 import DataFailure from './report/DataFailure';
+import ReportFailure from './report/ReportFailure';
 import { pausePresentation, rememberNoteOrigin } from './report/notes';
 const DataChapter = lazyChapter(() => import('./report/DataChapter'));
 const AnomalyChapter = lazyChapter(() => import('./report/AnomalyChapter'));
@@ -112,109 +113,113 @@ export default function App() {
       </header>
       <main id="main" tabIndex={-1} className="site-main">
         <div hidden={page === 'metrics'} key={contentPage}>
-          <Suspense fallback={loading}>
-            <ChapterReady
-              active={page !== 'metrics' && (contentPage === 'home' || !!data || !!error)}
-              reveal={reveal}
-            >
-              {contentPage === 'home' ? (
-                <>
-                  <section className="home-hero">
-                    <h1>
-                      {dataset.title}
-                      <br />
-                      异常检测研究
-                    </h1>
-                    <div className="hero-bottom">
-                      <a
-                        className="inline-link dataset-switch"
-                        href={datasetHome(dataset.alternate)}
-                      >
-                        {dataset.alternateTitle} →
-                      </a>
-                      <a className="primary" href="#/data">
-                        开始查看
-                      </a>
-                    </div>
-                  </section>
-                  <section className="chapter-list" aria-label="完整研究流程">
-                    {chapters.map(([id, , title, desc], i) => (
-                      <a href={'#/' + id} key={id}>
-                        <span className="large-index">0{i + 1}</span>
-                        <div>
-                          <h2>{title}</h2>
-                          <p>{desc}</p>
-                        </div>
-                      </a>
-                    ))}
-                  </section>
-                </>
-              ) : error ? (
-                <DataFailure message={error} retry={retry} />
-              ) : contentPage === 'data' ? (
-                <DataChapter
-                  content={data ? { data, feature: selectedFeature, setFeature } : null}
-                />
-              ) : contentPage === 'models' ? (
-                <ModelsChapter content={data && model ? { data, model, setModel } : null} />
-              ) : contentPage === 'anomalies' ? (
-                <AnomalyChapter content={data && model ? { data, model, setModel } : null} />
-              ) : contentPage === 'training' ? (
-                <TrainingChapter
-                  content={
-                    data && model
-                      ? { data, model, setModel, feature: selectedFeature, setFeature }
-                      : null
-                  }
-                />
-              ) : contentPage === 'detection' ? (
-                <DetectionChapter
-                  content={
-                    data && model
-                      ? {
-                          data,
-                          model,
-                          setModel,
-                          feature: selectedFeature,
-                          setFeature,
-                          start: selectedStart,
-                          setStart,
-                          viewFeature: selectedView,
-                          setViewFeature,
-                        }
-                      : null
-                  }
-                />
-              ) : contentPage === 'playback' ? (
-                <PlaybackChapter
-                  content={
-                    data && model
-                      ? {
-                          data,
-                          model,
-                          setModel,
-                          setFeature,
-                          start: selectedStart,
-                          viewFeature: selectedView,
-                          setViewFeature,
-                        }
-                      : null
-                  }
-                />
-              ) : null}
-            </ChapterReady>
-          </Suspense>
+          <ReportFailure contained>
+            <Suspense fallback={loading}>
+              <ChapterReady
+                active={page !== 'metrics' && (contentPage === 'home' || !!data || !!error)}
+                reveal={reveal}
+              >
+                {contentPage === 'home' ? (
+                  <>
+                    <section className="home-hero">
+                      <h1>
+                        {dataset.title}
+                        <br />
+                        异常检测研究
+                      </h1>
+                      <div className="hero-bottom">
+                        <a
+                          className="inline-link dataset-switch"
+                          href={datasetHome(dataset.alternate)}
+                        >
+                          {dataset.alternateTitle} →
+                        </a>
+                        <a className="primary" href="#/data">
+                          开始查看
+                        </a>
+                      </div>
+                    </section>
+                    <section className="chapter-list" aria-label="完整研究流程">
+                      {chapters.map(([id, , title, desc], i) => (
+                        <a href={'#/' + id} key={id}>
+                          <span className="large-index">0{i + 1}</span>
+                          <div>
+                            <h2>{title}</h2>
+                            <p>{desc}</p>
+                          </div>
+                        </a>
+                      ))}
+                    </section>
+                  </>
+                ) : error ? (
+                  <DataFailure message={error} retry={retry} />
+                ) : contentPage === 'data' ? (
+                  <DataChapter
+                    content={data ? { data, feature: selectedFeature, setFeature } : null}
+                  />
+                ) : contentPage === 'models' ? (
+                  <ModelsChapter content={data && model ? { data, model, setModel } : null} />
+                ) : contentPage === 'anomalies' ? (
+                  <AnomalyChapter content={data && model ? { data, model, setModel } : null} />
+                ) : contentPage === 'training' ? (
+                  <TrainingChapter
+                    content={
+                      data && model
+                        ? { data, model, setModel, feature: selectedFeature, setFeature }
+                        : null
+                    }
+                  />
+                ) : contentPage === 'detection' ? (
+                  <DetectionChapter
+                    content={
+                      data && model
+                        ? {
+                            data,
+                            model,
+                            setModel,
+                            feature: selectedFeature,
+                            setFeature,
+                            start: selectedStart,
+                            setStart,
+                            viewFeature: selectedView,
+                            setViewFeature,
+                          }
+                        : null
+                    }
+                  />
+                ) : contentPage === 'playback' ? (
+                  <PlaybackChapter
+                    content={
+                      data && model
+                        ? {
+                            data,
+                            model,
+                            setModel,
+                            setFeature,
+                            start: selectedStart,
+                            viewFeature: selectedView,
+                            setViewFeature,
+                          }
+                        : null
+                    }
+                  />
+                ) : null}
+              </ChapterReady>
+            </Suspense>
+          </ReportFailure>
         </div>
         {page === 'metrics' && (
-          <Suspense fallback={loading}>
-            <ChapterReady active={!!data || !!error} reveal={reveal}>
-              {error ? (
-                <DataFailure message={error} retry={retry} />
-              ) : (
-                <ExplanationChapter content={data ? { data, address } : null} />
-              )}
-            </ChapterReady>
-          </Suspense>
+          <ReportFailure contained>
+            <Suspense fallback={loading}>
+              <ChapterReady active={!!data || !!error} reveal={reveal}>
+                {error ? (
+                  <DataFailure message={error} retry={retry} />
+                ) : (
+                  <ExplanationChapter content={data ? { data, address } : null} />
+                )}
+              </ChapterReady>
+            </Suspense>
+          </ReportFailure>
         )}
       </main>
     </>

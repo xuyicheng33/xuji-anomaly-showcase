@@ -80,6 +80,17 @@ try {
     assert.equal(await page.locator('.feature-option').count(), 32);
     await page.getByRole('button', { name: '取消', exact: true }).click();
     await page.goto(showcaseUrl + '#/data');
+    if (width <= 390) {
+      const comparison = page.getByRole('region', {
+        name: '缺失值填零前后对照，可左右滚动',
+      });
+      await comparison.waitFor();
+      assert.ok(
+        await comparison.evaluate((element) => element.scrollWidth <= element.clientWidth),
+        'The missing-value result fits beside the original on mobile',
+      );
+      assert.match(await comparison.locator('.filled-row').innerText(), /缺失.*0.*已填补/s);
+    }
     await page.locator('#ref-data-test-count').click();
     await page.locator('#note-data-split:focus').waitFor();
     await page.locator('#note-data-split .note-return').click();
@@ -89,6 +100,56 @@ try {
       `PASS ${width}px searchable selection, dictionary names, cancellation, case restriction, contribution search, detail positioning/return, plot/grid and 200%`,
     );
   }
+  for (const [width, height, zoom] of [
+    [768, 600, 1],
+    [320, 844, 2],
+    [390, 844, 2],
+  ]) {
+    const page = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' });
+    await page.goto(showcaseUrl + '#/training');
+    await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
+    await page.evaluate(() => document.fonts.ready);
+    await page.evaluate((value) => (document.documentElement.style.zoom = String(value)), zoom);
+    await page.getByRole('button', { name: '训练测点', exact: true }).click();
+    const panel = await page.getByRole('dialog').boundingBox();
+    const options = await page.locator('.feature-options').boundingBox();
+    assert.ok(
+      panel.x >= 0 &&
+        panel.y >= 0 &&
+        panel.x + panel.width <= width + 1 &&
+        panel.y + panel.height <= height + 1,
+      'The searchable picker fits the available viewport, including high zoom',
+    );
+    assert.ok(options.height >= 60, 'Search results remain reachable');
+    assert.ok(
+      await page.locator('.feature-groups').evaluate((element) => {
+        const bounds = element.getBoundingClientRect();
+        return Array.from(element.children).every((button) => {
+          const box = button.getBoundingClientRect();
+          return box.top >= bounds.top && box.bottom <= bounds.bottom + 1;
+        });
+      }),
+      'Every category is fully visible without clipping button text',
+    );
+    await page.screenshot({ path: `${out}/${width}-${height}-picker-${zoom}.png` });
+    await page.keyboard.press('Escape');
+    await page.getByRole('dialog').waitFor({ state: 'hidden' });
+    if (zoom === 2) {
+      const metrics = page.locator('.training-metrics');
+      await metrics.scrollIntoViewIfNeeded();
+      assert.ok(await metrics.evaluate((element) => element.scrollWidth <= element.clientWidth));
+      assert.equal(
+        await metrics.evaluate(
+          (element) => getComputedStyle(element).gridTemplateColumns.split(' ').length,
+        ),
+        1,
+        'High-zoom metrics use one column without breaking numbers into characters',
+      );
+      await page.screenshot({ path: `${out}/${width}-training-metrics-200.png` });
+    }
+    await page.close();
+  }
+  console.log('PASS missing-value comparison, short-view picker bounds and readable 200% metrics');
 } finally {
   await browser.close();
 }

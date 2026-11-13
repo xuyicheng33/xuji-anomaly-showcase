@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import TableScrollHint from './TableScrollHint';
 import type { Journey } from '../journey';
 import cleaning from './cleaning-data.json';
 
 const count = (n: number) => n.toLocaleString('zh-CN');
 export function MissingExample({ data, example }: { data: Journey; example: number }) {
+  const hint = useId();
   const sample = cleaning.missingExamples[example],
     point = data.features[sample.feature];
   return (
@@ -13,11 +15,15 @@ export function MissingExample({ data, example }: { data: Journey; example: numb
         <code>{point.key}</code>
         <span>{sample.rows[0].time.slice(0, 10)}</span>
       </div>
+      <div className="missing-comparison-hint">
+        <TableScrollHint id={hint}>左右滑动查看处理前后。</TableScrollHint>
+      </div>
       <div
         className="reference-table-scroll"
         tabIndex={0}
         role="region"
         aria-label="缺失值填零前后对照，可左右滚动"
+        aria-describedby={hint}
       >
         <table aria-label="缺失值填零前后对照">
           <thead>

@@ -467,7 +467,23 @@
 }
 .missing-example {
   min-width: 0;
+  container-type: inline-size;
   animation: arrive 0.25s ease-out;
+}
+.missing-example .reference-table-scroll table {
+  min-width: 0;
+  table-layout: fixed;
+}
+.missing-comparison-hint {
+  display: none;
+}
+@container (max-width: 240px) {
+  .missing-example .reference-table-scroll table {
+    min-width: 330px;
+  }
+  .missing-comparison-hint {
+    display: block;
+  }
 }
 .missing-example th {
   padding: 11px 16px;
