@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { countMetrics, meanSeries, loadWindow, windowScores, pct } from '../journey';
-import { Heading, Section, ModelSelect, FeatureSelect, Confusion, Rates, colors } from './ReportUI';
+import { countMetrics, meanSeries, loadWindow, windowScores } from '../journey';
+import {
+  Heading,
+  Section,
+  ModelSelect,
+  FeatureSelect,
+  Confusion,
+  Rates,
+  ResultSummary,
+  colors,
+} from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
 import { useCurveData, useWindowInput } from './useCurveData';
@@ -226,6 +235,25 @@ export function DetectionChapter(p: DetectionProps) {
         <i />
         {data.dataset?.id === 'wind' ? '保留异常标签区间' : '实验异常标签区间'}
       </p>
+      {ready && stats && (
+        <div className="detection-summary" ref={resultSummary} aria-live="polite">
+          <ResultSummary metrics={stats} scope={`独立窗口 · 第 ${start + 1}—${start + window} 点`}>
+            <button
+              className="inline-link"
+              onClick={() =>
+                document.getElementById('window-evaluation')?.scrollIntoView({
+                  behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                    ? 'instant'
+                    : 'smooth',
+                  block: 'start',
+                })
+              }
+            >
+              查看评估结果 ↓
+            </button>
+          </ResultSummary>
+        </div>
+      )}
       {inputCurve.data ? (
         <ReconstructionView
           features={data.features.length}
@@ -265,35 +293,6 @@ export function DetectionChapter(p: DetectionProps) {
         <div role="alert" className="inline-error">
           {error}
           <button onClick={requestResult}>重试</button>
-        </div>
-      )}
-      {ready && stats && (
-        <div className="detection-summary" ref={resultSummary} aria-live="polite">
-          <span>
-            检出 <strong>{stats.tp}</strong>
-          </span>
-          <span>
-            误报 <strong>{stats.fp}</strong>
-          </span>
-          <span>
-            漏检 <strong>{stats.fn}</strong>
-          </span>
-          <span>
-            逐点F1 <strong>{pct(stats.f1)}</strong>
-          </span>
-          <button
-            className="inline-link"
-            onClick={() =>
-              document.getElementById('window-evaluation')?.scrollIntoView({
-                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-                  ? 'instant'
-                  : 'smooth',
-                block: 'start',
-              })
-            }
-          >
-            查看评估结果 ↓
-          </button>
         </div>
       )}
       {ready && stats && (

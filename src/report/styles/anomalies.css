@@ -453,9 +453,6 @@
 .reference-values small {
   font-size: 13px;
 }
-.case-page .chapter-heading {
-  padding: 24px 0 42px;
-}
 @keyframes case-options-in {
   from {
     opacity: 0;
@@ -580,11 +577,6 @@
   margin-top: 18px;
 }
 
-@media (min-width: 1060px) {
-  .case-page .chapter-heading h1 {
-    font-size: 38px;
-  }
-}
 @media (max-width: 1120px) {
   .case-layout {
     grid-template-columns: 225px minmax(0, 1fr);
@@ -684,9 +676,6 @@
   }
 }
 @media (max-width: 550px) {
-  .case-page .chapter-heading {
-    padding: 20px 0 22px;
-  }
   .case-layout {
     gap: 18px;
   }

@@ -92,24 +92,6 @@
 }
 .detection-summary {
   scroll-margin-top: 20px;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-  padding: 10px 0;
-  margin: 4px 0 12px;
-  border-block: 1px solid var(--line);
-  font-size: var(--text-small);
-  color: var(--muted);
-}
-.detection-summary strong {
-  font-weight: 500;
-  color: var(--ink);
-  font-size: 20px;
-  margin-left: 8px;
-}
-.detection-summary button {
-  margin-left: auto;
 }
 .chart-label-key {
   display: flex;
@@ -146,18 +128,6 @@
   }
 }
 @media (max-width: 680px) {
-  .detection-page > .chapter-heading {
-    padding: 20px 0 24px;
-  }
-  .detection-page > .chapter-heading p {
-    margin-top: 8px;
-  }
-  .detection-page > .toolbar {
-    margin-bottom: 16px;
-  }
-  .detection-page .feature-field {
-    flex-wrap: nowrap;
-  }
   .example-picker {
     gap: 8px;
     margin-bottom: 16px;
@@ -205,19 +175,6 @@
   }
   .time-range {
     margin-block: 12px;
-  }
-  .detection-summary {
-    gap: 8px 16px;
-    padding-block: 10px;
-    margin-block: 12px;
-  }
-  .detection-summary button {
-    margin-left: auto;
-    font-size: var(--text-small);
-  }
-  .detection-summary strong {
-    font-size: 19px;
-    margin-left: 4px;
   }
   .chart-label-key {
     margin-block: 12px 5px;

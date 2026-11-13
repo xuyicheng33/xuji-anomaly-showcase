@@ -12,6 +12,7 @@ import {
   Confusion,
   Rates,
   Outcome,
+  ResultSummary,
   colors,
 } from './ReportUI';
 import Curve from './Curve';
@@ -185,6 +186,9 @@ export function PlaybackChapter(p: PlaybackProps) {
         {data.dataset?.id === 'wind' ? '橙色区域表示保留的异常标签' : '橙色区域表示实验异常标签'}
         {viewFeature >= 0 ? `，下方分数综合全部 ${data.features.length} 个测点` : ''}
       </p>
+      {count > 0 && (
+        <ResultSummary metrics={stats} scope={`累计结果 · 第 ${from + 1}—${idx + 1} 点`} />
+      )}
       {!count && (
         <div className="replay-intro">
           <h2>逐点查看检测结果</h2>

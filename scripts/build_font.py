@@ -49,6 +49,15 @@ def main():
             ),
             encoding="utf8",
         )
+        entry = ROOT / "index.html"
+        entry.write_text(
+            re.sub(
+                r"NotoSerifSC-Subset\.woff2\?v=[a-f0-9]+",
+                "NotoSerifSC-Subset.woff2?v=" + digest,
+                entry.read_text(encoding="utf8"),
+            ),
+            encoding="utf8",
+        )
     font = TTFont(TARGET)
     missing = sorted(c for c in chinese if ord(c) not in font.getBestCmap())
     if missing:

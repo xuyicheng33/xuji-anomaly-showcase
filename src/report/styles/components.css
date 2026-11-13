@@ -221,6 +221,9 @@ details[open] > summary::before {
   box-shadow: 0 1px 4px #20282012;
 }
 .model-identity {
+  min-height: var(--control-height);
+  display: inline-flex;
+  align-items: center;
   font-size: var(--text-control);
   color: var(--muted);
 }
@@ -584,6 +587,41 @@ details[open] > summary::before {
   border-color: var(--negative-border);
   background: var(--negative-surface);
 }
+.result-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  padding: 16px 0;
+  margin: 12px 0 24px;
+  border-block: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.result-summary-scope {
+  color: var(--ink);
+}
+.result-summary-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-left: auto;
+}
+.result-summary-values > span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+.result-summary strong {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.result-summary .inline-link {
+  margin-left: auto;
+}
 .rates {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -769,6 +807,38 @@ details[open] > summary::before {
   }
 }
 @media (max-width: 680px) {
+  .feature-field {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .result-summary {
+    gap: 10px;
+    padding-block: 14px;
+    margin-block: 12px 20px;
+  }
+  .result-summary-scope,
+  .result-summary-values {
+    width: 100%;
+  }
+  .result-summary-values {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .result-summary-values > span {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .result-summary strong {
+    font-size: clamp(16px, 4.8vw, 20px);
+  }
+  .result-summary .inline-link {
+    min-height: 0;
+    padding: 4px 0;
+    font-size: var(--text-small);
+  }
+
   .site-header {
     padding: 16px 22px;
     min-height: 76px;
@@ -930,5 +1000,10 @@ details[open] > summary::before {
   }
   .confusion-cell p {
     margin-top: 0;
+  }
+}
+@container (max-width: 240px) {
+  .result-summary-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

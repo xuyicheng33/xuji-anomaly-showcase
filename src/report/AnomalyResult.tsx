@@ -2,7 +2,7 @@ import type { RefObject } from 'react';
 import { series, meanSeries, type Journey } from '../journey';
 import type { AnomalyCase, CaseArrays, CaseModel } from '../anomalyCases';
 import Curve from './Curve';
-import { Confusion, Rates, colors, ModelSelect } from './ReportUI';
+import { Confusion, Rates, colors, ModelSelect, ResultSummary } from './ReportUI';
 import type { useDataAsset } from './useDataAsset';
 
 export default function AnomalyResult({
@@ -38,6 +38,7 @@ export default function AnomalyResult({
         <h2>案例检测结果</h2>
         <ModelSelect data={data} value={cm.id} onChange={setModel} />
       </div>
+      <ResultSummary metrics={cm.metrics} scope={`案例窗口 · ${selected.times.length} 个时刻`} />
       <div className="case-reconstruction" aria-busy={!reconstruction.data}>
         <Curve
           title="插入结果与重建"

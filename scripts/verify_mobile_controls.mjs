@@ -75,7 +75,7 @@ try {
     }
     const plot = await page.locator('.reconstruction-view svg').boundingBox();
     const summary = await page.locator('.detection-summary').boundingBox();
-    assert.ok(summary.y >= plot.y + plot.height, 'The result summary follows its chart');
+    assert.ok(summary.y + summary.height <= plot.y, 'The result summary precedes its chart');
     if (width <= 390)
       assert.ok(plot.y < 760, 'The mobile chart is visible within the first screen');
     await page.goto(showcaseUrl + '#/training');

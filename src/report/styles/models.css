@@ -107,18 +107,19 @@
   padding: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  gap: 0;
+  margin-top: 0;
 }
 .training-steps li > span {
   font-family: var(--numeral);
   font-size: 30px;
-  color: var(--muted);
+  color: var(--blue);
 }
 .training-steps h3 {
   margin: 15px 0 10px;
 }
 .training-steps p {
-  font-size: 15px;
+  font-size: var(--text-control);
   color: var(--muted);
 }
 
@@ -227,10 +228,6 @@
   font-size: var(--text-small);
   color: var(--muted);
 }
-.training-chapter .training-steps {
-  gap: 0;
-  margin-top: 0;
-}
 .training-chapter .training-steps > li {
   padding: 0 24px;
   border-left: 1px solid var(--line);
@@ -242,14 +239,8 @@
 .training-chapter .training-steps > li:last-child {
   padding-right: 0;
 }
-.training-chapter .training-steps > li > span {
-  color: var(--blue);
-}
-.training-chapter .training-steps p {
-  font-size: 14px;
-}
 .training-chapter .model-selection-row {
-  margin-bottom: 22px;
+  margin-bottom: var(--toolbar-space);
 }
 .models-chapter .model-flow {
   display: grid;
@@ -380,7 +371,7 @@
   }
   .training-steps {
     grid-template-columns: 1fr 1fr;
-    gap: 25px;
+    gap: 25px 20px;
   }
   .model-intro {
     margin: 24px 0;
@@ -422,10 +413,6 @@
     align-items: flex-start;
     gap: 13px;
   }
-  .training-window-header .field {
-    flex-direction: column;
-    align-items: stretch;
-  }
   .window-position-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -443,9 +430,6 @@
   }
   .window-rules strong {
     font-size: 34px;
-  }
-  .training-chapter .training-steps {
-    gap: 25px 20px;
   }
   .training-chapter .training-steps > li {
     padding: 0;
