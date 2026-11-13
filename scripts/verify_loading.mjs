@@ -224,6 +224,7 @@ try {
   );
   await route.page.getByRole('alert').waitFor();
   await route.page.goto(base + '#/playback');
+  await route.page.getByRole('button', { name: '单步', exact: true }).click();
   await route.page.getByRole('img', { name: '整体异常分数', exact: true }).waitFor();
   assert.equal(await route.page.getByRole('alert').count(), 0);
   await route.page.close();
