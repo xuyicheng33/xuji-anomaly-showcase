@@ -124,10 +124,12 @@ try {
       await page.locator('.calculation-scope').innerText(),
       /当前时刻整体判定.*全部 125 个测点/,
     );
-    assert.match(
-      await page.locator('#window-calculation-scroll-hint').innerText(),
-      /125 个测点.*上下滑动.*左右滑动/,
-    );
+    const scrollHint = page.locator('#window-calculation-scroll-hint');
+    assert.match(await scrollHint.innerText(), /125 个测点.*上下滑动/);
+    const horizontalOverflow = await page
+      .locator('.calculation-table-scroll')
+      .evaluate((table) => table.scrollWidth > table.clientWidth + 1);
+    assert.equal((await scrollHint.innerText()).includes('左右滑动'), horizontalOverflow);
     if (width === 768) {
       const layout = await page.locator('.calculation-layout > div').evaluateAll((elements) =>
         elements.map((element) => {

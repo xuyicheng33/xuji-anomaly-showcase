@@ -123,7 +123,10 @@ export function ScoreCalculation({
                 </dl>
               </div>
             )}
-            <TableScrollHint id={id + '-scroll-hint'}>
+            <TableScrollHint
+              id={id + '-scroll-hint'}
+              verticalHint={<>共 {features} 个测点，上下滑动查看全部测点。</>}
+            >
               共 {features} 个测点，上下滑动查看全部测点，左右滑动查看输入、重建与误差。
             </TableScrollHint>
             <div
