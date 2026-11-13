@@ -38,8 +38,12 @@ export function DetectionChapter(p: DetectionProps) {
     [request, setRequest] = useState<{ key: string; attempt: number } | null>(null);
   const viewKey = `${model.run}:${model.id}:${start}`;
   const pendingExample = useRef<{ key: string; point: number } | null>(null);
-  const requestResult = () =>
+  const resultSummary = useRef<HTMLDivElement>(null);
+  const revealRequested = useRef(false);
+  const requestResult = () => {
+    revealRequested.current = true;
     setRequest((previous) => ({ key: viewKey, attempt: (previous?.attempt ?? 0) + 1 }));
+  };
   useEffect(() => {
     const saved =
       presentationMemory.detection?.key === viewKey ? presentationMemory.detection : null;
@@ -92,6 +96,18 @@ export function DetectionChapter(p: DetectionProps) {
   useEffect(() => {
     if (ready && result) presentationMemory.detection = { key: viewKey, result, point };
   }, [ready, result, point, viewKey]);
+  useEffect(() => {
+    if (!ready || !revealRequested.current) return;
+    revealRequested.current = false;
+    if (!matchMedia('(max-width: 680px)').matches) return;
+    const frame = requestAnimationFrame(() =>
+      resultSummary.current?.scrollIntoView({
+        block: 'start',
+        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+      }),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [ready, request]);
   return (
     <div className="detection-page">
       <Heading title="数据片段检测">{window} 点窗口的重建结果、异常分数与检测判定。</Heading>
@@ -220,7 +236,7 @@ export function DetectionChapter(p: DetectionProps) {
         </div>
       )}
       {ready && stats && (
-        <div className="detection-summary" aria-live="polite">
+        <div className="detection-summary" ref={resultSummary} aria-live="polite">
           <span>
             检出 <strong>{stats.tp}</strong>
           </span>
@@ -286,22 +302,6 @@ export function DetectionChapter(p: DetectionProps) {
             />
             <span>第 {index + 1} 点</span>
           </label>
-          <ScoreCalculation
-            data={data}
-            model={model}
-            input={input!}
-            recon={result.recon}
-            start={start}
-            point={point}
-            focusFeature={viewFeature}
-            labels={labelAsset.data}
-          />
-          {viewFeature >= 0 && labelAsset.error && (
-            <p role="alert" className="inline-error">
-              {labelAsset.error}
-              <button onClick={labelAsset.retry}>重试标签</button>
-            </p>
-          )}
           <div id="window-evaluation">
             <Section
               title={
@@ -320,6 +320,22 @@ export function DetectionChapter(p: DetectionProps) {
               </p>
             </Section>
           </div>
+          <ScoreCalculation
+            data={data}
+            model={model}
+            input={input!}
+            recon={result.recon}
+            start={start}
+            point={point}
+            focusFeature={viewFeature}
+            labels={labelAsset.data}
+          />
+          {viewFeature >= 0 && labelAsset.error && (
+            <p role="alert" className="inline-error">
+              {labelAsset.error}
+              <button onClick={labelAsset.retry}>重试标签</button>
+            </p>
+          )}
         </div>
       )}
     </div>

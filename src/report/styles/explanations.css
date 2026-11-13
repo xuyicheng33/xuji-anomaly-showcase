@@ -4,6 +4,8 @@
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  color: var(--blue);
+  font-size: 17px;
 }
 .reference-equation .math-fraction {
   flex-shrink: 1;
@@ -24,6 +26,9 @@
   border-top: 1px solid var(--line);
   scroll-margin-top: 24px;
 }
+.calculation-details-toggle {
+  display: none;
+}
 .calculation-heading {
   display: flex;
   align-items: flex-start;
@@ -31,7 +36,7 @@
   gap: 20px;
 }
 .calculation-heading h2 {
-  font-size: 25px;
+  font-size: var(--title-section);
   margin: 0 0 12px;
 }
 .calculation-heading p {
@@ -43,14 +48,12 @@
   font-size: 14px;
   line-height: 1.65;
   color: var(--muted);
+  margin: 10px 0 24px;
 }
 .calculation-help {
   font-size: 14px;
   line-height: 1.65;
   color: var(--muted);
-}
-.calculation-time {
-  margin: 10px 0 24px;
 }
 .calculation-layout {
   display: grid;
@@ -63,11 +66,6 @@
   font-size: 15px;
   font-weight: 500;
   margin-bottom: 16px;
-}
-.calculation-layout h3 > span {
-  font-size: 13px;
-  color: var(--muted);
-  margin-right: 8px;
 }
 .calculation-table-scroll {
   max-height: 410px;
@@ -299,12 +297,52 @@
 .coverage-calculation > p {
   padding: 24px 0;
 }
+.explanation-page {
+  container-type: inline-size;
+}
+.explanation-navigation {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--paper);
+  border-block: 1px solid var(--line);
+}
+.explanation-index-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 0;
+  border: 0;
+  text-align: left;
+  color: var(--blue);
+  font-size: var(--text-control);
+}
+.explanation-index-toggle > span:first-child,
+.explanation-index-toggle > span:last-child {
+  white-space: nowrap;
+}
+.explanation-current {
+  color: var(--muted);
+  font-size: var(--text-small);
+}
 .explanation-index {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0 30px;
   padding: 15px 0 25px;
   border-top: 1px solid var(--line);
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  background: var(--paper);
+  box-shadow: 0 8px 16px #24292312;
+  max-height: min(65dvh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: feature-open var(--motion-fast) ease-out;
 }
 .explanation-index a {
   display: flex;
@@ -328,7 +366,7 @@
 .explanation-entry {
   padding: 36px 0;
   border-top: 1px solid var(--line);
-  scroll-margin-top: 24px;
+  scroll-margin-top: var(--explanation-scroll-offset, 100px);
   outline: none;
 }
 .explanation-heading {
@@ -368,10 +406,6 @@
 .explanation-body > div > p {
   margin-bottom: 15px;
   max-width: 920px;
-}
-.reference-equation {
-  color: var(--blue);
-  font-size: 17px;
 }
 .reference-table-scroll .anomaly-label-table {
   min-width: 0;
@@ -426,13 +460,36 @@
     gap: 12px;
   }
   .calculation-heading h2 {
-    font-size: 23px;
+    font-size: var(--title-section);
   }
   .calculation-heading p {
     font-size: 13px;
   }
   .calculation-table-scroll {
     max-height: 340px;
+  }
+  .calculation-layout .calculation-total {
+    grid-row: 1;
+    border: 0;
+    padding: 0;
+  }
+  .calculation-details-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: var(--control-height);
+    text-align: left;
+    font-size: var(--text-control);
+    color: var(--blue);
+  }
+  .calculation-details[data-expanded='false'] .calculation-rows {
+    display: none;
+  }
+  .calculation-details[data-expanded='true'] .calculation-rows {
+    padding-top: 20px;
+    animation: arrive var(--motion-normal) ease-out;
   }
   .sensor-calculation-detail {
     display: block;
@@ -474,6 +531,9 @@
     grid-template-columns: 1fr;
     padding-bottom: 18px;
   }
+  .explanation-index-toggle {
+    gap: 10px;
+  }
   .explanation-index a {
     padding: 9px 0;
     font-size: 14px;
@@ -513,6 +573,14 @@
   }
   .explanation-body .evaluation-thresholds {
     grid-template-columns: 1fr;
+  }
+}
+@container (max-width: 260px) {
+  .explanation-index-toggle {
+    grid-template-columns: 1fr auto;
+  }
+  .explanation-current {
+    display: none;
   }
 }
 .calculation-layout > div {

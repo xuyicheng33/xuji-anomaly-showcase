@@ -133,7 +133,7 @@ try {
   });
   await det.page.close();
   const replay = await fresh('playback');
-  await replay.page.locator('.reconstruction-view').waitFor();
+  await replay.page.locator('.playback-page[data-curves-ready=true]').waitFor();
   only(replay.requests, [
     `curves-v1/${d.input.sha256}/mean.bin`,
     `curves-v1/${d.models[0].recon.sha256}/mean.bin`,

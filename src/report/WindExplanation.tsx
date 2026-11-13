@@ -1,28 +1,17 @@
 import type { Journey } from '../journey';
 import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
-import { notes, NoteSection } from './notes';
+import { NoteSection } from './notes';
+import ExplanationIndex from './ExplanationIndex';
 import WindSource from './WindSource';
 import Fraction from './Fraction';
 
 export default function WindExplanation({ data, address }: { data: Journey; address: string }) {
-  const requested = new URLSearchParams(address.split('?')[1] ?? '').get('note');
   const model = data.models[0];
   return (
     <div className="explanation-page">
       <Heading title="数据与评估说明">风电数据来源、计算过程与评估规则。</Heading>
-      <nav className="explanation-index" aria-label="说明目录">
-        {notes.map((note, i) => (
-          <a
-            key={note.id}
-            href={'#/metrics?note=' + note.id}
-            aria-current={requested === note.id ? 'location' : undefined}
-          >
-            <span>{String(i + 1).padStart(2, '0')}</span>
-            {note.title}
-          </a>
-        ))}
-      </nav>
+      <ExplanationIndex address={address} />
       <NoteSection id="data-records">
         <WindSource data={data} />
       </NoteSection>
@@ -84,7 +73,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       <NoteSection id="anomaly-cases">
         <p>
           四类素材为参考片段、均匀值、峰值噪声和长度调整，分别用直接替换与 0.7
-          权重混合，形成八个案例。每个案例保存原片段、素材、候选值、权重、输入、标签、掩码及方法二的实际重建。
+          权重混合，形成八个案例。每个案例保存原片段、素材、候选值、权重、输入、标签、掩码及SMST-AD的实际重建。
         </p>
         <p>
           案例以清洁风电测试集第 108—171 点为底稿，目标区间为窗口第 19—42
@@ -161,7 +150,8 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="model-design">
         <p>
-          本页接入服务器 DTAAD_64_n2 的 28 维方法二。多尺度 Local 分支和 Global
+          本页采用SMST-AD：多尺度时空依赖建模的自监督TCN-Transformer异常检测模型，保留实现来自
+          DTAAD_64_n2 的 28 维实验。多尺度 Local 分支和 Global
           分支提取时间特征，融合后生成重建。保留实现还包含空间分支，但当前解码输出使用时间融合结果，页面按实际生效路径说明。
         </p>
         <p>

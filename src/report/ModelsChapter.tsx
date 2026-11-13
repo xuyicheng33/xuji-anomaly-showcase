@@ -1,11 +1,12 @@
 import { type Journey, type Model } from '../journey';
 import { Heading, Section, ModelSelect } from './ReportUI';
 import { Footnote } from './notes';
+import { modelName, modelNames } from './modelNames';
 
 const windDescription = {
   title: '多尺度时间依赖与窗口重建',
   intro:
-    '方法二以多尺度局部时间分支和全局时间分支重建风电窗口，结合异常增强、时间掩码与有界异常损失学习数据变化。',
+    'SMST-AD以多尺度局部时间分支和全局时间分支重建风电窗口，结合异常增强、时间掩码与有界异常损失学习数据变化。',
   details: [
     ['多尺度局部依赖', '不同空洞率的TCN提取窗口内不同范围的变化，Transformer组织时间关联。'],
     ['全局时间依赖', 'Global分支接收部分遮蔽的窗口，利用其余可见时刻还原风电功率与天气字段。'],
@@ -85,7 +86,8 @@ export function ModelsChapter({
         </div>
       )}
       <div className="model-intro">
-        <span>{model.name}</span>
+        <span>{modelName(model)}</span>
+        <p className="model-full-name">{modelNames[multi ? 'model2' : 'model1'].full}</p>
         <h2>{description.title}</h2>
         <p>{description.intro}</p>
       </div>

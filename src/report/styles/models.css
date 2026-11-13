@@ -62,7 +62,7 @@
   opacity: 0.12;
 }
 .model-intro {
-  margin: 40px 0;
+  margin: 32px 0;
 }
 .model-intro > span {
   font-family: var(--numeral);
@@ -70,14 +70,19 @@
   color: var(--blue);
 }
 .model-intro h2 {
-  font-size: 34px;
+  font-size: 32px;
   margin: 15px 0;
 }
 .model-intro p {
-  max-width: 790px;
-  font-size: 17px;
+  max-width: 750px;
+  font-size: 16px;
   color: var(--muted);
   line-height: 1.95;
+}
+.model-intro .model-full-name {
+  margin-top: 8px;
+  font-size: var(--text-small);
+  line-height: 1.7;
 }
 .model-details {
   display: grid;
@@ -117,17 +122,6 @@
   color: var(--muted);
 }
 
-.models-chapter .model-intro {
-  text-align: left;
-  margin: 40px 0 30px;
-}
-.models-chapter .model-intro h2 {
-  font-size: 32px;
-}
-.models-chapter .model-intro p {
-  max-width: 750px;
-  font-size: 16px;
-}
 .models-chapter .model-details {
   gap: 0;
   border-block: 1px solid var(--line);
@@ -182,9 +176,6 @@
   color: var(--muted);
   max-width: 32em;
   text-wrap: pretty;
-}
-.training-chapter .chapter-heading {
-  padding-bottom: 4px;
 }
 .training-window-header {
   display: flex;
@@ -382,24 +373,17 @@
     gap: 25px;
   }
   .model-intro h2 {
-    font-size: 28px;
+    font-size: 27px;
   }
   .model-intro p {
-    font-size: 16px;
+    font-size: var(--text-body);
   }
   .training-steps {
     grid-template-columns: 1fr 1fr;
     gap: 25px;
   }
-  .models-chapter .model-intro {
-    text-align: left;
-    margin: 30px 0 25px;
-  }
-  .models-chapter .model-intro h2 {
-    font-size: 27px;
-  }
-  .models-chapter .model-intro p {
-    font-size: 15px;
+  .model-intro {
+    margin: 24px 0;
   }
   .models-chapter .model-details {
     padding: 0;

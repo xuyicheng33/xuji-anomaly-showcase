@@ -21,9 +21,9 @@ async function go(page, name) {
     await page.locator('.normalization-equation strong').waitFor();
     await page.evaluate(() => window.scrollTo(0, 0));
   }
-  if (['anomalies', 'training', 'detection', 'playback'].includes(name))
+  if (['anomalies', 'training', 'detection'].includes(name))
     await page.locator('.curve').first().waitFor();
-  if (name === 'playback') await page.locator('.reconstruction-view').waitFor();
+  if (name === 'playback') await page.locator('.playback-page[data-curves-ready=true]').waitFor();
   await page.evaluate(() => document.fonts.ready);
 }
 function expected(m, from, to, th = m.threshold) {

@@ -39,6 +39,9 @@ export function useReportNavigation() {
     return () => window.removeEventListener('keydown', close);
   }, [menu]);
   useLayoutEffect(() => {
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', dataset.description);
     document.title =
       (page === 'metrics'
         ? '数据与评估说明'

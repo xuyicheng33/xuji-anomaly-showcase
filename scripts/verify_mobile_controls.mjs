@@ -65,6 +65,14 @@ try {
     await page.goto(showcaseUrl + '#/detection');
     await page.getByRole('button', { name: /查看模型结果/ }).click();
     await page.getByTestId('calculated-score').waitFor();
+    if (width <= 390) {
+      await page.waitForFunction(() => {
+        const box = document.querySelector('.detection-summary').getBoundingClientRect();
+        return box.top >= 0 && box.bottom < innerHeight;
+      });
+      assert.equal(await page.locator('.calculation-rows').isVisible(), false);
+      assert.ok(await page.getByTestId('calculated-score').isVisible());
+    }
     const plot = await page.locator('.reconstruction-view svg').boundingBox();
     const summary = await page.locator('.detection-summary').boundingBox();
     assert.ok(summary.y >= plot.y + plot.height, 'The result summary follows its chart');
@@ -169,6 +177,15 @@ try {
     await page.getByRole('button', { name: /查看模型结果/ }).click();
     await page.getByTestId('calculated-score').waitFor();
     const table = page.locator('.calculation-table-scroll');
+    await page.getByRole('button', { name: '选择测点', exact: true }).click();
+    await page.locator('.feature-option').last().click();
+    await page.getByRole('button', { name: '查看全部 125 个测点明细', exact: true }).click();
+    await page.waitForFunction(() => {
+      const scroller = document.querySelector('.calculation-table-scroll');
+      const row = scroller.querySelector('.selected-sensor').getBoundingClientRect();
+      const box = scroller.getBoundingClientRect();
+      return row.top >= box.top + 40 && row.bottom <= box.bottom;
+    });
     await table.scrollIntoViewIfNeeded();
     await table.evaluate((element) => {
       element.scrollLeft = element.scrollWidth;

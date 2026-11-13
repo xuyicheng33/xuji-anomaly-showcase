@@ -64,7 +64,7 @@ async function open(width, motion = 'no-preference', touch = false) {
   });
   page.on('pageerror', (error) => errors.push(String(error)));
   await page.goto(base + '#/playback');
-  await page.locator('.reconstruction-view').waitFor();
+  await page.locator('.playback-page[data-curves-ready=true]').waitFor();
   await page.evaluate(() => document.fonts.ready);
   const now = new Date('2026-10-29T08:00:00Z');
   await page.clock.install({ time: now });

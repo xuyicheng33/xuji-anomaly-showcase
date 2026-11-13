@@ -2,6 +2,7 @@ import type { Journey, Metrics, Model } from '../journey';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { pct, outcomeCode } from '../journey';
 import FeaturePicker from './FeaturePicker';
+import { modelName } from './modelNames';
 export const colors = {
   input: 'var(--chart-input)',
   recon: 'var(--chart-recon)',
@@ -32,13 +33,13 @@ export function ModelSelect({
     return () => o.disconnect();
   }, [value, data]);
   if (data.models.length === 1)
-    return <span className="model-identity">{data.models[0].name}</span>;
+    return <span className="model-identity">{modelName(data.models[0])}</span>;
   return (
     <div ref={ref} className="segmented model-select" aria-label="选择模型">
       <i className="selection-indicator" style={{ left: box.x, width: box.width }} />
       {data.models.map((m) => (
         <button key={m.id} aria-pressed={value === m.id} onClick={() => onChange(m.id)}>
-          {m.name}
+          {modelName(m)}
         </button>
       ))}
     </div>

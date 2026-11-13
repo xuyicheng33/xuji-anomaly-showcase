@@ -21,7 +21,7 @@ const selectors = {
   training: '[role="img"][aria-label="归一化训练数据"]',
   anomalies: '.case-stage',
   detection: '.reconstruction-view',
-  playback: '.reconstruction-view',
+  playback: '.playback-page[data-curves-ready=true]',
 };
 assert.ok(Number.isInteger(repeats) && repeats >= 3, 'Use at least three samples');
 assert.ok(widths.every((n) => Number.isInteger(n) && n >= 320));

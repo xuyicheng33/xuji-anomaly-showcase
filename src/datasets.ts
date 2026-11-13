@@ -2,6 +2,7 @@ export const datasetConfigs = {
   converter: {
     title: '换流设备',
     titleSuffix: '',
+    description: '换流设备的监测数据整理、异常构造、两种检测模型、训练记录与检测评估。',
     root: 'data/journey/',
     modelId: 'model1',
     alternate: 'wind',
@@ -14,13 +15,14 @@ export const datasetConfigs = {
   wind: {
     title: '风电设备',
     titleSuffix: ' · 风电数据集',
+    description: '风电设备的功率与天气数据整理、异常构造、SMST-AD 模型训练记录与检测评估。',
     root: 'data/wind/',
     modelId: 'model2',
     alternate: 'converter',
     alternateTitle: '换流数据集',
     chapterText: {
       data: ['数据整理', '风电数据预处理', '功率与天气对齐、字段选择与归一化'],
-      models: ['检测方法', '方法二：异常检测模型', '多尺度时间分支、掩码与重建'],
+      models: ['检测方法', 'SMST-AD 检测模型', '多尺度时间分支、掩码与重建'],
     },
   },
 } as const;

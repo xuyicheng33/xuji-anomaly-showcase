@@ -2,7 +2,8 @@ import WindExplanation from './WindExplanation';
 import type { Journey } from '../journey';
 import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
-import { notes, NoteSection } from './notes';
+import { NoteSection } from './notes';
+import ExplanationIndex from './ExplanationIndex';
 import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
@@ -10,25 +11,10 @@ import { featureName } from './featureNames';
 
 export default function ExplanationChapter({ data, address }: { data: Journey; address: string }) {
   if (data.dataset?.id === 'wind') return <WindExplanation data={data} address={address} />;
-  const params = new URLSearchParams(address.split('?')[1] ?? ''),
-    requested = params.get('note');
   return (
     <div className="explanation-page">
       <Heading title="数据与评估说明">数据来源、计算过程与评估规则。</Heading>
-      <nav className="explanation-index" aria-label="说明目录">
-        {notes.map((note, i) => (
-          <a
-            key={note.id}
-            href={
-              '#/metrics?' + new URLSearchParams({ ...Object.fromEntries(params), note: note.id })
-            }
-            aria-current={requested === note.id ? 'location' : undefined}
-          >
-            <span>{String(i + 1).padStart(2, '0')}</span>
-            {note.title}
-          </a>
-        ))}
-      </nav>
+      <ExplanationIndex address={address} />
       <NoteSection id="data-records">
         <RecordExamples data={data} />
       </NoteSection>

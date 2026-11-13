@@ -71,7 +71,7 @@
   animation: arrive 0.3s ease-out;
 }
 .chapter-heading {
-  padding: 40px 0;
+  padding: var(--heading-space) 0;
   max-width: 100%;
 }
 .chapter-heading h1 {
@@ -86,6 +86,9 @@
 }
 .report-section {
   margin-top: var(--section-space);
+}
+.chapter-heading + .report-section {
+  margin-top: 0;
 }
 .report-section > h2 {
   font-size: var(--title-section);
@@ -105,7 +108,7 @@
   justify-content: space-between;
   gap: 20px;
   flex-wrap: wrap;
-  margin-bottom: 24px;
+  margin-bottom: var(--toolbar-space);
 }
 .model-selection-row p {
   font-size: var(--text-small);
@@ -806,7 +809,7 @@ details[open] > summary::before {
     padding: 0 22px 56px;
   }
   .chapter-heading {
-    padding: 28px 0 32px;
+    padding-block: var(--heading-space);
   }
   .chapter-heading h1 {
     line-height: 1.5;
@@ -818,7 +821,7 @@ details[open] > summary::before {
   .toolbar,
   .model-selection-row {
     gap: 14px;
-    margin-bottom: 20px;
+    margin-bottom: var(--toolbar-space);
   }
   .model-selection-row {
     width: 100%;
@@ -908,6 +911,16 @@ details[open] > summary::before {
   }
 }
 @media (max-width: 380px) {
+  .rates {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .rates > div {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+  }
   .confusion-cell {
     grid-template-columns: minmax(0, 1fr);
     row-gap: 5px;

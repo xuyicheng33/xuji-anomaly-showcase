@@ -49,6 +49,10 @@ try {
         if (response.status() >= 400) errors.push(`${response.status()} ${file}`);
       });
       await page.goto(home + '#/');
+      assert.match(
+        await page.locator('meta[name=description]').getAttribute('content'),
+        wind ? /风电.*SMST-AD/ : /换流设备/,
+      );
       await page.getByRole('link', { name: '开始查看', exact: true }).click();
       await page.locator('.normalization-section').scrollIntoViewIfNeeded();
       await page.locator('.normalization-equation strong').waitFor();
@@ -68,8 +72,21 @@ try {
       await page.getByRole('button', { name: /查看模型结果/ }).click();
       await page.getByTestId('calculated-score').waitFor();
       assert.equal(await page.locator('.score-calculation tbody tr').count(), data.features.length);
+      if (width === 390) {
+        const rows = page.locator('.calculation-rows');
+        assert.equal(await rows.isVisible(), false);
+        await page
+          .getByRole('button', { name: `查看全部 ${data.features.length} 个测点明细`, exact: true })
+          .click();
+        assert.equal(await rows.locator('tbody tr:visible').count(), data.features.length);
+        await page.getByRole('button', { name: '收起测点明细', exact: true }).click();
+        assert.equal(await rows.isVisible(), false);
+      }
       await page.screenshot({ path: `${output}/${data.dataset.id}-${width}-detection.png` });
       await page.goto(home + '#/playback');
+      await page.locator('.replay-intro').waitFor();
+      assert.equal(await page.locator('.replay-workspace').isVisible(), false);
+      if (wind) assert.equal(await page.locator('.model-identity').innerText(), 'SMST-AD');
       await page.getByRole('slider', { name: '播放进度' }).fill('133');
       await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
       await page.getByTestId('aggregate-equation').waitFor();
@@ -78,6 +95,21 @@ try {
         data.models[0].scores[132].toFixed(9),
       );
       await page.locator('#ref-playback-window-aggregation').click();
+      await page.locator('#note-window-aggregation:focus').waitFor();
+      await page.getByRole('button', { name: /说明目录/ }).click();
+      await page.locator('.explanation-index a').filter({ hasText: '阈值与评估规则' }).click();
+      await page.locator('#note-thresholds:focus').waitFor();
+      await page.waitForFunction(() =>
+        document.querySelector('.explanation-current')?.textContent.includes('阈值与评估规则'),
+      );
+      const position = await page.locator('#note-thresholds').boundingBox();
+      const navigation = await page.locator('.explanation-navigation').boundingBox();
+      assert.ok(position.y >= navigation.y + navigation.height);
+      await page.getByRole('button', { name: /说明目录/ }).click();
+      await page
+        .locator('.explanation-index a')
+        .filter({ hasText: '连续回放与跨窗口合并' })
+        .click();
       await page.locator('#note-window-aggregation:focus').waitFor();
       await page.locator('#note-window-aggregation .note-return').click();
       assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '133');

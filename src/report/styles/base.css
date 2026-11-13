@@ -4,7 +4,7 @@
   font-style: normal;
   font-display: swap;
   font-weight: 500;
-  src: url(/fonts/NotoSerifSC-Subset.woff2?v=0c5781133a23) format('woff2');
+  src: url(/fonts/NotoSerifSC-Subset.woff2?v=b2366119d262) format('woff2');
 }
 @font-face {
   font-family: 'Instrument Serif';
@@ -56,6 +56,8 @@
   --control-height: 42px;
   --section-space: 64px;
   --title-space: 28px;
+  --heading-space: 32px;
+  --toolbar-space: 24px;
   --motion-fast: 160ms;
   --motion-normal: 220ms;
   --disclosure-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%2362665e' stroke-width='1.5'%3E%3Cpath d='m3 4 3 3 3-3'/%3E%3C/svg%3E");
@@ -241,6 +243,8 @@ table :is(td, th):not(:first-child) {
     --control-height: 44px;
     --section-space: 44px;
     --title-space: 22px;
+    --heading-space: 24px;
+    --toolbar-space: 20px;
   }
   input[type='range'] {
     height: 36px;

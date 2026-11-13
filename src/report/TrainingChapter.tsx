@@ -8,6 +8,7 @@ import { useCurveData } from './useCurveData';
 import FeaturePicker from './FeaturePicker';
 import { featureName } from './featureNames';
 import { useTrainingTimes } from './useTrainingTimes';
+import { modelName } from './modelNames';
 
 type TrainingProps = {
   data: Journey;
@@ -224,7 +225,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             title="训练重建误差（MSE）"
             lines={[
               {
-                name: model.name,
+                name: modelName(model),
                 values: model.history.map((item) => item.loss),
                 color: colors.input,
               },

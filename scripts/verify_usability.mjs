@@ -139,6 +139,7 @@ try {
       assert.ok(layout[1].top >= layout[0].bottom);
     }
     if (width <= 390) {
+      await page.getByRole('button', { name: '查看全部 125 个测点明细', exact: true }).click();
       const detail = page.getByRole('region', { name: '当前测点计算明细', exact: true });
       await detail.waitFor();
       assert.deepEqual(
@@ -283,7 +284,7 @@ try {
     assert.equal(await removed.locator('li:visible').count(), 0);
     if (width === 1440 || width === 390) {
       await page.goto(base + '#/playback');
-      await page.locator('.reconstruction-view').waitFor();
+      await page.locator('.playback-page[data-curves-ready=true]').waitFor();
       const progress = page.getByRole('slider', { name: '播放进度' });
       for (const model of manifest.models) {
         await page.getByRole('button', { name: model.name, exact: true }).click();

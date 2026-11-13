@@ -20,6 +20,7 @@ import { useCurveData } from './useCurveData';
 import { Footnote } from './notes';
 import { PlaybackCalculation } from './PlaybackCalculation';
 import type { PlaybackProps } from './detectionTypes';
+import { modelName } from './modelNames';
 
 export function PlaybackChapter(p: PlaybackProps) {
   const controls = usePlaybackControls();
@@ -76,7 +77,7 @@ export function PlaybackChapter(p: PlaybackProps) {
     });
   };
   return (
-    <div className="playback-page">
+    <div className="playback-page" data-curves-ready={curvesReady} data-started={count > 0}>
       <Heading title="检测结果回放" />
       <div className="toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
@@ -180,11 +181,30 @@ export function PlaybackChapter(p: PlaybackProps) {
         onKeyUp={() => setScrubbing(false)}
         onBlur={() => setScrubbing(false)}
       />
-      <p className="quiet playback-caption">
+      <p className="quiet playback-caption" hidden={!count}>
         {data.dataset?.id === 'wind' ? '橙色区域表示保留的异常标签' : '橙色区域表示实验异常标签'}
         {viewFeature >= 0 ? `，下方分数综合全部 ${data.features.length} 个测点` : ''}
       </p>
-      <div className="replay-workspace">
+      {!count && (
+        <div className="replay-intro">
+          <h2>逐点查看检测结果</h2>
+          <p>点击播放，或直接前往检出、误报与漏检位置，查看曲线、分数和累计结果。</p>
+          <button
+            className="inline-link"
+            onClick={() =>
+              document.getElementById('full-evaluation')?.scrollIntoView({
+                block: 'start',
+                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                  ? 'instant'
+                  : 'smooth',
+              })
+            }
+          >
+            查看完整测试集评估 ↓
+          </button>
+        </div>
+      )}
+      <div className="replay-workspace" hidden={!count && !inputAsset.error && !reconAsset.error}>
         <div className="playback-plots">
           {curvesReady ? (
             <ReconstructionView
@@ -249,7 +269,11 @@ export function PlaybackChapter(p: PlaybackProps) {
             {count ? `统计第 ${from + 1}—${idx + 1} 点` : '尚未开始统计'}
             {count > 0 && <time>{data.times[idx]}</time>}
           </p>
-          <Confusion metrics={stats} active={active} caption="当前时刻累计结果" />
+          <Confusion
+            metrics={stats}
+            active={active}
+            caption={`${modelName(model)} · 当前时刻累计结果`}
+          />
           <div>
             <div className="current-score">
               <span>
@@ -285,75 +309,79 @@ export function PlaybackChapter(p: PlaybackProps) {
           ))}
         </div>
       </div>
-      <ContributionView
-        data={data}
-        model={model}
-        index={count ? idx : null}
-        playing={playing}
-        pause={() => setPlaying(false)}
-      />
-      <PlaybackCalculation
-        data={data}
-        model={model}
-        index={count ? idx : null}
-        playing={playing}
-        pause={() => setPlaying(false)}
-      />
-      <Section
-        title={
-          <>
-            完整测试集评估结果
-            <Footnote note="point-metrics" reference="ref-playback-point-metrics" />
-          </>
-        }
-      >
-        <TableScrollHint id="playback-table-hint">左右滑动查看全部指标。</TableScrollHint>
-        <div
-          className="table-scroll"
-          tabIndex={0}
-          role="region"
-          aria-label="完整测试集评估指标"
-          aria-describedby="playback-table-hint"
+      <div hidden={!count}>
+        <ContributionView
+          data={data}
+          model={model}
+          index={count ? idx : null}
+          playing={playing}
+          pause={() => setPlaying(false)}
+        />
+        <PlaybackCalculation
+          data={data}
+          model={model}
+          index={count ? idx : null}
+          playing={playing}
+          pause={() => setPlaying(false)}
+        />
+      </div>
+      <div id="full-evaluation">
+        <Section
+          title={
+            <>
+              完整测试集评估结果
+              <Footnote note="point-metrics" reference="ref-playback-point-metrics" />
+            </>
+          }
         >
-          <table>
-            <thead>
-              <tr>
-                <th>方法</th>
-                <th>逐点F1</th>
-                <th>区间点调整F1</th>
-                <th>精确率</th>
-                <th>召回率</th>
-                <th>检出</th>
-                <th>误报</th>
-                <th>漏检</th>
-                <th>正确正常</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.models.map((m) => {
-                const v = m.metrics.point_wise;
-                return (
-                  <tr key={m.id}>
-                    <th>{m.name}</th>
-                    <td>{pct(v.f1)}</td>
-                    <td>{pct(m.metrics.point_adjusted.f1)}</td>
-                    <td> {pct(v.precision)}</td>
-                    <td> {pct(v.recall)}</td>
-                    <td>{v.tp}</td>
-                    <td>{v.fp}</td>
-                    <td>{v.fn}</td>
-                    <td>{v.tn}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p className="quiet">
-          {data.times.length.toLocaleString('en-US')} 个时刻，检出、误报与漏检按逐点统计。
-          <Footnote note="thresholds" reference="ref-playback-thresholds" />
-        </p>
-      </Section>
+          <TableScrollHint id="playback-table-hint">左右滑动查看全部指标。</TableScrollHint>
+          <div
+            className="table-scroll"
+            tabIndex={0}
+            role="region"
+            aria-label="完整测试集评估指标"
+            aria-describedby="playback-table-hint"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th>方法</th>
+                  <th>逐点F1</th>
+                  <th>区间点调整F1</th>
+                  <th>精确率</th>
+                  <th>召回率</th>
+                  <th>检出</th>
+                  <th>误报</th>
+                  <th>漏检</th>
+                  <th>正确正常</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.models.map((m) => {
+                  const v = m.metrics.point_wise;
+                  return (
+                    <tr key={m.id}>
+                      <th>{modelName(m)}</th>
+                      <td>{pct(v.f1)}</td>
+                      <td>{pct(m.metrics.point_adjusted.f1)}</td>
+                      <td> {pct(v.precision)}</td>
+                      <td> {pct(v.recall)}</td>
+                      <td>{v.tp}</td>
+                      <td>{v.fp}</td>
+                      <td>{v.fn}</td>
+                      <td>{v.tn}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="quiet">
+            {data.times.length.toLocaleString('en-US')} 个时刻，检出、误报与漏检按逐点统计。
+            <Footnote note="thresholds" reference="ref-playback-thresholds" />
+          </p>
+        </Section>
+      </div>
     </div>
   );
 }

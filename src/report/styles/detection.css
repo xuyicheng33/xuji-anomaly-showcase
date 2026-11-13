@@ -3,14 +3,11 @@
   container-type: inline-size;
   container-name: detection;
 }
-.detection-page > .chapter-heading {
-  padding-block: 30px 24px;
-}
 .detection-page > .chapter-heading p {
   text-wrap: balance;
 }
 .detection-page > .toolbar {
-  margin-bottom: 16px;
+  margin-bottom: var(--toolbar-space);
 }
 .selection-panel {
   display: grid;
@@ -83,6 +80,7 @@
   font-variant-numeric: tabular-nums;
 }
 .detection-summary {
+  scroll-margin-top: 20px;
   display: flex;
   gap: 20px;
   align-items: center;
