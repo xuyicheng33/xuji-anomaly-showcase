@@ -1,8 +1,9 @@
-import { useId, useEffect, useRef, useState } from 'react';
+import { useId } from 'react';
 import { colors } from './ReportUI';
 import { curveDomain, curveTick } from './curveScale';
 import { Footnote, type NoteId } from './notes';
 import { usePlaybackScale, type PlaybackScale } from './usePlaybackScale';
+import { usePlotGeometry } from './usePlotGeometry';
 export default function Curve({
   lines,
   labels = [],
@@ -45,20 +46,9 @@ export default function Curve({
   reference?: string;
   playbackScale?: PlaybackScale;
 }) {
-  const container = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(1100);
-  useEffect(() => {
-    if (!container.current) return;
-    const observer = new ResizeObserver(([e]) => {
-      if (e.contentRect.width > 0) setWidth(e.contentRect.width);
-    });
-    observer.observe(container.current);
-    return () => observer.disconnect();
-  }, []);
+  const { container, width, left: L, right: R } = usePlotGeometry();
   const uid = useId().replace(/:/g, '');
   const W = width,
-    L = Math.min(width * 0.48, width < 550 ? 60 : 62),
-    R = width < 550 ? 8 : 18,
     T = 20,
     B = 32,
     n = Math.max(2, ...lines.map((l) => l.values.length));

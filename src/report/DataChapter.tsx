@@ -12,6 +12,7 @@ import cleaning from './cleaning-data.json';
 import FeaturePicker from './FeaturePicker';
 import { featureName } from './featureNames';
 import { useTrainingTimes } from './useTrainingTimes';
+import { usePresentationState } from './usePresentationState';
 
 type Props = { data: Journey; feature: number; setFeature: (feature: number) => void };
 const number = (value: number, digits = 3) =>
@@ -28,7 +29,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
   const point = data.features[feature];
   const normalizationRef = useRef<HTMLDivElement>(null),
     [normalizationVisible, setNormalizationVisible] = useState(false);
-  const [sample, setSample] = useState(0);
+  const [sample, setSample] = usePresentationState('data:sample', 0);
   const { train } = data.datasets;
   const timeline = useTrainingTimes(data, normalizationVisible),
     times = timeline.data;

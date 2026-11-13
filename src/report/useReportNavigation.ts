@@ -11,12 +11,25 @@ export function useReportNavigation() {
   const previousPage = useRef(page),
     menuButton = useRef<HTMLButtonElement>(null),
     returning = useRef(false),
+    historyNavigation = useRef(false),
+    restorePosition = useRef<number | null>(null),
     scrollPositions = useRef(new Map<string, number>());
   useEffect(() => {
+    const previousRestoration = history.scrollRestoration;
+    history.scrollRestoration = 'manual';
+    history.replaceState({ ...history.state, showcasePage: route() }, '');
+    const pop = (event: PopStateEvent) => {
+      historyNavigation.current = !!event.state?.showcasePage;
+    };
     const f = () => {
       const next = route();
       scrollPositions.current.set(previousPage.current, window.scrollY);
       returning.current = previousPage.current === 'metrics' && next !== 'metrics';
+      restorePosition.current = historyNavigation.current
+        ? (scrollPositions.current.get(next) ?? 0)
+        : null;
+      historyNavigation.current = false;
+      history.replaceState({ ...history.state, showcasePage: next }, '');
       pausePresentation();
       setPage(next);
       setAddress(location.hash);
@@ -25,7 +38,12 @@ export function useReportNavigation() {
       setMenu(false);
     };
     window.addEventListener('hashchange', f);
-    return () => window.removeEventListener('hashchange', f);
+    window.addEventListener('popstate', pop);
+    return () => {
+      window.removeEventListener('hashchange', f);
+      window.removeEventListener('popstate', pop);
+      history.scrollRestoration = previousRestoration;
+    };
   }, []);
   useEffect(() => {
     if (!menu) return;
@@ -63,7 +81,8 @@ export function useReportNavigation() {
         document.getElementById(origin?.reference ?? '')?.focus({ preventScroll: true });
         returning.current = false;
       } else {
-        window.scrollTo(0, 0);
+        window.scrollTo(0, restorePosition.current ?? 0);
+        restorePosition.current = null;
         document.getElementById('main')?.focus({ preventScroll: true });
       }
     });

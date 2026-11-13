@@ -9,6 +9,7 @@ import FeaturePicker from './FeaturePicker';
 import { useCaseConstruction } from './useCaseConstruction';
 import CaseNavigation from './CaseNavigation';
 import { kinds, steps } from './caseContent';
+import { usePlotGeometry } from './usePlotGeometry';
 
 export default function AnomalyChapter({
   data,
@@ -20,6 +21,7 @@ export default function AnomalyChapter({
   setModel: (id: string) => void;
 }) {
   const state = useCaseConstruction(data, model);
+  const { container: labelsRef, width, left, right } = usePlotGeometry();
   const {
     insertion,
     kind,
@@ -191,7 +193,7 @@ export default function AnomalyChapter({
                             : '原片段 8 点 → 每点重复 3 次 → 24 点'}
                   </p>
                 </div>
-                <div className="case-labels">
+                <div className="case-labels" ref={labelsRef}>
                   <div>
                     <span>
                       所选测点标签
@@ -199,7 +201,15 @@ export default function AnomalyChapter({
                     </span>
                     <small>0 正常，1 异常</small>
                   </div>
-                  <div className="case-label-cells" role="group" aria-label="所选测点逐点标签">
+                  <div
+                    className="case-label-cells"
+                    role="group"
+                    aria-label="所选测点逐点标签"
+                    style={{
+                      marginLeft: `${(left / width) * 100}%`,
+                      marginRight: `${(right / width) * 100}%`,
+                    }}
+                  >
                     {visibleLabels.map((v, i) => (
                       <button
                         key={i}
@@ -207,6 +217,10 @@ export default function AnomalyChapter({
                         aria-pressed={point === i}
                         tabIndex={point === i ? 0 : -1}
                         className={v ? 'marked' : ''}
+                        style={{
+                          left: `${(i / (visibleLabels.length - 1)) * 100}%`,
+                          width: `max(1px, calc(100% / ${visibleLabels.length - 1} - 1px))`,
+                        }}
                         onClick={() => setPoint(i)}
                         onKeyDown={(event) => {
                           if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key))
@@ -236,6 +250,10 @@ export default function AnomalyChapter({
                   </div>
                   <input
                     className="case-point-slider"
+                    style={{
+                      marginLeft: `calc(${(left / width) * 100}% - 8px)`,
+                      width: `calc(${((width - left - right) / width) * 100}% + 16px)`,
+                    }}
                     type="range"
                     aria-label="案例查看时刻"
                     min="0"

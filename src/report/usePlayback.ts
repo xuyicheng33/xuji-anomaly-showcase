@@ -3,23 +3,28 @@ import { displaySettings } from '../dataGeometry';
 import { metricPrefixes, outcomeCode, type OutcomeCode } from '../journey';
 import { usePauseOnNavigation } from './notes';
 import type { PlaybackProps } from './detectionTypes';
+import { usePresentationState } from './usePresentationState';
 
 /** Playback timing, selection and accumulated metrics share one clock. */
 export function usePlayback(p: PlaybackProps) {
   const { data, model, start, viewFeature, setFeature, setViewFeature } = p;
-  const [scope, setScope] = useState('all'),
-    [count, setCount] = useState(0),
+  const [scope, setScope] = usePresentationState('playback:scope', 'all'),
+    [savedCount, setCount] = usePresentationState('playback:count', 0),
     [playing, setPlaying] = useState(false),
     [scrubbing, setScrubbing] = useState(false),
-    [speed, setSpeed] = useState(4);
+    [speed, setSpeed] = usePresentationState('playback:speed', 4),
+    [savedStart, setSavedStart] = usePresentationState('playback:start', start);
   const from = scope === 'all' ? 0 : start,
     total = scope === 'all' ? data.times.length : data.window,
-    threshold = model.threshold;
+    threshold = model.threshold,
+    count = Math.min(savedCount, total);
   usePauseOnNavigation(() => setPlaying(false));
   useEffect(() => {
+    if (savedStart === start) return;
     setCount(0);
     setPlaying(false);
-  }, [start]);
+    setSavedStart(start);
+  }, [start, savedStart, setCount, setSavedStart]);
   useEffect(() => {
     setPlaying(false);
   }, [model.id]);
@@ -37,7 +42,7 @@ export function usePlayback(p: PlaybackProps) {
       500 / speed,
     );
     return () => clearInterval(timer);
-  }, [playing, speed, total]);
+  }, [playing, speed, total, setCount]);
   const prefixes = useMemo(
     () =>
       metricPrefixes(

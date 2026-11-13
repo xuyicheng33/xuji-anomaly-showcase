@@ -79,6 +79,7 @@ try {
     'contributions',
     'feature_picker',
     'mobile_controls',
+    'frontend',
     'ranges',
     'wind',
     'wind_ranges',

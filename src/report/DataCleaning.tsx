@@ -1,4 +1,5 @@
-import { useId, useState } from 'react';
+import { useId } from 'react';
+import { usePresentationState } from './usePresentationState';
 import TableScrollHint from './TableScrollHint';
 import type { Journey } from '../journey';
 import cleaning from './cleaning-data.json';
@@ -62,8 +63,8 @@ export function MissingExample({ data, example }: { data: Journey; example: numb
   );
 }
 export default function DataCleaning({ data }: { data: Journey }) {
-  const [trimmed, setTrimmed] = useState(false),
-    [example, setExample] = useState(0);
+  const [trimmed, setTrimmed] = usePresentationState('data:trimmed', false),
+    [example, setExample] = usePresentationState('data:missing', 0);
   const blocks = cleaning.invalidBlocks;
   const spans = [
     { count: blocks[0].start, invalid: false },

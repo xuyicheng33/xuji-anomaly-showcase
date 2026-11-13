@@ -7,6 +7,7 @@ import { colors } from './ReportUI';
 import { Footnote } from './notes';
 import { featureName } from './featureNames';
 import Fraction from './Fraction';
+import { usePlotGeometry } from './usePlotGeometry';
 
 const decimal = (value: number) => value.toFixed(9);
 
@@ -19,11 +20,13 @@ function WindowPlot({
   selected: number;
   select: (index: number) => void;
 }) {
+  const { container, width, left, right } = usePlotGeometry();
   const [low, high] = curveDomain(rows.flatMap((row) => [row.input, row.prediction]));
-  const x = (i: number) => 58 + (i / Math.max(1, rows.length - 1)) * 424;
-  const y = (v: number) => 18 + ((high - v) / (high - low)) * 106;
+  const height = 190;
+  const x = (i: number) => left + (i / Math.max(1, rows.length - 1)) * (width - left - right);
+  const y = (v: number) => 20 + ((high - v) / (high - low)) * (height - 52);
   return (
-    <div className="window-reconstruction-plot">
+    <div className="window-reconstruction-plot" ref={container}>
       <div className="legend">
         <span>
           <i style={{ background: colors.input }} />
@@ -34,18 +37,22 @@ function WindowPlot({
           各窗口重建
         </span>
       </div>
-      <svg viewBox="0 0 500 156" role="group" aria-label="同一输入值与各覆盖窗口的重建值">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        role="group"
+        aria-label="同一输入值与各覆盖窗口的重建值"
+      >
         {[low, (low + high) / 2, high].map((value) => (
           <g key={value}>
-            <line x1="58" x2="482" y1={y(value)} y2={y(value)} stroke="var(--line)" />
-            <text x="50" y={y(value) + 4} textAnchor="end">
+            <line x1={left} x2={width - right} y1={y(value)} y2={y(value)} stroke="var(--line)" />
+            <text x={left - 10} y={y(value) + 4} textAnchor="end">
               {curveTick(value, high - low)}
             </text>
           </g>
         ))}
         <line
-          x1="58"
-          x2="482"
+          x1={left}
+          x2={width - right}
           y1={y(rows[0].input)}
           y2={y(rows[0].input)}
           stroke={colors.input}
@@ -90,13 +97,24 @@ function WindowPlot({
             <title>{`窗口 ${row.start + 1}：重建 ${decimal(row.prediction)}`}</title>
           </g>
         ))}
-        <text x="58" y="148">
+        <text
+          x={width < 240 ? width / 2 : left}
+          y={height - 8}
+          textAnchor={width < 240 ? 'middle' : 'start'}
+        >
           起点 {rows[0].start + 1}
         </text>
-        <text x="482" y="148" textAnchor="end">
-          起点 {rows.at(-1)!.start + 1}
-        </text>
+        {width >= 240 && (
+          <text x={width - right} y={height - 8} textAnchor="end">
+            起点 {rows.at(-1)!.start + 1}
+          </text>
+        )}
       </svg>
+      {width < 240 && (
+        <p className="curve-range">
+          起点 {rows[0].start + 1}—{rows.at(-1)!.start + 1}
+        </p>
+      )}
     </div>
   );
 }

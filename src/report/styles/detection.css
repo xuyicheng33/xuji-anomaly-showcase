@@ -41,6 +41,17 @@
   flex-wrap: wrap;
   column-gap: 12px;
 }
+.input-hint {
+  margin-top: 8px;
+  font-size: var(--text-small);
+  color: var(--muted);
+}
+.input-hint.invalid {
+  color: var(--negative);
+}
+.selection-panel input[aria-invalid='true'] {
+  border-color: var(--negative);
+}
 .example-picker {
   display: flex;
   align-items: center;

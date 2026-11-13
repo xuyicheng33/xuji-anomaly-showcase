@@ -37,6 +37,14 @@ export function DetectionChapter(p: DetectionProps) {
     [draftStart, setDraftStart] = useState<string | null>(null),
     [request, setRequest] = useState<{ key: string; attempt: number } | null>(null);
   const viewKey = `${model.run}:${model.id}:${start}`;
+  const maximumStart = data.times.length - window + 1;
+  const invalidStart =
+    draftStart !== null &&
+    (!draftStart.trim() ||
+      !Number.isInteger(Number(draftStart)) ||
+      Number(draftStart) < 1 ||
+      Number(draftStart) > maximumStart);
+  const [validateStart, setValidateStart] = useState(false);
   const pendingExample = useRef<{ key: string; point: number } | null>(null);
   const resultSummary = useRef<HTMLDivElement>(null);
   const revealRequested = useRef(false);
@@ -138,6 +146,8 @@ export function DetectionChapter(p: DetectionProps) {
                       point: e.index - e.start,
                     };
               setPoint(e.index - e.start);
+              setDraftStart(null);
+              setValidateStart(false);
               setStart(e.start);
               setFeature(e.feature);
               setViewFeature(e.feature);
@@ -155,12 +165,17 @@ export function DetectionChapter(p: DetectionProps) {
             type="number"
             min="1"
             max={data.times.length - window + 1}
+            aria-invalid={(validateStart && invalidStart) || undefined}
+            aria-describedby="start-input-hint"
             value={draftStart ?? start + 1}
             onChange={(e) => {
               setDraftStart(e.target.value);
               if (e.target.value && e.target.validity.valid) setStart(e.target.valueAsNumber - 1);
             }}
-            onBlur={() => setDraftStart(null)}
+            onBlur={() => {
+              setValidateStart(true);
+              if (!invalidStart) setDraftStart(null);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') e.currentTarget.blur();
             }}
@@ -172,15 +187,32 @@ export function DetectionChapter(p: DetectionProps) {
           min="0"
           max={data.times.length - window}
           value={start}
-          onChange={(e) => setStart(+e.target.value)}
+          onChange={(e) => {
+            setDraftStart(null);
+            setValidateStart(false);
+            setStart(+e.target.value);
+          }}
         />
         <span>
           第 {start + 1}—{start + window} 点
         </span>
-        <button className="primary" disabled={busy || !inputCurve.data} onClick={requestResult}>
+        <button
+          className="primary"
+          disabled={busy || !inputCurve.data || invalidStart}
+          onClick={requestResult}
+        >
           {busy ? '正在读取…' : ready ? '重新查看结果' : '查看模型结果'} →
         </button>
       </div>
+      <p
+        id="start-input-hint"
+        className={validateStart && invalidStart ? 'input-hint invalid' : 'input-hint'}
+        role={validateStart && invalidStart ? 'alert' : undefined}
+      >
+        {validateStart && invalidStart
+          ? `输入 1—${maximumStart} 之间的整数，当前仍显示第 ${start + 1} 点起的片段。`
+          : `可选起点：1—${maximumStart}`}
+      </p>
       <p className="quiet time-range">
         <span>
           {data.times[start]} — {data.times[start + window - 1]}

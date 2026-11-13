@@ -6,15 +6,20 @@ import { usePauseOnNavigation } from './notes';
 import { useDataAsset } from './useDataAsset';
 import { useResource } from './useResource';
 import { methods, kinds } from './caseContent';
+import { usePresentationState } from './usePresentationState';
 
 export function useCaseConstruction(data: Journey, model: Model) {
-  const [insertion, setInsertion] = useState<Insertion>('replace');
-  const [kind, setKind] = useState<Construction>('reference');
-  const [progress, setProgress] = useState(0),
+  const [insertion, setInsertion] = usePresentationState<Insertion>('case:insertion', 'replace');
+  const [kind, setKind] = usePresentationState<Construction>('case:kind', 'reference');
+  const [progress, setProgress] = usePresentationState('case:progress', 0),
     [playing, setPlaying] = useState(false),
-    [point, setPoint] = useState(30),
-    [showResult, setShowResult] = useState(false);
-  const [selectedFeature, setSelectedFeature] = useState<number | null>(null);
+    [point, setPoint] = usePresentationState('case:point', 30),
+    [showResult, setShowResult] = usePresentationState('case:result', false);
+  const [selectedFeature, setSelectedFeature] = usePresentationState<number | null>(
+    'case:feature',
+    null,
+  );
+  const previousCase = useRef(`${insertion}:${kind}`);
   const [pickerOpen, setPickerOpen] = useState(false);
   usePauseOnNavigation(() => setPlaying(false));
   const resultRef = useRef<HTMLDivElement>(null),
@@ -33,12 +38,15 @@ export function useCaseConstruction(data: Journey, model: Model) {
   };
   const reconstruction = useDataAsset(showResult ? (cm?.recon ?? null) : null);
   useEffect(() => {
+    const key = `${insertion}:${kind}`;
+    if (previousCase.current === key) return;
+    previousCase.current = key;
     setProgress(0);
     setPlaying(false);
     setShowResult(false);
     setPoint(30);
     setSelectedFeature(null);
-  }, [selected?.id]);
+  }, [insertion, kind, setProgress, setShowResult, setPoint, setSelectedFeature]);
   useEffect(() => {
     setPlaying(false);
   }, [model.id]);
@@ -56,7 +64,7 @@ export function useCaseConstruction(data: Journey, model: Model) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [playing, kind]);
+  }, [playing, kind, setProgress]);
   useEffect(() => {
     if (progress >= 1) setPlaying(false);
   }, [progress]);

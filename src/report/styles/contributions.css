@@ -411,11 +411,10 @@
     font-size: 14px;
   }
   .sensor-contribution-results {
-    grid-template-columns: 1fr;
     gap: 10px;
   }
   .window-reconstruction-plot svg text {
-    font-size: 19px;
+    font-size: 13px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

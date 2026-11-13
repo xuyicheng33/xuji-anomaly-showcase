@@ -9,6 +9,7 @@ import FeaturePicker from './FeaturePicker';
 import { featureName } from './featureNames';
 import { useTrainingTimes } from './useTrainingTimes';
 import { modelName } from './modelNames';
+import { usePresentationState } from './usePresentationState';
 
 type TrainingProps = {
   data: Journey;
@@ -18,10 +19,11 @@ type TrainingProps = {
   setFeature: (value: number) => void;
 };
 export function TrainingChapter({ data, model, setModel, feature, setFeature }: TrainingProps) {
-  const [windowStart, setWindowStart] = useState(
+  const [windowStart, setWindowStart] = usePresentationState(
+      'training:window',
       Math.min(5299, Math.max(0, data.datasets.train.shape[0] - data.window)),
     ),
-    [epoch, setEpoch] = useState(0);
+    [epoch, setEpoch] = usePresentationState('training:epoch', 0);
   const chartPanel = useRef<HTMLDivElement>(null);
   const [chartWidth, setChartWidth] = useState(1100);
   useEffect(() => {
