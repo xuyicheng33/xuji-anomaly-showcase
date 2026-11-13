@@ -84,10 +84,13 @@ try {
     await page.getByRole('button', { name: /查看模型结果|重新查看结果/ }).click();
     await page.getByTestId('calculated-score').waitFor();
     assert.equal(await page.locator('#window-calculation').getAttribute('data-point'), '21');
+    if (device === 'mobile')
+      await page.getByRole('button', { name: '查看全部 28 个测点明细', exact: true }).click();
     await page.locator('#ref-window-calculation-label').click();
     await page.locator('#note-anomaly-labels:focus').waitFor();
     await page.locator('#note-anomaly-labels .note-return').click();
     await page.getByTestId('calculated-score').waitFor();
+    assert.equal(await page.locator('.calculation-rows').isVisible(), true);
     await selectFeature(page, 27);
     assert.match(
       await page.getByRole('button', { name: '选择测点', exact: true }).innerText(),
