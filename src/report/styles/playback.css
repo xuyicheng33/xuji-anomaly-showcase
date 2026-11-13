@@ -70,6 +70,13 @@
 .site-main .playback-page > .toolbar {
   margin-bottom: var(--toolbar-space);
 }
+.playback-scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}
 .playback-status {
   scroll-margin-top: var(--playback-scroll-offset, 24px);
   display: flex;
@@ -219,7 +226,7 @@
   color: var(--blue);
   white-space: nowrap;
 }
-@container (min-width: 640px) {
+@container (min-width: 1000px) {
   .replay-workspace {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;

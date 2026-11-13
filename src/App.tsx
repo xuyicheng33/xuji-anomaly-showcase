@@ -7,6 +7,8 @@ import { useJourney } from './report/useJourney';
 import DataFailure from './report/DataFailure';
 import ReportFailure from './report/ReportFailure';
 import { pausePresentation, rememberNoteOrigin } from './report/notes';
+import ChapterNavigation from './report/ChapterNavigation';
+import DatasetSwitch from './report/DatasetSwitch';
 const DataChapter = lazyChapter(() => import('./report/DataChapter'));
 const AnomalyChapter = lazyChapter(() => import('./report/AnomalyChapter'));
 const ModelsChapter = lazyChapter(async () => {
@@ -72,13 +74,12 @@ export default function App() {
         跳到正文
       </a>
       <header className="site-header">
-        <a href="#/" className="brand">
-          <strong>许继电气</strong>
-          <span className="brand-context">
-            <span>{dataset.title}</span>
-            <span className="brand-description">异常检测研究</span>
-          </span>
-        </a>
+        <div className="brand">
+          <a href="#/" aria-label="许继电气首页">
+            <strong>许继电气</strong>
+          </a>
+          <DatasetSwitch key={page} page={page} />
+        </div>
         <button
           ref={menuButton}
           className="mobile-menu"
@@ -207,6 +208,7 @@ export default function App() {
                     }
                   />
                 ) : null}
+                {data && !error && contentPage && <ChapterNavigation page={contentPage} />}
               </ChapterReady>
             </Suspense>
           </ReportFailure>

@@ -138,6 +138,16 @@ export function PlaybackChapter(p: PlaybackProps) {
           </button>
         </div>
       </div>
+      {scope === 'window' && (
+        <p className="playback-scope quiet" aria-live="polite">
+          <span>
+            选定片段 · 第 {from + 1}—{from + total} 点
+          </span>
+          <span>
+            {data.times[from]} — {data.times[from + total - 1]}
+          </span>
+        </p>
+      )}
       <div className="playback-status" ref={overview}>
         <span>{count ? data.times[idx] : '准备开始'}</span>
         {count ? (

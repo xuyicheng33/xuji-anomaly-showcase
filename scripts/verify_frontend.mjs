@@ -97,6 +97,82 @@ try {
       await page.getByTestId('calculated-score').waitFor();
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.screenshot({ path: `${out}/${dataset}-${width}-detection.png`, fullPage: true });
+      await page
+        .getByRole('navigation', { name: '章节衔接' })
+        .getByRole('link', { name: /下一章/ })
+        .click();
+      await page.getByRole('heading', { name: '检测结果回放', exact: true }).waitFor();
+      assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '345');
+      const plot = await page.locator('.playback-plots').boundingBox();
+      const stats = await page.locator('.playback-statistics').boundingBox();
+      if (width === 768) {
+        assert.ok(plot.width >= 700 && stats.y >= plot.y + plot.height);
+      }
+      if (width <= 390) {
+        const field = await page.locator('.feature-field').boundingBox();
+        const trigger = await page.locator('.feature-trigger').boundingBox();
+        assert.ok(Math.abs(trigger.x - field.x) < 1 && Math.abs(trigger.width - field.width) < 1);
+      }
+      await page.waitForFunction(() => {
+        const table = document.querySelector('[aria-describedby="playback-table-hint"]');
+        const hint = document.getElementById('playback-table-hint');
+        return hint.hidden === table.scrollWidth <= table.clientWidth + 1;
+      });
+      await page.getByRole('combobox', { name: '播放范围' }).selectOption('window');
+      assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '0');
+      assert.match(await page.locator('.playback-scope').innerText(), /第 108—171 点/);
+      assert.match(await page.locator('.playback-scope').innerText(), /\d{4}-\d{2}-\d{2}/);
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.getByRole('button', { name: '切换数据集', exact: true }).click();
+      await page.keyboard.press('Escape');
+      assert.equal(await page.getByRole('navigation', { name: '数据集', exact: true }).count(), 0);
+      await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+      if (width <= 390) {
+        const links = page.locator('.chapter-navigation a');
+        const previous = await links.first().boundingBox();
+        const next = await links.last().boundingBox();
+        assert.ok(next.y >= previous.y + previous.height);
+      }
+      if (dataset === 'converter') {
+        await page.locator('.model-select button').last().click();
+        await page.waitForFunction(() => {
+          const selected = document.querySelector('.model-select [aria-pressed=true]');
+          const indicator = document.querySelector('.selection-indicator');
+          const button = selected.getBoundingClientRect();
+          const highlight = indicator.getBoundingClientRect();
+          return (
+            Math.abs(button.y - highlight.y) < 1 && Math.abs(button.height - highlight.height) < 1
+          );
+        });
+        assert.ok(
+          await page.locator('.model-select button').evaluateAll((buttons) =>
+            buttons.every((button) => {
+              const range = document.createRange();
+              range.selectNodeContents(button);
+              const text = range.getBoundingClientRect();
+              const box = button.getBoundingClientRect();
+              return text.x >= box.x && text.right <= box.right;
+            }),
+          ),
+          'Model names must remain inside their controls at 200% zoom',
+        );
+      }
+      await page.getByRole('button', { name: '切换数据集', exact: true }).click();
+      const menu = await page
+        .getByRole('navigation', { name: '数据集', exact: true })
+        .boundingBox();
+      assert.ok(menu.x >= 0 && menu.x + menu.width <= width + 1);
+      await page.keyboard.press('Escape');
+      await page.evaluate(() => (document.documentElement.style.zoom = ''));
+      await page.getByRole('button', { name: '切换数据集', exact: true }).click();
+      await page.locator('.dataset-options a:not([aria-current])').click();
+      await page.locator('.playback-page[data-curves-ready=true]').waitFor();
+      assert.equal(new URL(page.url()).hash, '#/playback');
+      assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '0');
+      assert.equal(
+        await page.locator('.dataset-trigger').innerText(),
+        dataset === 'wind' ? '换流设备' : '风电设备',
+      );
       assert.deepEqual(errors, []);
       await page.close();
       console.log(

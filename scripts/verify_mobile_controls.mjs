@@ -55,12 +55,18 @@ try {
     if (width === 768) {
       assert.ok((await page.locator('.site-header').boundingBox()).height <= 110);
     }
-    if (width >= 768) {
+    if (width >= 1120) {
       const plot = await page.locator('.playback-plots').boundingBox();
       const stats = await page.locator('.playback-statistics').boundingBox();
       assert.ok(stats.x >= plot.x + plot.width, 'Replay charts and results sit side by side');
       assert.ok(Math.abs(stats.y - plot.y) < 2, 'Replay panels align at the top');
       if (width === 1440) assert.ok(Math.abs(stats.height - plot.height) < 100);
+    }
+    if (width === 768) {
+      const plot = await page.locator('.playback-plots').boundingBox();
+      const stats = await page.locator('.playback-statistics').boundingBox();
+      assert.ok(plot.width >= width - 70, 'Tablet plots use the full reading width');
+      assert.ok(stats.y >= plot.y + plot.height, 'Tablet statistics follow the full-width plots');
     }
     await page.goto(showcaseUrl + '#/detection');
     await page.getByRole('button', { name: /查看模型结果/ }).click();

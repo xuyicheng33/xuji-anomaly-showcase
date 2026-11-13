@@ -36,5 +36,7 @@ export const isWind = datasetId === 'wind';
 export const dataset = datasetConfigs[datasetId];
 export const dataRoot = dataset.root;
 export const dataUrl = (file: string) => import.meta.env.BASE_URL + dataRoot + file;
-export const datasetHome = (id: 'wind' | 'converter') =>
-  import.meta.env.BASE_URL + (id === 'wind' ? '?dataset=wind#/' : '#/');
+export const datasetHome = (id: 'wind' | 'converter', page = 'home') =>
+  import.meta.env.BASE_URL +
+  (id === 'wind' ? '?dataset=wind#/' : '#/') +
+  (page === 'home' ? '' : page);

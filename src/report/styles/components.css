@@ -23,19 +23,66 @@
   letter-spacing: 0.12em;
   white-space: nowrap;
 }
-.brand-context {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+.brand > a {
+  padding-block: 10px;
+}
+.dataset-picker {
+  position: relative;
   border-left: 1px solid var(--control-border);
-  padding-left: 12px;
+  padding-left: 10px;
+}
+.dataset-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 4px;
+  min-height: var(--control-height);
+  border: 0;
   font-size: var(--text-small);
   color: var(--muted);
-  line-height: 1.5;
+}
+.dataset-trigger svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  transition: transform var(--motion-fast);
+}
+.dataset-trigger[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+.dataset-options {
+  position: fixed;
+  z-index: 40;
+  padding: 6px;
+  background: var(--paper);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 6px 18px #24292314;
+  animation: feature-open var(--motion-fast) ease-out;
+}
+.dataset-options a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px;
+  font-size: var(--text-control);
+  border-radius: var(--radius-small);
+}
+.dataset-options a span {
+  color: var(--muted);
+  font-size: var(--text-small);
   white-space: nowrap;
 }
-.brand-description {
-  font-size: 12px;
+.dataset-options a[aria-current] {
+  background: var(--selected);
+  color: var(--blue);
+}
+.dataset-options a:hover {
+  background: var(--control-hover);
 }
 .site-nav {
   display: flex;
@@ -83,6 +130,40 @@
   font-size: 17px;
   color: var(--muted);
   line-height: 1.8;
+}
+.chapter-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  container-type: inline-size;
+  gap: 32px;
+  margin-top: var(--section-space);
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.chapter-navigation a {
+  flex: 1 1 120px;
+  min-width: 0;
+  padding: 12px 0;
+}
+.chapter-navigation a:last-child {
+  text-align: right;
+}
+.chapter-navigation span {
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.chapter-navigation strong {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--serif);
+  font-size: 22px;
+  line-height: 1.6;
+  font-weight: 500;
+  text-wrap: balance;
+  transition: color var(--motion-fast);
+}
+.chapter-navigation a:hover strong {
+  color: var(--blue);
 }
 .report-section {
   margin-top: var(--section-space);
@@ -241,13 +322,12 @@ details[open] > summary::before {
 }
 .selection-indicator {
   position: absolute;
-  top: 4px;
-  bottom: 4px;
   background: var(--paper);
   border-radius: var(--radius-small);
   box-shadow: 0 1px 4px #20282012;
   transition:
     left var(--motion-normal) ease,
+    top var(--motion-normal) ease,
     width var(--motion-normal) ease;
   z-index: 0;
 }
@@ -677,7 +757,6 @@ details[open] > summary::before {
   background: var(--surface);
 }
 .reference-table-hint {
-  display: none;
   font-size: 13px;
   color: var(--muted);
   line-height: 1.7;
@@ -774,18 +853,10 @@ details[open] > summary::before {
 .result-reveal {
   animation: arrive var(--motion-normal) ease-out;
 }
-@media (max-width: 1050px) {
-  .reference-table-hint {
-    display: block;
-  }
-}
 @media (max-width: 1120px) {
   .site-header {
-    gap: 8px;
-    padding: 16px 30px;
-  }
-  .brand-description {
-    display: none;
+    gap: 4px;
+    padding: 12px 30px;
   }
   .site-nav {
     width: 100%;
@@ -807,6 +878,14 @@ details[open] > summary::before {
   }
 }
 @media (max-width: 680px) {
+  .chapter-navigation {
+    gap: 20px;
+    padding-top: 16px;
+  }
+  .chapter-navigation strong {
+    font-size: 18px;
+  }
+
   .feature-field {
     flex-direction: column;
     align-items: stretch;
@@ -845,12 +924,6 @@ details[open] > summary::before {
   }
   .brand {
     gap: 10px;
-  }
-  .brand-context {
-    padding-left: 10px;
-  }
-  .brand-description {
-    display: none;
   }
   .mobile-menu {
     display: block;
@@ -926,6 +999,7 @@ details[open] > summary::before {
     min-height: 40px;
   }
   .model-select button {
+    flex: 1 0 auto;
     font-size: var(--text-control);
   }
   .slider-label {
@@ -1005,5 +1079,18 @@ details[open] > summary::before {
 @container (max-width: 240px) {
   .result-summary-values {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 360px) {
+  .brand {
+    gap: 6px;
+  }
+  .dataset-picker {
+    padding-left: 6px;
+  }
+}
+@container (max-width: 240px) {
+  .chapter-navigation a:last-child {
+    text-align: left;
   }
 }

@@ -113,7 +113,7 @@ export function useCaseConstruction(data: Journey, model: Model) {
   const animatedWeight = (weights[point] ?? 0) * blend;
   const startPlaying = () => {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!playing && matchMedia('(max-width: 820px)').matches)
+    if (!playing && matchMedia('(max-width: 1050px)').matches)
       stageRef.current?.scrollIntoView({
         behavior: reduced ? 'instant' : 'smooth',
         block: 'start',

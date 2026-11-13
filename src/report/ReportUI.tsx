@@ -21,11 +21,12 @@ export function ModelSelect({
   onChange: (v: string) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null),
-    [box, setBox] = useState({ x: 4, width: 0 });
+    [box, setBox] = useState({ x: 4, y: 4, width: 0, height: 0 });
   useLayoutEffect(() => {
     const update = () => {
       const b = ref.current?.querySelector<HTMLButtonElement>('[aria-pressed=true]');
-      if (b) setBox({ x: b.offsetLeft, width: b.offsetWidth });
+      if (b)
+        setBox({ x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight });
     };
     update();
     const o = new ResizeObserver(update);
@@ -36,7 +37,10 @@ export function ModelSelect({
     return <span className="model-identity">{modelName(data.models[0])}</span>;
   return (
     <div ref={ref} className="segmented model-select" aria-label="选择模型">
-      <i className="selection-indicator" style={{ left: box.x, width: box.width }} />
+      <i
+        className="selection-indicator"
+        style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
+      />
       {data.models.map((m) => (
         <button key={m.id} aria-pressed={value === m.id} onClick={() => onChange(m.id)}>
           {modelName(m)}
