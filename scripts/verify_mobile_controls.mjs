@@ -7,6 +7,49 @@ const out = qaDirectory('mobile_controls');
 await mkdir(out, { recursive: true });
 const browser = await launchBrowser();
 try {
+  for (const width of [1440, 768, 390, 320]) {
+    const page = await browser.newPage({
+      viewport: { width, height: 844 },
+      reducedMotion: 'reduce',
+    });
+    await page.goto(showcaseUrl + '#/playback');
+    await page.getByRole('slider', { name: '播放进度' }).fill('132');
+    await page.getByTestId('contribution-total').waitFor();
+    if (width === 768) {
+      assert.ok((await page.locator('.site-header').boundingBox()).height <= 110);
+    }
+    if (width >= 768) {
+      const plot = await page.locator('.playback-plots').boundingBox();
+      const stats = await page.locator('.playback-statistics').boundingBox();
+      assert.ok(stats.x >= plot.x + plot.width, 'Replay charts and results sit side by side');
+      assert.ok(Math.abs(stats.y - plot.y) < 2, 'Replay panels align at the top');
+      if (width === 1440) assert.ok(Math.abs(stats.height - plot.height) < 100);
+    }
+    await page.goto(showcaseUrl + '#/detection');
+    await page.getByRole('button', { name: /查看模型结果/ }).click();
+    await page.getByTestId('calculated-score').waitFor();
+    const plot = await page.locator('.reconstruction-view svg').boundingBox();
+    const summary = await page.locator('.detection-summary').boundingBox();
+    assert.ok(summary.y >= plot.y + plot.height, 'The result summary follows its chart');
+    if (width <= 390)
+      assert.ok(plot.y < 760, 'The mobile chart is visible within the first screen');
+    await page.goto(showcaseUrl + '#/training');
+    const training = page.getByRole('img', { name: '归一化训练数据', exact: true });
+    await training.waitFor();
+    await page.waitForFunction(() => !!document.querySelector('.curve-selection'));
+    const fraction = await training.evaluate((element) => {
+      const selection = element.querySelector('.curve-selection');
+      return Number(selection.getAttribute('width')) / element.viewBox.baseVal.width;
+    });
+    assert.ok(
+      width <= 390 ? fraction > 0.45 : fraction < 0.4,
+      'The mobile training window stays prominent',
+    );
+    await page.close();
+  }
+  console.log(
+    'PASS compact header, aligned replay panels, visible mobile detection and focused training window',
+  );
   const tablet = await browser.newPage({
     viewport: { width: 900, height: 900 },
     reducedMotion: 'reduce',

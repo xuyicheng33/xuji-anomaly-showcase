@@ -1,5 +1,5 @@
 import { displaySettings } from '../dataGeometry';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { type Journey, type Model, trainingScale } from '../journey';
 import { Heading, Section, ModelSelect, colors } from './ReportUI';
 import Curve from './Curve';
@@ -21,6 +21,14 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
       Math.min(5299, Math.max(0, data.datasets.train.shape[0] - data.window)),
     ),
     [epoch, setEpoch] = useState(0);
+  const chartPanel = useRef<HTMLDivElement>(null);
+  const [chartWidth, setChartWidth] = useState(1100);
+  useEffect(() => {
+    if (!chartPanel.current) return;
+    const observer = new ResizeObserver(([entry]) => setChartWidth(entry.contentRect.width));
+    observer.observe(chartPanel.current);
+    return () => observer.disconnect();
+  }, []);
 
   const point = data.features[feature],
     train = data.datasets.train;
@@ -36,8 +44,17 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
   const length = train.shape[0],
     lastStart = length - data.window,
     start = Math.min(windowStart, lastStart),
-    contextLength = Math.min(length, Math.max(data.window, displaySettings.trainingPoints)),
-    contextStart = Math.max(0, Math.min(start - data.window, length - contextLength));
+    contextLength = Math.min(
+      length,
+      Math.max(
+        data.window,
+        chartWidth < 480 ? Math.ceil(data.window * 1.5) : displaySettings.trainingPoints,
+      ),
+    ),
+    contextStart = Math.max(
+      0,
+      Math.min(start - Math.floor((contextLength - data.window) / 2), length - contextLength),
+    );
   const values =
     training && stats
       ? Array.from({ length: contextLength }, (_, i) => {
@@ -78,7 +95,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
           />
           <span>训练集，{length.toLocaleString('zh-CN')} 个时刻</span>
         </div>
-        <div className="chapter-chart-panel">
+        <div className="chapter-chart-panel" ref={chartPanel}>
           {error ? (
             <div className="chapter-loading" role="alert">
               <p>{error}</p>

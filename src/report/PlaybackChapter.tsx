@@ -167,6 +167,7 @@ export function PlaybackChapter(p: PlaybackProps) {
             <ReconstructionView
               features={data.features.length}
               compact
+              height={180}
               playbackScale={{ key: `${scaleContext}:${viewFeature}`, hold: holdScale }}
               aggregate={viewFeature < 0}
               input={Array.from(inputAsset.data!.slice(viewStart, viewStart + len))}
@@ -215,7 +216,7 @@ export function PlaybackChapter(p: PlaybackProps) {
             reveal={reveal}
             labels={labs}
             threshold={threshold}
-            height={135}
+            height={160}
             start={viewStart}
             onSelect={(i) => seek(Math.max(0, Math.min(total, viewStart + i - from + 1)))}
           />

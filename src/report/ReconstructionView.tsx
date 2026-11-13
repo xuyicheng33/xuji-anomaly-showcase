@@ -14,6 +14,7 @@ export default function ReconstructionView({
   compact = false,
   playbackScale,
   features,
+  height,
 }: {
   input: number[];
   recon?: number[];
@@ -26,6 +27,7 @@ export default function ReconstructionView({
   compact?: boolean;
   playbackScale?: PlaybackScale;
   features: number;
+  height?: number;
 }) {
   return (
     <div className={'reconstruction-view' + (aggregate ? ' aggregate-view' : '')}>
@@ -51,7 +53,7 @@ export default function ReconstructionView({
         reveal={reveal}
         start={start}
         onSelect={onSelect}
-        height={compact ? 145 : 220}
+        height={height ?? (compact ? 145 : 220)}
         playbackScale={playbackScale}
       />
     </div>

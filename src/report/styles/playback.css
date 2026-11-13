@@ -79,7 +79,7 @@
 .playback-statistics-context time {
   display: block;
 }
-@container (max-width: 280px) {
+@container (max-width: 220px) {
   .playback-statistics {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -186,11 +186,11 @@
   font-size: var(--text-control);
   color: var(--blue);
 }
-@media (min-width: 1060px) {
+@container (min-width: 640px) {
   .replay-workspace {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 320px;
-    gap: 40px;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: 24px;
     align-items: start;
   }
   .playback-plots .curve-top {
@@ -205,7 +205,7 @@
   }
   .playback-statistics .confusion-cell {
     padding: 12px;
-    min-height: 88px;
+    min-height: 76px;
   }
   .playback-statistics .confusion-cell p {
     font-size: 12px;
@@ -218,8 +218,8 @@
   .replay-workspace > .statistics {
     display: flex;
     flex-direction: column;
-    gap: 28px;
-    padding: 20px 0 0 28px;
+    gap: 20px;
+    padding: 7px 0 0 20px;
     border-left: 1px solid var(--line);
     margin: 0;
   }
@@ -232,7 +232,7 @@
   }
   .playback-statistics .rates {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 12px;
   }
   .playback-statistics .rates > div {
     flex-direction: row;
@@ -244,12 +244,13 @@
   }
   .current-score {
     display: block;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
     border-bottom: 1px solid var(--line);
   }
   .current-score strong {
     display: block;
-    margin-top: 14px;
+    margin-top: 8px;
     font-size: 25px;
   }
   .replay-workspace .legend {

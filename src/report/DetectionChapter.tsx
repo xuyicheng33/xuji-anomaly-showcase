@@ -166,41 +166,14 @@ export function DetectionChapter(p: DetectionProps) {
         </button>
       </div>
       <p className="quiet time-range">
-        {data.times[start]} — {data.times[start + window - 1]}，
+        <span>
+          {data.times[start]} — {data.times[start + window - 1]}
+        </span>
         <span className="note-anchor">
           {window}个时刻 × {features}个测点
           <Footnote note="score-calculation" reference="ref-detection-score-calculation" />
         </span>
       </p>
-      {ready && stats && (
-        <div className="detection-summary" aria-live="polite">
-          <span>
-            检出 <strong>{stats.tp}</strong>
-          </span>
-          <span>
-            误报 <strong>{stats.fp}</strong>
-          </span>
-          <span>
-            漏检 <strong>{stats.fn}</strong>
-          </span>
-          <span>
-            逐点F1 <strong>{pct(stats.f1)}</strong>
-          </span>
-          <button
-            className="inline-link"
-            onClick={() =>
-              document.getElementById('window-evaluation')?.scrollIntoView({
-                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-                  ? 'instant'
-                  : 'smooth',
-                block: 'start',
-              })
-            }
-          >
-            查看评估结果 ↓
-          </button>
-        </div>
-      )}
       <p className="quiet chart-label-key">
         <i />
         {data.dataset?.id === 'wind' ? '保留异常标签区间' : '实验异常标签区间'}
@@ -244,6 +217,35 @@ export function DetectionChapter(p: DetectionProps) {
         <div role="alert" className="inline-error">
           {error}
           <button onClick={requestResult}>重试</button>
+        </div>
+      )}
+      {ready && stats && (
+        <div className="detection-summary" aria-live="polite">
+          <span>
+            检出 <strong>{stats.tp}</strong>
+          </span>
+          <span>
+            误报 <strong>{stats.fp}</strong>
+          </span>
+          <span>
+            漏检 <strong>{stats.fn}</strong>
+          </span>
+          <span>
+            逐点F1 <strong>{pct(stats.f1)}</strong>
+          </span>
+          <button
+            className="inline-link"
+            onClick={() =>
+              document.getElementById('window-evaluation')?.scrollIntoView({
+                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                  ? 'instant'
+                  : 'smooth',
+                block: 'start',
+              })
+            }
+          >
+            查看评估结果 ↓
+          </button>
         </div>
       )}
       {ready && stats && (
