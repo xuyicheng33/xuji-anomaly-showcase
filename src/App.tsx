@@ -122,7 +122,7 @@ export default function App() {
                 {contentPage === 'home' ? (
                   <>
                     <section className="home-hero">
-                      <h1>
+                      <h1 aria-label={`${dataset.title} 异常检测研究`}>
                         <span className="hero-subject">{dataset.title}</span>
                         <span className="hero-title">
                           <span>异常</span>
