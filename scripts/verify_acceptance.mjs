@@ -93,7 +93,7 @@ try {
     assert.match(await p.locator('.length-mapping').innerText(), /40—42/);
     assert.equal(await p.locator('.length-destination button[aria-pressed=true]').count(), 3);
     assert.equal(await p.locator('.length-destination button').count(), 24);
-    await p.getByRole('link', { name: /注 \d+：长度调整与采样/ }).click();
+    await p.getByRole('link', { name: /^采样说明：长度调整与采样/ }).click();
     assert.match(await p.locator('#note-length-sampling').innerText(), /A、C、E、G/);
     await p.locator('#note-length-sampling .note-return').click();
     await p.locator('.length-construction').waitFor();

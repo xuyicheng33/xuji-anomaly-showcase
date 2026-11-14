@@ -93,11 +93,9 @@ try {
     await page.getByRole('button', { name: '连续缺失', exact: true }).click();
     const dataText = await page.locator('.data-chapter').innerText();
     assert.ok(!/缺失率|这些底部油温|均包含/.test(dataText));
-    assert.ok(
-      dataText.includes(
-        '各测点使用训练集的最小值和最大值归一化；测试集沿用训练参数，越界值截断到0—1。',
-      ),
-    );
+    const normalizationText = await page.locator('.normalization-heading').innerText();
+    assert.match(normalizationText, /训练集的最小值和最大值/);
+    assert.match(normalizationText, /测试值截断至\s*0—1/);
     assert.equal(await page.locator('.removed-sensors li span').count(), 0);
     assert.equal(await page.locator('.balanced-split br').count(), 0);
     assert.ok(
