@@ -645,26 +645,10 @@ details[open] > summary::before {
   white-space: nowrap;
   font-size: var(--text-small);
 }
-.confusion-cell small {
-  display: block;
-  color: var(--muted);
-  font-size: 12px;
-  margin: 2px 0 0;
-}
 .confusion-cell strong {
   font-size: 26px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-}
-.confusion-cell p {
-  grid-column: 1 / -1;
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--muted);
-  line-height: 1.7;
-}
-.confusion-cell p > span {
-  white-space: nowrap;
 }
 .confusion-cell.current {
   border-color: var(--positive-border);
@@ -1152,17 +1136,11 @@ details[open] > summary::before {
   .confusion-cell strong {
     justify-self: start;
   }
-  .confusion-cell p {
-    margin-top: 0;
-  }
 }
 @container (max-width: 240px) {
   .analysis-toolbar .feature-field {
     flex-direction: column;
     align-items: stretch;
-  }
-  .result-summary-values {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 360px) {

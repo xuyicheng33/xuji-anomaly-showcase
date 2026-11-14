@@ -308,9 +308,6 @@
 .case-detection .rates strong {
   font-size: 22px;
 }
-.case-detection .confusion-cell p {
-  font-size: 12px;
-}
 .case-material-strip {
   display: flex;
   align-items: baseline;

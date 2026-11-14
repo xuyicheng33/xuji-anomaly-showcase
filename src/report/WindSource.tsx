@@ -6,7 +6,7 @@ export default function WindSource({ data }: { data: Journey }) {
   return (
     <>
       <p className="reading-copy">同一场站的功率与天气记录按目标时刻对应，组成 28 维输入。</p>
-      <div className="model-details">
+      <div className="wind-source-groups">
         {[
           ['功率记录', '实际功率与预测功率', '2 个字段'],
           ['实测天气', '温度、湿度、气压，以及不同高度的风速和风向', '13 个字段'],

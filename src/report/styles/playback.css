@@ -129,8 +129,7 @@
   .playback-statistics .confusion-cell {
     grid-template-columns: minmax(0, 1fr);
   }
-  .playback-statistics .confusion-cell > span,
-  .playback-statistics .confusion-cell p > span {
+  .playback-statistics .confusion-cell > span {
     white-space: normal;
   }
   .playback-statistics .matrix-caption {
@@ -246,11 +245,6 @@
   .playback-statistics .confusion-cell {
     padding: 12px;
     min-height: 76px;
-  }
-  .playback-statistics .confusion-cell p {
-    font-size: 12px;
-    line-height: 1.65;
-    margin-top: 2px;
   }
   .playback-page .playhead {
     margin: 8px 0;

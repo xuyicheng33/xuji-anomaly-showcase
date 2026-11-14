@@ -4,6 +4,7 @@
 @import './styles/home.css';
 @import './styles/data.css';
 @import './styles/models.css';
+@import './styles/training.css';
 @import './styles/anomalies.css';
 @import './styles/detection.css';
 @import './styles/playback.css';
