@@ -311,6 +311,10 @@ try {
     await help.click();
     await page.getByRole('tooltip').waitFor();
     assert.equal(new URL(page.url()).hash, '#/models', 'Short help keeps the current page');
+    await help.click();
+    assert.equal(await page.getByRole('tooltip').count(), 0, 'A second click dismisses short help');
+    await help.click();
+    await page.getByRole('tooltip').waitFor();
     await page.getByRole('heading', { name: '异常检测模型', exact: true }).click();
     assert.equal(await page.getByRole('tooltip').count(), 0, 'Outside clicks dismiss short help');
     await help.focus();

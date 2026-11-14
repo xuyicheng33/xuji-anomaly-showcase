@@ -79,7 +79,24 @@ export function PlaybackChapter(p: PlaybackProps) {
   };
   return (
     <div className="playback-page" data-curves-ready={curvesReady} data-started={count > 0}>
-      <Heading title={chapterContent.playback.title} />
+      <div className="playback-heading">
+        <Heading title={chapterContent.playback.title} />
+        <button
+          className="inline-link"
+          aria-label="查看完整测试集评估"
+          onClick={() => {
+            setPlaying(false);
+            document.getElementById('full-evaluation')?.scrollIntoView({
+              block: 'start',
+              behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? 'instant'
+                : 'smooth',
+            });
+          }}
+        >
+          完整评估 ↓
+        </button>
+      </div>
       <div className="toolbar analysis-toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect
@@ -208,19 +225,6 @@ export function PlaybackChapter(p: PlaybackProps) {
               height={220}
             />
           )}
-          <button
-            className="inline-link"
-            onClick={() =>
-              document.getElementById('full-evaluation')?.scrollIntoView({
-                block: 'start',
-                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-                  ? 'instant'
-                  : 'smooth',
-              })
-            }
-          >
-            查看完整测试集评估 ↓
-          </button>
         </div>
       )}
       <div className="replay-workspace" hidden={!count && !inputAsset.error && !reconAsset.error}>

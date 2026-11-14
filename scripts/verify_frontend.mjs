@@ -39,6 +39,23 @@ try {
       assert.equal(await page.getByRole('slider', { name: '训练窗口位置' }).inputValue(), '320');
       assert.equal(await page.getByRole('slider', { name: '训练轮次' }).inputValue(), '3');
       await go('playback');
+      const evaluation = page.getByRole('button', { name: '查看完整测试集评估', exact: true });
+      await evaluation.click();
+      assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '0');
+      assert.ok(
+        (await page.locator('#full-evaluation').boundingBox()).y < 900,
+        'The full evaluation is reachable before playback starts',
+      );
+      await page.getByRole('slider', { name: '播放进度' }).fill('345');
+      await page.getByRole('button', { name: '播放', exact: true }).click();
+      await page.waitForFunction(() => Number(document.querySelector('.playhead').value) > 345);
+      await evaluation.click();
+      await page.getByRole('button', { name: '播放', exact: true }).waitFor();
+      assert.ok(Number(await page.getByRole('slider', { name: '播放进度' }).inputValue()) > 345);
+      assert.ok(
+        (await page.locator('#full-evaluation').boundingBox()).y < 900,
+        'The full evaluation remains reachable and pauses active playback',
+      );
       await page.getByRole('slider', { name: '播放进度' }).fill('345');
       await page.getByRole('combobox', { name: '播放速度' }).selectOption('8');
       await navigate('片段检测');

@@ -2,15 +2,23 @@
 .playback-page {
   container-type: inline-size;
 }
+.playback-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-block: var(--heading-space);
+}
+.playback-heading .chapter-heading {
+  padding: 0;
+}
 .playback-calculation {
   margin: 30px 0;
   scroll-margin-top: var(--playback-scroll-offset, 24px);
 }
 .replay-intro {
   padding: 8px 0;
-}
-.replay-intro .inline-link {
-  margin-top: 16px;
 }
 #full-evaluation {
   scroll-margin-top: var(--playback-scroll-offset, 24px);

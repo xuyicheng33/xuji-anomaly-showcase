@@ -1,4 +1,12 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { createPortal } from 'react-dom';
 
 /** Short contextual help. Longer methodology remains in the linked explanations. */
@@ -7,12 +15,18 @@ export default function InfoTip({ label, children }: { label: string; children: 
   const trigger = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLSpanElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const pinned = useRef(false);
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ left: 0, top: 0, width: 280 });
   const reveal = () => {
     clearTimeout(timer.current);
     setOpen(true);
   };
+  const dismiss = useCallback(() => {
+    clearTimeout(timer.current);
+    pinned.current = false;
+    setOpen(false);
+  }, []);
   const leave = () => {
     clearTimeout(timer.current);
     if (document.activeElement !== trigger.current)
@@ -53,26 +67,26 @@ export default function InfoTip({ label, children }: { label: string; children: 
   }, [open]);
   useEffect(() => {
     if (!open) return;
-    const dismiss = (event: PointerEvent) => {
+    const outside = (event: PointerEvent) => {
       if (
         !trigger.current?.contains(event.target as Node) &&
         !panel.current?.contains(event.target as Node)
       )
-        setOpen(false);
+        dismiss();
     };
     const escape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.stopPropagation();
-        setOpen(false);
+        dismiss();
       }
     };
-    document.addEventListener('pointerdown', dismiss);
+    document.addEventListener('pointerdown', outside);
     document.addEventListener('keydown', escape);
     return () => {
-      document.removeEventListener('pointerdown', dismiss);
+      document.removeEventListener('pointerdown', outside);
       document.removeEventListener('keydown', escape);
     };
-  }, [open]);
+  }, [open, dismiss]);
   return (
     <span className="info-tip">
       <button
@@ -83,8 +97,14 @@ export default function InfoTip({ label, children }: { label: string; children: 
         aria-describedby={open ? id : undefined}
         aria-expanded={open}
         onFocus={reveal}
-        onBlur={() => setOpen(false)}
-        onClick={reveal}
+        onBlur={dismiss}
+        onClick={() => {
+          if (pinned.current) dismiss();
+          else {
+            pinned.current = true;
+            reveal();
+          }
+        }}
         onPointerEnter={(event) => {
           if (event.pointerType === 'mouse') reveal();
         }}
