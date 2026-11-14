@@ -131,7 +131,9 @@ try {
     await p.evaluate(() => window.scrollTo(0, 0));
     await p.getByRole('button', { name: '播放构造', exact: true }).click();
     await p.waitForFunction(() => {
-      const r = document.querySelector('.case-stage .curve svg').getBoundingClientRect();
+      const r = document
+        .querySelector('.case-stage .curve svg[role="img"]')
+        .getBoundingClientRect();
       return r.top >= 0 && r.bottom <= innerHeight;
     });
     await p.getByRole('button', { name: '暂停', exact: true }).click();

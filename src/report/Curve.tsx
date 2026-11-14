@@ -7,6 +7,7 @@ import { usePlotGeometry } from './usePlotGeometry';
 export default function Curve({
   lines,
   labels = [],
+  labelKey,
   selection,
   selected,
   reveal,
@@ -30,6 +31,7 @@ export default function Curve({
     opacity?: number;
   }[];
   labels?: number[];
+  labelKey?: string;
   /** Inclusive local sample range, independently rendered from anomaly labels. */
   selection?: { start: number; end: number };
   selected?: number;
@@ -101,6 +103,12 @@ export default function Curve({
             <span>
               <i className="dashed" />
               阈值
+            </span>
+          )}
+          {labelKey && (
+            <span>
+              <i className="label-swatch" />
+              {labelKey}
             </span>
           )}
         </div>

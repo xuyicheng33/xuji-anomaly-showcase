@@ -127,7 +127,7 @@ export function DetectionChapter(p: DetectionProps) {
   }, [ready, request]);
   return (
     <div className="detection-page">
-      <Heading title="数据片段检测">{window} 点窗口的重建结果、异常分数与检测判定。</Heading>
+      <Heading title="数据片段检测" />
       <div className="toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect
@@ -140,8 +140,7 @@ export function DetectionChapter(p: DetectionProps) {
           }}
         />
       </div>
-      <div className="example-picker">
-        <span>典型片段</span>
+      <div className="example-picker" role="group" aria-label="典型片段">
         {model.examples.map((e) => (
           <button
             key={e.code}
@@ -215,7 +214,7 @@ export function DetectionChapter(p: DetectionProps) {
       </div>
       <p
         id="start-input-hint"
-        className={validateStart && invalidStart ? 'input-hint invalid' : 'input-hint'}
+        className={validateStart && invalidStart ? 'input-hint invalid' : 'sr-only'}
         role={validateStart && invalidStart ? 'alert' : undefined}
       >
         {validateStart && invalidStart
@@ -227,13 +226,8 @@ export function DetectionChapter(p: DetectionProps) {
           {data.times[start]} — {data.times[start + window - 1]}
         </span>
         <span className="note-anchor">
-          {window}个时刻 × {features}个测点
           <Footnote note="score-calculation" reference="ref-detection-score-calculation" />
         </span>
-      </p>
-      <p className="quiet chart-label-key">
-        <i />
-        {data.dataset?.id === 'wind' ? '保留异常标签区间' : '实验异常标签区间'}
       </p>
       {ready && stats && (
         <div className="detection-summary" ref={resultSummary} aria-live="polite">
@@ -267,6 +261,7 @@ export function DetectionChapter(p: DetectionProps) {
               : undefined
           }
           labels={labs}
+          labelKey={data.dataset?.id === 'wind' ? '保留异常标签' : '实验异常标签'}
           selected={ready ? point : undefined}
           start={start}
           onSelect={ready ? setPoint : undefined}

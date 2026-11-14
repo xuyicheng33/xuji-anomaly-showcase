@@ -35,11 +35,11 @@ try {
       assert.equal(wrapped, false, 'Outcome jump labels stay on one line');
       await page.evaluate(() => (document.documentElement.style.zoom = '2'));
       await page.waitForFunction(() => {
-        const svg = document.querySelector('.reconstruction-view svg');
+        const svg = document.querySelector('.reconstruction-view svg[role="img"]');
         return Math.abs(svg.getBoundingClientRect().width / 2 - svg.viewBox.baseVal.width) < 1;
       });
       const font = await page
-        .locator('.reconstruction-view svg text')
+        .locator('.reconstruction-view svg[role="img"] text')
         .first()
         .evaluate((text) => parseFloat(getComputedStyle(text).fontSize) * text.getScreenCTM().a);
       assert.ok(font >= 24, 'Chart tick text enlarges with the page at 200%');
@@ -79,7 +79,7 @@ try {
       assert.equal(await page.locator('.calculation-rows').isVisible(), false);
       assert.ok(await page.getByTestId('calculated-score').isVisible());
     }
-    const plot = await page.locator('.reconstruction-view svg').boundingBox();
+    const plot = await page.locator('.reconstruction-view svg[role="img"]').boundingBox();
     const summary = await page.locator('.detection-summary').boundingBox();
     assert.ok(summary.y + summary.height <= plot.y, 'The result summary precedes its chart');
     if (width <= 390)
@@ -131,7 +131,7 @@ try {
     });
     await page.goto(showcaseUrl + '#/playback');
     const controlHeights = await page
-      .locator('.playback-transport button, .playback-controls select')
+      .locator('.playback-transport button, .playback-settings select')
       .evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().height));
     assert.ok(Math.max(...controlHeights) - Math.min(...controlHeights) <= 1);
     await page.getByRole('slider', { name: '播放进度' }).fill('132');

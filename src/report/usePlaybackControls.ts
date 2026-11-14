@@ -8,7 +8,8 @@ export function usePlaybackControls() {
     const page = bar.closest<HTMLElement>('.playback-page')!;
     const update = () => {
       const height = bar.getBoundingClientRect().height;
-      const sticky = innerWidth <= 680 && height < innerHeight * 0.28;
+      const zoom = Number(getComputedStyle(document.documentElement).zoom) || 1;
+      const sticky = innerWidth <= 680 && innerWidth / zoom > 240 && height < innerHeight * 0.28;
       page.style.setProperty('--playback-controls-position', sticky ? 'sticky' : 'static');
       page.style.setProperty('--playback-scroll-offset', `${sticky ? height + 24 : 24}px`);
     };

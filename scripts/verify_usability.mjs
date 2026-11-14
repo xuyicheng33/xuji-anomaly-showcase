@@ -156,7 +156,7 @@ try {
       await page.evaluate(() => (document.documentElement.style.zoom = '1'));
     }
     await page.evaluate(() => document.fonts.ready);
-    const plot = page.locator('.reconstruction-view svg');
+    const plot = page.locator('.reconstruction-view svg[role="img"]');
     await plot.focus();
     await page.keyboard.press('Home');
     assert.equal(await page.getByRole('slider', { name: '片段查看时刻' }).inputValue(), '0');

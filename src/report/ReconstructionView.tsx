@@ -7,6 +7,7 @@ export default function ReconstructionView({
   recon,
   aggregate,
   labels,
+  labelKey,
   selected,
   reveal,
   start = 0,
@@ -20,6 +21,7 @@ export default function ReconstructionView({
   recon?: number[];
   aggregate: boolean;
   labels: number[];
+  labelKey?: string;
   selected?: number;
   reveal?: number;
   start?: number;
@@ -49,6 +51,7 @@ export default function ReconstructionView({
             : []),
         ]}
         labels={labels}
+        labelKey={labelKey}
         selected={selected}
         reveal={reveal}
         start={start}

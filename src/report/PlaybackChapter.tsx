@@ -12,7 +12,6 @@ import {
   Confusion,
   Rates,
   Outcome,
-  ResultSummary,
   colors,
 } from './ReportUI';
 import Curve from './Curve';
@@ -92,22 +91,7 @@ export function PlaybackChapter(p: PlaybackProps) {
           }}
         />
       </div>
-      <div className="playback-controls" ref={controls}>
-        <div className="playback-transport" role="group" aria-label="播放控制">
-          <button
-            className="primary"
-            onClick={() => {
-              if (count === total) setCount(0);
-              setPlaying((v) => !v);
-            }}
-          >
-            {playing ? '暂停' : count === total ? '重新播放' : '播放'}
-          </button>
-          <button onClick={() => seek(Math.min(total, count + 1))} disabled={count === total}>
-            单步
-          </button>
-          <button onClick={() => seek(0)}>重置</button>
-        </div>
+      <div className="playback-command-bar">
         <div className="playback-settings">
           <label>
             速度
@@ -137,6 +121,23 @@ export function PlaybackChapter(p: PlaybackProps) {
             查看末尾
           </button>
         </div>
+        <div className="playback-controls" ref={controls}>
+          <div className="playback-transport" role="group" aria-label="播放控制">
+            <button
+              className="primary"
+              onClick={() => {
+                if (count === total) setCount(0);
+                setPlaying((v) => !v);
+              }}
+            >
+              {playing ? '暂停' : count === total ? '重新播放' : '播放'}
+            </button>
+            <button onClick={() => seek(Math.min(total, count + 1))} disabled={count === total}>
+              单步
+            </button>
+            <button onClick={() => seek(0)}>重置</button>
+          </div>
+        </div>
       </div>
       {scope === 'window' && (
         <p className="playback-scope quiet" aria-live="polite">
@@ -149,12 +150,10 @@ export function PlaybackChapter(p: PlaybackProps) {
         </p>
       )}
       <div className="playback-status" ref={overview}>
-        <span>{count ? data.times[idx] : '准备开始'}</span>
+        <span>{count ? data.times[idx] : data.times[from]}</span>
         {count ? (
           <Outcome label={data.labels[idx]} score={model.scores[idx]} model={model} />
-        ) : (
-          <span>播放后逐点显示判断</span>
-        )}
+        ) : null}
         <span data-testid="played-count">
           已查看 {count} / {total} 点
         </span>
@@ -192,17 +191,22 @@ export function PlaybackChapter(p: PlaybackProps) {
         onKeyUp={() => setScrubbing(false)}
         onBlur={() => setScrubbing(false)}
       />
-      <p className="quiet playback-caption" hidden={!count}>
-        {data.dataset?.id === 'wind' ? '橙色区域表示保留的异常标签' : '橙色区域表示实验异常标签'}
-        {viewFeature >= 0 ? `，下方分数综合全部 ${data.features.length} 个测点` : ''}
-      </p>
-      {count > 0 && (
-        <ResultSummary metrics={stats} scope={`累计结果 · 第 ${from + 1}—${idx + 1} 点`} />
-      )}
       {!count && (
         <div className="replay-intro">
-          <h2>逐点查看检测结果</h2>
-          <p>点击播放，或直接前往检出、误报与漏检位置，查看曲线、分数和累计结果。</p>
+          {inputAsset.data && (
+            <Curve
+              title={viewFeature < 0 ? `${data.features.length} 测点平均输入` : '测点输入'}
+              lines={[
+                {
+                  name: '待回放输入',
+                  values: Array.from(inputAsset.data.slice(from, from + len)),
+                  color: colors.input,
+                },
+              ]}
+              start={from}
+              height={220}
+            />
+          )}
           <button
             className="inline-link"
             onClick={() =>
@@ -232,6 +236,7 @@ export function PlaybackChapter(p: PlaybackProps) {
               selected={local}
               reveal={reveal}
               labels={labs}
+              labelKey={data.dataset?.id === 'wind' ? '保留异常标签' : '实验异常标签'}
               start={viewStart}
               onSelect={(i) => seek(Math.max(0, Math.min(total, viewStart + i - from + 1)))}
             />
@@ -280,14 +285,9 @@ export function PlaybackChapter(p: PlaybackProps) {
         </div>
         <div className="statistics playback-statistics">
           <p className="playback-statistics-context" data-testid="statistics-context">
-            {count ? `统计第 ${from + 1}—${idx + 1} 点` : '尚未开始统计'}
-            {count > 0 && <time>{data.times[idx]}</time>}
+            {count ? `累计评估 · 统计第 ${from + 1}—${idx + 1} 点` : '尚未开始统计'}
           </p>
-          <Confusion
-            metrics={stats}
-            active={active}
-            caption={`${modelName(model)} · 当前时刻累计结果`}
-          />
+          <Confusion metrics={stats} active={active} caption="逐点判定" />
           <div>
             <div className="current-score">
               <span>

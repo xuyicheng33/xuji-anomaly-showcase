@@ -3,9 +3,6 @@
   container-type: inline-size;
   container-name: detection;
 }
-.detection-page > .chapter-heading p {
-  text-wrap: balance;
-}
 .detection-page > .toolbar {
   margin-bottom: var(--toolbar-space);
 }
@@ -93,19 +90,6 @@
 .detection-summary {
   scroll-margin-top: 20px;
 }
-.chart-label-key {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 16px 0 6px;
-}
-.chart-label-key i {
-  width: 14px;
-  height: 10px;
-  background: var(--chart-label);
-  opacity: 0.25;
-  display: inline-block;
-}
 @media (max-width: 1120px) {
   .selection-panel {
     grid-template-columns: auto minmax(0, 1fr) 180px;
@@ -131,9 +115,6 @@
   .example-picker {
     gap: 8px;
     margin-bottom: 16px;
-  }
-  .example-picker > span {
-    display: none;
   }
   .example-picker button {
     flex: 1;
@@ -175,9 +156,6 @@
   }
   .time-range {
     margin-block: 12px;
-  }
-  .chart-label-key {
-    margin-block: 12px 5px;
   }
   .evaluation-context {
     flex-wrap: wrap;

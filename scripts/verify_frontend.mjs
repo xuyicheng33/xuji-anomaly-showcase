@@ -48,13 +48,13 @@ try {
       assert.equal(await page.getByRole('combobox', { name: '播放速度' }).inputValue(), '8');
       assert.equal(await page.getByRole('button', { name: '播放', exact: true }).count(), 1);
       await page.locator('button.contribution-row').first().click();
-      await page.locator('.window-reconstruction-plot svg').waitFor();
+      await page.locator('.window-reconstruction-plot svg[role="img"]').waitFor();
       await page.waitForFunction(() => {
-        const svg = document.querySelector('.window-reconstruction-plot svg');
+        const svg = document.querySelector('.window-reconstruction-plot svg[role="img"]');
         return Math.abs(svg.viewBox.baseVal.width - svg.getBoundingClientRect().width) < 1;
       });
       const font = await page
-        .locator('.window-reconstruction-plot svg text')
+        .locator('.window-reconstruction-plot svg[role="img"] text')
         .first()
         .evaluate((text) => {
           const svg = text.ownerSVGElement;
@@ -70,7 +70,7 @@ try {
       for (const point of [0, 30, 63]) {
         await page.getByRole('slider', { name: '案例查看时刻' }).fill(String(point));
         await page.waitForFunction(() => {
-          const svg = document.querySelector('.case-stage .curve svg');
+          const svg = document.querySelector('.case-stage .curve svg[role="img"]');
           const circle = svg.querySelector('circle').getBoundingClientRect();
           const label = document
             .querySelector('.case-label-cells [aria-pressed=true]')

@@ -37,6 +37,12 @@
   height: 0;
   border-top: 2px dashed var(--chart-threshold);
 }
+.legend .label-swatch {
+  height: 10px;
+  width: 14px;
+  background: var(--chart-label);
+  opacity: 0.25;
+}
 .curve text {
   fill: var(--muted);
   font-family: var(--sans);
@@ -68,7 +74,7 @@
     justify-content: flex-start;
   }
 }
-.curve svg {
+.curve > svg {
   display: block;
   width: 100%;
   height: auto;
@@ -80,7 +86,7 @@
   background: none;
   border-top: 2px dashed;
 }
-.curve svg path {
+.curve > svg path {
   vector-effect: non-scaling-stroke;
 }
 .curve-loading {

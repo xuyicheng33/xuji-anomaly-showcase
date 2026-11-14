@@ -181,17 +181,9 @@ export function ResultSummary({
     <div className="result-summary" aria-label={scope}>
       <span className="result-summary-scope">{scope}</span>
       <div className="result-summary-values">
-        {[
-          ['检出', metrics.tp],
-          ['误报', metrics.fp],
-          ['漏检', metrics.fn],
-          ['逐点F1', pct(metrics.f1)],
-        ].map(([label, value]) => (
-          <span key={label}>
-            {label}
-            <strong>{value}</strong>
-          </span>
-        ))}
+        <span>
+          逐点F1<strong>{pct(metrics.f1)}</strong>
+        </span>
       </div>
       {children}
     </div>
