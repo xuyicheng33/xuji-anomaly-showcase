@@ -39,7 +39,7 @@ const noteLinks: Record<NoteId, string> = {
   thresholds: '阈值说明',
   'point-metrics': '评估口径',
   'window-aggregation': '合并规则',
-  'model-design': '模型详解',
+  'model-design': '模型说明',
   'training-mse': '训练说明',
 };
 export function getNoteOrigin() {

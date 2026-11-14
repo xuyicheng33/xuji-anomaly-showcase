@@ -327,7 +327,7 @@ try {
       await page.keyboard.press('Escape');
       await page.evaluate(() => (document.documentElement.style.zoom = ''));
     }
-    await page.getByRole('link', { name: /^模型详解：/ }).click();
+    await page.getByRole('link', { name: /^模型说明：/ }).click();
     await page.locator('#note-model-design:focus').waitFor();
     await page.locator('#note-model-design .note-return').click();
     await page.locator('#ref-models-model-design:focus').waitFor();
