@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState } from 'react';
 import { pct, outcomeCode } from '../journey';
 import FeaturePicker from './FeaturePicker';
 import { modelName } from './modelNames';
+import InfoTip from './InfoTip';
 export const colors = {
   input: 'var(--chart-input)',
   recon: 'var(--chart-recon)',
@@ -117,6 +118,13 @@ export function Confusion({
     <div className="matrix-section">
       <div className="matrix-caption">
         <h3>{caption}</h3>
+        <InfoTip label="混淆矩阵说明">
+          {cells.map(([id, name, desc]) => (
+            <span key={id}>
+              {name}（{String(id).toUpperCase()}）：{desc}。
+            </span>
+          ))}
+        </InfoTip>
       </div>
       <div className="confusion" aria-label={caption}>
         {cells.map(([id, name, desc, count]) => (
@@ -124,14 +132,11 @@ export function Confusion({
             key={id}
             className={'confusion-cell ' + id + (active === id ? ' current' : '')}
             data-testid={'count-' + id}
+            role="group"
+            aria-label={`${name}，${desc}：${count}`}
           >
-            <span>
-              {name} <small>{String(id).toUpperCase()}</small>
-            </span>
+            <span>{name}</span>
             <strong>{count}</strong>
-            <p>
-              <span>{String(desc).split('，')[0]}</span>，<span>{String(desc).split('，')[1]}</span>
-            </p>
           </div>
         ))}
       </div>

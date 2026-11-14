@@ -27,12 +27,16 @@ try {
       if (r.status() >= 400) failed.push(r.url());
     });
     await page.goto(showcaseUrl);
-    await page.getByRole('link', { name: '风电数据集 →', exact: true }).click();
+    await page.getByRole('button', { name: '切换数据集', exact: true }).click();
+    await page
+      .getByRole('navigation', { name: '数据集', exact: true })
+      .getByRole('link', { name: /风电设备/ })
+      .click();
     await page.getByRole('heading', { name: '风电设备 异常检测研究' }).waitFor();
     assert.equal(new URL(page.url()).searchParams.get('dataset'), 'wind');
     await page.evaluate(() => document.fonts.ready);
     await page.screenshot({ path: `${out}/${device}-home.png` });
-    await page.getByRole('link', { name: '开始查看', exact: true }).click();
+    await page.getByRole('link', { name: '查看研究流程', exact: true }).click();
     await page.getByText('功率与天气数据构成', { exact: false }).first().waitFor();
     await page.locator('.normalization-section').scrollIntoViewIfNeeded();
     await page.locator('.normalization-equation').waitFor();
@@ -166,7 +170,11 @@ try {
     );
     assert.deepEqual(failed, []);
     await page.goto(windUrl + '#/');
-    await page.getByRole('link', { name: '换流数据集 →', exact: true }).click();
+    await page.getByRole('button', { name: '切换数据集', exact: true }).click();
+    await page
+      .getByRole('navigation', { name: '数据集', exact: true })
+      .getByRole('link', { name: /换流设备/ })
+      .click();
     await page.getByRole('heading', { name: '换流设备 异常检测研究' }).waitFor();
     await page.goto(new URL('#/detection', showcaseUrl).href);
     await page.getByRole('spinbutton', { name: '片段起点' }).waitFor();

@@ -47,19 +47,24 @@ export function Footnote({ note, reference }: { note: NoteId; reference?: string
   const id = reference ?? `ref-${item.page}-${note}`;
   const params = new URLSearchParams({ note });
   return (
-    <sup className="footnote">
+    <span className="footnote">
       <a
         id={id}
         href={'#/metrics?' + params}
         aria-label={`注 ${index + 1}：${item.title}`}
+        title={item.title}
         onClick={() => {
           rememberNoteOrigin(id);
           pausePresentation();
         }}
       >
-        {index + 1}
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <circle cx="10" cy="10" r="7.5" />
+          <path d="M10 9v5" />
+          <circle className="info-dot" cx="10" cy="6" r=".8" />
+        </svg>
       </a>
-    </sup>
+    </span>
   );
 }
 export function NoteSection({ id, children }: { id: NoteId; children: ReactNode }) {

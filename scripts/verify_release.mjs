@@ -53,7 +53,7 @@ try {
         await page.locator('meta[name=description]').getAttribute('content'),
         wind ? /风电.*SMST-AD/ : /换流设备/,
       );
-      await page.getByRole('link', { name: '开始查看', exact: true }).click();
+      await page.getByRole('link', { name: '查看研究流程', exact: true }).click();
       await page.locator('.normalization-section').scrollIntoViewIfNeeded();
       await page.locator('.normalization-equation strong').waitFor();
       await page.goto(home + '#/anomalies');

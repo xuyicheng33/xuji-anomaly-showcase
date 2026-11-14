@@ -139,6 +139,7 @@ export default function FeaturePicker({
           type="button"
           className="feature-trigger"
           aria-label={name}
+          aria-describedby={`${id}-value`}
           aria-expanded={open}
           aria-haspopup="dialog"
           aria-controls={id}
@@ -152,7 +153,7 @@ export default function FeaturePicker({
             }
           }}
         >
-          <span>
+          <span id={`${id}-value`}>
             {value < 0 && aggregate ? '全部测点平均' : current ? featureName(current) : '选择测点'}
             {current && <small>{current.key}</small>}
           </span>

@@ -31,7 +31,7 @@ function only(requests, expected) {
 }
 try {
   const home = await fresh('');
-  await home.page.getByRole('link', { name: '开始查看', exact: true }).waitFor();
+  await home.page.getByRole('link', { name: '查看研究流程', exact: true }).waitFor();
   assert.deepEqual(home.requests, []);
   const homeScripts = await home.page.evaluate(() =>
     performance
@@ -43,7 +43,7 @@ try {
     homeScripts.every((name) => !/Chapter|Curve|calculationIndex|cleaning-data/.test(name)),
     homeScripts.join(', '),
   );
-  await home.page.getByRole('link', { name: '开始查看', exact: true }).click();
+  await home.page.getByRole('link', { name: '查看研究流程', exact: true }).click();
   await home.page.locator('.removed-sensors').waitFor();
   assert.ok(home.requests.includes('manifest.json'));
   await home.page.close();

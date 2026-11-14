@@ -793,34 +793,82 @@ details[open] > summary::before {
 }
 .footnote {
   font-family: var(--sans);
-  font-size: 12px;
-  line-height: 0;
+  font-size: 14px;
+  line-height: 1;
   font-weight: 500;
-  vertical-align: super;
-  margin-left: 2px;
+  vertical-align: middle;
+  display: inline-flex;
+  margin-left: 4px;
 }
-.footnote a {
-  color: var(--blue);
+.footnote a,
+.info-trigger {
+  color: var(--muted);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 28px;
-  min-width: 28px;
-  margin-block: -8px;
-  padding: 6px;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 7px;
+  border: 0;
   line-height: 1;
   text-decoration: none;
   text-align: center;
-  border-radius: var(--radius-small);
-  transition: background var(--motion-fast);
+  border-radius: 50%;
+  transition:
+    background var(--motion-fast),
+    color var(--motion-fast);
 }
-.footnote a:hover {
+.footnote svg,
+.info-trigger svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+.info-dot {
+  fill: currentColor;
+  stroke: none;
+}
+.footnote a:hover,
+.info-trigger:hover,
+.info-trigger[aria-expanded='true'] {
   background: var(--selected);
-  outline: 1px solid var(--blue);
+  color: var(--blue);
 }
 .footnote a:focus-visible {
   background: var(--selected);
-  outline: 1px solid var(--blue);
+}
+.info-tip {
+  display: inline-flex;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.info-tooltip {
+  position: fixed;
+  z-index: 60;
+  display: block;
+  padding: 14px 16px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  box-shadow: 0 8px 28px #24292318;
+  font: 14px/1.75 var(--sans);
+  letter-spacing: normal;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  animation: feature-open var(--motion-fast) ease-out;
+}
+.info-tooltip > span {
+  display: block;
+}
+.info-tooltip > span + span {
+  margin-top: 6px;
 }
 .window-scope {
   white-space: nowrap;

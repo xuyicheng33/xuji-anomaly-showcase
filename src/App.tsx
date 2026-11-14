@@ -1,4 +1,4 @@
-import { dataset, datasetHome } from './datasets';
+import { dataset } from './datasets';
 import { lazyChapter } from './report/lazyChapter';
 import { Suspense, useLayoutEffect, useState, type ReactNode } from 'react';
 import { useReportNavigation } from './report/useReportNavigation';
@@ -132,25 +132,19 @@ export default function App() {
                         </span>
                       </h1>
                       <div className="hero-bottom">
-                        <a
-                          className="inline-link dataset-switch"
-                          href={datasetHome(dataset.alternate)}
-                        >
-                          {dataset.alternateTitle} →
-                        </a>
                         <a className="primary" href="#/data">
-                          开始查看
+                          查看研究流程 <span aria-hidden="true">→</span>
                         </a>
                       </div>
                     </section>
                     <section className="chapter-list" aria-label="完整研究流程">
-                      {chapters.map(([id, , title, desc], i) => (
+                      {chapters.map(([id, , title], i) => (
                         <a href={'#/' + id} key={id}>
                           <span className="large-index">0{i + 1}</span>
-                          <div>
-                            <h2>{title}</h2>
-                            <p>{desc}</p>
-                          </div>
+                          <h2>{title}</h2>
+                          <span className="chapter-entry-arrow" aria-hidden="true">
+                            →
+                          </span>
                         </a>
                       ))}
                     </section>

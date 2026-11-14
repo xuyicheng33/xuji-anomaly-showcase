@@ -57,11 +57,12 @@ export default function DatasetSwitch({ page }: { page: string }) {
         ref={trigger}
         className="dataset-trigger"
         aria-label="切换数据集"
+        aria-describedby="current-dataset"
         aria-expanded={open}
         aria-controls="dataset-options"
         onClick={() => setOpen((value) => !value)}
       >
-        <span>{dataset.title}</span>
+        <span id="current-dataset">{dataset.title}</span>
         <svg viewBox="0 0 12 12" aria-hidden="true">
           <path d="m3 4 3 3 3-3" />
         </svg>

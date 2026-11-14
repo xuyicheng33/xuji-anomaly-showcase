@@ -1,7 +1,7 @@
 /* Home styles. Edit existing rules and breakpoints here. */
 .home-hero {
   container-type: inline-size;
-  padding: 62px 0 54px;
+  padding: 62px 0 56px;
   border-bottom: 1px solid var(--line);
 }
 .hero-subject,
@@ -18,14 +18,9 @@
 }
 .hero-bottom {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 24px;
-  margin-top: 28px;
-}
-.dataset-switch {
-  padding: 10px 0;
-  white-space: nowrap;
+  margin-top: 32px;
 }
 .hero-bottom .primary {
   min-width: min(156px, 100%);
@@ -40,12 +35,12 @@
 }
 .chapter-list > a {
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
-  align-items: start;
+  grid-template-columns: 42px minmax(0, 1fr) 24px;
+  align-items: center;
   gap: 22px;
-  padding: 34px 0;
+  padding: 32px 0;
   border-bottom: 1px solid var(--line);
-  transition: color 0.2s;
+  transition: color var(--motion-fast);
 }
 .large-index {
   font-family: var(--numeral);
@@ -55,16 +50,23 @@
 }
 .chapter-list h2 {
   font-size: 23px;
-  margin: 0 0 8px;
+  margin: 0;
   line-height: 1.55;
 }
-.chapter-list p {
-  font-size: 14px;
+.chapter-entry-arrow {
+  font-family: var(--sans);
+  font-size: 20px;
   color: var(--muted);
-  min-height: 26px;
+  transition:
+    transform var(--motion-fast),
+    color var(--motion-fast);
 }
-.chapter-list > a:hover {
+.chapter-list > a:is(:hover, :focus-visible) {
   color: var(--blue);
+}
+.chapter-list > a:is(:hover, :focus-visible) .chapter-entry-arrow {
+  color: var(--blue);
+  transform: translateX(4px);
 }
 @media (max-width: 680px) {
   .home-hero {
@@ -75,17 +77,18 @@
   }
   .hero-bottom {
     flex-wrap: wrap;
+    margin-top: 24px;
   }
   .chapter-list {
     grid-template-columns: 1fr;
     column-gap: 0;
   }
   .chapter-list > a {
-    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-columns: 32px minmax(0, 1fr) 18px;
     gap: 16px;
-    padding: 26px 0;
+    padding: 24px 0;
   }
   .chapter-list h2 {
-    font-size: 22px;
+    font-size: 21px;
   }
 }
