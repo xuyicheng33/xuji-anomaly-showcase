@@ -2,6 +2,7 @@ import { type Journey, type Model } from '../journey';
 import { Heading, Section, ModelSelect } from './ReportUI';
 import { Footnote } from './notes';
 import { modelName, modelNames } from './modelNames';
+import InfoTip from './InfoTip';
 
 const windDescription = {
   title: '多尺度时间依赖与窗口重建',
@@ -77,31 +78,22 @@ export function ModelsChapter({
             <Footnote note="model-design" />
           </>
         }
-      >
-        以窗口重建为基础，识别偏离正常模式的时间片段。
-      </Heading>
+      />
       {data.models.length > 1 && (
         <div className="model-selection-row">
           <ModelSelect data={data} value={model.id} onChange={setModel} />
         </div>
       )}
       <div className="model-intro">
-        <span>{modelName(model)}</span>
-        <p className="model-full-name">{modelNames[multi ? 'model2' : 'model1'].full}</p>
-        <h2>{description.title}</h2>
-        <p>{description.intro}</p>
+        {data.models.length === 1 && <span>{modelName(model)}</span>}
+        <h2>
+          {description.title}
+          <InfoTip label="模型设计说明">
+            {modelNames[multi ? 'model2' : 'model1'].full}。{description.intro}
+          </InfoTip>
+        </h2>
       </div>
-      <div className="model-details">
-        {description.details.map(([title, text], i) => (
-          <section key={title}>
-            <span>0{i + 1}</span>
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </section>
-        ))}
-      </div>
-
-      <Section title="从输入到异常评分">
+      <section aria-label="从输入到异常评分">
         <div className="model-flow" aria-label="模型处理流程">
           {[
             ['输入窗口', `${data.window}个时刻 × ${data.features.length}个测点`],
@@ -119,12 +111,22 @@ export function ModelsChapter({
             </div>
           ))}
         </div>
-      </Section>
+      </section>
+      <div className="model-details">
+        {description.details.map(([title, text], i) => (
+          <details key={title}>
+            <summary>
+              <span>0{i + 1}</span>
+              <h3>{title}</h3>
+            </summary>
+            <p>{text}</p>
+          </details>
+        ))}
+      </div>
 
       <Section title="时间掩码与上下文学习">
         <div className="model-explanation">
           <div>
-            <h3>在部分可见信息中学习规律</h3>
             <p>
               通过频域分析观察各测点的周期性，再对Global分支输入中的连续片段进行遮蔽，促使模型利用其余可见时刻建立时间关联。Local分支保留完整输入，补充细节。
             </p>
@@ -143,18 +145,15 @@ export function ModelsChapter({
               <span>保留可见记录</span>
               <span>连续遮蔽 16 点</span>
             </div>
-            <p>遮蔽后的窗口与完整窗口分别进入两个分支。</p>
           </div>
         </div>
       </Section>
 
       <Section title="有界异常损失">
-        <p className="reading-copy">人为构造异常并生成标签，让正常与异常位置具有不同的训练目标。</p>
         <div className="loss-explanation">
           <div>
             <span>正常位置</span>
             <h3>减小重建误差</h3>
-            <p>持续拉近输入与重建结果，使模型准确还原正常模式。</p>
           </div>
           <div>
             <span>异常位置</span>

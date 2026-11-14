@@ -54,7 +54,6 @@ export default function CaseNavigation({
                 }}
               >
                 <strong>{m.name}</strong>
-                <span>{m.copy}</span>
               </button>
             ))}
           </div>
@@ -77,10 +76,8 @@ export default function CaseNavigation({
               </button>
             ))}
           </div>
-          <p className="case-kind-copy">{construction.copy}</p>
         </div>
-        <p className="case-formula">{method.formula}</p>
-        <details className="case-mobile-explanation">
+        <details className="case-explanation">
           <summary>查看构造说明与公式</summary>
           <p>{method.copy}</p>
           <p>{construction.copy}</p>

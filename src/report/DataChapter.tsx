@@ -82,11 +82,14 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
     value < 0 ? `(−${number(Math.abs(value), 4)})` : number(value, 4);
   return (
     <div className="data-chapter">
-      <Heading title="监测数据预处理">
-        {wind
-          ? '整理功率与天气记录，完成时间对应、数据划分与归一化。'
-          : '筛选有效记录，完成缺失填补、数据划分与归一化。'}
-      </Heading>
+      <Heading
+        title={
+          <>
+            监测数据预处理
+            <Footnote note="data-records" />
+          </>
+        }
+      />
       <div className="data-ledger" aria-label="数据规模">
         <div>
           <span>原始记录</span>
@@ -115,13 +118,6 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           <small>后 30%</small>
         </div>
       </div>
-      <div className="data-page-intro">
-        <span>
-          原始数据与处理例子
-          <Footnote note="data-records" />
-        </span>
-      </div>
-
       <Section
         title={
           <>
@@ -141,12 +137,11 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           </>
         }
       >
-        <p className="reading-copy">按时间顺序划分：前 70% 训练，后 30% 测试。</p>
         <div className="balanced-split">
           {(
             [
-              ['01 / 训练集', '70%', split.trainCount, split.trainStart, split.trainEnd],
-              ['02 / 测试集', '30%', split.testCount, split.testStart, split.testEnd],
+              ['前段 · 训练集', '70%', split.trainCount, split.trainStart, split.trainEnd],
+              ['后段 · 测试集', '30%', split.testCount, split.testStart, split.testEnd],
             ] as const
           ).map(([title, ratio, total, begin, end]) => (
             <div key={title}>
@@ -187,8 +182,8 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           <div className="normalization-heading">
             <p className="reading-copy">
               {wind
-                ? '各字段使用训练集的最小值和最大值归一化，分母加 0.0001；测试集沿用训练参数，保留超出 0—1 的数值。'
-                : '各测点使用训练集的最小值和最大值归一化；测试集沿用训练参数，越界值截断到0—1。'}
+                ? '沿用训练集的最小值和最大值，分母加 0.0001，保留超出 0—1 的测试值。'
+                : '沿用训练集的最小值和最大值，将测试值截断至 0—1。'}
             </p>
             <FeaturePicker
               features={data.features}

@@ -48,13 +48,13 @@ try {
       assert.equal(await page.getByRole('combobox', { name: '播放速度' }).inputValue(), '8');
       assert.equal(await page.getByRole('button', { name: '播放', exact: true }).count(), 1);
       await page.locator('button.contribution-row').first().click();
-      await page.locator('.window-reconstruction-plot svg[role="img"]').waitFor();
+      await page.locator('.window-reconstruction-plot svg[role="group"]').waitFor();
       await page.waitForFunction(() => {
-        const svg = document.querySelector('.window-reconstruction-plot svg[role="img"]');
+        const svg = document.querySelector('.window-reconstruction-plot svg[role="group"]');
         return Math.abs(svg.viewBox.baseVal.width - svg.getBoundingClientRect().width) < 1;
       });
       const font = await page
-        .locator('.window-reconstruction-plot svg[role="img"] text')
+        .locator('.window-reconstruction-plot svg[role="group"] text')
         .first()
         .evaluate((text) => {
           const svg = text.ownerSVGElement;

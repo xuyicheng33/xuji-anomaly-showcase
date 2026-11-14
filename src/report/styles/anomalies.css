@@ -37,13 +37,7 @@
   font-weight: 500;
   font-size: 22px;
   display: block;
-  margin-bottom: 8px;
-}
-.case-methods span {
-  display: block;
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.85;
+  margin-bottom: 0;
 }
 .case-kinds {
   display: grid;
@@ -73,20 +67,6 @@
 }
 .case-kinds span:last-child {
   text-align: right;
-}
-.case-kind-copy {
-  font-size: 14px;
-  color: var(--muted);
-  margin-top: 20px;
-  line-height: 1.9;
-}
-.case-formula {
-  margin-top: 26px;
-  padding-top: 22px;
-  border-top: 1px solid var(--line);
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.9;
 }
 .case-content {
   min-width: 0;
@@ -233,13 +213,13 @@
   font-size: 13px;
   color: var(--muted);
 }
-.case-mobile-explanation {
-  display: none;
+.case-explanation {
+  display: block;
   font-size: 13px;
   color: var(--muted);
   line-height: 1.8;
 }
-.case-mobile-explanation p {
+.case-explanation p {
   margin: 0 0 8px;
 }
 .case-point > div {
@@ -260,23 +240,12 @@
 .case-arrow {
   color: var(--muted);
 }
-.case-stage-copy {
-  font-size: 14px;
-  color: var(--muted);
-  margin-top: 20px;
-  min-height: 52px;
-  max-width: 44em;
-}
 .case-result-action {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 20px;
   padding: 28px 0 8px;
-}
-.case-result-action p {
-  font-size: 12px;
-  color: var(--muted);
 }
 .case-result-action button {
   flex-shrink: 0;
@@ -346,7 +315,7 @@
   display: flex;
   align-items: baseline;
   gap: 20px;
-  font-size: 12px;
+  font-size: var(--text-small);
   border-bottom: 1px solid var(--line);
   padding: 12px 0 16px;
   color: var(--muted);
@@ -653,12 +622,6 @@
   .case-nav-group + .case-nav-group {
     margin-top: 0;
   }
-  .case-formula {
-    display: none;
-  }
-  .case-kind-copy {
-    font-size: 13px;
-  }
   .case-title {
     margin-bottom: 22px;
   }
@@ -674,7 +637,7 @@
   .case-detection .rates {
     grid-template-columns: 1fr;
   }
-  .case-navigation-options .case-mobile-explanation {
+  .case-navigation-options .case-explanation {
     grid-column: 1 / -1;
   }
 }
@@ -704,10 +667,6 @@
     font-size: 18px;
     margin: 0;
   }
-  .case-methods span,
-  .case-kind-copy {
-    display: none;
-  }
   .case-kinds {
     grid-template-columns: 1fr 1fr;
     gap: 0 14px;
@@ -720,7 +679,7 @@
   .case-kinds span:last-child {
     display: none;
   }
-  .case-mobile-explanation {
+  .case-explanation {
     display: block;
   }
   .case-title {
@@ -797,9 +756,6 @@
   }
   .case-point strong {
     font-size: 23px;
-  }
-  .case-stage-copy {
-    min-height: 0;
   }
   .case-result-action {
     flex-direction: column;
@@ -934,9 +890,6 @@
   .case-detection .rates > div {
     flex-direction: row;
     justify-content: space-between;
-  }
-  .case-stage-copy {
-    font-size: 13px;
   }
 
   .length-source {

@@ -3,6 +3,7 @@ import { usePresentationState } from './usePresentationState';
 import TableScrollHint from './TableScrollHint';
 import type { Journey } from '../journey';
 import cleaning from './cleaning-data.json';
+import InfoTip from './InfoTip';
 
 const count = (n: number) => n.toLocaleString('zh-CN');
 export function MissingExample({ data, example }: { data: Journey; example: number }) {
@@ -101,8 +102,12 @@ export default function DataCleaning({ data }: { data: Journey }) {
       <article className="cleaning-step record-cleaning">
         <div className="cleaning-intro">
           <span className="small-step">02 / 记录筛选</span>
-          <h3>剔除 768 条无效记录</h3>
-          <p>两段记录的时间与测点值全部缺失，删除对应行，保留其余记录的时间顺序。</p>
+          <h3>
+            剔除 768 条无效记录
+            <InfoTip label="无效记录处理说明">
+              两段记录的时间与测点值全部缺失，删除对应行，保留其余记录的时间顺序。
+            </InfoTip>
+          </h3>
         </div>
         <div className="record-trimming">
           <div className="cleaning-caption">
@@ -148,9 +153,6 @@ export default function DataCleaning({ data }: { data: Journey }) {
             >
               {trimmed ? '还原无效记录' : '剔除无效记录'}
             </button>
-            <span role="status">
-              {trimmed ? '已剔除 768 条，保留 7,992 条' : '查看两段无效记录的剔除过程'}
-            </span>
           </div>
           <div
             id="trimmed-records"
@@ -170,7 +172,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
               </div>
             ))}
           </div>
-          <div className="cleaning-caption trim-result">
+          <div className="cleaning-caption trim-result" aria-live="polite">
             <span>{trimmed ? '整理后记录' : '剔除前记录'}</span>
             <strong>{trimmed ? '7,992' : '8,760'} 条</strong>
           </div>
@@ -180,7 +182,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
         <div className="cleaning-intro">
           <span className="small-step">03 / 缺失填补</span>
           <h3>170 个缺失值填 0</h3>
-          <p>在保留的记录中，13 个测点仍有零散缺失。将缺失单元格填为 0，其他观测值保留。</p>
+          <p>13 个测点的零散缺失填为 0，其余观测值保留。</p>
           <div className="segmented missing-switch" aria-label="缺失片段">
             {cleaning.missingExamples.map((entry, i) => (
               <button key={entry.key} aria-pressed={example === i} onClick={() => setExample(i)}>

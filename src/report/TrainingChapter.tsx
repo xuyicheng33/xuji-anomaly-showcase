@@ -69,17 +69,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
     record = model.history[activeEpoch];
   return (
     <div className="training-chapter">
-      <Heading title="模型训练过程">
-        以{' '}
-        <span>
-          <span className="window-scope">
-            {data.window} × {data.features.length}
-          </span>{' '}
-          数据窗口
-          <Footnote note="window-settings" reference="ref-training-window-shape" />
-        </span>
-        为输入，逐步优化参数。
-      </Heading>
+      <Heading title="模型训练过程" />
       <Section
         title={
           <>
@@ -178,29 +168,13 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             <strong>
               {data.window} × {data.features.length}
             </strong>
-            <span>每个窗口的输入形状</span>
+            <span>时刻 × 测点</span>
           </div>
           <div>
             <strong>{(lastStart + 1).toLocaleString('zh-CN')}</strong>
-            <span>步长为 1 时的完整窗口数</span>
+            <span>完整窗口数 · 步长 1</span>
           </div>
         </div>
-      </Section>
-      <Section title="参数优化流程">
-        <ol className="training-steps">
-          {[
-            ['输入窗口', '输入数据、标签与掩码。'],
-            ['序列重建', '根据当前参数生成重建结果。'],
-            ['损失计算', '计算重建差异及模型约束。'],
-            ['参数更新', '通过反向传播优化模型参数。'],
-          ].map(([title, text], i) => (
-            <li key={title}>
-              <span>0{i + 1}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </li>
-          ))}
-        </ol>
       </Section>
       <Section
         title={
@@ -219,7 +193,6 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
               setEpoch(0);
             }}
           />
-          <p>{model.history.length} 轮训练</p>
         </div>
         <div className="chapter-chart-panel">
           <Curve
@@ -260,11 +233,23 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             {record.lr.toExponential(2)}
             <span>当前学习率</span>
           </strong>
-          <strong>
-            {model.history.length}
-            <span>训练轮次</span>
-          </strong>
         </div>
+      </Section>
+      <Section title="参数优化流程">
+        <ol className="training-steps">
+          {[
+            ['输入窗口', '输入数据、标签与掩码。'],
+            ['序列重建', '根据当前参数生成重建结果。'],
+            ['损失计算', '计算重建差异及模型约束。'],
+            ['参数更新', '通过反向传播优化模型参数。'],
+          ].map(([title, text], i) => (
+            <li key={title}>
+              <span>0{i + 1}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </li>
+          ))}
+        </ol>
       </Section>
     </div>
   );

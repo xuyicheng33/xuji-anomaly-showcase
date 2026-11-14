@@ -1,4 +1,5 @@
 import AnomalyResult from './AnomalyResult';
+import InfoTip from './InfoTip';
 import type { Journey, Model } from '../journey';
 import { Heading, colors } from './ReportUI';
 import Curve from './Curve';
@@ -192,6 +193,19 @@ export default function AnomalyChapter({
                             ? '当前值 → 相反方向极值'
                             : '原片段 8 点 → 每点重复 3 次 → 24 点'}
                   </p>
+                  <InfoTip label="当前构造步骤说明">
+                    {phase === 0
+                      ? '观察清洁片段与目标时刻。'
+                      : phase === 1
+                        ? construction.detail
+                        : phase === 2
+                          ? insertion === 'replace'
+                            ? '沿时间顺序写入素材，经过的位置取对应素材值。'
+                            : '按保存的权重将素材融入原片段，中央权重为 0.7。'
+                          : kind === 'peak'
+                            ? '极值改变一个时刻，标签覆盖该点及前后各 4 个时刻。'
+                            : '选定测点的目标区间标记为 1，其余位置保持为 0。'}
+                  </InfoTip>
                 </div>
                 <div className="case-labels" ref={labelsRef}>
                   <div>
@@ -327,19 +341,6 @@ export default function AnomalyChapter({
                     </span>
                   </div>
                 )}
-                <p className="case-stage-copy" aria-live="polite">
-                  {phase === 0
-                    ? '观察清洁片段与目标时刻。'
-                    : phase === 1
-                      ? construction.detail
-                      : phase === 2
-                        ? insertion === 'replace'
-                          ? '沿时间顺序写入素材，经过的位置取对应素材值。'
-                          : '按保存的权重将素材融入原片段，中央权重为 0.7。'
-                        : kind === 'peak'
-                          ? '极值改变一个时刻，标签覆盖该点及前后各 4 个时刻。'
-                          : '选定测点的目标区间标记为 1，其余位置保持为 0。'}
-                </p>
               </div>
               {kind === 'length' && (
                 <LengthConstruction
@@ -349,11 +350,8 @@ export default function AnomalyChapter({
                 />
               )}
               <div className="case-result-action">
-                <p>
-                  同一片段，{selected.times.length} 个时刻，{data.features.length} 个测点
-                </p>
                 <button
-                  className="inline-link"
+                  className="primary"
                   onClick={() => {
                     setPlaying(false);
                     setProgress(1);
