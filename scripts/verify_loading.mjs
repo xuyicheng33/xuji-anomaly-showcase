@@ -85,7 +85,9 @@ try {
   await data.page.locator('.normalization-section').scrollIntoViewIfNeeded();
   await data.page.locator('.normalization-equation strong').waitFor();
   only(data.requests, [`curves-v1/${d.datasets.train.sha256}/5.bin`]);
-  await data.page.getByRole('link', { name: '注 1：原始数据与处理例子', exact: true }).click();
+  await data.page
+    .getByRole('link', { name: '数据说明：原始数据与处理例子（注 1）', exact: true })
+    .click();
   await data.page.getByRole('table', { name: '原始数据片段' }).waitFor();
   for (const name of ['缺失值填补', '无效记录裁剪'])
     await data.page.getByRole('button', { name, exact: true }).click();

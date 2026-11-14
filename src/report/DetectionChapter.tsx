@@ -128,7 +128,7 @@ export function DetectionChapter(p: DetectionProps) {
   return (
     <div className="detection-page">
       <Heading title="数据片段检测" />
-      <div className="toolbar">
+      <div className="toolbar analysis-toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect
           data={data}
@@ -224,9 +224,6 @@ export function DetectionChapter(p: DetectionProps) {
       <p className="quiet time-range">
         <span>
           {data.times[start]} — {data.times[start + window - 1]}
-        </span>
-        <span className="note-anchor">
-          <Footnote note="score-calculation" reference="ref-detection-score-calculation" />
         </span>
       </p>
       {ready && stats && (

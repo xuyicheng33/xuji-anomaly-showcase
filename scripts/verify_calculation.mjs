@@ -111,7 +111,7 @@ try {
       ),
     );
     await page.locator('.balanced-split').screenshot({ path: out + '/' + width + '-split.png' });
-    await page.getByRole('link', { name: '注 1：原始数据与处理例子' }).click();
+    await page.getByRole('link', { name: '数据说明：原始数据与处理例子（注 1）' }).click();
     const examples = page.locator('#note-data-records');
     await page.getByRole('button', { name: '原始数据', exact: true }).click();
     await page.getByRole('table', { name: '原始数据片段' }).waitFor();
@@ -137,7 +137,7 @@ try {
         .getAttribute('aria-pressed'),
       'true',
     );
-    await page.getByRole('link', { name: '注 1：原始数据与处理例子' }).click();
+    await page.getByRole('link', { name: '数据说明：原始数据与处理例子（注 1）' }).click();
     assert.equal(
       await page
         .getByRole('button', { name: '缺失值填补', exact: true })

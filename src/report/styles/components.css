@@ -592,7 +592,7 @@ details[open] > summary::before {
   font-weight: 400;
   font-variant-numeric: tabular-nums;
 }
-.inline-facts span {
+.inline-facts > strong > span {
   font-family: var(--sans);
   display: block;
   font-size: var(--text-small);
@@ -804,14 +804,26 @@ details[open] > summary::before {
 }
 .footnote {
   font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1;
-  font-weight: 500;
+  font-size: var(--text-small);
+  line-height: 1.5;
+  font-weight: 400;
   vertical-align: middle;
   display: inline-flex;
-  margin-left: 4px;
+  margin-left: 10px;
 }
-.footnote a,
+.footnote a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding-block: 4px;
+  color: var(--blue);
+  border-bottom: 1px solid transparent;
+  white-space: nowrap;
+  transition: border-color var(--motion-fast);
+}
+.footnote a:hover {
+  border-color: var(--link-line);
+}
 .info-trigger {
   color: var(--muted);
   display: inline-flex;
@@ -829,7 +841,6 @@ details[open] > summary::before {
     background var(--motion-fast),
     color var(--motion-fast);
 }
-.footnote svg,
 .info-trigger svg {
   width: 18px;
   height: 18px;
@@ -842,14 +853,10 @@ details[open] > summary::before {
   fill: currentColor;
   stroke: none;
 }
-.footnote a:hover,
 .info-trigger:hover,
 .info-trigger[aria-expanded='true'] {
   background: var(--selected);
   color: var(--blue);
-}
-.footnote a:focus-visible {
-  background: var(--selected);
 }
 .info-tip {
   display: inline-flex;
@@ -1018,6 +1025,18 @@ details[open] > summary::before {
     gap: 14px;
     margin-bottom: var(--toolbar-space);
   }
+  .analysis-toolbar {
+    gap: 10px;
+  }
+  .analysis-toolbar .feature-field {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
+  .analysis-toolbar .feature-field > span {
+    white-space: nowrap;
+  }
   .model-selection-row {
     width: 100%;
   }
@@ -1091,7 +1110,7 @@ details[open] > summary::before {
   .inline-facts strong {
     font-size: 26px;
   }
-  .inline-facts span {
+  .inline-facts > strong > span {
     font-size: var(--text-small);
   }
   .statistics {
@@ -1138,6 +1157,10 @@ details[open] > summary::before {
   }
 }
 @container (max-width: 240px) {
+  .analysis-toolbar .feature-field {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .result-summary-values {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

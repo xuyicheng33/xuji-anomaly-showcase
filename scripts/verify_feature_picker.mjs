@@ -91,10 +91,10 @@ try {
       );
       assert.match(await comparison.locator('.filled-row').innerText(), /缺失.*0.*已填补/s);
     }
-    await page.locator('#ref-data-test-count').click();
+    await page.locator('#ref-data-data-split').click();
     await page.locator('#note-data-split:focus').waitFor();
     await page.locator('#note-data-split .note-return').click();
-    await page.locator('#ref-data-test-count:focus').waitFor();
+    await page.locator('#ref-data-data-split:focus').waitFor();
     await page.close();
     console.log(
       `PASS ${width}px searchable selection, dictionary names, cancellation, case restriction, contribution search, detail positioning/return, plot/grid and 200%`,

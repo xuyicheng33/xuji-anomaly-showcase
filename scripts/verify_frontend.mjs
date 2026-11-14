@@ -110,8 +110,11 @@ try {
       }
       if (width <= 390) {
         const field = await page.locator('.feature-field').boundingBox();
+        const label = await page.locator('.feature-field > span').boundingBox();
         const trigger = await page.locator('.feature-trigger').boundingBox();
-        assert.ok(Math.abs(trigger.x - field.x) < 1 && Math.abs(trigger.width - field.width) < 1);
+        assert.ok(label.x + label.width <= trigger.x, 'The field label precedes its control');
+        assert.ok(Math.abs(trigger.x + trigger.width - field.x - field.width) < 1);
+        assert.ok(trigger.height >= 44, 'The compact picker retains its touch target');
       }
       await page.waitForFunction(() => {
         const table = document.querySelector('[aria-describedby="playback-table-hint"]');

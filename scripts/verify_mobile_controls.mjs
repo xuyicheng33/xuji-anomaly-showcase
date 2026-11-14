@@ -69,6 +69,18 @@ try {
       assert.ok(stats.y >= plot.y + plot.height, 'Tablet statistics follow the full-width plots');
     }
     await page.goto(showcaseUrl + '#/detection');
+    if (width <= 390) {
+      await page.locator('.reconstruction-view svg[role="img"]').waitFor();
+      await page.evaluate(async () => {
+        await document.fonts.ready;
+        window.scrollTo(0, 0);
+      });
+      const inputPlot = await page.locator('.reconstruction-view svg[role="img"]').boundingBox();
+      assert.ok(
+        inputPlot.y + inputPlot.height <= 844,
+        'The initial curve fits in the mobile screen',
+      );
+    }
     await page.getByRole('button', { name: /查看模型结果/ }).click();
     await page.getByTestId('calculated-score').waitFor();
     if (width <= 390) {

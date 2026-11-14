@@ -112,6 +112,10 @@
   }
 }
 @media (max-width: 680px) {
+  .detection-page {
+    --heading-space: 18px;
+    --toolbar-space: 16px;
+  }
   .example-picker {
     gap: 8px;
     margin-bottom: 16px;
@@ -155,7 +159,7 @@
     font-size: var(--text-small);
   }
   .time-range {
-    margin-block: 12px;
+    margin-block: 8px;
   }
   .evaluation-context {
     flex-wrap: wrap;

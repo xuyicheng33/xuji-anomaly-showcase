@@ -297,6 +297,10 @@
   }
 }
 @media (max-width: 680px) {
+  .playback-page {
+    --heading-space: 18px;
+    --toolbar-space: 16px;
+  }
   .playback-command-bar {
     display: contents;
   }
@@ -335,9 +339,6 @@
     position: relative;
     z-index: 5;
     margin-bottom: var(--toolbar-space);
-  }
-  .playback-page .toolbar {
-    gap: 12px;
   }
   .playback-page .playback-status {
     padding-top: 10px;

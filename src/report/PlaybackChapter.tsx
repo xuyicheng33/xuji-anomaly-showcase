@@ -79,7 +79,7 @@ export function PlaybackChapter(p: PlaybackProps) {
   return (
     <div className="playback-page" data-curves-ready={curvesReady} data-started={count > 0}>
       <Heading title="检测结果回放" />
-      <div className="toolbar">
+      <div className="toolbar analysis-toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect
           data={data}
@@ -265,8 +265,6 @@ export function PlaybackChapter(p: PlaybackProps) {
           <Curve
             title="整体异常分数"
             playbackScale={{ key: scaleContext, hold: holdScale }}
-            note="window-aggregation"
-            reference="ref-playback-score-plot"
             lines={[
               {
                 name: `${data.features.length} 测点平均平方误差`,

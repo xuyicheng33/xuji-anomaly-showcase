@@ -25,6 +25,23 @@ export const notes = [
   { id: 'training-mse', title: '训练重建误差与优化目标', page: 'training' },
 ] as const;
 export type NoteId = (typeof notes)[number]['id'];
+const noteLinks: Record<NoteId, string> = {
+  'data-records': '数据说明',
+  'data-source': '测点清单',
+  'data-split': '划分说明',
+  normalization: '计算方法',
+  'anomaly-process': '插入方法',
+  'anomaly-labels': '标签说明',
+  'anomaly-cases': '案例说明',
+  'length-sampling': '采样说明',
+  'window-settings': '窗口说明',
+  'score-calculation': '分数计算',
+  thresholds: '阈值说明',
+  'point-metrics': '评估口径',
+  'window-aggregation': '合并规则',
+  'model-design': '模型详解',
+  'training-mse': '训练说明',
+};
 export function getNoteOrigin() {
   return presentationMemory.noteOrigin;
 }
@@ -51,18 +68,14 @@ export function Footnote({ note, reference }: { note: NoteId; reference?: string
       <a
         id={id}
         href={'#/metrics?' + params}
-        aria-label={`注 ${index + 1}：${item.title}`}
+        aria-label={`${noteLinks[note]}：${item.title}（注 ${index + 1}）`}
         title={item.title}
         onClick={() => {
           rememberNoteOrigin(id);
           pausePresentation();
         }}
       >
-        <svg viewBox="0 0 20 20" aria-hidden="true">
-          <circle cx="10" cy="10" r="7.5" />
-          <path d="M10 9v5" />
-          <circle className="info-dot" cx="10" cy="6" r=".8" />
-        </svg>
+        <span aria-hidden="true">{noteLinks[note]} →</span>
       </a>
     </span>
   );

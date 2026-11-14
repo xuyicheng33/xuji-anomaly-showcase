@@ -83,6 +83,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
   return (
     <div className="data-chapter">
       <Heading
+        label="监测数据预处理"
         title={
           <>
             监测数据预处理
@@ -102,18 +103,12 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           <small>{data.summary.features} 个保留测点</small>
         </div>
         <div>
-          <span>
-            训练集
-            <Footnote note="data-split" reference="ref-data-training-count" />
-          </span>
+          <span>训练集</span>
           <strong>{number(split.trainCount, 0)}</strong>
           <small>前 70%</small>
         </div>
         <div>
-          <span>
-            测试集
-            <Footnote note="data-split" reference="ref-data-test-count" />
-          </span>
+          <span>测试集</span>
           <strong>{number(split.testCount, 0)}</strong>
           <small>后 30%</small>
         </div>
@@ -165,7 +160,6 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           <p className="split-context quiet">
             模型使用时，两段各跳过首条记录：训练 {number(data.summary.trainRows, 0)} 条，测试{' '}
             {number(data.summary.testRows, 0)} 条。
-            <Footnote note="data-split" reference="ref-data-model-records" />
           </p>
         )}
       </Section>

@@ -810,7 +810,7 @@
   .inline-facts strong + strong {
     border-top: 1px solid var(--line);
   }
-  .inline-facts span {
+  .inline-facts > strong > span {
     margin-top: 0;
     white-space: normal;
   }

@@ -216,17 +216,11 @@ try {
       };
       await openPicker();
       await page.getByText('查看构造说明与公式', { exact: true }).click();
-      assert.match(
-        await page.locator('.case-mobile-explanation').innerText(),
-        /用异常素材替代局部原值/,
-      );
+      assert.match(await page.locator('.case-explanation').innerText(), /用异常素材替代局部原值/);
       await page.locator('.case-methods button').last().click();
       await page.locator('.case-label-cells button').last().waitFor();
       await openPicker();
-      assert.match(
-        await page.locator('.case-mobile-explanation').innerText(),
-        /原始值 × \(1 − 权重\)/,
-      );
+      assert.match(await page.locator('.case-explanation').innerText(), /原始值 × \(1 − 权重\)/);
       await page.locator('.case-methods button').first().click();
       await openPicker();
       await page.getByText('查看构造说明与公式', { exact: true }).click();
@@ -312,12 +306,38 @@ try {
       await progress.fill('2397');
       assert.equal(await page.locator('.replay-links button:disabled').count(), 3);
     }
+    await page.goto(base + '#/models');
+    const help = page.getByRole('button', { name: '模型设计说明', exact: true });
+    await help.click();
+    await page.getByRole('tooltip').waitFor();
+    assert.equal(new URL(page.url()).hash, '#/models', 'Short help keeps the current page');
+    await page.getByRole('heading', { name: '异常检测模型', exact: true }).click();
+    assert.equal(await page.getByRole('tooltip').count(), 0, 'Outside clicks dismiss short help');
+    await help.focus();
+    await page.getByRole('tooltip').waitFor();
+    await page.keyboard.press('Escape');
+    assert.equal(await page.getByRole('tooltip').count(), 0);
+    assert.equal(await help.evaluate((element) => element === document.activeElement), true);
+    if (width <= 390) {
+      await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+      await help.click();
+      const tip = await page.getByRole('tooltip').boundingBox();
+      assert.ok(tip.x >= 0 && tip.x + tip.width <= width && tip.height <= 844);
+      await page.screenshot({ path: out + '/' + width + '-help-200.png' });
+      await page.keyboard.press('Escape');
+      await page.evaluate(() => (document.documentElement.style.zoom = ''));
+    }
+    await page.getByRole('link', { name: /^模型详解：/ }).click();
+    await page.locator('#note-model-design:focus').waitFor();
+    await page.locator('#note-model-design .note-return').click();
+    await page.locator('#ref-models-model-design:focus').waitFor();
     checks.push({
       width,
       chart,
       trainingRangeIndependent: true,
       mseRoundTrip: true,
       tableHint: true,
+      contextHelpAndMethodLinks: true,
     });
     await page.close();
   }

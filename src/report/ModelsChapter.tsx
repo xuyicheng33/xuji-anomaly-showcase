@@ -72,6 +72,7 @@ export function ModelsChapter({
   return (
     <div className="models-chapter">
       <Heading
+        label="异常检测模型"
         title={
           <>
             异常检测模型
