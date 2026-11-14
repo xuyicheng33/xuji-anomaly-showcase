@@ -10,6 +10,7 @@ import { featureName } from './featureNames';
 import { useTrainingTimes } from './useTrainingTimes';
 import { modelName } from './modelNames';
 import { usePresentationState } from './usePresentationState';
+import { chapterContent } from './navigation';
 
 type TrainingProps = {
   data: Journey;
@@ -69,7 +70,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
     record = model.history[activeEpoch];
   return (
     <div className="training-chapter">
-      <Heading title="模型训练过程" />
+      <Heading title={chapterContent.training.title} />
       <Section
         title={
           <>

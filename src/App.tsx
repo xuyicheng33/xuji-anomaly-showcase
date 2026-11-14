@@ -95,7 +95,7 @@ export default function App() {
           aria-label="章节导航"
           onClick={() => setMenu(false)}
         >
-          {chapters.map(([id, name]) => (
+          {chapters.map(({ id, name }) => (
             <a key={id} href={'#/' + id} aria-current={page === id ? 'page' : undefined}>
               {name}
             </a>
@@ -138,7 +138,7 @@ export default function App() {
                       </div>
                     </section>
                     <section className="chapter-list" aria-label="完整研究流程">
-                      {chapters.map(([id, , title], i) => (
+                      {chapters.map(({ id, title }, i) => (
                         <a href={'#/' + id} key={id}>
                           <span className="large-index">0{i + 1}</span>
                           <h2>{title}</h2>

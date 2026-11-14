@@ -21,6 +21,7 @@ import { Footnote } from './notes';
 import { PlaybackCalculation } from './PlaybackCalculation';
 import type { PlaybackProps } from './detectionTypes';
 import { modelName } from './modelNames';
+import { chapterContent } from './navigation';
 
 export function PlaybackChapter(p: PlaybackProps) {
   const controls = usePlaybackControls();
@@ -78,7 +79,7 @@ export function PlaybackChapter(p: PlaybackProps) {
   };
   return (
     <div className="playback-page" data-curves-ready={curvesReady} data-started={count > 0}>
-      <Heading title="检测结果回放" />
+      <Heading title={chapterContent.playback.title} />
       <div className="toolbar analysis-toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect

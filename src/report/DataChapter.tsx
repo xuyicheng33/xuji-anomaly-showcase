@@ -13,6 +13,7 @@ import FeaturePicker from './FeaturePicker';
 import { featureName } from './featureNames';
 import { useTrainingTimes } from './useTrainingTimes';
 import { usePresentationState } from './usePresentationState';
+import { chapterContent } from './navigation';
 
 type Props = { data: Journey; feature: number; setFeature: (feature: number) => void };
 const number = (value: number, digits = 3) =>
@@ -83,10 +84,10 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
   return (
     <div className="data-chapter">
       <Heading
-        label="监测数据预处理"
+        label={chapterContent.data.title}
         title={
           <>
-            监测数据预处理
+            {chapterContent.data.title}
             <Footnote note="data-records" />
           </>
         }

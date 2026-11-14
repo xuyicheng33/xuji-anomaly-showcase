@@ -63,7 +63,7 @@ export function useReportNavigation() {
     document.title =
       (page === 'metrics'
         ? '数据与评估说明'
-        : chapters.find((c) => c[0] === page)?.[1] || '从数据到异常判定') +
+        : chapters.find((c) => c.id === page)?.name || '从数据到异常判定') +
       dataset.titleSuffix +
       '　许继电气';
   }, [page]);

@@ -17,6 +17,7 @@ import { Footnote } from './notes';
 import { ScoreCalculation } from './ScoreCalculation';
 import { presentationMemory } from './presentationMemory';
 import type { DetectionProps } from './detectionTypes';
+import { chapterContent } from './navigation';
 const names: Record<string, string> = {
   tp: '检出片段',
   fp: '误报片段',
@@ -127,7 +128,7 @@ export function DetectionChapter(p: DetectionProps) {
   }, [ready, request]);
   return (
     <div className="detection-page">
-      <Heading title="数据片段检测" />
+      <Heading title={chapterContent.detection.title} />
       <div className="toolbar analysis-toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />
         <FeatureSelect

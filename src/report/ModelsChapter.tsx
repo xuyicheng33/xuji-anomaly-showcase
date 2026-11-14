@@ -3,6 +3,7 @@ import { Heading, Section, ModelSelect } from './ReportUI';
 import { Footnote } from './notes';
 import { modelName, modelNames } from './modelNames';
 import InfoTip from './InfoTip';
+import { chapterContent } from './navigation';
 
 const windDescription = {
   title: '多尺度时间依赖与窗口重建',
@@ -72,10 +73,10 @@ export function ModelsChapter({
   return (
     <div className="models-chapter">
       <Heading
-        label="异常检测模型"
+        label={chapterContent.models.title}
         title={
           <>
-            异常检测模型
+            {chapterContent.models.title}
             <Footnote note="model-design" />
           </>
         }
@@ -114,10 +115,9 @@ export function ModelsChapter({
         </div>
       </section>
       <div className="model-details">
-        {description.details.map(([title, text], i) => (
+        {description.details.map(([title, text]) => (
           <details key={title}>
             <summary>
-              <span>0{i + 1}</span>
               <h3>{title}</h3>
             </summary>
             <p>{text}</p>

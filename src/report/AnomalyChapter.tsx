@@ -11,6 +11,7 @@ import { useCaseConstruction } from './useCaseConstruction';
 import CaseNavigation from './CaseNavigation';
 import { kinds, steps } from './caseContent';
 import { usePlotGeometry } from './usePlotGeometry';
+import { chapterContent } from './navigation';
 
 export default function AnomalyChapter({
   data,
@@ -67,7 +68,7 @@ export default function AnomalyChapter({
   } = state;
   return (
     <div className="anomaly-page case-page">
-      <Heading title="异常样本构造" />
+      <Heading title={chapterContent.anomalies.title} />
       <div className="case-layout">
         <CaseNavigation state={state} />
         <div className="case-content">

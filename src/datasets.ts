@@ -7,10 +7,7 @@ export const datasetConfigs = {
     modelId: 'model1',
     alternate: 'wind',
     alternateTitle: '风电数据集',
-    chapterText: {
-      data: ['数据整理', '监测数据预处理', '无效记录剔除、缺失填补与归一化'],
-      models: ['两种方法', '两种异常检测模型', '双分支结构与多尺度时空建模'],
-    },
+    dataTitle: '监测数据预处理',
   },
   wind: {
     title: '风电设备',
@@ -20,10 +17,7 @@ export const datasetConfigs = {
     modelId: 'model2',
     alternate: 'converter',
     alternateTitle: '换流数据集',
-    chapterText: {
-      data: ['数据整理', '风电数据预处理', '功率与天气对齐、字段选择与归一化'],
-      models: ['检测方法', 'SMST-AD 检测模型', '多尺度时间分支、掩码与重建'],
-    },
+    dataTitle: '风电数据预处理',
   },
 } as const;
 /** Dataset links keep separate page sessions and caches. */
