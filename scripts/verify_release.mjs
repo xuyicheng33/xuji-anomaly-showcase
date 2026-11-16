@@ -96,7 +96,9 @@ try {
       );
       await page.locator('#ref-playback-window-aggregation').click();
       await page.locator('#note-window-aggregation:focus').waitFor();
-      await page.getByRole('button', { name: /说明目录/ }).click();
+      const indexToggle = page.getByRole('button', { name: /说明目录/ });
+      const sidebarIndex = !(await indexToggle.isVisible());
+      if (!sidebarIndex) await indexToggle.click();
       await page.locator('.explanation-index a').filter({ hasText: '阈值与评估规则' }).click();
       await page.locator('#note-thresholds:focus').waitFor();
       await page.waitForFunction(() =>
@@ -104,8 +106,14 @@ try {
       );
       const position = await page.locator('#note-thresholds').boundingBox();
       const navigation = await page.locator('.explanation-navigation').boundingBox();
-      assert.ok(position.y >= navigation.y + navigation.height);
-      await page.getByRole('button', { name: /说明目录/ }).click();
+      if (sidebarIndex) {
+        const header = await page.locator('.site-header').boundingBox();
+        assert.ok(position.y >= header.y + header.height, 'Notes clear the sticky header');
+        assert.ok(position.x >= navigation.x + navigation.width, 'The index sits beside notes');
+      } else {
+        assert.ok(position.y >= navigation.y + navigation.height);
+        await indexToggle.click();
+      }
       await page
         .locator('.explanation-index a')
         .filter({ hasText: '连续回放与跨窗口合并' })

@@ -68,8 +68,8 @@ export function PlaybackChapter(p: PlaybackProps) {
       if (!status || !toolbar) return;
       const top =
         getComputedStyle(toolbar).position === 'sticky'
-          ? toolbar.getBoundingClientRect().height
-          : 0;
+          ? toolbar.getBoundingClientRect().bottom
+          : (document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0);
       if (status.getBoundingClientRect().top < top)
         status.scrollIntoView({
           block: 'start',
@@ -316,7 +316,7 @@ export function PlaybackChapter(p: PlaybackProps) {
           {(['tp', 'fp', 'fn'] as const).map((code) => (
             <button
               key={code}
-              className="text-button"
+              className="secondary"
               disabled={nextPoints[code] === undefined}
               title={nextPoints[code] === undefined ? '后续没有此类结果' : undefined}
               onClick={() => jumpToOutcome(nextPoints[code]!)}

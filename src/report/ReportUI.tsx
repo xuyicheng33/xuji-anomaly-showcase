@@ -12,6 +12,60 @@ export const colors = {
   ink: 'var(--muted)',
   muted: 'var(--chart-muted)',
 };
+/** One plate that slides to the pressed button of its segmented group. */
+export function SelectionIndicator({
+  selector = ':scope > button[aria-pressed=true]',
+  className = 'selection-indicator',
+}: {
+  selector?: string;
+  className?: string;
+}) {
+  const ref = useRef<HTMLElement>(null),
+    [box, setBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null),
+    [ready, setReady] = useState(false);
+  useLayoutEffect(() => {
+    const group = ref.current?.parentElement;
+    if (!group) return;
+    const update = () => {
+      const b = group.querySelector<HTMLElement>(selector);
+      setBox(
+        b
+          ? { x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight }
+          : null,
+      );
+    };
+    update();
+    const frame = requestAnimationFrame(() => setReady(true));
+    const resize = new ResizeObserver(update);
+    resize.observe(group);
+    for (const child of group.children) resize.observe(child);
+    window.addEventListener('resize', update);
+    const pressed = new MutationObserver(update);
+    pressed.observe(group, {
+      subtree: true,
+      childList: true,
+      attributeFilter: ['aria-pressed', 'aria-current'],
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      resize.disconnect();
+      pressed.disconnect();
+      window.removeEventListener('resize', update);
+    };
+  }, [selector]);
+  return (
+    <i
+      ref={ref}
+      aria-hidden="true"
+      className={className + (ready ? ' is-ready' : '')}
+      style={
+        box
+          ? { left: box.x, top: box.y, width: box.width, height: box.height }
+          : { opacity: 0, width: 0, height: 0 }
+      }
+    />
+  );
+}
 export function ModelSelect({
   data,
   value,
@@ -21,27 +75,11 @@ export function ModelSelect({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null),
-    [box, setBox] = useState({ x: 4, y: 4, width: 0, height: 0 });
-  useLayoutEffect(() => {
-    const update = () => {
-      const b = ref.current?.querySelector<HTMLButtonElement>('[aria-pressed=true]');
-      if (b)
-        setBox({ x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight });
-    };
-    update();
-    const o = new ResizeObserver(update);
-    if (ref.current) o.observe(ref.current);
-    return () => o.disconnect();
-  }, [value, data]);
   if (data.models.length === 1)
     return <span className="model-identity">{modelName(data.models[0])}</span>;
   return (
-    <div ref={ref} className="segmented model-select" aria-label="选择模型">
-      <i
-        className="selection-indicator"
-        style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
-      />
+    <div className="segmented model-select" aria-label="选择模型">
+      <SelectionIndicator />
       {data.models.map((m) => (
         <button key={m.id} aria-pressed={value === m.id} onClick={() => onChange(m.id)}>
           {modelName(m)}
@@ -138,7 +176,9 @@ export function Confusion({
             aria-label={`${name}，${desc}：${count}`}
           >
             <span>{name}</span>
-            <strong>{count}</strong>
+            <strong key={String(count)} className="value-tick">
+              {count}
+            </strong>
           </div>
         ))}
       </div>
@@ -155,7 +195,9 @@ export function Rates({ metrics }: { metrics: Metrics }) {
       ].map(([k, v]) => (
         <div key={k}>
           <span>{k}</span>
-          <strong>{pct(v as number | null)}</strong>
+          <strong key={pct(v as number | null)} className="value-tick">
+            {pct(v as number | null)}
+          </strong>
         </div>
       ))}
     </div>
@@ -184,7 +226,10 @@ export function ResultSummary({
       <span className="result-summary-scope">{scope}</span>
       <div className="result-summary-values">
         <span>
-          逐点F1<strong>{pct(metrics.f1)}</strong>
+          逐点F1
+          <strong key={pct(metrics.f1)} className="value-tick">
+            {pct(metrics.f1)}
+          </strong>
         </span>
       </div>
       {children}

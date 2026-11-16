@@ -1,3 +1,4 @@
+import { SelectionIndicator } from './ReportUI';
 import { useEffect, useRef, useState } from 'react';
 import { colors } from './ReportUI';
 import { curveTick } from './curveScale';
@@ -63,7 +64,8 @@ export default function ReferenceConstruction({
           测试集第{sourceStart + 1}—{sourceStart + values.length}点 · {sourceTime}
         </p>
       </div>
-      <div className="reference-steps" role="group" aria-label="参考片段变换">
+      <div className="segmented reference-steps" role="group" aria-label="参考片段变换">
+        <SelectionIndicator />
         {names.map((name, index) => (
           <button key={name} aria-pressed={step === index} onClick={() => onStep(index)}>
             {name}

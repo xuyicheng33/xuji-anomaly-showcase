@@ -1,3 +1,4 @@
+import { SelectionIndicator } from './ReportUI';
 import { methods, kinds } from './caseContent';
 import { Footnote } from './notes';
 import type { useCaseConstruction } from './useCaseConstruction';
@@ -43,7 +44,8 @@ export default function CaseNavigation({
             插入方式
             <Footnote note="anomaly-cases" />
           </h2>
-          <div className="case-methods">
+          <div className="segmented case-methods" role="group" aria-label="插入方式">
+            <SelectionIndicator />
             {methods.map((m) => (
               <button
                 key={m.id}

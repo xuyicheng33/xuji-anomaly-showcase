@@ -1,3 +1,4 @@
+import { SelectionIndicator } from './ReportUI';
 import { useId } from 'react';
 import { usePresentationState } from './usePresentationState';
 import TableScrollHint from './TableScrollHint';
@@ -184,6 +185,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
           <h3>170 个缺失值填 0</h3>
           <p>13 个测点的零散缺失填为 0，其余观测值保留。</p>
           <div className="segmented missing-switch" aria-label="缺失片段">
+            <SelectionIndicator />
             {cleaning.missingExamples.map((entry, i) => (
               <button key={entry.key} aria-pressed={example === i} onClick={() => setExample(i)}>
                 {entry.label}
