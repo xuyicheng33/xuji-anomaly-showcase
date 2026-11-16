@@ -23,7 +23,7 @@ from release_files import (
 class ReleaseFileTests(unittest.TestCase):
     def test_renamed_immutable_payload_reuses_previous_bytes(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             previous, target = root / "old", root / "new"
             previous.mkdir()
             original = previous / "data/windows-v1/model/0.bin"
@@ -41,7 +41,7 @@ class ReleaseFileTests(unittest.TestCase):
 
     def test_repeat_deployment_keeps_predecessor_config_not_active_config(self):
         with tempfile.TemporaryDirectory() as temporary:
-            site = Path(temporary)
+            site = Path(temporary).resolve()
             (site / "config-backups").mkdir()
             saved = site / "config-backups/original.conf"
             saved.write_text("configuration for previous release")
@@ -68,7 +68,7 @@ class ReleaseFileTests(unittest.TestCase):
 
     def test_failed_copy_can_retry_and_completed_release_is_reusable(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             previous, target = root / "old", root / "new"
             previous.mkdir()
             (previous / "obsolete.txt").write_text("removed in next release")
@@ -93,7 +93,7 @@ class ReleaseFileTests(unittest.TestCase):
 
     def test_config_backup_and_restore_preserve_exact_content(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             config, backup, replacement = [
                 root / name for name in ("site.conf", "backup.conf", "next.conf")
             ]
@@ -110,7 +110,7 @@ class ReleaseFileTests(unittest.TestCase):
 
     def test_raw_range_windows_drop_inherited_gzip_and_never_generate_it(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             previous, target = root / "old", root / "new"
             previous.mkdir()
             window = previous / "data/wind/windows-v1/model2/windows-0000.bin"
@@ -134,7 +134,7 @@ class ReleaseFileTests(unittest.TestCase):
 
     def test_unchanged_files_share_storage_and_replacements_never_mutate_previous(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             previous, target = root / "old", root / "new"
             previous.mkdir()
             (previous / "shared.bin").write_bytes(b"shared" * 1000)
@@ -181,7 +181,7 @@ class ReleaseFileTests(unittest.TestCase):
 
     def test_archive_rejects_unlisted_members_without_touching_previous(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             previous, target = root / "old", root / "new"
             previous.mkdir()
             (previous / "index.html").write_text("old")
@@ -196,7 +196,7 @@ class ReleaseFileTests(unittest.TestCase):
 
     def test_retention_keeps_current_previous_unknown_folders_and_config(self):
         with tempfile.TemporaryDirectory() as temporary:
-            site = Path(temporary)
+            site = Path(temporary).resolve()
             releases = site / "releases"
             releases.mkdir()
             for name in ["aaaaaaa", "bbbbbbb", "ccccccc", "unrelated"]:

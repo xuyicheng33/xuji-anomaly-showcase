@@ -12,4 +12,7 @@
 *.json text eol=lf
 *.txt text eol=lf
 *.docx binary
+data/source/** binary
+data/models/** binary
+data/reference/** binary
 materials/*.md -text whitespace=cr-at-eol

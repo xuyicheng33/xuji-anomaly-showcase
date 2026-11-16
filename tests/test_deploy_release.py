@@ -15,7 +15,7 @@ import deploy_release as deployment
 class DeploymentTests(unittest.TestCase):
     def test_entry_checks_evaluation_in_dist_data_before_connecting(self):
         with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
+            root = Path(temporary).resolve()
             (root / ".qa").mkdir()
             (root / ".qa/build.json").write_text(
                 json.dumps(
@@ -74,7 +74,7 @@ class DeploymentTests(unittest.TestCase):
             return ""
 
         with tempfile.TemporaryDirectory() as temporary:
-            folder = Path(temporary)
+            folder = Path(temporary).resolve()
             (folder / "deploy").mkdir()
             (folder / "deploy/nginx-9010.conf").write_text(config, encoding="utf8")
             for name in ("journey", "wind"):

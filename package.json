@@ -34,7 +34,7 @@
     "verify:wind": "node scripts/run_python.mjs scripts/verify_wind_source.py && node scripts/run_python.mjs scripts/verify_runtime.py --dataset wind && node scripts/run_python.mjs scripts/verify_windows.py --dataset wind && node scripts/run_python.mjs scripts/verify_anomaly_cases.py --dataset wind",
     "export:wind": "node scripts/run_python.mjs scripts/export_journey.py --dataset wind",
     "verify:exports": "node scripts/run_python.mjs scripts/verify_exports.py",
-    "verify:ci": "npm run check && npm test && npm run test:python:ci && npm audit && npm run verify:font && npm run build && node scripts/verify_browser.mjs",
+    "verify:ci": "npm run verify && npm audit",
     "test:python:ci": "node scripts/run_python.mjs --public-only -m unittest discover -s tests",
     "backup:prune": "node scripts/run_python.mjs scripts/backup_project.py --prune"
   },

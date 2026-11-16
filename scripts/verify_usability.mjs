@@ -98,9 +98,32 @@ try {
     assert.equal(await labelTable.locator('thead th').count(), 5);
     assert.ok(await labelTable.evaluate((element) => element.scrollWidth <= element.clientWidth));
     await page.evaluate(() => (document.documentElement.style.zoom = '2'));
+    const explanationLayout = await page.evaluate(() => ({
+      viewport: innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      overflow: [...document.querySelectorAll('.explanation-page *')]
+        .filter((element) => element.getBoundingClientRect().right > innerWidth)
+        .filter((element) => {
+          for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+            if (['auto', 'scroll', 'hidden', 'clip'].includes(getComputedStyle(parent).overflowX))
+              return false;
+          }
+          return true;
+        })
+        .map((element) => ({
+          note: element.closest('.explanation-entry')?.id,
+          tag: element.tagName,
+          className: element.getAttribute('class'),
+          text: element.textContent.slice(0, 100),
+          right: element.getBoundingClientRect().right,
+          font: getComputedStyle(element).fontFamily,
+        }))
+        .slice(0, 20),
+    }));
+    await page.screenshot({ path: out + '/' + width + '-explanation-200.png' });
     assert.ok(
-      await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth),
-      'Explanation page overflow at 200%, viewport ' + width,
+      explanationLayout.scrollWidth <= explanationLayout.viewport,
+      'Explanation page overflow at 200%: ' + JSON.stringify(explanationLayout),
     );
     await page.evaluate(() => (document.documentElement.style.zoom = '1'));
     await page.locator('#note-training-mse .note-return').click();

@@ -1,0 +1,1912 @@
+===== RUN META =====
+time: 2026-10-27T21:46:40+08:00
+method: n2
+method_dir: /root/gpufree-data/DTAAD/DTAAD_64_n2
+entry: newMain17.py
+cmd: /root/DTAADENV/bin/python -u newMain17.py --model DTAAD --dataset xuji_28 --retrain --epochs 5 --Device cuda
+
+===== CONSTANTS (resolved for dataset=xuji_28) =====
+args.dataset = xuji_28
+args.model = DTAAD
+args.Device = cuda
+args.epochs = 5
+args.retrain = True
+args.batch_size = 128
+lm = (0.99, 1)
+lr = 0.0001
+BNS = 0.2086
+BND_loss_rate = 0.5
+a_rate = 0.7
+replacing_rate = (0.4, 0.6)
+seed_fordata = 2
+orgData_loss_rate = 0.3
+global_decoder_rate = 1
+percentile_merlin = 98
+cvp = 2
+lm_d['xuji_28'] = [(0.99, 1), (0.99, 1)]
+lr_d['xuji_28'] = 0.0001
+BNS_d['xuji_28'] = [0.1908, 0.2086, 0.1908, 1]
+BND_loss_rate_d['xuji_28'] = 0.5
+a_rate_d['xuji_28'] = 0.7
+replacing_rate_d['xuji_28'] = (0.4, 0.6)
+seed_fordata_d['xuji_28'] = 2
+orgData_loss_rate_d['xuji_28'] = 0.3
+global_decoder_rate_d['xuji_28'] = 1
+percentiles['xuji_28'] = (98, 2)
+
+===== TRAIN/TEST STDOUT =====
+[xuji] reuse fixed test anomalies: insertedData/xuji_28/test.npy shape=(2628, 28), anomaly_points=483
+/root/DTAADENV/lib/python3.10/site-packages/torch/nn/utils/weight_norm.py:143: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+/root/DTAADENV/lib/python3.10/site-packages/torch/nn/modules/transformer.py:379: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer was not TransformerEncoderLayer
+  warnings.warn(
+[92mCreating new model: DTAAD[0m
+  0%|          | 0/5 [00:00<?, ?it/s]0.7
+torch.Size([6131, 28]) torch.Size([96, 64, 28])
+torch.Size([2628, 28]) torch.Size([42, 64, 28])
+(96, 64, 28) (96, 64, 28) (67,)
+torch.Size([6131, 28]) (6131, 28)
+/root/gpufree-data/DTAAD/DTAAD_64_n2/adaptive_mask.py:14: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  xf = torch.fft.rfft(torch.tensor(data), dim=1)
+torch.Size([128, 64, 28])
+loss_recon=0.4711, reg_loss=1.6159
+torch.Size([128, 64, 28])
+loss_recon=0.4980, reg_loss=0.9981
+torch.Size([128, 64, 28])
+loss_recon=0.5314, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4846, reg_loss=1.1823
+torch.Size([128, 64, 28])
+loss_recon=0.4321, reg_loss=2.1730
+torch.Size([128, 64, 28])
+loss_recon=0.4987, reg_loss=1.9577
+torch.Size([128, 64, 28])
+loss_recon=0.5205, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5169, reg_loss=5.4873
+torch.Size([128, 64, 28])
+loss_recon=0.4375, reg_loss=1.8127
+torch.Size([128, 64, 28])
+loss_recon=0.4664, reg_loss=1.8539
+torch.Size([128, 64, 28])
+loss_recon=0.4045, reg_loss=1.1054
+torch.Size([128, 64, 28])
+loss_recon=0.4597, reg_loss=1.8038
+torch.Size([128, 64, 28])
+loss_recon=0.5079, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4459, reg_loss=1.9670
+torch.Size([128, 64, 28])
+loss_recon=0.4971, reg_loss=1.4660
+torch.Size([128, 64, 28])
+loss_recon=0.5132, reg_loss=1.3370
+torch.Size([128, 64, 28])
+loss_recon=0.5242, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4819, reg_loss=1.7468
+torch.Size([128, 64, 28])
+loss_recon=0.4593, reg_loss=1.8478
+torch.Size([128, 64, 28])
+loss_recon=0.4998, reg_loss=2.3146
+torch.Size([128, 64, 28])
+loss_recon=0.4532, reg_loss=2.8486
+torch.Size([128, 64, 28])
+loss_recon=0.4973, reg_loss=2.3080
+torch.Size([128, 64, 28])
+loss_recon=0.4965, reg_loss=2.2624
+torch.Size([128, 64, 28])
+loss_recon=0.5237, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5230, reg_loss=0.9038
+torch.Size([128, 64, 28])
+loss_recon=0.5041, reg_loss=1.2700
+torch.Size([128, 64, 28])
+loss_recon=0.5017, reg_loss=1.8943
+torch.Size([128, 64, 28])
+loss_recon=0.5075, reg_loss=0.8628
+torch.Size([128, 64, 28])
+loss_recon=0.4491, reg_loss=0.9955
+torch.Size([128, 64, 28])
+loss_recon=0.4283, reg_loss=1.5727
+torch.Size([128, 64, 28])
+loss_recon=0.4513, reg_loss=1.6230
+torch.Size([128, 64, 28])
+loss_recon=0.4638, reg_loss=1.4910
+torch.Size([128, 64, 28])
+loss_recon=0.5157, reg_loss=1.3595
+torch.Size([128, 64, 28])
+loss_recon=0.5133, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4531, reg_loss=0.9188
+torch.Size([128, 64, 28])
+loss_recon=0.4529, reg_loss=4.4329
+torch.Size([128, 64, 28])
+loss_recon=0.4616, reg_loss=2.2531
+torch.Size([128, 64, 28])
+loss_recon=0.4390, reg_loss=1.8425
+torch.Size([128, 64, 28])
+loss_recon=0.4239, reg_loss=1.1242
+torch.Size([128, 64, 28])
+loss_recon=0.5200, reg_loss=2.2878
+torch.Size([128, 64, 28])
+loss_recon=0.4812, reg_loss=1.5630
+torch.Size([128, 64, 28])
+loss_recon=0.4709, reg_loss=1.4929
+torch.Size([128, 64, 28])
+loss_recon=0.5229, reg_loss=1.6960
+torch.Size([128, 64, 28])
+loss_recon=0.4796, reg_loss=2.4265
+torch.Size([128, 64, 28])
+loss_recon=0.5158, reg_loss=2.9088
+torch.Size([128, 64, 28])
+loss_recon=0.4620, reg_loss=2.0797
+torch.Size([128, 64, 28])
+loss_recon=0.4442, reg_loss=1.1125
+torch.Size([115, 64, 28])
+loss_recon=0.5198, reg_loss=3.1176
+                                     Epoch 0,	L1 = 0.09811581116480572
+  0%|          | 0/5 [00:11<?, ?it/s]                                     Epoch 0,	myLoss = 3.637451856878818
+  0%|          | 0/5 [00:11<?, ?it/s]findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[Saved] ./recon_plots/epoch0_dim0.png
+(6131, 64, 28)
+ 20%|██        | 1/5 [00:12<00:51, 12.94s/it]0.7
+torch.Size([6131, 28]) torch.Size([96, 64, 28])
+torch.Size([2628, 28]) torch.Size([42, 64, 28])
+(96, 64, 28) (96, 64, 28) (67,)
+torch.Size([6131, 28]) (6131, 28)
+torch.Size([128, 64, 28])
+loss_recon=0.5178, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4957, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5223, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4749, reg_loss=3.0511
+torch.Size([128, 64, 28])
+loss_recon=0.4655, reg_loss=2.4645
+torch.Size([128, 64, 28])
+loss_recon=0.4517, reg_loss=0.9523
+torch.Size([128, 64, 28])
+loss_recon=0.4958, reg_loss=3.4763
+torch.Size([128, 64, 28])
+loss_recon=0.4855, reg_loss=3.5146
+torch.Size([128, 64, 28])
+loss_recon=0.4891, reg_loss=1.0326
+torch.Size([128, 64, 28])
+loss_recon=0.4758, reg_loss=1.1404
+torch.Size([128, 64, 28])
+loss_recon=0.4307, reg_loss=1.7770
+torch.Size([128, 64, 28])
+loss_recon=0.4433, reg_loss=0.8393
+torch.Size([128, 64, 28])
+loss_recon=0.4603, reg_loss=2.7236
+torch.Size([128, 64, 28])
+loss_recon=0.4903, reg_loss=2.2170
+torch.Size([128, 64, 28])
+loss_recon=0.5086, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5191, reg_loss=2.2927
+torch.Size([128, 64, 28])
+loss_recon=0.4503, reg_loss=1.1483
+torch.Size([128, 64, 28])
+loss_recon=0.4891, reg_loss=2.3275
+torch.Size([128, 64, 28])
+loss_recon=0.4832, reg_loss=2.7953
+torch.Size([128, 64, 28])
+loss_recon=0.5263, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4946, reg_loss=2.3041
+torch.Size([128, 64, 28])
+loss_recon=0.4546, reg_loss=3.8627
+torch.Size([128, 64, 28])
+loss_recon=0.4507, reg_loss=3.9073
+torch.Size([128, 64, 28])
+loss_recon=0.4551, reg_loss=2.1335
+torch.Size([128, 64, 28])
+loss_recon=0.4339, reg_loss=2.5765
+torch.Size([128, 64, 28])
+loss_recon=0.4602, reg_loss=1.9044
+torch.Size([128, 64, 28])
+loss_recon=0.4989, reg_loss=4.4653
+torch.Size([128, 64, 28])
+loss_recon=0.5066, reg_loss=1.2012
+torch.Size([128, 64, 28])
+loss_recon=0.4835, reg_loss=1.1968
+torch.Size([128, 64, 28])
+loss_recon=0.4822, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4658, reg_loss=2.2842
+torch.Size([128, 64, 28])
+loss_recon=0.5118, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5110, reg_loss=1.8863
+torch.Size([128, 64, 28])
+loss_recon=0.4610, reg_loss=1.4525
+torch.Size([128, 64, 28])
+loss_recon=0.5137, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4785, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4597, reg_loss=1.3872
+torch.Size([128, 64, 28])
+loss_recon=0.4853, reg_loss=1.8152
+torch.Size([128, 64, 28])
+loss_recon=0.4970, reg_loss=1.7478
+torch.Size([128, 64, 28])
+loss_recon=0.4503, reg_loss=3.3955
+torch.Size([128, 64, 28])
+loss_recon=0.4729, reg_loss=1.7699
+torch.Size([128, 64, 28])
+loss_recon=0.5284, reg_loss=2.3009
+torch.Size([128, 64, 28])
+loss_recon=0.5252, reg_loss=2.3066
+torch.Size([128, 64, 28])
+loss_recon=0.4763, reg_loss=1.8766
+torch.Size([128, 64, 28])
+loss_recon=0.4547, reg_loss=2.6014
+torch.Size([128, 64, 28])
+loss_recon=0.5050, reg_loss=1.8902
+torch.Size([128, 64, 28])
+loss_recon=0.4593, reg_loss=1.3577
+torch.Size([115, 64, 28])
+loss_recon=0.4432, reg_loss=1.1682
+                                             Epoch 1,	L1 = 0.09326446769526671
+ 20%|██        | 1/5 [00:23<00:51, 12.94s/it]                                             Epoch 1,	myLoss = 1.6114365853399863
+ 20%|██        | 1/5 [00:23<00:51, 12.94s/it]findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[Saved] ./recon_plots/epoch1_dim0.png
+(6131, 64, 28)
+ 40%|████      | 2/5 [00:25<00:37, 12.46s/it]0.7
+torch.Size([6131, 28]) torch.Size([96, 64, 28])
+torch.Size([2628, 28]) torch.Size([42, 64, 28])
+(96, 64, 28) (96, 64, 28) (67,)
+torch.Size([6131, 28]) (6131, 28)
+torch.Size([128, 64, 28])
+loss_recon=0.5108, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4854, reg_loss=1.4370
+torch.Size([128, 64, 28])
+loss_recon=0.4985, reg_loss=1.2976
+torch.Size([128, 64, 28])
+loss_recon=0.4582, reg_loss=1.1067
+torch.Size([128, 64, 28])
+loss_recon=0.4965, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4876, reg_loss=1.9327
+torch.Size([128, 64, 28])
+loss_recon=0.4644, reg_loss=1.8103
+torch.Size([128, 64, 28])
+loss_recon=0.4790, reg_loss=1.6674
+torch.Size([128, 64, 28])
+loss_recon=0.4788, reg_loss=1.3177
+torch.Size([128, 64, 28])
+loss_recon=0.4920, reg_loss=1.9803
+torch.Size([128, 64, 28])
+loss_recon=0.4634, reg_loss=1.6490
+torch.Size([128, 64, 28])
+loss_recon=0.4518, reg_loss=1.3875
+torch.Size([128, 64, 28])
+loss_recon=0.4845, reg_loss=1.7203
+torch.Size([128, 64, 28])
+loss_recon=0.4763, reg_loss=1.7790
+torch.Size([128, 64, 28])
+loss_recon=0.4599, reg_loss=1.0289
+torch.Size([128, 64, 28])
+loss_recon=0.4958, reg_loss=1.1808
+torch.Size([128, 64, 28])
+loss_recon=0.4935, reg_loss=1.1769
+torch.Size([128, 64, 28])
+loss_recon=0.4721, reg_loss=2.2383
+torch.Size([128, 64, 28])
+loss_recon=0.5182, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4691, reg_loss=1.5315
+torch.Size([128, 64, 28])
+loss_recon=0.4602, reg_loss=1.6926
+torch.Size([128, 64, 28])
+loss_recon=0.4917, reg_loss=2.2908
+torch.Size([128, 64, 28])
+loss_recon=0.4597, reg_loss=1.5245
+torch.Size([128, 64, 28])
+loss_recon=0.5070, reg_loss=2.7931
+torch.Size([128, 64, 28])
+loss_recon=0.4803, reg_loss=2.1715
+torch.Size([128, 64, 28])
+loss_recon=0.4192, reg_loss=1.5562
+torch.Size([128, 64, 28])
+loss_recon=0.4844, reg_loss=3.4500
+torch.Size([128, 64, 28])
+loss_recon=0.4916, reg_loss=1.4989
+torch.Size([128, 64, 28])
+loss_recon=0.4936, reg_loss=1.8087
+torch.Size([128, 64, 28])
+loss_recon=0.4264, reg_loss=1.6306
+torch.Size([128, 64, 28])
+loss_recon=0.4523, reg_loss=1.3391
+torch.Size([128, 64, 28])
+loss_recon=0.4469, reg_loss=1.4344
+torch.Size([128, 64, 28])
+loss_recon=0.5271, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5005, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4477, reg_loss=1.3954
+torch.Size([128, 64, 28])
+loss_recon=0.4680, reg_loss=1.6209
+torch.Size([128, 64, 28])
+loss_recon=0.4826, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5161, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5040, reg_loss=1.2896
+torch.Size([128, 64, 28])
+loss_recon=0.4919, reg_loss=0.9972
+torch.Size([128, 64, 28])
+loss_recon=0.4022, reg_loss=1.1172
+torch.Size([128, 64, 28])
+loss_recon=0.4872, reg_loss=1.7190
+torch.Size([128, 64, 28])
+loss_recon=0.4957, reg_loss=1.7107
+torch.Size([128, 64, 28])
+loss_recon=0.4808, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4810, reg_loss=1.4719
+torch.Size([128, 64, 28])
+loss_recon=0.4855, reg_loss=1.6093
+torch.Size([128, 64, 28])
+loss_recon=0.4885, reg_loss=1.4289
+torch.Size([115, 64, 28])
+loss_recon=0.4618, reg_loss=1.4112
+                                             Epoch 2,	L1 = 0.08616918412914204
+ 40%|████      | 2/5 [00:35<00:37, 12.46s/it]                                             Epoch 2,	myLoss = 1.873091933515447
+ 40%|████      | 2/5 [00:35<00:37, 12.46s/it]findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[Saved] ./recon_plots/epoch2_dim0.png
+(6131, 64, 28)
+ 60%|██████    | 3/5 [00:37<00:24, 12.34s/it]0.7
+torch.Size([6131, 28]) torch.Size([96, 64, 28])
+torch.Size([2628, 28]) torch.Size([42, 64, 28])
+(96, 64, 28) (96, 64, 28) (67,)
+torch.Size([6131, 28]) (6131, 28)
+torch.Size([128, 64, 28])
+loss_recon=0.4937, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4420, reg_loss=1.7259
+torch.Size([128, 64, 28])
+loss_recon=0.4836, reg_loss=1.9506
+torch.Size([128, 64, 28])
+loss_recon=0.4461, reg_loss=2.1365
+torch.Size([128, 64, 28])
+loss_recon=0.4825, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4818, reg_loss=2.6539
+torch.Size([128, 64, 28])
+loss_recon=0.4653, reg_loss=2.1661
+torch.Size([128, 64, 28])
+loss_recon=0.5284, reg_loss=1.7616
+torch.Size([128, 64, 28])
+loss_recon=0.4757, reg_loss=1.6636
+torch.Size([128, 64, 28])
+loss_recon=0.4889, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4760, reg_loss=0.9947
+torch.Size([128, 64, 28])
+loss_recon=0.4412, reg_loss=0.8928
+torch.Size([128, 64, 28])
+loss_recon=0.4687, reg_loss=1.5986
+torch.Size([128, 64, 28])
+loss_recon=0.4097, reg_loss=1.0213
+torch.Size([128, 64, 28])
+loss_recon=0.4711, reg_loss=1.8808
+torch.Size([128, 64, 28])
+loss_recon=0.4672, reg_loss=2.2533
+torch.Size([128, 64, 28])
+loss_recon=0.4812, reg_loss=2.3455
+torch.Size([128, 64, 28])
+loss_recon=0.5044, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4883, reg_loss=1.6950
+torch.Size([128, 64, 28])
+loss_recon=0.4628, reg_loss=1.3861
+torch.Size([128, 64, 28])
+loss_recon=0.4683, reg_loss=1.0487
+torch.Size([128, 64, 28])
+loss_recon=0.4590, reg_loss=2.2203
+torch.Size([128, 64, 28])
+loss_recon=0.4777, reg_loss=1.7524
+torch.Size([128, 64, 28])
+loss_recon=0.4356, reg_loss=1.7147
+torch.Size([128, 64, 28])
+loss_recon=0.5039, reg_loss=1.6900
+torch.Size([128, 64, 28])
+loss_recon=0.4451, reg_loss=1.5001
+torch.Size([128, 64, 28])
+loss_recon=0.4135, reg_loss=1.6379
+torch.Size([128, 64, 28])
+loss_recon=0.4771, reg_loss=2.8510
+torch.Size([128, 64, 28])
+loss_recon=0.4821, reg_loss=2.8783
+torch.Size([128, 64, 28])
+loss_recon=0.4625, reg_loss=1.6114
+torch.Size([128, 64, 28])
+loss_recon=0.4499, reg_loss=2.1877
+torch.Size([128, 64, 28])
+loss_recon=0.4637, reg_loss=1.9142
+torch.Size([128, 64, 28])
+loss_recon=0.4571, reg_loss=3.8542
+torch.Size([128, 64, 28])
+loss_recon=0.4595, reg_loss=1.9625
+torch.Size([128, 64, 28])
+loss_recon=0.4785, reg_loss=1.3082
+torch.Size([128, 64, 28])
+loss_recon=0.4578, reg_loss=1.6471
+torch.Size([128, 64, 28])
+loss_recon=0.4687, reg_loss=2.1174
+torch.Size([128, 64, 28])
+loss_recon=0.4725, reg_loss=2.1043
+torch.Size([128, 64, 28])
+loss_recon=0.5235, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4903, reg_loss=1.3078
+torch.Size([128, 64, 28])
+loss_recon=0.4423, reg_loss=1.5038
+torch.Size([128, 64, 28])
+loss_recon=0.4548, reg_loss=1.5598
+torch.Size([128, 64, 28])
+loss_recon=0.4526, reg_loss=2.2843
+torch.Size([128, 64, 28])
+loss_recon=0.4581, reg_loss=3.2056
+torch.Size([128, 64, 28])
+loss_recon=0.4914, reg_loss=1.3545
+torch.Size([128, 64, 28])
+loss_recon=0.5219, reg_loss=1.6162
+torch.Size([128, 64, 28])
+loss_recon=0.4880, reg_loss=1.6159
+torch.Size([115, 64, 28])
+loss_recon=0.4807, reg_loss=1.6047
+                                             Epoch 3,	L1 = 0.07785308341993591
+ 60%|██████    | 3/5 [00:48<00:24, 12.34s/it]                                             Epoch 3,	myLoss = 2.085468033965029
+ 60%|██████    | 3/5 [00:48<00:24, 12.34s/it]findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[Saved] ./recon_plots/epoch3_dim0.png
+(6131, 64, 28)
+ 80%|████████  | 4/5 [00:49<00:12, 12.48s/it]0.7
+torch.Size([6131, 28]) torch.Size([96, 64, 28])
+torch.Size([2628, 28]) torch.Size([42, 64, 28])
+(96, 64, 28) (96, 64, 28) (67,)
+torch.Size([6131, 28]) (6131, 28)
+torch.Size([128, 64, 28])
+loss_recon=0.4630, reg_loss=1.4738
+torch.Size([128, 64, 28])
+loss_recon=0.4532, reg_loss=1.2821
+torch.Size([128, 64, 28])
+loss_recon=0.4652, reg_loss=2.3567
+torch.Size([128, 64, 28])
+loss_recon=0.4401, reg_loss=2.0799
+torch.Size([128, 64, 28])
+loss_recon=0.4690, reg_loss=1.9045
+torch.Size([128, 64, 28])
+loss_recon=0.4986, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4850, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.5413, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4368, reg_loss=1.1384
+torch.Size([128, 64, 28])
+loss_recon=0.4497, reg_loss=1.5822
+torch.Size([128, 64, 28])
+loss_recon=0.4483, reg_loss=2.6030
+torch.Size([128, 64, 28])
+loss_recon=0.4704, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4447, reg_loss=2.4166
+torch.Size([128, 64, 28])
+loss_recon=0.4573, reg_loss=2.6337
+torch.Size([128, 64, 28])
+loss_recon=0.4847, reg_loss=1.6484
+torch.Size([128, 64, 28])
+loss_recon=0.4913, reg_loss=2.1431
+torch.Size([128, 64, 28])
+loss_recon=0.4406, reg_loss=1.7444
+torch.Size([128, 64, 28])
+loss_recon=0.4708, reg_loss=1.2573
+torch.Size([128, 64, 28])
+loss_recon=0.4571, reg_loss=1.4789
+torch.Size([128, 64, 28])
+loss_recon=0.4891, reg_loss=1.5335
+torch.Size([128, 64, 28])
+loss_recon=0.4692, reg_loss=1.9021
+torch.Size([128, 64, 28])
+loss_recon=0.4861, reg_loss=4.1090
+torch.Size([128, 64, 28])
+loss_recon=0.4827, reg_loss=4.0841
+torch.Size([128, 64, 28])
+loss_recon=0.4905, reg_loss=2.1696
+torch.Size([128, 64, 28])
+loss_recon=0.4535, reg_loss=1.3087
+torch.Size([128, 64, 28])
+loss_recon=0.4451, reg_loss=1.5803
+torch.Size([128, 64, 28])
+loss_recon=0.4663, reg_loss=1.9759
+torch.Size([128, 64, 28])
+loss_recon=0.5068, reg_loss=1.9588
+torch.Size([128, 64, 28])
+loss_recon=0.4476, reg_loss=1.6805
+torch.Size([128, 64, 28])
+loss_recon=0.4772, reg_loss=0.0000
+torch.Size([128, 64, 28])
+loss_recon=0.4538, reg_loss=1.4802
+torch.Size([128, 64, 28])
+loss_recon=0.4434, reg_loss=1.8549
+torch.Size([128, 64, 28])
+loss_recon=0.4754, reg_loss=2.2182
+torch.Size([128, 64, 28])
+loss_recon=0.4800, reg_loss=1.7124
+torch.Size([128, 64, 28])
+loss_recon=0.4508, reg_loss=1.6577
+torch.Size([128, 64, 28])
+loss_recon=0.4519, reg_loss=1.5646
+torch.Size([128, 64, 28])
+loss_recon=0.4267, reg_loss=1.2272
+torch.Size([128, 64, 28])
+loss_recon=0.4297, reg_loss=1.1980
+torch.Size([128, 64, 28])
+loss_recon=0.4627, reg_loss=1.9852
+torch.Size([128, 64, 28])
+loss_recon=0.4629, reg_loss=2.4324
+torch.Size([128, 64, 28])
+loss_recon=0.4268, reg_loss=1.8778
+torch.Size([128, 64, 28])
+loss_recon=0.4645, reg_loss=2.3925
+torch.Size([128, 64, 28])
+loss_recon=0.4549, reg_loss=2.4655
+torch.Size([128, 64, 28])
+loss_recon=0.4600, reg_loss=1.7453
+torch.Size([128, 64, 28])
+loss_recon=0.4549, reg_loss=3.6687
+torch.Size([128, 64, 28])
+loss_recon=0.4570, reg_loss=1.3399
+torch.Size([128, 64, 28])
+loss_recon=0.4572, reg_loss=1.3958
+torch.Size([115, 64, 28])
+loss_recon=0.4809, reg_loss=2.1319
+                                             Epoch 4,	L1 = 0.07348225451908165
+ 80%|████████  | 4/5 [01:00<00:12, 12.48s/it]                                             Epoch 4,	myLoss = 2.612761160896581
+ 80%|████████  | 4/5 [01:00<00:12, 12.48s/it]findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[Saved] ./recon_plots/epoch4_dim0.png
+(6131, 64, 28)
+100%|██████████| 5/5 [01:02<00:00, 12.34s/it]100%|██████████| 5/5 [01:02<00:00, 12.41s/it]
+[1mTraining time:    62.0469 s[0m
+Saved checkpoint: checkpoints/DTAAD_xuji_28//model_20261027_214746.ckpt (also checkpoints/DTAAD_xuji_28//model.ckpt)
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[0.09965040724387625, 0.0930401559716744, 0.08679614139362807, 0.07939439417264177, 0.07337844774445856]
+[0.09117934835936463, 0.09441796727164019, 0.08259629278720444, 0.07049981650009891, 0.07396595161335238]
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+图像已保存到: loss_plots/normal_vs_abnormal_loss.png
+[95mTesting DTAAD on xuji_28[0m
+/root/gpufree-data/DTAAD/DTAAD_64_n2/adaptive_mask.py:119: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  dataset = DataLoader(torch.tensor(data), batch_size = mybatchsize)
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+(2628, 64, 28)
+(2628, 64, 28)
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[Saved] ./recon_plots/epochtest_dim0.png
+[Saved] ./reconstructed/epochtest_fusion.npy  shape=(2628, 28)
+[Skip] spatial has no data.
+[Skip] temporal has no data.
+(2628, 28)
+(2628, 28)
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+[Saved] plot saved at ./src/plots/reconstruction_plot.png
+/root/gpufree-data/DTAAD/DTAAD_64_n2/adaptive_mask.py:119: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  dataset = DataLoader(torch.tensor(data), batch_size = mybatchsize)
+/root/gpufree-data/DTAAD/DTAAD_64_n2/adaptive_mask.py:14: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  xf = torch.fft.rfft(torch.tensor(data), dim=1)
+torch.Size([6131, 64, 28]) torch.Size([6131, 64, 28])
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+DTAADTesting
+(6131, 64, 28) (2628, 28) (2628, 28)
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.0 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.0026141040210239663 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.005228208042047933 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.007842312063071899 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.010456416084095865 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.013070520105119832 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.015684624126143798 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.018298728147167792 *****
+{'f1': 0.31050846468247467, 'precision': 0.18378995363854658, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 0, 'FP': 2145, 'FN': 0, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.02091283216819176 *****
+{'f1': 0.31100831810413704, 'precision': 0.1841402966674026, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 5, 'FP': 2140, 'FN': 0, 'ROC/AUC': 0.5011655011655012, 'threshold': 0.26141040210239713} ***** 0.023526936189215725 *****
+{'f1': 0.31455286651923053, 'precision': 0.18663060206093274, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 40, 'FP': 2105, 'FN': 0, 'ROC/AUC': 0.5093240093240093, 'threshold': 0.26141040210239713} ***** 0.02614104021023969 *****
+{'f1': 0.32426717012617995, 'precision': 0.19350961460933647, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 132, 'FP': 2013, 'FN': 0, 'ROC/AUC': 0.5307692307692308, 'threshold': 0.26141040210239713} ***** 0.028755144231263657 *****
+{'f1': 0.33658256412625187, 'precision': 0.20234604020801825, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 241, 'FP': 1904, 'FN': 0, 'ROC/AUC': 0.5561771561771562, 'threshold': 0.26141040210239713} ***** 0.03136924825228765 *****
+{'f1': 0.35255183790284006, 'precision': 0.21400088518386845, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 371, 'FP': 1774, 'FN': 0, 'ROC/AUC': 0.5864801864801865, 'threshold': 0.26141040210239713} ***** 0.03398335227331162 *****
+{'f1': 0.36288207571064185, 'precision': 0.2216613115114212, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 449, 'FP': 1696, 'FN': 0, 'ROC/AUC': 0.6046620046620046, 'threshold': 0.26141040210239713} ***** 0.036597456294335584 *****
+{'f1': 0.37124985618383943, 'precision': 0.22793770538962854, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 509, 'FP': 1636, 'FN': 0, 'ROC/AUC': 0.6186480186480187, 'threshold': 0.26141040210239713} ***** 0.03921156031535955 *****
+{'f1': 0.38226837308622347, 'precision': 0.23630136870694046, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 584, 'FP': 1561, 'FN': 0, 'ROC/AUC': 0.636130536130536, 'threshold': 0.26141040210239713} ***** 0.04182566433638352 *****
+{'f1': 0.39283945898141576, 'precision': 0.24443319714355669, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 652, 'FP': 1493, 'FN': 0, 'ROC/AUC': 0.651981351981352, 'threshold': 0.26141040210239713} ***** 0.04443976835740748 *****
+{'f1': 0.40553832523771505, 'precision': 0.2543443904457905, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 729, 'FP': 1416, 'FN': 0, 'ROC/AUC': 0.6699300699300699, 'threshold': 0.26141040210239713} ***** 0.04705387237843148 *****
+{'f1': 0.41727531195273376, 'precision': 0.2636462867704897, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 796, 'FP': 1349, 'FN': 0, 'ROC/AUC': 0.6855477855477856, 'threshold': 0.26141040210239713} ***** 0.049667976399455444 *****
+{'f1': 0.43105417824465103, 'precision': 0.27474402574093276, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 870, 'FP': 1275, 'FN': 0, 'ROC/AUC': 0.7027972027972028, 'threshold': 0.26141040210239713} ***** 0.05228208042047941 *****
+{'f1': 0.44129395280908446, 'precision': 0.283118403967653, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 922, 'FP': 1223, 'FN': 0, 'ROC/AUC': 0.7149184149184149, 'threshold': 0.26141040210239713} ***** 0.054896184441503376 *****
+{'f1': 0.4550129668803032, 'precision': 0.29451219332614514, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 988, 'FP': 1157, 'FN': 0, 'ROC/AUC': 0.7303030303030302, 'threshold': 0.26141040210239713} ***** 0.05751028846252734 *****
+{'f1': 0.47375802788117977, 'precision': 0.3104113090590533, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1072, 'FP': 1073, 'FN': 0, 'ROC/AUC': 0.7498834498834499, 'threshold': 0.26141040210239713} ***** 0.06012439248355134 *****
+{'f1': 0.4888626981287768, 'precision': 0.32350970982244, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1135, 'FP': 1010, 'FN': 0, 'ROC/AUC': 0.7645687645687645, 'threshold': 0.26141040210239713} ***** 0.0627384965045753 *****
+{'f1': 0.5010335840476342, 'precision': 0.3342560530501311, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1183, 'FP': 962, 'FN': 0, 'ROC/AUC': 0.7757575757575758, 'threshold': 0.26141040210239713} ***** 0.06535260052559927 *****
+{'f1': 0.5146472112545183, 'precision': 0.34648493295204497, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1234, 'FP': 911, 'FN': 0, 'ROC/AUC': 0.7876456876456877, 'threshold': 0.26141040210239713} ***** 0.06796670454662324 *****
+{'f1': 0.5275766672391001, 'precision': 0.3583086026831706, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1280, 'FP': 865, 'FN': 0, 'ROC/AUC': 0.7983682983682984, 'threshold': 0.26141040210239713} ***** 0.0705808085676472 *****
+{'f1': 0.5426926687764229, 'precision': 0.3723978383007106, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1331, 'FP': 814, 'FN': 0, 'ROC/AUC': 0.8102564102564103, 'threshold': 0.26141040210239713} ***** 0.07319491258867117 *****
+{'f1': 0.5622776744033572, 'precision': 0.39109311424216103, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1393, 'FP': 752, 'FN': 0, 'ROC/AUC': 0.8247086247086247, 'threshold': 0.26141040210239713} ***** 0.07580901660969516 *****
+{'f1': 0.5794799804242544, 'precision': 0.40793918574375687, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1444, 'FP': 701, 'FN': 0, 'ROC/AUC': 0.8365967365967366, 'threshold': 0.26141040210239713} ***** 0.07842312063071913 *****
+{'f1': 0.5948233997342002, 'precision': 0.42331287972556636, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1487, 'FP': 658, 'FN': 0, 'ROC/AUC': 0.8466200466200466, 'threshold': 0.26141040210239713} ***** 0.0810372246517431 *****
+{'f1': 0.6079252763925346, 'precision': 0.4367088568109507, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1522, 'FP': 623, 'FN': 0, 'ROC/AUC': 0.8547785547785548, 'threshold': 0.26141040210239713} ***** 0.08365132867276706 *****
+{'f1': 0.62121757435566, 'precision': 0.4505596972895551, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1556, 'FP': 589, 'FN': 0, 'ROC/AUC': 0.8627039627039628, 'threshold': 0.26141040210239713} ***** 0.08626543269379103 *****
+{'f1': 0.6346868547369529, 'precision': 0.464870062898267, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1589, 'FP': 556, 'FN': 0, 'ROC/AUC': 0.8703962703962704, 'threshold': 0.26141040210239713} ***** 0.08887953671481502 *****
+{'f1': 0.6535815181272424, 'precision': 0.4854271307997273, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1633, 'FP': 512, 'FN': 0, 'ROC/AUC': 0.8806526806526807, 'threshold': 0.26141040210239713} ***** 0.09149364073583899 *****
+{'f1': 0.6759927162973055, 'precision': 0.5105708191271584, 'recall': 0.9999999792960668, 'TP': 483, 'TN': 1682, 'FP': 463, 'FN': 0, 'ROC/AUC': 0.892074592074592, 'threshold': 0.26141040210239713} ***** 0.09410774475686295 *****
+{'f1': 0.6815195403843012, 'precision': 0.5220264259688719, 'recall': 0.9813664393091835, 'TP': 474, 'TN': 1711, 'FP': 434, 'FN': 9, 'ROC/AUC': 0.8895177286481634, 'threshold': 0.26141040210239713} ***** 0.09672184877788692 *****
+{'f1': 0.6626459639898041, 'precision': 0.5207100530093485, 'recall': 0.9109730660254024, 'TP': 440, 'TN': 1740, 'FP': 405, 'FN': 43, 'ROC/AUC': 0.8610809480374698, 'threshold': 0.26141040210239713} ***** 0.09933595279891089 *****
+{'f1': 0.611645714171283, 'precision': 0.5019920252059492, 'recall': 0.7826086794490957, 'TP': 378, 'TN': 1770, 'FP': 375, 'FN': 105, 'ROC/AUC': 0.8038917604134995, 'threshold': 0.26141040210239713} ***** 0.10195005681993488 *****
+{'f1': 0.627902161726474, 'precision': 0.5242718373887402, 'recall': 0.7826086794490957, 'TP': 378, 'TN': 1802, 'FP': 343, 'FN': 105, 'ROC/AUC': 0.8113509678727071, 'threshold': 0.26141040210239713} ***** 0.10456416084095885 *****
+{'f1': 0.5277728237603082, 'precision': 0.47738692667693594, 'recall': 0.5900620995846356, 'TP': 285, 'TN': 1833, 'FP': 312, 'FN': 198, 'ROC/AUC': 0.7223037831733483, 'threshold': 0.26141040210239713} ***** 0.10717826486198281 *****
+{'f1': 0.49703642156892613, 'precision': 0.47457626224903465, 'recall': 0.5217391196327305, 'TP': 252, 'TN': 1866, 'FP': 279, 'FN': 231, 'ROC/AUC': 0.6958346001824263, 'threshold': 0.26141040210239713} ***** 0.10979236888300678 *****
+{'f1': 0.46777045819029334, 'precision': 0.46972859144616724, 'recall': 0.4658384996720808, 'TP': 225, 'TN': 1891, 'FP': 254, 'FN': 258, 'ROC/AUC': 0.673711795450926, 'threshold': 0.26141040210239713} ***** 0.11240647290403075 *****
+{'f1': 0.478718397947117, 'precision': 0.49234134590062706, 'recall': 0.4658384996720808, 'TP': 225, 'TN': 1913, 'FP': 232, 'FN': 258, 'ROC/AUC': 0.6788400005791311, 'threshold': 0.26141040210239713} ***** 0.11502057692505474 *****
+{'f1': 0.39442661821605707, 'precision': 0.448548800829847, 'recall': 0.35196686641890546, 'TP': 170, 'TN': 1936, 'FP': 209, 'FN': 313, 'ROC/AUC': 0.6272654881350535, 'threshold': 0.26141040210239713} ***** 0.1176346809460787 *****
+{'f1': 0.40718074211441324, 'precision': 0.4829545317342463, 'recall': 0.35196686641890546, 'TP': 170, 'TN': 1963, 'FP': 182, 'FN': 313, 'ROC/AUC': 0.6335591944287596, 'threshold': 0.26141040210239713} ***** 0.12024878496710267 *****
+{'f1': 0.41871438141027995, 'precision': 0.5167173095222702, 'recall': 0.35196686641890546, 'TP': 170, 'TN': 1986, 'FP': 159, 'FN': 313, 'ROC/AUC': 0.638920499790065, 'threshold': 0.26141040210239713} ***** 0.12286288898812664 *****
+{'f1': 0.41655416254528155, 'precision': 0.5551723946492279, 'recall': 0.33333332643202224, 'TP': 161, 'TN': 2016, 'FP': 129, 'FN': 322, 'ROC/AUC': 0.6365967365967365, 'threshold': 0.26141040210239713} ***** 0.1254769930091506 *****
+{'f1': 0.42761823073010163, 'precision': 0.5962962742112492, 'recall': 0.33333332643202224, 'TP': 161, 'TN': 2036, 'FP': 109, 'FN': 322, 'ROC/AUC': 0.6412587412587413, 'threshold': 0.26141040210239713} ***** 0.12809109703017457 *****
+{'f1': 0.36834107340934946, 'precision': 0.6037735564257757, 'recall': 0.26501034648011706, 'TP': 128, 'TN': 2061, 'FP': 84, 'FN': 355, 'ROC/AUC': 0.6129247564030172, 'threshold': 0.26141040210239713} ***** 0.13070520105119857 *****
+{'f1': 0.3726304572165931, 'precision': 0.6274509496347573, 'recall': 0.26501034648011706, 'TP': 128, 'TN': 2069, 'FP': 76, 'FN': 355, 'ROC/AUC': 0.6147895582678192, 'threshold': 0.26141040210239713} ***** 0.13331930507222253 *****
+{'f1': 0.2950272967857525, 'precision': 0.5900620751514238, 'recall': 0.1966873665282119, 'TP': 95, 'TN': 2079, 'FP': 66, 'FN': 388, 'ROC/AUC': 0.5829590699155918, 'threshold': 0.26141040210239713} ***** 0.1359334090932465 *****
+{'f1': 0.30110575002828804, 'precision': 0.641891848520821, 'recall': 0.1966873665282119, 'TP': 95, 'TN': 2092, 'FP': 53, 'FN': 388, 'ROC/AUC': 0.5859893729458948, 'threshold': 0.26141040210239713} ***** 0.13854751311427047 *****
+{'f1': 0.20677668473080882, 'precision': 0.5700934046641678, 'recall': 0.12629399324443077, 'TP': 61, 'TN': 2099, 'FP': 46, 'FN': 422, 'ROC/AUC': 0.5524243872069959, 'threshold': 0.26141040210239713} ***** 0.14116161713529446 *****
+{'f1': 0.21070534395292606, 'precision': 0.6354166004774374, 'recall': 0.12629399324443077, 'TP': 61, 'TN': 2110, 'FP': 35, 'FN': 422, 'ROC/AUC': 0.5549884897710985, 'threshold': 0.26141040210239713} ***** 0.14377572115631843 *****
+{'f1': 0.2110699101779518, 'precision': 0.6421051955678742, 'recall': 0.12629399324443077, 'TP': 61, 'TN': 2111, 'FP': 34, 'FN': 422, 'ROC/AUC': 0.5552215900041987, 'threshold': 0.26141040210239713} ***** 0.1463898251773424 *****
+{'f1': 0.21440867433040633, 'precision': 0.7093022431043903, 'recall': 0.12629399324443077, 'TP': 61, 'TN': 2120, 'FP': 25, 'FN': 422, 'ROC/AUC': 0.5573194921021007, 'threshold': 0.26141040210239713} ***** 0.14900392919836636 *****
+{'f1': 0.1020778033484729, 'precision': 0.5869563941399143, 'recall': 0.05590061996064969, 'TP': 27, 'TN': 2126, 'FP': 19, 'FN': 456, 'ROC/AUC': 0.5235214061301018, 'threshold': 0.26141040210239713} ***** 0.15161803321939032 *****
+{'f1': 0.10246525889005138, 'precision': 0.6136362241735853, 'recall': 0.05590061996064969, 'TP': 27, 'TN': 2128, 'FP': 17, 'FN': 456, 'ROC/AUC': 0.5239876065963023, 'threshold': 0.26141040210239713} ***** 0.1542321372404143 *****
+{'f1': 0.10285566695957254, 'precision': 0.6428569897959547, 'recall': 0.05590061996064969, 'TP': 27, 'TN': 2130, 'FP': 15, 'FN': 456, 'ROC/AUC': 0.5244538070625028, 'threshold': 0.26141040210239713} ***** 0.15684624126143826 *****
+{'f1': 0.06976624190775792, 'precision': 0.5454543801653393, 'recall': 0.037267079973766465, 'TP': 18, 'TN': 2130, 'FP': 15, 'FN': 465, 'ROC/AUC': 0.5151370368761673, 'threshold': 0.26141040210239713} ***** 0.15946034528246222 *****
+{'f1': 0.03607152213273117, 'precision': 0.5624996484377197, 'recall': 0.018633539986883232, 'TP': 9, 'TN': 2138, 'FP': 7, 'FN': 474, 'ROC/AUC': 0.5076850685546337, 'threshold': 0.26141040210239713} ***** 0.16207444930348622 *****
+{'f1': 0.03628981066953902, 'precision': 0.6923071597637233, 'recall': 0.018633539986883232, 'TP': 9, 'TN': 2141, 'FP': 4, 'FN': 474, 'ROC/AUC': 0.5083843692539345, 'threshold': 0.26141040210239713} ***** 0.16468855332451018 *****
+{'f1': 0.036436810065644504, 'precision': 0.8181810743808415, 'recall': 0.018633539986883232, 'TP': 9, 'TN': 2143, 'FP': 2, 'FN': 474, 'ROC/AUC': 0.508850569720135, 'threshold': 0.26141040210239713} ***** 0.16730265734553415 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2144, 'FP': 1, 'FN': 483, 'ROC/AUC': 0.49976689976689975, 'threshold': 0.26141040210239713} ***** 0.16991676136655814 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2144, 'FP': 1, 'FN': 483, 'ROC/AUC': 0.49976689976689975, 'threshold': 0.26141040210239713} ***** 0.1725308653875821 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2144, 'FP': 1, 'FN': 483, 'ROC/AUC': 0.49976689976689975, 'threshold': 0.26141040210239713} ***** 0.17514496940860608 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.17775907342963004 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.180373177450654 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.18298728147167798 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.18560138549270194 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.18821548951372594 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.1908295935347499 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.19344369755577387 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.19605780157679786 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.19867190559782183 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2012860096188458 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.20390011363986976 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.20651421766089373 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2091283216819177 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.21174242570294166 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.21435652972396563 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.21697063374498962 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2195847377660136 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.22219884178703755 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.22481294580806155 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.22742704982908551 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.23004115385010948 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.23265525787113345 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2352693618921574 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.23788346591318138 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.24049756993420535 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.24311167395522934 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2457257779762533 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.24833988199727727 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.25095398601830127 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.25356809003932523 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2561821940603492 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.25879629808137317 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.26141040210239713 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2640245061234211 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.26663861014444507 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.26925271416546903 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.271866818186493 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.27448092220751696 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.277095026228541 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.27970913024956495 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2823232342705889 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2849373382916129 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.28755144231263685 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2901655463336608 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2927796503546848 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.29539375437570875 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.2980078583967327 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3006219624177567 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.30323606643878065 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.30585017045980467 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.30846427448082864 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3110783785018526 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.31369248252287657 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.31630658654390054 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3189206905649245 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.32153479458594847 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.32414889860697244 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3267630026279964 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3293771066490204 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.33199121067004433 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.33460531469106836 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3372194187120923 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3398335227331163 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.34244762675414026 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3450617307751642 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3476758347961882 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.35028993881721215 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3529040428382361 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3555181468592601 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3581322508802841 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.360746354901308 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.36336045892233204 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.365974562943356 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.36858866696438 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.37120277098540394 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3738168750064279 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3764309790274519 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.37904508304847584 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3816591870694998 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.38427329109052377 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3868873951115478 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3895014991325717 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3921156031535957 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3947297071746197 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.39734381119564366 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.3999579152166676 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4025720192376916 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.40518612325871556 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4078002272797395 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.41041433130076355 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.41302843532178746 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4156425393428115 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4182566433638354 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4208707473848594 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4234848514058834 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.42609895542690734 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4287130594479313 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4313271634689553 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.43394126748997924 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4365553715110032 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.43916947553202723 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.44178357955305114 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.44439768357407516 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4470117875950991 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4496258916161231 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.45223999563714706 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.45485409965817103 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.457468203679195 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.46008230770021896 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.46269641172124293 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4653105157422669 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4679246197632909 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4705387237843148 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.47315282780533885 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.47576693182636276 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4783810358473868 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.48099513986841075 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4836092438894347 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4862233479104587 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.48883745193148265 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4914515559525066 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4940656599735306 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4966797639945546 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.4992938680155785 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5019079720366025 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5045220760576264 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5071361800786505 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5097502840996744 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5123643881206984 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5149784921417224 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5175925961627463 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5202067001837702 *****
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'TP': 0, 'TN': 2145, 'FP': 0, 'FN': 483, 'ROC/AUC': 0.5, 'threshold': 0.26141040210239713} ***** 0.5228208042047943 *****
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+findfont: Generic family 'serif' not found because none of the following families were found: Times
+{'FN': 483,
+ 'FP': 0,
+ 'Hit@100%': 0.3303611789636634,
+ 'Hit@150%': 0.48007187199733786,
+ 'NDCG@100%': 0.32972579896255766,
+ 'NDCG@150%': 0.41662855192828857,
+ 'ROC/AUC': 0.5371353284396763,
+ 'TN': 2145,
+ 'TP': 0,
+ 'auc': 0.5371353284396763,
+ 'f1': 0.0,
+ 'precision': 0.0,
+ 'recall': 0.0,
+ 'threshold': 0.26141040210239713}
+{'f1': 0.0, 'precision': 0.0, 'recall': 0.0, 'auc': 0.5371353284396763}
+
+===== RUN END =====
+exit_code: 0
+finished: 2026-10-27T21:49:40+08:00
+log: /root/gpufree-data/DTAAD/DTAAD_64_n2/logs/xuji_28_DTAAD_e5_20261027_214640.log

@@ -1,12 +1,10 @@
 node_modules/
 .venv/
-/data/source/
-/data/models/
-/data/reference/
 .runtime/
 __pycache__/
 *.pyc
 *.log
+!/data/source/**/logs/*.log
 .env
 .env.*
 !.env.example
