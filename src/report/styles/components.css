@@ -780,7 +780,10 @@ details[open] > summary::before {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  white-space: nowrap;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
   color: var(--muted);
 }
 .note-anchor {

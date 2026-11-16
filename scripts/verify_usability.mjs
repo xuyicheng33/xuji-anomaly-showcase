@@ -3,6 +3,31 @@ import assert from 'node:assert/strict';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { launchBrowser, showcaseUrl, selectFeature } from './browser.mjs';
 
+function pageLayout() {
+  return {
+    viewport: innerWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+    overflow: [...document.querySelectorAll('body *')]
+      .filter((element) => element.getBoundingClientRect().right > innerWidth)
+      .filter((element) => {
+        for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+          if (['auto', 'scroll', 'hidden', 'clip'].includes(getComputedStyle(parent).overflowX))
+            return false;
+        }
+        return true;
+      })
+      .map((element) => ({
+        note: element.closest('.explanation-entry')?.id,
+        tag: element.tagName,
+        className: element.getAttribute('class'),
+        text: element.textContent.slice(0, 100),
+        right: element.getBoundingClientRect().right,
+        font: getComputedStyle(element).fontFamily,
+      }))
+      .slice(0, 20),
+  };
+}
+
 const base = showcaseUrl;
 const out = qaDirectory('usability');
 await mkdir(out, { recursive: true });
@@ -98,28 +123,7 @@ try {
     assert.equal(await labelTable.locator('thead th').count(), 5);
     assert.ok(await labelTable.evaluate((element) => element.scrollWidth <= element.clientWidth));
     await page.evaluate(() => (document.documentElement.style.zoom = '2'));
-    const explanationLayout = await page.evaluate(() => ({
-      viewport: innerWidth,
-      scrollWidth: document.documentElement.scrollWidth,
-      overflow: [...document.querySelectorAll('.explanation-page *')]
-        .filter((element) => element.getBoundingClientRect().right > innerWidth)
-        .filter((element) => {
-          for (let parent = element.parentElement; parent; parent = parent.parentElement) {
-            if (['auto', 'scroll', 'hidden', 'clip'].includes(getComputedStyle(parent).overflowX))
-              return false;
-          }
-          return true;
-        })
-        .map((element) => ({
-          note: element.closest('.explanation-entry')?.id,
-          tag: element.tagName,
-          className: element.getAttribute('class'),
-          text: element.textContent.slice(0, 100),
-          right: element.getBoundingClientRect().right,
-          font: getComputedStyle(element).fontFamily,
-        }))
-        .slice(0, 20),
-    }));
+    const explanationLayout = await page.evaluate(pageLayout);
     await page.screenshot({ path: out + '/' + width + '-explanation-200.png' });
     assert.ok(
       explanationLayout.scrollWidth <= explanationLayout.viewport,
@@ -172,7 +176,12 @@ try {
         await page.locator('.calculation-table .selected-sensor td').allTextContents(),
       );
       await page.evaluate(() => (document.documentElement.style.zoom = '2'));
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      const detailLayout = await page.evaluate(pageLayout);
+      await page.screenshot({ path: out + '/' + width + '-calculation-200.png' });
+      assert.ok(
+        detailLayout.scrollWidth <= detailLayout.viewport,
+        'Calculation page overflow at 200%: ' + JSON.stringify(detailLayout),
+      );
       const contained = await detail.evaluate((e) => e.scrollWidth <= e.clientWidth);
       assert.equal(contained, true);
       await detail.screenshot({ path: out + '/' + width + '-detail-200.png' });
