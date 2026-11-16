@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import path from 'node:path';
 import { readFile, writeFile } from 'node:fs/promises';
+import { stripVTControlCharacters } from 'node:util';
 import { chromium } from 'playwright';
 import { browserOptions } from './browser.mjs';
 
@@ -42,7 +43,7 @@ try {
       server.stdout.on('data', (chunk) => {
         process.stdout.write(chunk);
         output += chunk.toString();
-        if (output.includes(base)) {
+        if (stripVTControlCharacters(output).includes(base)) {
           started = true;
           clearTimeout(timeout);
           resolve();
