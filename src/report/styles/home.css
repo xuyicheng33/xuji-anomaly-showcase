@@ -44,18 +44,18 @@
 }
 .large-index {
   font-family: var(--numeral);
-  font-size: 43px;
+  font-size: var(--text-5xl);
   color: #7c8577;
   line-height: 1.1;
 }
 .chapter-list h2 {
-  font-size: 23px;
+  font-size: var(--text-2xl);
   margin: 0;
   line-height: 1.55;
 }
 .chapter-entry-arrow {
   font-family: var(--sans);
-  font-size: 20px;
+  font-size: var(--text-xl);
   color: var(--muted);
   transition:
     transform var(--motion-fast),
@@ -89,6 +89,6 @@
     padding: 24px 0;
   }
   .chapter-list h2 {
-    font-size: 21px;
+    font-size: var(--text-xl);
   }
 }

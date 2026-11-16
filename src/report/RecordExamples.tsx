@@ -1,3 +1,4 @@
+import { SelectionIndicator } from './ReportUI';
 import TableScrollHint from './TableScrollHint';
 import { useEffect, useState } from 'react';
 import type { Journey } from '../journey';
@@ -17,6 +18,7 @@ export default function RecordExamples({ data }: { data: Journey }) {
   return (
     <div className="record-examples">
       <div className="segmented record-example-tabs" aria-label="数据处理例子">
+        <SelectionIndicator />
         {(
           [
             ['raw', '原始数据'],
@@ -84,6 +86,7 @@ export default function RecordExamples({ data }: { data: Journey }) {
           <div className="example-heading">
             <h3>缺失值填补</h3>
             <div className="segmented" aria-label="说明页缺失片段">
+              <SelectionIndicator />
               {cleaning.missingExamples.map((sample, example) => (
                 <button
                   key={sample.key}
@@ -102,6 +105,7 @@ export default function RecordExamples({ data }: { data: Journey }) {
           <div className="example-heading">
             <h3>无效记录裁剪</h3>
             <div className="segmented" aria-label="无效记录位置">
+              <SelectionIndicator />
               {cleaning.cropExamples.map((sample, block) => (
                 <button
                   key={block}

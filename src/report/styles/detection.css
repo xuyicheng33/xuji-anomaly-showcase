@@ -11,10 +11,8 @@
   grid-template-columns: auto minmax(100px, 1fr) auto 180px;
   align-items: center;
   gap: 20px;
-  background: var(--surface-soft);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-panel);
-  padding: 20px;
+  border-block: 1px solid var(--line);
+  padding: 18px 0;
 }
 .selection-panel > input {
   min-width: 0;
@@ -24,7 +22,7 @@
   width: 100px;
 }
 .selection-panel > span {
-  font-size: var(--text-control);
+  font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -40,7 +38,7 @@
 }
 .input-hint {
   margin-top: 8px;
-  font-size: var(--text-small);
+  font-size: var(--text-xs);
   color: var(--muted);
 }
 .input-hint.invalid {
@@ -50,23 +48,7 @@
   border-color: var(--negative);
 }
 .example-picker {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
   margin: 0 0 16px;
-  font-size: var(--text-small);
-  color: var(--muted);
-}
-.example-picker button {
-  font-size: var(--text-small);
-  min-height: var(--control-height);
-  padding: 8px 12px;
-}
-.example-picker button[aria-pressed='true'] {
-  border-color: var(--selected-border);
-  color: var(--blue);
-  background: var(--selected);
 }
 .evaluation-context {
   display: flex;
@@ -133,7 +115,7 @@
     grid-column: 1;
     grid-row: 1;
     width: auto;
-    font-size: var(--text-small);
+    font-size: var(--text-xs);
     flex-wrap: wrap;
     gap: 4px 8px;
   }
@@ -145,7 +127,7 @@
     grid-column: 2;
     grid-row: 2;
     text-align: right;
-    font-size: var(--text-small);
+    font-size: var(--text-xs);
   }
   .selection-panel > input {
     grid-column: 1;
@@ -156,7 +138,7 @@
     grid-row: 1;
     width: 100%;
     padding-inline: 8px;
-    font-size: var(--text-small);
+    font-size: var(--text-xs);
   }
   .time-range {
     margin-block: 8px;
@@ -172,7 +154,7 @@
 @media (min-width: 241px) and (max-width: 380px) {
   .example-picker button {
     padding-inline: 2px;
-    font-size: 12px;
+    font-size: var(--text-2xs);
     white-space: nowrap;
   }
   .selection-panel > .field {

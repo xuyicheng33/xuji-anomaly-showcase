@@ -1,7 +1,7 @@
 import AnomalyResult from './AnomalyResult';
 import InfoTip from './InfoTip';
 import type { Journey, Model } from '../journey';
-import { Heading, colors } from './ReportUI';
+import { Heading, SelectionIndicator, colors } from './ReportUI';
 import Curve from './Curve';
 import { Footnote } from './notes';
 import LengthConstruction from './LengthConstruction';
@@ -114,6 +114,7 @@ export default function AnomalyChapter({
               >
                 <div className="case-stage-toolbar">
                   <div className="segmented case-steps" role="group" aria-label="构造步骤">
+                    <SelectionIndicator />
                     {steps.map((s, i) => (
                       <button key={s} aria-pressed={phase === i} onClick={() => jump(i)}>
                         {s}
@@ -352,7 +353,7 @@ export default function AnomalyChapter({
               )}
               <div className="case-result-action">
                 <button
-                  className="primary"
+                  className="secondary"
                   onClick={() => {
                     setPlaying(false);
                     setProgress(1);

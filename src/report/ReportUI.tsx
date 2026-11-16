@@ -12,6 +12,48 @@ export const colors = {
   ink: 'var(--muted)',
   muted: 'var(--chart-muted)',
 };
+/** One plate that slides to the pressed button of its segmented group. */
+export function SelectionIndicator() {
+  const ref = useRef<HTMLElement>(null),
+    [box, setBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null),
+    [ready, setReady] = useState(false);
+  useLayoutEffect(() => {
+    const group = ref.current?.parentElement;
+    if (!group) return;
+    const update = () => {
+      const b = group.querySelector<HTMLElement>(':scope > button[aria-pressed=true]');
+      setBox(
+        b
+          ? { x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight }
+          : null,
+      );
+    };
+    update();
+    const frame = requestAnimationFrame(() => setReady(true));
+    const resize = new ResizeObserver(update);
+    resize.observe(group);
+    for (const child of group.children) resize.observe(child);
+    const pressed = new MutationObserver(update);
+    pressed.observe(group, { subtree: true, childList: true, attributeFilter: ['aria-pressed'] });
+    return () => {
+      cancelAnimationFrame(frame);
+      resize.disconnect();
+      pressed.disconnect();
+    };
+  }, []);
+  return (
+    <i
+      ref={ref}
+      aria-hidden="true"
+      className={'selection-indicator' + (ready ? ' is-ready' : '')}
+      style={
+        box
+          ? { left: box.x, top: box.y, width: box.width, height: box.height }
+          : { opacity: 0, width: 0, height: 0 }
+      }
+    />
+  );
+}
 export function ModelSelect({
   data,
   value,
@@ -21,27 +63,11 @@ export function ModelSelect({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null),
-    [box, setBox] = useState({ x: 4, y: 4, width: 0, height: 0 });
-  useLayoutEffect(() => {
-    const update = () => {
-      const b = ref.current?.querySelector<HTMLButtonElement>('[aria-pressed=true]');
-      if (b)
-        setBox({ x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight });
-    };
-    update();
-    const o = new ResizeObserver(update);
-    if (ref.current) o.observe(ref.current);
-    return () => o.disconnect();
-  }, [value, data]);
   if (data.models.length === 1)
     return <span className="model-identity">{modelName(data.models[0])}</span>;
   return (
-    <div ref={ref} className="segmented model-select" aria-label="选择模型">
-      <i
-        className="selection-indicator"
-        style={{ left: box.x, top: box.y, width: box.width, height: box.height }}
-      />
+    <div className="segmented model-select" aria-label="选择模型">
+      <SelectionIndicator />
       {data.models.map((m) => (
         <button key={m.id} aria-pressed={value === m.id} onClick={() => onChange(m.id)}>
           {modelName(m)}
