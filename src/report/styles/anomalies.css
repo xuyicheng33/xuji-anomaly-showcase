@@ -25,14 +25,11 @@
   width: 100%;
 }
 .case-methods button {
-  padding: 10px 14px;
+  padding-inline: 14px;
 }
 .case-methods strong {
-  font-family: var(--serif);
-  font-weight: 500;
-  font-size: var(--text-lg);
   display: block;
-  margin-bottom: 0;
+  font-weight: inherit;
 }
 .case-kinds {
   display: grid;
@@ -385,20 +382,7 @@
   flex-shrink: 0;
 }
 .reference-steps {
-  display: flex;
-  gap: 6px;
   margin-bottom: 20px;
-}
-.reference-steps button {
-  padding: 8px 12px;
-  font-size: var(--text-xs);
-  min-height: var(--control-height);
-  border-color: transparent;
-}
-.reference-steps button[aria-pressed='true'] {
-  border-color: var(--selected-border);
-  background: var(--selected);
-  color: var(--blue);
 }
 .reference-rule {
   color: var(--muted);
@@ -816,12 +800,7 @@
     margin-top: 4px;
   }
   .reference-steps {
-    gap: 3px;
     margin-bottom: 12px;
-  }
-  .reference-steps button {
-    flex: 1;
-    padding: 8px 3px;
   }
   .reference-construction .curve-top {
     flex-wrap: wrap;

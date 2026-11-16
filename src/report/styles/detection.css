@@ -108,7 +108,7 @@
   }
   .selection-panel {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    padding: 14px;
+    padding: 14px 0;
     gap: 8px 12px;
   }
   .selection-panel > .field {
@@ -124,13 +124,14 @@
     padding-inline: 8px;
   }
   .selection-panel > span {
-    grid-column: 2;
-    grid-row: 2;
+    grid-column: 1 / -1;
+    grid-row: 3;
     text-align: right;
     font-size: var(--text-xs);
+    color: var(--muted);
   }
   .selection-panel > input {
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 2;
   }
   .selection-panel .primary {

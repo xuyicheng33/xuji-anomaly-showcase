@@ -10,11 +10,14 @@
 }
 .data-ledger > div {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-direction: column;
   gap: 8px;
-  padding: 0 16px;
-  text-align: center;
+  padding: 0 24px;
+  text-align: left;
+}
+.data-ledger > div:first-child {
+  padding-left: 0;
 }
 .data-ledger > div + div {
   border-left: 1px solid var(--line);
@@ -75,7 +78,7 @@
   inset: -1px auto auto 0;
   width: 40px;
   height: 2px;
-  background: var(--chart-input);
+  background: var(--ink);
 }
 .balanced-split > div + div {
   padding-left: 28px;
@@ -131,11 +134,14 @@
   margin: 4px 0 25px;
 }
 .normalization-facts > div {
-  text-align: center;
-  padding: 0 16px;
+  text-align: left;
+  padding: 0 24px;
   display: flex;
   flex-direction: column;
   gap: 11px;
+}
+.normalization-facts > div:first-child {
+  padding-left: 0;
 }
 .normalization-facts > div + div {
   border-left: 1px solid var(--line);
@@ -214,6 +220,7 @@
   }
   .data-ledger > div:nth-child(3) {
     border-left: 0;
+    padding-left: 0;
   }
   .data-ledger strong {
     font-size: var(--text-4xl);
@@ -248,6 +255,7 @@
   .normalization-facts > div:last-child {
     grid-column: 1/-1;
     border-left: 0;
+    padding-left: 0;
     padding-top: 16px;
     border-top: 1px solid var(--line);
   }
@@ -442,9 +450,9 @@
 .trim-action button {
   flex-shrink: 0;
   font-size: var(--text-sm);
+  font-weight: 500;
   min-height: var(--control-height);
-  color: var(--blue);
-  border-color: var(--selected-border);
+  color: var(--ink);
 }
 .trim-action > span {
   font-size: var(--text-xs);

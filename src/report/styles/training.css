@@ -3,15 +3,18 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   padding: 27px 0 0;
   gap: 0;
-  text-align: center;
+  text-align: left;
 }
 .training-metrics strong {
   font-size: var(--text-3xl);
   font-variant-numeric: tabular-nums;
-  padding-inline: 12px;
+  padding-inline: 24px;
   color: var(--data);
   white-space: nowrap;
   overflow-wrap: normal;
+}
+.training-metrics strong:first-child {
+  padding-left: 0;
 }
 .training-metrics strong + strong {
   border-left: 1px solid var(--line);

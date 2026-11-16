@@ -381,7 +381,7 @@
   }
   .playback-page .table-scroll thead th:first-child {
     z-index: 3;
-    background: var(--surface);
+    background: var(--paper);
   }
 }
 @container (max-width: 220px) {

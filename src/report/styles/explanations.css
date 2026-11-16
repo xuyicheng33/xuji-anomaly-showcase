@@ -147,13 +147,13 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  background: var(--surface);
+  background: var(--paper);
 }
 .window-score-scroll thead th {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: var(--surface);
+  background: var(--paper);
 }
 .calculation-table tbody th:first-child {
   position: sticky;

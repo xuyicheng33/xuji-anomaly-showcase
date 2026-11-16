@@ -327,7 +327,7 @@
   border: 1px solid transparent;
   min-height: var(--control-height);
   padding: 8px 10px;
-  color: var(--muted);
+  color: var(--blue);
   font-size: var(--text-sm);
 }
 .inline-link {
@@ -778,7 +778,11 @@ details[open] > summary::before {
 .confusion {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 4px;
+  gap: 1px;
+  overflow: hidden;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
 }
 .confusion-cell {
   display: grid;
@@ -787,24 +791,13 @@ details[open] > summary::before {
   align-items: center;
   min-height: 80px;
   padding: 16px;
-  background: var(--surface-soft);
+  background: var(--paper);
   border: 1px solid transparent;
   transition:
     background var(--motion-normal) var(--ease-out),
     border-color var(--motion-normal) var(--ease-out);
 }
-.confusion-cell:first-child {
-  border-top-left-radius: var(--radius-control);
-}
-.confusion-cell:nth-child(2) {
-  border-top-right-radius: var(--radius-control);
-}
-.confusion-cell:nth-child(3) {
-  border-bottom-left-radius: var(--radius-control);
-}
-.confusion-cell:last-child {
-  border-bottom-right-radius: var(--radius-control);
-}
+
 .confusion-cell > span {
   white-space: nowrap;
   font-size: var(--text-xs);
@@ -919,7 +912,7 @@ details[open] > summary::before {
   position: sticky;
   top: 0;
   z-index: 2;
-  background: var(--surface);
+  background: var(--paper);
 }
 .reference-table-hint {
   font-size: var(--text-xs);
@@ -1154,6 +1147,7 @@ details[open] > summary::before {
     margin-left: auto;
     border-color: transparent;
     border-radius: var(--radius-pill);
+    background: var(--surface-soft);
     font-size: var(--text-sm);
     font-weight: 500;
   }
