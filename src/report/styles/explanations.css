@@ -302,7 +302,7 @@
 }
 .explanation-navigation {
   position: sticky;
-  top: 0;
+  top: var(--sticky-top);
   z-index: 10;
   background: var(--paper);
   border-block: 1px solid var(--line);
@@ -342,7 +342,7 @@
   max-height: min(65dvh, 560px);
   overflow-y: auto;
   overscroll-behavior: contain;
-  animation: feature-open var(--motion-fast) ease-out;
+  animation: feature-open var(--motion-normal) var(--ease-out);
 }
 .explanation-index a {
   display: flex;
@@ -389,6 +389,12 @@
   margin-left: auto;
   font-size: var(--text-xs);
   white-space: nowrap;
+  color: var(--muted);
+  text-decoration-color: transparent;
+}
+.explanation-heading .note-return:is(:hover, :focus-visible) {
+  color: var(--blue);
+  text-decoration-color: currentColor;
 }
 .explanation-body {
   padding-left: 48px;
@@ -436,7 +442,72 @@
   font-size: var(--text-2xl);
 }
 .explanation-entry:focus .explanation-heading {
-  animation: note-focus 1.6s ease-out;
+  animation: note-focus 1.6s var(--ease-out);
+}
+@media (min-width: 1121px) {
+  .explanation-page {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr);
+    column-gap: 56px;
+  }
+  .explanation-page > * {
+    grid-column: 2;
+  }
+  .explanation-page > .chapter-heading {
+    grid-column: 1 / -1;
+  }
+  .explanation-navigation {
+    grid-column: 1;
+    grid-row: 2 / span 60;
+    align-self: start;
+    top: calc(var(--sticky-top) + 28px);
+    z-index: 1;
+    background: none;
+    border: 0;
+  }
+  .explanation-index-toggle {
+    display: none;
+  }
+  .explanation-index {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    padding: 4px 0;
+    border: 0;
+    border-left: 1px solid var(--line);
+    background: none;
+    box-shadow: none;
+    max-height: calc(100dvh - var(--sticky-top) - 56px);
+    animation: none;
+  }
+  .explanation-index a {
+    gap: 10px;
+    margin-left: -1px;
+    padding: 7px 0 7px 16px;
+    border-left: 1.5px solid transparent;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    line-height: 1.5;
+    transition:
+      color var(--motion-fast) var(--ease-out),
+      border-color var(--motion-normal) var(--ease-out);
+  }
+  .explanation-index a:hover {
+    color: var(--ink);
+  }
+  .explanation-index a[aria-current] {
+    color: var(--ink);
+    font-weight: 500;
+    border-left-color: var(--blue);
+  }
+  .explanation-entry {
+    scroll-margin-top: 28px;
+  }
+  .explanation-entry:first-of-type {
+    border-top: 0;
+    padding-top: 8px;
+  }
 }
 @media (max-width: 1050px) {
   .calculation-layout {
@@ -489,7 +560,7 @@
   }
   .calculation-details[data-expanded='true'] .calculation-rows {
     padding-top: 20px;
-    animation: arrive var(--motion-normal) ease-out;
+    animation: arrive var(--motion-normal) var(--ease-out);
   }
   .sensor-calculation-detail {
     display: block;

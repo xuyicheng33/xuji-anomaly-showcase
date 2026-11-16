@@ -89,6 +89,80 @@
 .curve > svg path {
   vector-effect: non-scaling-stroke;
 }
+.curve {
+  position: relative;
+}
+/* Lines are drawn left to right the first time a chart appears. */
+.curve-lines {
+  animation: curve-draw 900ms var(--ease-out) backwards;
+}
+@keyframes curve-draw {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.curve-hover line {
+  stroke: var(--chart-cursor);
+  stroke-opacity: 0.55;
+}
+.curve-hover circle {
+  fill: var(--paper);
+  stroke-width: 2;
+}
+.curve-readout {
+  position: absolute;
+  top: 44px;
+  z-index: 5;
+  display: grid;
+  gap: 4px;
+  min-width: 140px;
+  padding: 10px 12px;
+  margin-left: 14px;
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  box-shadow: 0 8px 24px #2429231a;
+  font-size: var(--text-2xs);
+  color: var(--muted);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: readout-in var(--motion-fast) var(--ease-out);
+}
+.curve-readout.is-left {
+  margin-left: 0;
+  translate: calc(-100% - 14px) 0;
+}
+.curve-readout > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.curve-readout > span:first-child {
+  margin-bottom: 2px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.curve-readout i {
+  width: 8px;
+  height: 2px;
+  border-radius: 1px;
+}
+.curve-readout strong {
+  margin-left: auto;
+  padding-left: 14px;
+  font-family: var(--metric);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--data);
+}
+@keyframes readout-in {
+  from {
+    opacity: 0;
+  }
+}
 .curve-loading {
   min-height: 270px;
   display: flex;

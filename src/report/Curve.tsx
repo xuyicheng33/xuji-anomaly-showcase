@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { colors } from './ReportUI';
 import { curveDomain, curveTick } from './curveScale';
 import { Footnote, type NoteId } from './notes';
@@ -50,6 +50,7 @@ export default function Curve({
 }) {
   const { container, width, left: L, right: R } = usePlotGeometry();
   const uid = useId().replace(/:/g, '');
+  const [hover, setHover] = useState<number | null>(null);
   const W = width,
     T = 20,
     B = 32,
@@ -75,6 +76,28 @@ export default function Curve({
       })
       .join(' ');
   };
+  const indexAt = (clientX: number, box: DOMRect) =>
+    Math.max(
+      0,
+      Math.min(
+        n - 1,
+        Math.round(((((clientX - box.left) / box.width) * W - L) / (W - L - R)) * (n - 1)),
+      ),
+    );
+  const track = (event: ReactPointerEvent<SVGSVGElement>) => {
+    if (event.pointerType !== 'mouse') return;
+    const i = indexAt(event.clientX, event.currentTarget.getBoundingClientRect());
+    const shown = reveal === undefined || i < reveal;
+    setHover(shown ? i : null);
+  };
+  const hoverValues =
+    hover === null
+      ? []
+      : lines.flatMap((l) => {
+          const v = l.values[hover];
+          return v === null || v === undefined || !Number.isFinite(v) ? [] : [{ ...l, v }];
+        });
+  const digits = threshold !== undefined ? 9 : 4;
   const intervals: { start: number; end: number }[] = [];
   labels.slice(0, Math.min(n, reveal ?? n)).forEach((value, i) => {
     if (!value) return;
@@ -132,18 +155,9 @@ export default function Curve({
                   ),
           );
         }}
-        onClick={(e) => {
-          const r = e.currentTarget.getBoundingClientRect();
-          onSelect?.(
-            Math.max(
-              0,
-              Math.min(
-                n - 1,
-                Math.round(((((e.clientX - r.left) / r.width) * W - L) / (W - L - R)) * (n - 1)),
-              ),
-            ),
-          );
-        }}
+        onClick={(e) => onSelect?.(indexAt(e.clientX, e.currentTarget.getBoundingClientRect()))}
+        onPointerMove={track}
+        onPointerLeave={() => setHover(null)}
       >
         <defs>
           <clipPath id={uid}>
@@ -217,18 +231,28 @@ export default function Curve({
               strokeDasharray="7 5"
             />
           )}
-          {lines.map((l) => (
-            <path
-              key={l.name}
-              d={path(l.values)}
-              fill="none"
-              stroke={l.color}
-              opacity={l.opacity ?? 1}
-              strokeWidth="2"
-              strokeDasharray={l.dash ? '6 4' : undefined}
-              strokeLinejoin="round"
-            />
-          ))}
+          <g className="curve-lines">
+            {lines.map((l) => (
+              <path
+                key={l.name}
+                d={path(l.values)}
+                fill="none"
+                stroke={l.color}
+                opacity={l.opacity ?? 1}
+                strokeWidth="2"
+                strokeDasharray={l.dash ? '6 4' : undefined}
+                strokeLinejoin="round"
+              />
+            ))}
+          </g>
+          {hover !== null && hover !== selected && (
+            <g className="curve-hover" aria-hidden="true">
+              <line x1={x(hover)} x2={x(hover)} y1={T} y2={height - B} />
+              {hoverValues.map((l) => (
+                <circle key={l.name} cx={x(hover)} cy={y(l.v)} r="3.5" stroke={l.color} />
+              ))}
+            </g>
+          )}
           {selected !== undefined && selected >= 0 && (
             <g>
               <line
@@ -275,6 +299,22 @@ export default function Curve({
           );
         })}
       </svg>
+      {hover !== null && hoverValues.length > 0 && (
+        <div
+          className={'curve-readout' + (x(hover) > W * 0.62 ? ' is-left' : '')}
+          style={{ left: `${(x(hover) / W) * 100}%` }}
+          aria-hidden="true"
+        >
+          <span>{times?.[hover] ?? '第 ' + (start + hover + 1) + ' ' + axisUnit}</span>
+          {hoverValues.map((l) => (
+            <span key={l.name}>
+              <i style={{ background: l.color }} />
+              {l.name}
+              <strong>{l.v.toFixed(digits)}</strong>
+            </span>
+          ))}
+        </div>
+      )}
       {width < 240 && (
         <p className="curve-range">
           {times ? `${times[0]} — ${times[n - 1]}` : `第 ${start + 1}—${start + n} ${axisUnit}`}

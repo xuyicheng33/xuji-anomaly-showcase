@@ -1,11 +1,25 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { notes } from './notes';
 
+const sidebarQuery = '(min-width: 1121px)';
+/** Wide screens keep the index beside the notes instead of behind a toggle. */
+function useSidebar() {
+  const [sidebar, setSidebar] = useState(() => matchMedia(sidebarQuery).matches);
+  useEffect(() => {
+    const query = matchMedia(sidebarQuery);
+    const update = () => setSidebar(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  return sidebar;
+}
+
 export default function ExplanationIndex({ address }: { address: string }) {
   const params = new URLSearchParams(address.split('?')[1] ?? '');
   const requested = params.get('note');
   const [active, setActive] = useState(requested ?? notes[0].id);
   const [open, setOpen] = useState(false);
+  const sidebar = useSidebar();
   const nav = useRef<HTMLElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
 
@@ -26,11 +40,15 @@ export default function ExplanationIndex({ address }: { address: string }) {
   }, []);
 
   useEffect(() => {
+    const sidebar = matchMedia(sidebarQuery);
     let frame = 0;
     const update = () => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
-        const edge = (nav.current?.getBoundingClientRect().height ?? 0) + 40;
+        const pinned = sidebar.matches ? document.querySelector('.site-header') : nav.current;
+        // Notes settle 44px below the header (sidebar) or 40px below the index bar; keep slack.
+        const edge =
+          Math.max(0, pinned?.getBoundingClientRect().bottom ?? 0) + (sidebar.matches ? 72 : 56);
         let current: string = notes[0].id;
         for (const note of notes) {
           if (
@@ -90,7 +108,7 @@ export default function ExplanationIndex({ address }: { address: string }) {
         </span>
         <span aria-hidden="true">{open ? '收起' : '展开'}</span>
       </button>
-      <div id="explanation-index" className="explanation-index" hidden={!open}>
+      <div id="explanation-index" className="explanation-index" hidden={!open && !sidebar}>
         {notes.map((note, i) => (
           <a
             key={note.id}

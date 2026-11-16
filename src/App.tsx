@@ -9,6 +9,8 @@ import ReportFailure from './report/ReportFailure';
 import { pausePresentation, rememberNoteOrigin } from './report/notes';
 import ChapterNavigation from './report/ChapterNavigation';
 import DatasetSwitch from './report/DatasetSwitch';
+import { SelectionIndicator } from './report/ReportUI';
+import { useScrolledHeader } from './report/useScrolledHeader';
 const DataChapter = lazyChapter(() => import('./report/DataChapter'));
 const AnomalyChapter = lazyChapter(() => import('./report/AnomalyChapter'));
 const ModelsChapter = lazyChapter(async () => {
@@ -57,6 +59,7 @@ export default function App() {
   const [feature, setFeature] = useState(5);
   const [start, setStart] = useState(107);
   const [viewFeature, setViewFeature] = useState(-1);
+  useScrolledHeader();
   const model = data?.models.find((m) => m.id === modelId) ?? data?.models[0];
   const selectedFeature = data ? Math.min(feature, data.features.length - 1) : feature;
   const selectedStart = data ? Math.min(start, data.times.length - data.window) : start;
@@ -95,6 +98,7 @@ export default function App() {
           aria-label="章节导航"
           onClick={() => setMenu(false)}
         >
+          <SelectionIndicator selector=":scope > a[aria-current=page]" className="nav-indicator" />
           {chapters.map(({ id, name }) => (
             <a key={id} href={'#/' + id} aria-current={page === id ? 'page' : undefined}>
               {name}
@@ -112,8 +116,9 @@ export default function App() {
           </a>
         </nav>
       </header>
+      {menu && <div className="menu-scrim" aria-hidden="true" onClick={() => setMenu(false)} />}
       <main id="main" tabIndex={-1} className="site-main">
-        <div hidden={page === 'metrics'} key={contentPage}>
+        <div className="chapter-stage" hidden={page === 'metrics'} key={contentPage}>
           <ReportFailure contained>
             <Suspense fallback={loading}>
               <ChapterReady

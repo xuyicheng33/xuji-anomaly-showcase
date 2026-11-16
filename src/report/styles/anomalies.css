@@ -7,7 +7,7 @@
 }
 .case-navigation {
   position: sticky;
-  top: calc(var(--header-height) + 24px);
+  top: calc(var(--sticky-top) + 24px);
 }
 .case-nav-group + .case-nav-group {
   margin-top: 42px;
@@ -118,6 +118,23 @@
 .case-steps {
   flex-wrap: nowrap;
 }
+.case-steps button::after {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 4px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--blue);
+  transform: scaleX(var(--fill, 0));
+  transform-origin: left center;
+  opacity: 0;
+  transition: opacity var(--motion-normal) var(--ease-out);
+}
+.case-steps[data-playing] button::after {
+  opacity: 0.85;
+}
 .case-context {
   display: flex;
   align-items: center;
@@ -162,7 +179,7 @@
   border-radius: 1px;
   background: #dce0d4;
   min-width: 0;
-  transition: background 0.25s;
+  transition: background var(--motion-normal) var(--ease-out);
 }
 .case-label-cells button:active:not(:disabled) {
   transform: translateX(-50%);
@@ -620,7 +637,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 24px;
     padding-top: 22px;
-    animation: case-options-in 0.2s ease-out;
+    animation: case-options-in var(--motion-normal) var(--ease-out);
   }
   .case-nav-group + .case-nav-group {
     margin-top: 0;

@@ -130,7 +130,7 @@
   display: block;
   height: 100%;
   background: var(--chart-score);
-  transition: width 140ms ease-out;
+  transition: width var(--motion-fast) var(--ease-out);
 }
 .contribution-list[data-playing='true'] .contribution-track i {
   transition: none;

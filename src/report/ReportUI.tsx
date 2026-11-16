@@ -13,7 +13,13 @@ export const colors = {
   muted: 'var(--chart-muted)',
 };
 /** One plate that slides to the pressed button of its segmented group. */
-export function SelectionIndicator() {
+export function SelectionIndicator({
+  selector = ':scope > button[aria-pressed=true]',
+  className = 'selection-indicator',
+}: {
+  selector?: string;
+  className?: string;
+}) {
   const ref = useRef<HTMLElement>(null),
     [box, setBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null),
     [ready, setReady] = useState(false);
@@ -21,7 +27,7 @@ export function SelectionIndicator() {
     const group = ref.current?.parentElement;
     if (!group) return;
     const update = () => {
-      const b = group.querySelector<HTMLElement>(':scope > button[aria-pressed=true]');
+      const b = group.querySelector<HTMLElement>(selector);
       setBox(
         b
           ? { x: b.offsetLeft, y: b.offsetTop, width: b.offsetWidth, height: b.offsetHeight }
@@ -33,19 +39,25 @@ export function SelectionIndicator() {
     const resize = new ResizeObserver(update);
     resize.observe(group);
     for (const child of group.children) resize.observe(child);
+    window.addEventListener('resize', update);
     const pressed = new MutationObserver(update);
-    pressed.observe(group, { subtree: true, childList: true, attributeFilter: ['aria-pressed'] });
+    pressed.observe(group, {
+      subtree: true,
+      childList: true,
+      attributeFilter: ['aria-pressed', 'aria-current'],
+    });
     return () => {
       cancelAnimationFrame(frame);
       resize.disconnect();
       pressed.disconnect();
+      window.removeEventListener('resize', update);
     };
-  }, []);
+  }, [selector]);
   return (
     <i
       ref={ref}
       aria-hidden="true"
-      className={'selection-indicator' + (ready ? ' is-ready' : '')}
+      className={className + (ready ? ' is-ready' : '')}
       style={
         box
           ? { left: box.x, top: box.y, width: box.width, height: box.height }
@@ -164,7 +176,9 @@ export function Confusion({
             aria-label={`${name}，${desc}：${count}`}
           >
             <span>{name}</span>
-            <strong>{count}</strong>
+            <strong key={String(count)} className="value-tick">
+              {count}
+            </strong>
           </div>
         ))}
       </div>
@@ -181,7 +195,9 @@ export function Rates({ metrics }: { metrics: Metrics }) {
       ].map(([k, v]) => (
         <div key={k}>
           <span>{k}</span>
-          <strong>{pct(v as number | null)}</strong>
+          <strong key={pct(v as number | null)} className="value-tick">
+            {pct(v as number | null)}
+          </strong>
         </div>
       ))}
     </div>
@@ -210,7 +226,10 @@ export function ResultSummary({
       <span className="result-summary-scope">{scope}</span>
       <div className="result-summary-values">
         <span>
-          逐点F1<strong>{pct(metrics.f1)}</strong>
+          逐点F1
+          <strong key={pct(metrics.f1)} className="value-tick">
+            {pct(metrics.f1)}
+          </strong>
         </span>
       </div>
       {children}

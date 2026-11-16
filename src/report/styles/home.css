@@ -40,7 +40,26 @@
   gap: 22px;
   padding: 32px 0;
   border-bottom: 1px solid var(--line);
-  transition: color var(--motion-fast);
+  transition: color var(--motion-fast) var(--ease-out);
+  animation: stage-in var(--motion-slow) var(--ease-out) backwards;
+}
+.chapter-list > a:nth-child(1) {
+  animation-delay: 160ms;
+}
+.chapter-list > a:nth-child(2) {
+  animation-delay: 200ms;
+}
+.chapter-list > a:nth-child(3) {
+  animation-delay: 240ms;
+}
+.chapter-list > a:nth-child(4) {
+  animation-delay: 280ms;
+}
+.chapter-list > a:nth-child(5) {
+  animation-delay: 320ms;
+}
+.chapter-list > a:nth-child(6) {
+  animation-delay: 360ms;
 }
 .large-index {
   font-family: var(--numeral);
@@ -58,8 +77,8 @@
   font-size: var(--text-xl);
   color: var(--muted);
   transition:
-    transform var(--motion-fast),
-    color var(--motion-fast);
+    transform var(--motion-normal) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
 }
 .chapter-list > a:is(:hover, :focus-visible) {
   color: var(--blue);

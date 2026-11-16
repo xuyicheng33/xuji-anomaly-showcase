@@ -1,3 +1,4 @@
+import { useEffect, useRef, type CSSProperties } from 'react';
 import AnomalyResult from './AnomalyResult';
 import InfoTip from './InfoTip';
 import type { Journey, Model } from '../journey';
@@ -23,6 +24,7 @@ export default function AnomalyChapter({
   setModel: (id: string) => void;
 }) {
   const state = useCaseConstruction(data, model);
+  usePhaseFade(state.stageRef, state.phase);
   const { container: labelsRef, width, left, right } = usePlotGeometry();
   const {
     insertion,
@@ -113,10 +115,20 @@ export default function AnomalyChapter({
                 data-written={writtenCount}
               >
                 <div className="case-stage-toolbar">
-                  <div className="segmented case-steps" role="group" aria-label="构造步骤">
+                  <div
+                    className="segmented case-steps"
+                    role="group"
+                    aria-label="构造步骤"
+                    data-playing={playing || undefined}
+                  >
                     <SelectionIndicator />
                     {steps.map((s, i) => (
-                      <button key={s} aria-pressed={phase === i} onClick={() => jump(i)}>
+                      <button
+                        key={s}
+                        aria-pressed={phase === i}
+                        onClick={() => jump(i)}
+                        style={{ '--fill': stepFill(progress, i) } as CSSProperties}
+                      >
                         {s}
                       </button>
                     ))}
@@ -393,4 +405,28 @@ export default function AnomalyChapter({
       </div>
     </div>
   );
+}
+
+/** Share of each construction step already played, for the step progress rule. */
+const stepBounds = [0, 0.16, 0.58, 0.9, 1];
+function stepFill(progress: number, step: number) {
+  const [from, to] = [stepBounds[step], stepBounds[step + 1]];
+  return Math.max(0, Math.min(1, (progress - from) / (to - from)));
+}
+
+/** New step content fades in where the stage swaps one view for another. */
+function usePhaseFade(stage: React.RefObject<HTMLDivElement | null>, phase: number) {
+  const previous = useRef(phase);
+  useEffect(() => {
+    if (previous.current === phase) return;
+    previous.current = phase;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (const child of stage.current?.children ?? []) {
+      if (child.classList.contains('case-stage-toolbar')) continue;
+      child.animate([{ opacity: 0.25 }, { opacity: 1 }], {
+        duration: 280,
+        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+      });
+    }
+  }, [stage, phase]);
 }

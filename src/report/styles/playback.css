@@ -306,7 +306,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     position: var(--playback-controls-position, static);
-    top: 0;
+    top: var(--sticky-top);
     z-index: 4;
     background: var(--paper);
     gap: 8px;

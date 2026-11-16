@@ -72,8 +72,9 @@
 .balanced-split > div::before {
   content: '';
   position: absolute;
-  inset: -1px 0 auto;
-  height: 3px;
+  inset: -1px auto auto 0;
+  width: 40px;
+  height: 2px;
   background: var(--chart-input);
 }
 .balanced-split > div + div {
@@ -81,6 +82,7 @@
   border-left: 1px solid var(--line);
 }
 .balanced-split > div + div::before {
+  left: 28px;
   background: var(--chart-muted);
 }
 .balanced-split > div > span {
@@ -378,8 +380,8 @@
   justify-content: center;
   overflow: hidden;
   transition:
-    flex-grow 0.5s ease,
-    opacity 0.25s ease;
+    flex-grow var(--motion-slow) var(--ease-in-out),
+    opacity var(--motion-normal) var(--ease-out);
   font-size: var(--text-2xs);
 }
 .record-strip .valid {
@@ -482,7 +484,7 @@
 .missing-example {
   min-width: 0;
   container-type: inline-size;
-  animation: arrive 0.25s ease-out;
+  animation: arrive var(--motion-normal) var(--ease-out);
 }
 .missing-example .reference-table-scroll table {
   min-width: 0;
@@ -557,7 +559,7 @@
   line-height: 1.5;
 }
 .record-example-panel {
-  animation: arrive 0.22s ease-out;
+  animation: arrive var(--motion-normal) var(--ease-out);
 }
 .example-heading {
   display: flex;
@@ -665,6 +667,9 @@
     padding-left: 0;
     border-left: 0;
     border-top: 1px solid var(--line);
+  }
+  .data-chapter .balanced-split > div + div::before {
+    left: 0;
   }
 }
 @media (max-width: 680px) {

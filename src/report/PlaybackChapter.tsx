@@ -68,8 +68,8 @@ export function PlaybackChapter(p: PlaybackProps) {
       if (!status || !toolbar) return;
       const top =
         getComputedStyle(toolbar).position === 'sticky'
-          ? toolbar.getBoundingClientRect().height
-          : 0;
+          ? toolbar.getBoundingClientRect().bottom
+          : (document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0);
       if (status.getBoundingClientRect().top < top)
         status.scrollIntoView({
           block: 'start',
