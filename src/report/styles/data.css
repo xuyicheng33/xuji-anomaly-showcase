@@ -758,6 +758,9 @@
   }
   .example-heading > span {
     font-size: 12px;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .record-examples th {
     padding: 10px 12px;
