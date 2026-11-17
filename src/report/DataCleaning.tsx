@@ -88,9 +88,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
           </div>
         </div>
         <details className="removed-sensors">
-          <summary>
-            全缺失测点清单<span>11 个</span>
-          </summary>
+          <summary>全缺失测点清单</summary>
           <ul>
             {cleaning.removedSensors.map((key) => (
               <li key={key}>
@@ -111,20 +109,25 @@ export default function DataCleaning({ data }: { data: Journey }) {
           </h3>
         </div>
         <div className="record-trimming">
-          <div className="cleaning-caption">
-            <span>原始记录位置</span>
-            <span>8,760 条</span>
+          <div className="cleaning-caption trim-result" aria-live="polite">
+            <span>{trimmed ? '整理后记录' : '原始记录'}</span>
+            <strong>{trimmed ? '7,992' : '8,760'} 条</strong>
           </div>
           <div
-            className="record-strip"
+            id="trimmed-records"
+            className={'record-strip result-strip' + (trimmed ? ' is-trimmed' : '')}
             role="img"
-            aria-label="原始记录依次为3432条有效、24条无效、4560条有效、744条无效"
+            aria-label={
+              trimmed
+                ? '整理后保留 7992 条有效记录，5 月 24 日的时间缺口保留'
+                : '原始记录依次为 3432 条有效、24 条无效、4560 条有效、744 条无效'
+            }
           >
             {spans.map((span, i) => (
               <div
                 key={i}
                 className={span.invalid ? 'invalid' : 'valid'}
-                style={{ flexGrow: span.count }}
+                style={{ flexGrow: span.invalid && trimmed ? 0 : span.count }}
               >
                 <span>{i === 1 ? '' : count(span.count)}</span>
               </div>
@@ -139,11 +142,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
             <div>
               <span>末尾 744 条</span>
               <strong>第 8,017—8,760 条</strong>
-              <p>
-                11-30 23:00 之后
-                <br />
-                无时间记录
-              </p>
+              <p>11-30 23:00 之后，无时间记录</p>
             </div>
           </div>
           <div className="trim-action">
@@ -154,28 +153,6 @@ export default function DataCleaning({ data }: { data: Journey }) {
             >
               {trimmed ? '还原无效记录' : '剔除无效记录'}
             </button>
-          </div>
-          <div
-            id="trimmed-records"
-            className={'record-strip result-strip' + (trimmed ? ' is-trimmed' : '')}
-            role="img"
-            aria-label={
-              trimmed ? '整理后保留7992条有效记录，5月24日的时间缺口保留' : '剔除前的8760条记录'
-            }
-          >
-            {spans.map((span, i) => (
-              <div
-                key={i}
-                className={span.invalid ? 'invalid' : 'valid'}
-                style={{ flexGrow: span.invalid && trimmed ? 0 : span.count }}
-              >
-                <span>{span.invalid ? (i === 1 ? '' : count(span.count)) : count(span.count)}</span>
-              </div>
-            ))}
-          </div>
-          <div className="cleaning-caption trim-result" aria-live="polite">
-            <span>{trimmed ? '整理后记录' : '剔除前记录'}</span>
-            <strong>{trimmed ? '7,992' : '8,760'} 条</strong>
           </div>
         </div>
       </article>

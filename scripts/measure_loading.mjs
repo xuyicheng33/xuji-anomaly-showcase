@@ -141,7 +141,7 @@ try {
             if (route === 'detection')
               await measure(
                 'model-result',
-                () => page.getByRole('button', { name: '查看模型结果 →', exact: true }).click(),
+                () => page.getByRole('button', { name: '查看模型结果', exact: true }).click(),
                 () => page.getByTestId('calculated-score').waitFor(),
               );
             if (route === 'anomalies')

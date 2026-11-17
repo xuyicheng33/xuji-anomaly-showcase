@@ -9,7 +9,6 @@ import {
   Rates,
   ResultSummary,
   colors,
-  SelectionIndicator,
 } from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
@@ -142,8 +141,8 @@ export function DetectionChapter(p: DetectionProps) {
           }}
         />
       </div>
-      <div className="segmented example-picker" role="group" aria-label="典型片段">
-        <SelectionIndicator />
+      <div className="example-picker" role="group" aria-label="典型片段">
+        <span aria-hidden="true">典型片段</span>
         {model.examples.map((e) => (
           <button
             key={e.code}
@@ -193,7 +192,7 @@ export function DetectionChapter(p: DetectionProps) {
           />
         </label>
         <input
-          aria-label={`选择${window}点片段`}
+          aria-label={`选择 ${window} 点片段`}
           type="range"
           min="0"
           max={data.times.length - window}
@@ -205,14 +204,14 @@ export function DetectionChapter(p: DetectionProps) {
           }}
         />
         <span>
-          第 {start + 1}—{start + window} 点
+          第 {(start + 1).toLocaleString('en-US')}—{(start + window).toLocaleString('en-US')} 点
         </span>
         <button
           className="primary"
           disabled={busy || !inputCurve.data || invalidStart}
           onClick={requestResult}
         >
-          {busy ? '正在读取…' : ready ? '重新查看结果' : '查看模型结果'} →
+          {busy ? '正在读取…' : ready ? '重新查看结果' : '查看模型结果'}
         </button>
       </div>
       <p
@@ -231,7 +230,7 @@ export function DetectionChapter(p: DetectionProps) {
       </p>
       {ready && stats && (
         <div className="detection-summary" ref={resultSummary} aria-live="polite">
-          <ResultSummary metrics={stats} scope={`独立窗口 · 第 ${start + 1}—${start + window} 点`}>
+          <ResultSummary metrics={stats} scope="独立窗口">
             <button
               className="inline-link"
               onClick={() =>
@@ -292,25 +291,18 @@ export function DetectionChapter(p: DetectionProps) {
       )}
       {ready && stats && (
         <div className="result-reveal">
-          <div className="evaluation-context">
-            <span>独立窗口评估</span>
-            <p>
-              判定阈值{' '}
-              <span className="note-anchor">
-                <strong data-testid="window-threshold">{threshold.toFixed(6)}</strong>
-                <Footnote note="thresholds" />
-              </span>
-            </p>
-          </div>
           <Curve
             title="窗口异常分数"
-            note="score-calculation"
-            reference="ref-detection-score-plot"
             lines={[
-              { name: `${features}测点平均平方误差`, values: resultScores, color: colors.score },
+              { name: `${features} 测点平均平方误差`, values: resultScores, color: colors.score },
             ]}
             labels={labs}
             threshold={threshold}
+            thresholdLabel={
+              <>
+                阈值 <strong data-testid="window-threshold">{threshold.toFixed(6)}</strong>
+              </>
+            }
             selected={point}
             height={190}
             start={start}
@@ -341,9 +333,6 @@ export function DetectionChapter(p: DetectionProps) {
                 <Confusion metrics={stats} />
                 <Rates metrics={stats} />
               </div>
-              <p className="quiet">
-                统计范围：第 {start + 1}—{start + window} 点
-              </p>
             </Section>
           </div>
           <ScoreCalculation

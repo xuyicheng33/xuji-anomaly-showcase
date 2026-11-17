@@ -74,7 +74,6 @@ export default function CaseNavigation({
               >
                 <span>0{i + 1}</span>
                 <strong>{k.name}</strong>
-                <span aria-hidden="true">→</span>
               </button>
             ))}
           </div>

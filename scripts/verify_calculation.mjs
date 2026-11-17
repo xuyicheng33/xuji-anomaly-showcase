@@ -17,7 +17,7 @@ try {
     page.setDefaultTimeout(60000);
     page.on('pageerror', (e) => errors.push(String(e)));
     await page.goto(base + '#/detection');
-    await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
+    await page.getByRole('button', { name: '查看模型结果', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
     await page.getByRole('slider', { name: '片段查看时刻' }).fill('25');
     await page.waitForFunction(

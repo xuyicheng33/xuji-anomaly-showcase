@@ -1,3 +1,4 @@
+import { availableMethods } from '../resultCatalog';
 import { usePlayback } from './usePlayback';
 import { useRef } from 'react';
 import { usePlaybackControls } from './usePlaybackControls';
@@ -168,12 +169,14 @@ export function PlaybackChapter(p: PlaybackProps) {
         </p>
       )}
       <div className="playback-status" ref={overview}>
-        <span>{count ? data.times[idx] : data.times[from]}</span>
-        {count ? (
-          <Outcome label={data.labels[idx]} score={model.scores[idx]} model={model} />
-        ) : null}
+        <span className="playback-moment">
+          <span>{count ? data.times[idx] : data.times[from]}</span>
+          {count ? (
+            <Outcome label={data.labels[idx]} score={model.scores[idx]} model={model} />
+          ) : null}
+        </span>
         <span data-testid="played-count">
-          已查看 {count} / {total} 点
+          已查看 {count.toLocaleString('en-US')} / {total.toLocaleString('en-US')} 点
         </span>
       </div>
       <input
@@ -294,16 +297,13 @@ export function PlaybackChapter(p: PlaybackProps) {
           <div>
             <div className="current-score">
               <span>
-                当前时刻分数 /{' '}
-                <span className="note-anchor">
-                  阈值
-                  <Footnote note="thresholds" reference="ref-playback-threshold-value" />
-                </span>
+                当前时刻分数
+                <Footnote note="thresholds" reference="ref-playback-threshold-value" />
               </span>
               <strong>
-                {count ? model.scores[idx].toFixed(5) : '—'}{' '}
+                {count ? model.scores[idx].toFixed(6) : '—'}{' '}
                 <small>
-                  {count ? (pred ? '>' : '≤') : '/'} {threshold.toFixed(5)}
+                  {count ? (pred ? '>' : '≤') : '/'} 阈值 {threshold.toFixed(6)}
                 </small>
               </strong>
             </div>
@@ -363,8 +363,8 @@ export function PlaybackChapter(p: PlaybackProps) {
               <thead>
                 <tr>
                   <th>方法</th>
-                  <th>逐点F1</th>
-                  <th>区间点调整F1</th>
+                  <th>逐点 F1</th>
+                  <th>区间点调整 F1</th>
                   <th>精确率</th>
                   <th>召回率</th>
                   <th>检出</th>
@@ -374,19 +374,19 @@ export function PlaybackChapter(p: PlaybackProps) {
                 </tr>
               </thead>
               <tbody>
-                {data.models.map((m) => {
+                {availableMethods(data).map((m) => {
                   const v = m.metrics.point_wise;
                   return (
                     <tr key={m.id}>
                       <th>{modelName(m)}</th>
                       <td>{pct(v.f1)}</td>
                       <td>{pct(m.metrics.point_adjusted.f1)}</td>
-                      <td> {pct(v.precision)}</td>
-                      <td> {pct(v.recall)}</td>
-                      <td>{v.tp}</td>
-                      <td>{v.fp}</td>
-                      <td>{v.fn}</td>
-                      <td>{v.tn}</td>
+                      <td>{pct(v.precision)}</td>
+                      <td>{pct(v.recall)}</td>
+                      <td>{v.tp.toLocaleString('en-US')}</td>
+                      <td>{v.fp.toLocaleString('en-US')}</td>
+                      <td>{v.fn.toLocaleString('en-US')}</td>
+                      <td>{v.tn.toLocaleString('en-US')}</td>
                     </tr>
                   );
                 })}
@@ -394,7 +394,7 @@ export function PlaybackChapter(p: PlaybackProps) {
             </table>
           </div>
           <p className="quiet">
-            {data.times.length.toLocaleString('en-US')} 个时刻，检出、误报与漏检按逐点统计。
+            {data.times.length.toLocaleString('en-US')} 个时刻逐点统计
             <Footnote note="thresholds" reference="ref-playback-thresholds" />
           </p>
         </Section>

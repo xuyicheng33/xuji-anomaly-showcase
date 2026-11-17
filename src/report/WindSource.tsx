@@ -6,7 +6,7 @@ export default function WindSource({ data }: { data: Journey }) {
   return (
     <>
       <p className="reading-copy">同一场站的功率与天气记录按目标时刻对应，组成 28 维输入。</p>
-      <div className="wind-source-groups">
+      <div className="wind-source-groups steps">
         {[
           ['功率记录', '实际功率与预测功率', '2 个字段'],
           ['实测天气', '温度、湿度、气压，以及不同高度的风速和风向', '13 个字段'],
@@ -20,21 +20,20 @@ export default function WindSource({ data }: { data: Journey }) {
           </section>
         ))}
       </div>
-      <div className="inline-facts">
-        <strong>
-          {data.summary.cleanRows.toLocaleString('zh-CN')}
-          <span>连续时刻</span>
-        </strong>
-        <strong>
-          15 分钟
+      <div className="wind-facts facts">
+        <div>
           <span>
             目标时间间隔
             <InfoTip label="风电时间对应说明">目标时间轴连续，实际采集时间可能有秒级差异。</InfoTip>
           </span>
-        </strong>
-        <strong>
-          0<span>选用字段缺失值</span>
-        </strong>
+          <strong>
+            15<span className="unit">分钟</span>
+          </strong>
+        </div>
+        <div>
+          <span>选用字段缺失值</span>
+          <strong>0</strong>
+        </div>
       </div>
       <details className="wind-fields">
         <summary>查看全部 28 个字段及来源</summary>

@@ -61,7 +61,7 @@ export default function ReferenceConstruction({
       <div className="reference-origin">
         <span>参考来源</span>
         <p>
-          测试集第{sourceStart + 1}—{sourceStart + values.length}点 · {sourceTime}
+          测试集第 {sourceStart + 1}—{sourceStart + values.length} 点 · {sourceTime}
         </p>
       </div>
       <div className="segmented reference-steps" role="group" aria-label="参考片段变换">
@@ -76,9 +76,9 @@ export default function ReferenceConstruction({
         <strong>{names[step]}</strong>
         <span className="reference-rule">
           {step === 0
-            ? `取出连续${values.length}个观测值`
+            ? `取出连续 ${values.length} 个观测值`
             : step === 1
-              ? `第1点 ↔ 第${values.length}点`
+              ? `第 1 点 ↔ 第 ${values.length} 点`
               : '新值 = 1 − 原值'}
         </span>
       </div>
@@ -148,7 +148,7 @@ export default function ReferenceConstruction({
             y={height - 9}
             textAnchor="middle"
           >
-            第{Math.round(fraction * (values.length - 1)) + 1}点
+            第 {Math.round(fraction * (values.length - 1)) + 1} 点
           </text>
         ))}
       </svg>
@@ -159,7 +159,7 @@ export default function ReferenceConstruction({
             {index === 0 ? '原起点' : '原末点'} {point.original.toFixed(4)}
             <span>→</span>
             <strong>{point.value.toFixed(4)}</strong>
-            <small>第{Math.round(point.position) + 1}点</small>
+            <small>第 {Math.round(point.position) + 1} 点</small>
           </span>
         ))}
       </div>

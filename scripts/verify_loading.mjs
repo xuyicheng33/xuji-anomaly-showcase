@@ -103,7 +103,7 @@ try {
   await det.page.locator('.reconstruction-view').waitFor();
   only(det.requests, [`curves-v1/${d.input.sha256}/mean.bin`]);
   assert.ok(!det.requests.includes(d.datasets.train.times.file));
-  await det.page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
+  await det.page.getByRole('button', { name: '查看模型结果', exact: true }).click();
   await det.page.getByTestId('calculated-score').waitFor();
   const chunk = d.models[0].windows.chunks.find((c) => 107 >= c.start && 107 < c.start + c.count);
   only(det.requests, [

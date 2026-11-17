@@ -112,7 +112,7 @@ try {
       if (route === 'training')
         await p.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
       if (route === 'detection') {
-        await p.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
+        await p.getByRole('button', { name: '查看模型结果', exact: true }).click();
         await p.getByTestId('calculated-score').waitFor();
         assert.equal(await p.locator('.reconstruction-view .legend .line-dashed').count(), 1);
       }

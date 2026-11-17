@@ -117,11 +117,11 @@ try {
       assert.equal(await page.locator('.window-error-grid button').count(), expectedCount);
       await page.getByRole('button', { name: '收起明细', exact: true }).click();
     }
-    assert.match(await page.getByTestId('played-count').innerText(), /2628 \/ 2628/);
+    assert.match(await page.getByTestId('played-count').innerText(), /2,628 \/ 2,628/);
     await page.getByRole('button', { name: /查看当前点计算/ }).click();
     await page.getByTestId('aggregate-equation').waitFor();
     assert.equal(await page.locator('.window-score-scroll tbody tr').count(), 1);
-    await page.getByRole('button', { name: '查看28项', exact: true }).click();
+    await page.getByRole('button', { name: '查看 28 项', exact: true }).click();
     await page.locator('.coverage-calculation .score-calculation').waitFor();
     assert.equal(await page.locator('.coverage-calculation tbody tr').count(), 28);
     await page.getByRole('button', { name: /收起计算/ }).click();
