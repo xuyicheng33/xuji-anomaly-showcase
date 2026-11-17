@@ -1,7 +1,6 @@
 """Exercise generated remote Python and rollback without connecting to a server."""
 
 import json
-import shlex
 import sys
 import tempfile
 import unittest
@@ -13,6 +12,24 @@ import deploy_release as deployment
 
 
 class DeploymentTests(unittest.TestCase):
+    def test_large_remote_python_uses_stdin(self):
+        source = "value = " + repr("展示数据" * 20000) + "\nprint(len(value))\n"
+        self.assertGreater(len(source.encode("utf8")), 131072)
+        for sudo in (False, True):
+            with self.subTest(sudo=sudo):
+                client = MagicMock()
+                stdin, stdout, stderr = MagicMock(), MagicMock(), MagicMock()
+                client.exec_command.return_value = stdin, stdout, stderr
+                stdout.read.return_value = b"80000\n"
+                stderr.read.return_value = b""
+                stdout.channel.recv_exit_status.return_value = 0
+                self.assertEqual(deployment.remote_python(client, source, sudo=sudo), "80000\n")
+                client.exec_command.assert_called_once_with(
+                    ("sudo -n " if sudo else "") + "python3 -B -", timeout=120
+                )
+                stdin.write.assert_called_once_with(source.encode("utf8"))
+                stdin.channel.shutdown_write.assert_called_once()
+
     def test_invalid_new_result_stops_before_ssh_connection(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
@@ -100,13 +117,13 @@ class DeploymentTests(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         config = (root / "deploy/nginx-9010.conf").read_text(encoding="utf8")
 
-        def run(client, command):
+        def run(client, command, *, input_text=None):
             if command.startswith("readlink"):
                 return "/var/www/xuji-showcase/releases/old"
             if command.startswith("curl"):
                 return "200"
             if "python3" in command:
-                source = shlex.split(command)[-1]
+                source = input_text
                 compile(source, "<remote-python>", "exec")
                 sources.append(source)
                 if "folder.rglob" in source:
@@ -146,12 +163,12 @@ class DeploymentTests(unittest.TestCase):
     def exercise_activation(self, failed_command=None, failed_probe=False, failed_browser=False):
         commands, functions = [], []
 
-        def run(client, command):
+        def run(client, command, *, input_text=None):
             commands.append(command)
             if command == failed_command and commands.count(command) == 1:
                 raise RuntimeError("simulated command failure")
             if "python3" in command:
-                source = shlex.split(command)[-1]
+                source = input_text
                 compile(source, "<remote-python>", "exec")
                 if "release_files." in source:
                     functions.append(source.strip().splitlines()[-1])

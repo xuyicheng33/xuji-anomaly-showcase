@@ -25,8 +25,11 @@ CONFIG = "/etc/nginx/conf.d/xuji-showcase-9010.conf"
 URL = "http://124.223.175.32:9010/"
 
 
-def run(client, command):
-    _, stdout, stderr = client.exec_command(command, timeout=120)
+def run(client, command, *, input_text=None):
+    stdin, stdout, stderr = client.exec_command(command, timeout=120)
+    if input_text is not None:
+        stdin.write(input_text.encode("utf8"))
+        stdin.channel.shutdown_write()
     output = stdout.read().decode()
     error = stderr.read().decode()
     status = stdout.channel.recv_exit_status()
@@ -37,7 +40,7 @@ def run(client, command):
 
 def remote_python(client, source, *, sudo=False):
     prefix = "sudo -n " if sudo else ""
-    return run(client, prefix + "python3 -B -c " + shlex.quote(dedent(source)))
+    return run(client, prefix + "python3 -B -", input_text=dedent(source))
 
 
 def release_call(client, staging, function, *args):
