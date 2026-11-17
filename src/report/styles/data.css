@@ -3,7 +3,7 @@
   container: data-chapter / inline-size;
 }
 .wind-source-groups {
-  margin: 32px 0;
+  margin-top: 32px;
 }
 .small-step {
   font-size: var(--text-xs);
@@ -90,9 +90,9 @@
   line-height: 1.65;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 20px;
-  padding: 24px 20px 0;
+  padding: 24px 0 0;
   margin-top: 24px;
   border-top: 1px solid var(--line);
   color: var(--ink);
@@ -128,7 +128,7 @@
   .normalization-equation {
     flex-wrap: wrap;
     gap: 12px;
-    padding: 20px 10px 0;
+    padding: 20px 0 0;
     font-size: var(--text-md);
   }
 }
@@ -188,13 +188,7 @@
 }
 .removed-sensors summary {
   padding: 12px 0;
-  border-block: 1px solid var(--line);
-}
-.removed-sensors summary span {
-  margin-left: auto;
-  flex-shrink: 0;
-  color: var(--muted);
-  font-size: var(--text-xs);
+  border-top: 1px solid var(--line);
 }
 .removed-sensors ul {
   list-style: none;
@@ -244,12 +238,12 @@
 .record-strip .invalid {
   background: repeating-linear-gradient(
     135deg,
-    var(--clay-stripe) 0,
-    var(--clay-stripe) 5px,
-    var(--clay-stripe-soft) 5px,
-    var(--clay-stripe-soft) 9px
+    var(--line-strong) 0,
+    var(--line-strong) 1px,
+    var(--surface) 1px,
+    var(--surface) 6px
   );
-  color: var(--clay-ink);
+  color: var(--muted);
   min-width: 8px;
 }
 .record-strip span {
@@ -276,13 +270,13 @@
   opacity: 0.4;
 }
 .invalid-intervals > div {
-  border-left: 2px solid var(--clay-border);
+  border-left: 2px solid var(--line-strong);
   padding-left: 12px;
 }
 .invalid-intervals span {
   display: block;
   font-size: var(--text-xs);
-  color: var(--clay-ink);
+  color: var(--muted);
 }
 .invalid-intervals strong {
   display: block;
@@ -463,7 +457,7 @@
   margin-top: 4px;
 }
 .raw-missing-cell {
-  background: var(--clay-surface);
+  background: var(--surface);
 }
 .example-caption {
   font-size: var(--text-xs);
@@ -478,10 +472,10 @@
   white-space: nowrap;
 }
 .removed-record-row {
-  background: var(--clay-surface);
+  background: var(--surface);
 }
 .removed-record-row strong {
-  color: var(--clay-ink);
+  color: var(--muted);
   font-weight: 500;
 }
 @media (max-width: 1120px) {
@@ -526,7 +520,8 @@
     padding: 10px 0;
   }
   .invalid-intervals {
-    gap: 14px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
   }
   .invalid-intervals > div {
     padding-left: 10px;

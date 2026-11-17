@@ -77,21 +77,27 @@
   border-color: var(--selected-border);
   color: var(--blue);
 }
-.evaluation-context {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
-  margin: 24px 0 24px;
+.detection-page .result-reveal > .curve:first-child {
+  margin-top: 32px;
 }
-.evaluation-context p {
-  flex: 1;
-  color: var(--muted);
+/* Window rates read as a facts row aligned with the matrix's closing rule. */
+.detection-page .statistics {
+  align-items: end;
 }
-.evaluation-context strong {
-  color: var(--ink);
-  font-variant-numeric: tabular-nums;
+.detection-page .rates {
+  gap: 0;
+  padding: 24px 0;
+  border-block: 1px solid var(--line);
+}
+.detection-page .rates > div {
+  gap: 8px;
+  padding: 0 24px;
+}
+.detection-page .rates > div:first-child {
+  padding-left: 0;
+}
+.detection-page .rates > div + div {
+  border-left: 1px solid var(--line);
 }
 .detection-summary {
   scroll-margin-top: 20px;
@@ -170,13 +176,6 @@
   .time-range {
     margin-block: 8px;
   }
-  .evaluation-context {
-    flex-wrap: wrap;
-    gap: 10px 20px;
-  }
-  .evaluation-context p {
-    flex: auto;
-  }
 }
 @media (min-width: 241px) and (max-width: 380px) {
   .selection-panel > .field {
@@ -223,6 +222,14 @@
   .detection-page .confusion,
   .detection-page .rates {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .detection-page .rates > div {
+    padding: 0;
+  }
+  .detection-page .rates > div + div {
+    padding-top: 16px;
+    border-left: 0;
+    border-top: 1px solid var(--line);
   }
   .detection-page .note-anchor {
     white-space: normal;

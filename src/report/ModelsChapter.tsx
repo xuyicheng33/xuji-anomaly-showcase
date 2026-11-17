@@ -10,10 +10,10 @@ import { chapterContent } from './navigation';
 const windDescription = {
   title: '多尺度时间依赖与窗口重建',
   intro:
-    'SMST-AD以多尺度局部时间分支和全局时间分支重建风电窗口，结合异常增强、时间掩码与有界异常损失学习数据变化。',
+    'SMST-AD 以多尺度局部时间分支和全局时间分支重建风电窗口，结合异常增强、时间掩码与有界异常损失学习数据变化。',
   details: [
-    ['多尺度局部依赖', '不同空洞率的TCN提取窗口内不同范围的变化，Transformer组织时间关联。'],
-    ['全局时间依赖', 'Global分支接收部分遮蔽的窗口，利用其余可见时刻还原风电功率与天气字段。'],
+    ['多尺度局部依赖', '不同空洞率的 TCN 提取窗口内不同范围的变化，Transformer 组织时间关联。'],
+    ['全局时间依赖', 'Global 分支接收部分遮蔽的窗口，利用其余可见时刻还原风电功率与天气字段。'],
     [
       '融合与重建',
       '当前保留实现以局部与全局时间特征融合后的结果生成重建值；逐点平方误差汇总为异常评分。',
@@ -24,15 +24,15 @@ const descriptions = {
   model1: {
     title: '双分支自监督重建',
     intro:
-      'STAM-AD以TCN与Transformer为主体，结合异常增强、时间掩码和有界异常损失，学习正常模式与异常变化之间的差异。',
+      'STAM-AD 以 TCN 与 Transformer 为主体，结合异常增强、时间掩码和有界异常损失，学习正常模式与异常变化之间的差异。',
     details: [
       [
         '局部时间依赖',
-        'Local分支接收完整窗口，通过因果卷积提取短期变化，再由Transformer组织窗口内的时间关联。',
+        'Local 分支接收完整窗口，通过因果卷积提取短期变化，再由 Transformer 组织窗口内的时间关联。',
       ],
       [
         '全局时间依赖',
-        'Global分支接收部分遮蔽的窗口，通过空洞卷积扩大感受野，结合Transformer提取较长范围的规律。',
+        'Global 分支接收部分遮蔽的窗口，通过空洞卷积扩大感受野，结合 Transformer 提取较长范围的规律。',
       ],
       [
         '融合与重建',
@@ -43,15 +43,15 @@ const descriptions = {
   model2: {
     title: '多尺度时空依赖建模',
     intro:
-      'SMST-AD在STAM-AD基础上，将多尺度时间依赖与显式空间依赖协同建模，同时观察不同时间范围的变化和测点之间的关联。',
+      'SMST-AD 在 STAM-AD 基础上，将多尺度时间依赖与显式空间依赖协同建模，同时观察不同时间范围的变化和测点之间的关联。',
     details: [
       [
         '多尺度时间分支',
-        '不同空洞率的Local TCN并行提取短期波动、周期模式与中期趋势，再与Global分支共同形成时间表示。',
+        '不同空洞率的 Local TCN 并行提取短期波动、周期模式与中期趋势，再与 Global 分支共同形成时间表示。',
       ],
       [
         '显式空间分支',
-        'Transformer在测点维度计算注意力，利用皮尔逊相关性引导空间掩码，并以异常感知空间正则抑制异常测点对正常测点的过度影响。',
+        'Transformer 在测点维度计算注意力，利用皮尔逊相关性引导空间掩码，并以异常感知空间正则抑制异常测点对正常测点的过度影响。',
       ],
       [
         '时空融合与重建',
@@ -84,7 +84,7 @@ export function ModelsChapter({
             : {
                 ...descriptions.model2,
                 intro:
-                  'SMST-AD通过多尺度时间分支与空间分支学习时间变化和测点关联，当前保留实现由时间融合特征生成重建。',
+                  'SMST-AD 通过多尺度时间分支与空间分支学习时间变化和测点关联，当前保留实现由时间融合特征生成重建。',
                 details: [
                   ...descriptions.model2.details.slice(0, 2),
                   [
@@ -129,7 +129,7 @@ export function ModelsChapter({
               multi && (!wind || spatialDecoder) ? '时间与空间编码' : '局部与全局编码',
               multi && (!wind || spatialDecoder)
                 ? '多尺度时间建模，测点间注意力'
-                : 'TCN提取变化，Transformer学习关联',
+                : 'TCN 提取变化，Transformer 学习关联',
             ],
             [spatialDecoder ? '时空融合与重建' : '特征融合与重建', '还原各时刻的测点数值'],
             ['误差聚合与判定', '平方误差聚合为时刻分数'],
@@ -157,7 +157,9 @@ export function ModelsChapter({
         <div className="model-explanation">
           <div>
             <p>
-              通过频域分析观察各测点的周期性，再对Global分支输入中的连续片段进行遮蔽，促使模型利用其余可见时刻建立时间关联。Local分支保留完整输入，补充细节。
+              通过频域分析观察各测点的周期性，再对 Global
+              分支输入中的连续片段进行遮蔽，促使模型利用其余可见时刻建立时间关联。Local
+              分支保留完整输入，补充细节。
             </p>
           </div>
           <div
@@ -166,7 +168,7 @@ export function ModelsChapter({
             style={{ '--mask-points': data.window } as CSSProperties}
           >
             <div className="mask-example-top">
-              <span>Global分支输入</span>
+              <span>Global 分支输入</span>
               <strong>{data.window} 点</strong>
             </div>
             <div className="mask-example-cells">

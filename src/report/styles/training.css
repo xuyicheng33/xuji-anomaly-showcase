@@ -29,7 +29,7 @@
 .window-position-actions {
   display: flex;
   gap: 8px;
-  justify-content: center;
+  justify-content: flex-end;
   margin-top: 20px;
 }
 .window-position-actions button {
@@ -50,7 +50,7 @@
   }
   .window-position-actions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
   }
   .window-position-actions button {
@@ -59,6 +59,11 @@
     min-width: 0;
     padding-inline: 6px;
     overflow-wrap: anywhere;
+  }
+}
+@container (max-width: 320px) {
+  .window-position-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @container (max-width: 260px) {

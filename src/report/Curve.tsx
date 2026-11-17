@@ -1,4 +1,4 @@
-import { useId, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useId, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { colors } from './ReportUI';
 import { curveDomain, curveTick } from './curveScale';
 import { Footnote, type NoteId } from './notes';
@@ -12,6 +12,8 @@ export default function Curve({
   selected,
   reveal,
   threshold,
+  thresholdLabel = '阈值',
+  legend = true,
   height = 220,
   start = 0,
   onSelect,
@@ -37,6 +39,10 @@ export default function Curve({
   selected?: number;
   reveal?: number;
   threshold?: number;
+  /** Legend text for the threshold line, e.g. the value it is drawn at. */
+  thresholdLabel?: ReactNode;
+  /** Off for charts that always show one series named by their title or picker. */
+  legend?: boolean;
   height?: number;
   start?: number;
   onSelect?: (n: number) => void;
@@ -112,29 +118,31 @@ export default function Curve({
           {title}
           {note && <Footnote note={note} reference={reference} />}
         </strong>
-        <div className="legend">
-          {lines.map((l) => (
-            <span key={l.name}>
-              <i
-                className={l.dash ? 'line-dashed' : undefined}
-                style={{ background: l.dash ? 'none' : l.color, borderColor: l.color }}
-              />
-              {l.name}
-            </span>
-          ))}
-          {threshold !== undefined && (
-            <span>
-              <i className="dashed" />
-              阈值
-            </span>
-          )}
-          {labelKey && (
-            <span>
-              <i className="label-swatch" />
-              {labelKey}
-            </span>
-          )}
-        </div>
+        {legend && (
+          <div className="legend">
+            {lines.map((l) => (
+              <span key={l.name}>
+                <i
+                  className={l.dash ? 'line-dashed' : undefined}
+                  style={{ background: l.dash ? 'none' : l.color, borderColor: l.color }}
+                />
+                {l.name}
+              </span>
+            ))}
+            {threshold !== undefined && (
+              <span>
+                <i className="dashed" />
+                {thresholdLabel}
+              </span>
+            )}
+            {labelKey && (
+              <span>
+                <i className="label-swatch" />
+                {labelKey}
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <svg
         viewBox={'0 0 ' + W + ' ' + height}

@@ -1,3 +1,4 @@
+import TableScrollHint from './TableScrollHint';
 import WindExplanation from './WindExplanation';
 import type { Journey } from '../journey';
 import { Heading } from './ReportUI';
@@ -29,23 +30,26 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="data-source">
         <p>
-          原始数据来自converter.xlsx的Sheet8：8,760 条记录、136 个测点。整理后的converternew.xlsx /
-          Sheet1包含 7,992 个时刻、125 个测点。
+          原始数据来自 converter.xlsx 的 Sheet8：8,760 条记录、136 个测点。整理后的
+          converternew.xlsx / Sheet1 包含 7,992 个时刻、125 个测点。
         </p>
         <p>
           整理时删除 768 条无效记录和 11 个全缺失测点，将 13 个保留测点中的 170 个缺失单元格填为 0。
         </p>
         <p>报告第 3.2 节采用加权滑动平均填补与平滑；本版数据采用零值填补。</p>
         <p>
-          无效记录是原表第 3433—3456 条和第 8017—8760
+          无效记录是原表第 3,433—3,456 条和第 8,017—8,760
           条，行号从表头下一行开始计数。这两段的时间与测点值均为“---”。中间一段位于 2022-05-23 23:00
           与 2022-05-25 00:00 之间，末尾一段位于 2022-11-30 23:00
           之后。删除后，其余记录按原来的时间顺序保留。
         </p>
         <p>删除的测点：{data.removedFeatures.join('、')}。</p>
-        <p className="sensor-list-hint" id="sensor-table-hint">
-          共 125 个测点，向下滚动查看完整列表；窄屏可左右滑动查看名称与编号。
-        </p>
+        <TableScrollHint
+          id="sensor-table-hint"
+          verticalHint="共 125 个测点，向下滚动查看完整列表。"
+        >
+          共 125 个测点，向下滚动查看完整列表；左右滑动查看名称与编号。
+        </TableScrollHint>
         <div
           className="reference-table-scroll sensor-list"
           tabIndex={0}
@@ -166,7 +170,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </div>
         <p>
           对同一行的 125 个标签取或：只要有一个测点标为 1，该时刻的标签就是
-          1。整条测试序列的标签矩阵为 2,397×125，包含 18,869 个异常单元格；按行汇总后有 490
+          1。整条测试序列的标签矩阵为 2,397 × 125，包含 18,869 个异常单元格；按行汇总后有 490
           个异常时刻，组成 17 段连续异常。
         </p>
         <p>
@@ -212,21 +216,21 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="window-settings">
         <p>
-          <strong>{window}×125 是一个窗口的形状：</strong>
+          <strong>{window} × 125 是一个窗口的形状：</strong>
           {window} 个时刻，每个时刻 125 个测点。步长 1 表示下一个窗口向后移动一个时刻，例如第 1—
           {window}
           点、第 2—{window + 1} 点。2,397 个测试时刻共形成 {count.toLocaleString('zh-CN')}{' '}
           个完整窗口。
         </p>
         <p>
-          训练时把多个窗口组成一批，整批形状是B×{window}
-          ×125，B表示窗口数量。当前训练配置每批 128
-          个窗口，最后一批按剩余数量组成；各窗口分别重建，整批计算损失并更新一次参数。
+          训练时把多个窗口组成一批，整批形状是 B × {window} × 125，B 表示窗口数量。当前训练配置每批
+          128 个窗口，最后一批按剩余数量组成；各窗口分别重建，整批计算损失并更新一次参数。
         </p>
         <p>
           窗口结果导出于 {data.methodResults ? '2026 年 11 月 16 日' : '2026 年 10 月 27 日'}
           。每个窗口包含
-          {window}×125 个重建值，Global分支每个测点遮蔽 {window / 4} 个位置，Local分支接收完整窗口。
+          {window} × 125 个重建值，Global 分支每个测点遮蔽 {window / 4} 个位置，Local
+          分支接收完整窗口。
           {data.methodResults && '本版使用保留权重、固定并保存的掩码导出，没有重新训练。'}
         </p>
         <p>训练序列开头以首个观测值补齐窗口；片段检测使用连续 {window} 个观测值组成的完整窗口。</p>
@@ -273,18 +277,20 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           ))}
         </div>
         <p>
-          当前阈值通过扫描选择：对照测试标签，逐一比较不同阈值的报警结果，选择区间点调整F1最高的值。并列时先比较逐点F1，再选择较高的阈值。
+          当前阈值通过扫描选择：对照测试标签，逐一比较不同阈值的报警结果，选择区间点调整 F1
+          最高的值。并列时先比较逐点 F1，再选择较高的阈值。
         </p>
         <p>
           片段检测和连续回放分别选取阈值。片段页的阈值依据当前方法的全部
           {count.toLocaleString('zh-CN')}
           个窗口选出，各窗口分别进行区间点调整后汇总；回放阈值依据完整序列的合并分数选出。
         </p>
-        <p>报告第 4.4 节采用POT阈值：用训练集异常分数拟合尾部分布，再确定测试时的报警阈值。</p>
+        <p>报告第 4.4 节采用 POT 阈值：用训练集异常分数拟合尾部分布，再确定测试时的报警阈值。</p>
       </NoteSection>
       <NoteSection id="point-metrics">
         <p>
-          每个时刻比较实验标签与模型报警，得到检出、漏检、误报或正确正常。回放中的混淆矩阵和逐点F1累计统计已经查看的时刻。
+          每个时刻比较实验标签与模型报警，得到检出、漏检、误报或正确正常。回放中的混淆矩阵和逐点 F1
+          累计统计已经查看的时刻。
         </p>
         <p>
           区间点调整用于评估计分：一个实验异常标签区间内只要出现一次报警，就将整段计为检出；整段都没有报警则计为漏检。图中的报警点按模型实际判断显示。
@@ -328,7 +334,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
         <p>
           两次平均可以交换顺序：先平均各窗口的平方误差，再平均 125 个测点，结果相同。{exampleCount}
-          个窗口时，也就是将 {exampleCount}×125 项平方误差相加，除以 {exampleCount}×125。
+          个窗口时，也就是将 {exampleCount} × 125 项平方误差相加，除以 {exampleCount} × 125。
         </p>
         <p>
           重建值平均和误差平均是两项计算。例如输入 0.5，两个窗口重建为 0.4 和 0.6：平均重建值是
@@ -340,13 +346,16 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="model-design">
         <p>
-          STAM-AD通过Local和Global两个时间分支学习短期变化与较长范围的规律，再融合特征重建窗口。
+          STAM-AD 通过 Local 和 Global
+          两个时间分支学习短期变化与较长范围的规律，再融合特征重建窗口。
         </p>
         <p>
-          报告中的SMST-AD增加多尺度时间建模和空间分支。这里的“空间”是测点之间的关联：在测点维度计算注意力，用相关性掩码与空间正则约束关联，再融合时间和空间特征重建。
+          报告中的 SMST-AD
+          增加多尺度时间建模和空间分支。这里的“空间”是测点之间的关联：在测点维度计算注意力，用相关性掩码与空间正则约束关联，再融合时间和空间特征重建。
         </p>
         <p>
-          本版SMST-AD由时间特征生成重建，空间分支计算注意力和空间正则；报告的解码器融合时间与空间特征。
+          本版 SMST-AD
+          由时间特征生成重建，空间分支计算注意力和空间正则；报告的解码器融合时间与空间特征。
         </p>
       </NoteSection>
       <NoteSection id="training-mse">
@@ -354,7 +363,8 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           训练重建误差（MSE）记录每轮的重建误差变化。每个批次先计算各窗口、各时刻、各测点的平方误差均值，再将这一轮各批次的均值取平均，得到曲线上的一个数值。
         </p>
         <p>
-          参数更新使用有界异常损失：正常时刻减小重建误差，异常时刻将误差推动到设定边界；SMST-AD同时计算空间正则。训练曲线读取保存的MSE记录，学习率读取对应轮次的优化器记录。
+          参数更新使用有界异常损失：正常时刻减小重建误差，异常时刻将误差推动到设定边界；SMST-AD
+          同时计算空间正则。训练曲线读取保存的 MSE 记录，学习率读取对应轮次的优化器记录。
         </p>
       </NoteSection>
       <ResultVersionLink />

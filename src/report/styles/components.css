@@ -762,8 +762,13 @@ details[open] > summary::before {
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
-.chapter-chart-panel + .facts {
+.chapter-chart-panel + .facts,
+.steps + .facts {
   border-top: 0;
+}
+/* The chapter navigation draws the closing rule. */
+.report-section:last-child > :is(.facts, .steps, .comparison):last-child {
+  border-bottom: 0;
 }
 .facts.is-lead strong {
   font-size: var(--text-5xl);
@@ -787,12 +792,15 @@ details[open] > summary::before {
 .comparison {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 48px;
+  border-block: 1px solid var(--line);
 }
 .comparison > * {
   min-width: 0;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
+  padding: 24px 24px 24px 0;
+}
+.comparison > * + * {
+  padding: 24px 0 24px 24px;
+  border-left: 1px solid var(--line);
 }
 .comparison > * > span {
   font-size: var(--text-xs);
@@ -812,7 +820,14 @@ details[open] > summary::before {
 @container (max-width: 640px) {
   .comparison {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+  }
+  .comparison > *,
+  .comparison > * + * {
+    padding: 20px 0;
+    border-left: 0;
+  }
+  .comparison > * + * {
+    border-top: 1px solid var(--line);
   }
   .comparison p {
     font-size: var(--text-sm);
@@ -824,7 +839,8 @@ details[open] > summary::before {
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   margin: 0;
-  padding: 0;
+  padding: 24px 0;
+  border-block: 1px solid var(--line);
   list-style: none;
 }
 .steps > * {
@@ -919,9 +935,8 @@ details[open] > summary::before {
 }
 .matrix-caption {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 4px;
   margin-bottom: 16px;
 }
 .matrix-caption h3 {
@@ -1117,7 +1132,8 @@ details[open] > summary::before {
   overflow-wrap: anywhere;
   color: var(--muted);
 }
-.note-anchor {
+.note-anchor,
+.nowrap {
   white-space: nowrap;
 }
 .footnote {

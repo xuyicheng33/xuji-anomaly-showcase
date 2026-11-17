@@ -363,8 +363,8 @@ export function PlaybackChapter(p: PlaybackProps) {
               <thead>
                 <tr>
                   <th>方法</th>
-                  <th>逐点F1</th>
-                  <th>区间点调整F1</th>
+                  <th>逐点 F1</th>
+                  <th>区间点调整 F1</th>
                   <th>精确率</th>
                   <th>召回率</th>
                   <th>检出</th>

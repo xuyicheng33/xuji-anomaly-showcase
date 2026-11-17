@@ -46,7 +46,6 @@ export default function AnomalyChapter({
     cm,
     arrays,
     reconstruction,
-    method,
     construction,
     feature,
     phase,
@@ -82,9 +81,6 @@ export default function AnomalyChapter({
         <div className="case-content">
           <div className="case-title">
             <div>
-              <p>
-                {method.name}：{construction.name}
-              </p>
               <h2>
                 {kind === 'reference'
                   ? '局部形态的改变'

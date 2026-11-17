@@ -5,7 +5,7 @@ export default function ResultVersionLink() {
   if (datasetId === 'wind') params.set('dataset', 'wind');
   if (!isLegacy) params.set('version', 'legacy');
   return (
-    <p className="reading-copy">
+    <p className="reading-copy result-version">
       <a
         className="inline-link"
         href={`${import.meta.env.BASE_URL}${params.size ? '?' + params : ''}#/metrics`}

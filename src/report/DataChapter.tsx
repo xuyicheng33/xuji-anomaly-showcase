@@ -166,9 +166,16 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
         >
           <div className="normalization-heading">
             <p className="reading-copy">
-              {wind
-                ? '沿用训练集的最小值和最大值，分母加 0.0001，保留超出 0—1 的测试值。'
-                : '沿用训练集的最小值和最大值，将测试值截断至 0—1。'}
+              {wind ? (
+                <>
+                  沿用训练集的最小值和最大值，分母加 0.0001，保留超出{' '}
+                  <span className="nowrap">0—1</span> 的测试值。
+                </>
+              ) : (
+                <>
+                  沿用训练集的最小值和最大值，将测试值截断至 <span className="nowrap">0—1</span>。
+                </>
+              )}
             </p>
             <FeaturePicker
               features={data.features}
@@ -196,6 +203,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
               <div className="normalization-plots">
                 <Curve
                   title="原始单位"
+                  legend={false}
                   lines={[{ name: featureName(point), values: norm.values, color: colors.input }]}
                   times={times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}
@@ -205,6 +213,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                 />
                 <Curve
                   title="归一化后"
+                  legend={false}
                   lines={[
                     { name: featureName(point), values: norm.normalized, color: colors.recon },
                   ]}

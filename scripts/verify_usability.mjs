@@ -145,7 +145,7 @@ try {
     assert.equal(await page.getByRole('slider', { name: '选择 64 点片段' }).inputValue(), '499');
     await startInput.fill('108');
     if (width <= 390) await selectFeature(page, '5');
-    await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();
+    await page.getByRole('button', { name: '查看模型结果', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
     assert.match(
       await page.locator('.calculation-scope').innerText(),

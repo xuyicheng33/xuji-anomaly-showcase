@@ -35,8 +35,6 @@ export default function ReconstructionView({
     <div className={'reconstruction-view' + (aggregate ? ' aggregate-view' : '')}>
       <Curve
         title={aggregate ? `${features} 测点平均曲线` : '测点输入与重建'}
-        note={compact ? 'window-aggregation' : 'score-calculation'}
-        reference={'ref-' + (compact ? 'playback' : 'detection') + '-reconstruction'}
         lines={[
           { name: aggregate ? '平均输入' : '测试输入', values: input, color: colors.input },
           ...(recon

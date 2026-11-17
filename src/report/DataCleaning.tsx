@@ -88,9 +88,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
           </div>
         </div>
         <details className="removed-sensors">
-          <summary>
-            全缺失测点清单<span>11 个</span>
-          </summary>
+          <summary>全缺失测点清单</summary>
           <ul>
             {cleaning.removedSensors.map((key) => (
               <li key={key}>

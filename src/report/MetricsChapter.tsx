@@ -110,7 +110,7 @@ export default function MetricsChapter({ data }: { data: Journey }) {
           </div>
         </div>
 
-        <p className="metrics-track-instruction" id="metrics-track-instruction">
+        <p className="metrics-track-instruction sr-only" id="metrics-track-instruction">
           点击报警点切换状态。<span>左右滑动查看全部时间点。</span>
         </p>
         <div
@@ -140,9 +140,7 @@ export default function MetricsChapter({ data }: { data: Journey }) {
               ))}
             </div>
             <div className="metrics-track metrics-alarm-track">
-              <span className="metrics-track-name">
-                实际报警<small>点击切换</small>
-              </span>
+              <span className="metrics-track-name">实际报警</span>
               {alarms.map((alarm, i) => (
                 <button
                   key={i}
@@ -180,7 +178,7 @@ export default function MetricsChapter({ data }: { data: Journey }) {
           </span>
         </div>
 
-        <p className="metrics-effect" aria-live="polite" aria-atomic="true">
+        <p className="metrics-effect sr-only" aria-live="polite" aria-atomic="true">
           逐点检出 <strong>{pointWise.tp} / 8</strong>，点调整检出{' '}
           <strong>{adjustedMetrics.tp} / 8</strong>，误报 <strong>{pointWise.fp}</strong>
         </p>

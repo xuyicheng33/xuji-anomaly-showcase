@@ -33,10 +33,6 @@
   color: var(--muted);
   text-wrap: pretty;
 }
-.models-chapter .model-flow {
-  padding: 24px 0;
-  border-block: 1px solid var(--line);
-}
 .model-explanation {
   display: grid;
   grid-template-columns: 1fr 1fr;

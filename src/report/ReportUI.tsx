@@ -183,7 +183,7 @@ export function Rates({ metrics }: { metrics: Metrics }) {
       {[
         ['精确率', metrics.precision],
         ['召回率', metrics.recall],
-        ['逐点F1', metrics.f1],
+        ['逐点 F1', metrics.f1],
       ].map(([k, v]) => (
         <div key={k}>
           <span>{k}</span>
@@ -218,7 +218,7 @@ export function ResultSummary({
       <span className="result-summary-scope">{scope}</span>
       <div className="result-summary-values">
         <span>
-          逐点F1
+          逐点 F1
           <strong key={pct(metrics.f1)} className="value-tick">
             {pct(metrics.f1)}
           </strong>

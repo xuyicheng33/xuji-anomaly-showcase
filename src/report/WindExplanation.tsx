@@ -77,7 +77,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="anomaly-labels">
         <p>
-          标签矩阵为 {data.times.length} × {data.features.length}，共有{' '}
+          标签矩阵为 {data.times.length.toLocaleString('en-US')} × {data.features.length}，共有{' '}
           {data.dataset?.labelCells.toLocaleString('zh-CN')} 个标记单元格。每行只要有一个字段为
           1，该时刻就标为异常；合计 {data.summary.anomalousRows} 个异常时刻。
         </p>
@@ -172,13 +172,13 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         <p>
           {data.methodResults
             ? model.id === 'model1'
-              ? '本页采用STAM-AD：Local和Global两个时间分支学习局部变化与较长范围的规律，融合后由解码器重建 28 维风电窗口。'
-              : '本页采用SMST-AD：多尺度时间分支与测点间的空间分支分别提取特征，时空融合结果送入解码器生成重建；训练还计算空间正则。'
-            : '本页采用SMST-AD：多尺度时空依赖建模的自监督TCN-Transformer异常检测模型，保留实现来自DTAAD_64_n2的 28 维实验。多尺度Local分支和Global分支提取时间特征，融合后生成重建。保留实现还包含空间分支，但当前解码输出使用时间融合结果，页面按实际生效路径说明。'}
+              ? '本页采用 STAM-AD：Local 和 Global 两个时间分支学习局部变化与较长范围的规律，融合后由解码器重建 28 维风电窗口。'
+              : '本页采用 SMST-AD：多尺度时间分支与测点间的空间分支分别提取特征，时空融合结果送入解码器生成重建；训练还计算空间正则。'
+            : '本页采用 SMST-AD：多尺度时空依赖建模的自监督 TCN-Transformer 异常检测模型，保留实现来自 DTAAD_64_n2 的 28 维实验。多尺度 Local 分支和 Global 分支提取时间特征，融合后生成重建。保留实现还包含空间分支，但当前解码输出使用时间融合结果，页面按实际生效路径说明。'}
         </p>
         <p>
-          检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32保存，误差与聚合按
-          float64计算。网站内各处使用同一份结果与精度。
+          检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32 保存，误差与聚合按
+          float64 计算。网站内各处使用同一份结果与精度。
         </p>
       </NoteSection>
       <NoteSection id="training-mse">

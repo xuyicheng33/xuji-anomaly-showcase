@@ -219,7 +219,7 @@ export default function ContributionView({
                   }}
                 >
                   <span className="contribution-name">
-                    其余 {features - rows.length} 个测点<small>查看全部 →</small>
+                    其余 {features - rows.length} 个测点<small>查看全部</small>
                   </span>
                   <span className="contribution-track">
                     <i style={{ width: `${percentage(remainder)}%` }} />

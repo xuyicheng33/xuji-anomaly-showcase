@@ -211,7 +211,7 @@ export function DetectionChapter(p: DetectionProps) {
           disabled={busy || !inputCurve.data || invalidStart}
           onClick={requestResult}
         >
-          {busy ? '正在读取…' : ready ? '重新查看结果' : '查看模型结果'} →
+          {busy ? '正在读取…' : ready ? '重新查看结果' : '查看模型结果'}
         </button>
       </div>
       <p
@@ -291,24 +291,18 @@ export function DetectionChapter(p: DetectionProps) {
       )}
       {ready && stats && (
         <div className="result-reveal">
-          <div className="evaluation-context">
-            <p>
-              判定阈值{' '}
-              <span className="note-anchor">
-                <strong data-testid="window-threshold">{threshold.toFixed(6)}</strong>
-                <Footnote note="thresholds" />
-              </span>
-            </p>
-          </div>
           <Curve
             title="窗口异常分数"
-            note="score-calculation"
-            reference="ref-detection-score-plot"
             lines={[
               { name: `${features} 测点平均平方误差`, values: resultScores, color: colors.score },
             ]}
             labels={labs}
             threshold={threshold}
+            thresholdLabel={
+              <>
+                阈值 <strong data-testid="window-threshold">{threshold.toFixed(6)}</strong>
+              </>
+            }
             selected={point}
             height={190}
             start={start}
