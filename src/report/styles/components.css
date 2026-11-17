@@ -66,7 +66,7 @@
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
-  transition: transform var(--motion-fast);
+  transition: transform var(--motion-fast) var(--ease-out);
 }
 .dataset-trigger[aria-expanded='true'] svg {
   transform: rotate(180deg);
@@ -78,7 +78,7 @@
   background: var(--paper);
   border: 1px solid var(--control-border);
   border-radius: var(--radius-panel);
-  box-shadow: 0 12px 32px #2429231a;
+  box-shadow: var(--shadow-popover);
   transform-origin: top left;
   animation: feature-open var(--motion-normal) var(--ease-out);
 }
@@ -141,7 +141,7 @@
   transition:
     left var(--motion-normal) var(--ease-out),
     width var(--motion-normal) var(--ease-out),
-    opacity var(--motion-fast);
+    opacity var(--motion-fast) var(--ease-out);
 }
 .menu-scrim {
   display: none;
@@ -218,7 +218,7 @@
   line-height: 1.6;
   font-weight: 500;
   text-wrap: balance;
-  transition: color var(--motion-fast);
+  transition: color var(--motion-fast) var(--ease-out);
 }
 .chapter-navigation a:hover strong {
   color: var(--blue);
@@ -271,7 +271,7 @@
   gap: 12px;
   min-height: var(--control-height);
   background: var(--ink);
-  color: #fff;
+  color: var(--on-ink);
   border: 1px solid var(--ink);
   border-radius: var(--radius-control);
   padding: 10px 20px;
@@ -284,7 +284,7 @@
     transform var(--motion-fast) var(--ease-out);
 }
 .primary:hover:not(:disabled) {
-  background: #3a4139;
+  background: var(--ink-hover);
 }
 .primary:active:not(:disabled) {
   transform: scale(0.97);
@@ -302,7 +302,7 @@
   justify-content: center;
   gap: 10px;
   min-height: var(--control-height);
-  padding: 10px 18px;
+  padding: 10px 16px;
   background: var(--paper);
   border: 1px solid var(--control-border);
   border-radius: var(--radius-control);
@@ -337,8 +337,8 @@
   text-underline-offset: 5px;
   text-decoration-thickness: 1px;
   transition:
-    text-decoration-color var(--motion-fast),
-    color var(--motion-fast);
+    text-decoration-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
 }
 button.inline-link {
   min-height: var(--control-height);
@@ -367,7 +367,7 @@ details > summary::before {
   height: 12px;
   background-image: var(--disclosure-arrow);
   transform: rotate(-90deg);
-  transition: transform var(--motion-fast);
+  transition: transform var(--motion-fast) var(--ease-out);
 }
 details[open] > summary::before {
   transform: rotate(0);
@@ -392,7 +392,7 @@ details[open] > summary::before {
   z-index: 1;
   border: 0;
   min-height: 36px;
-  padding: 7px 14px;
+  padding: 6px 14px;
   font-size: var(--text-sm);
   border-radius: var(--radius-control);
   color: var(--muted);
@@ -413,9 +413,7 @@ details[open] > summary::before {
   background: var(--paper);
   color: var(--ink);
   font-weight: 500;
-  box-shadow:
-    0 1px 2px #2028201a,
-    0 0 0 0.5px #20282014;
+  box-shadow: var(--shadow-raised);
 }
 .segmented:has(> .selection-indicator) button[aria-pressed='true'] {
   background: transparent;
@@ -433,9 +431,7 @@ details[open] > summary::before {
   z-index: 0;
   background: var(--paper);
   border-radius: var(--radius-control);
-  box-shadow:
-    0 1px 2px #2028201a,
-    0 0 0 0.5px #20282014;
+  box-shadow: var(--shadow-raised);
   pointer-events: none;
 }
 .selection-indicator.is-ready {
@@ -444,7 +440,7 @@ details[open] > summary::before {
     top var(--motion-normal) var(--ease-out),
     width var(--motion-normal) var(--ease-out),
     height var(--motion-normal) var(--ease-out),
-    opacity var(--motion-fast);
+    opacity var(--motion-fast) var(--ease-out);
 }
 .field {
   display: flex;
@@ -477,7 +473,7 @@ details[open] > summary::before {
   min-height: var(--control-height);
   text-align: left;
   background: var(--paper);
-  padding: 9px 12px;
+  padding: 8px 12px;
   font-size: var(--text-sm);
 }
 .feature-trigger > span {
@@ -517,7 +513,7 @@ details[open] > summary::before {
   background: var(--paper);
   border: 1px solid var(--control-border);
   border-radius: var(--radius-panel);
-  box-shadow: 0 12px 32px #2429231a;
+  box-shadow: var(--shadow-popover);
   padding: 12px;
   transform-origin: top center;
   animation: feature-open var(--motion-normal) var(--ease-out);
@@ -702,7 +698,7 @@ details[open] > summary::before {
   flex-wrap: wrap;
   gap: 12px 20px;
   align-items: center;
-  padding: 18px 0;
+  padding: 16px 0;
   color: var(--negative);
   font-size: var(--text-sm);
 }
@@ -1058,10 +1054,10 @@ details[open] > summary::before {
   font-variant-numeric: tabular-nums;
 }
 .reference-table-scroll th {
-  padding: 10px 18px;
+  padding: 10px 16px;
 }
 .reference-table-scroll td {
-  padding: 10px 18px;
+  padding: 10px 16px;
 }
 .reference-table-scroll thead th {
   position: sticky;
@@ -1105,7 +1101,7 @@ details[open] > summary::before {
   flex-shrink: 0;
 }
 .math-fraction > span {
-  padding: 5px 10px;
+  padding: 4px 10px;
   white-space: nowrap;
 }
 .math-fraction > span + span {
@@ -1141,7 +1137,7 @@ details[open] > summary::before {
   color: var(--blue);
   border-bottom: 1px solid transparent;
   white-space: nowrap;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--motion-fast) var(--ease-out);
 }
 .footnote a:hover {
   border-color: var(--link-line);
@@ -1153,15 +1149,15 @@ details[open] > summary::before {
   justify-content: center;
   min-height: 32px;
   min-width: 32px;
-  padding: 7px;
+  padding: 6px;
   border: 0;
   line-height: 1;
   text-decoration: none;
   text-align: center;
   border-radius: 50%;
   transition:
-    background var(--motion-fast),
-    color var(--motion-fast);
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
 }
 .info-trigger svg {
   width: 18px;
@@ -1194,7 +1190,7 @@ details[open] > summary::before {
   color: var(--ink);
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
-  box-shadow: 0 12px 32px #2429231a;
+  box-shadow: var(--shadow-popover);
   font: var(--text-sm) / 1.75 var(--sans);
   letter-spacing: normal;
   text-align: left;
@@ -1226,7 +1222,7 @@ details[open] > summary::before {
   overflow: hidden;
   clip-path: inset(100%);
   background: var(--ink);
-  color: #fff;
+  color: var(--on-ink);
   z-index: 100;
 }
 .skip-link:focus-visible {
@@ -1234,7 +1230,7 @@ details[open] > summary::before {
   left: 20px;
   width: auto;
   height: auto;
-  padding: 15px;
+  padding: 14px;
   clip-path: none;
   overflow: visible;
 }
@@ -1257,7 +1253,7 @@ details[open] > summary::before {
     padding-block: 10px;
   }
   .site-main {
-    padding-inline: 30px;
+    padding-inline: 28px;
   }
   .statistics {
     gap: 28px;
@@ -1342,7 +1338,7 @@ details[open] > summary::before {
     padding: 4px var(--gutter) 16px;
     background: var(--paper);
     border-bottom: 1px solid var(--line);
-    box-shadow: 0 18px 40px #2429231f;
+    box-shadow: var(--shadow-sheet);
     max-height: calc(100dvh - var(--header-height));
     overflow-y: auto;
     transform-origin: top center;
@@ -1380,11 +1376,11 @@ details[open] > summary::before {
     position: fixed;
     inset: 0;
     z-index: 40;
-    background: #24292326;
+    background: var(--scrim);
     animation: scrim-in var(--motion-normal) var(--ease-out);
   }
   .site-main {
-    padding: 8px 22px 56px;
+    padding: 8px 20px 56px;
   }
   .chapter-heading {
     padding-block: var(--heading-space);
@@ -1469,7 +1465,7 @@ details[open] > summary::before {
     min-width: 0;
   }
   .chapter-chart-panel {
-    padding: 18px 0;
+    padding: 16px 0;
   }
   .chart-context {
     flex-direction: column;
@@ -1510,7 +1506,7 @@ details[open] > summary::before {
   }
   .confusion-cell {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: 5px;
+    row-gap: 4px;
   }
   .confusion-cell strong {
     justify-self: start;
@@ -1522,7 +1518,7 @@ details[open] > summary::before {
     align-items: stretch;
   }
 }
-@media (max-width: 360px) {
+@media (max-width: 380px) {
   .brand {
     gap: 6px;
   }

@@ -12,7 +12,7 @@
   align-items: center;
   gap: 20px;
   border-block: 1px solid var(--line);
-  padding: 18px 0;
+  padding: 16px 0;
 }
 .selection-panel > input {
   min-width: 0;
@@ -81,9 +81,9 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 18px 0;
+  padding: 16px 0;
   border-bottom: 1px solid var(--line);
-  margin: 26px 0 24px;
+  margin: 24px 0 24px;
 }
 .evaluation-context p {
   flex: 1;

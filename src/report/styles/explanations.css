@@ -22,7 +22,7 @@
 }
 .score-calculation {
   margin-top: 32px;
-  padding: 30px 0 12px;
+  padding: 28px 0 12px;
   border-top: 1px solid var(--line);
   scroll-margin-top: 24px;
 }
@@ -109,7 +109,7 @@
 .sensor-calculation-detail dl {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 110px), 1fr));
-  gap: 14px 18px;
+  gap: 14px 16px;
   margin: 0;
 }
 .sensor-calculation-detail dt {
@@ -122,19 +122,19 @@
   overflow-wrap: anywhere;
 }
 .calculation-table th {
-  padding: 12px 9px;
+  padding: 12px 8px;
   text-align: right;
   white-space: nowrap;
 }
 .calculation-table td {
-  padding: 12px 9px;
+  padding: 12px 8px;
   text-align: right;
   white-space: nowrap;
 }
 .calculation-table th:first-child {
   text-align: left;
   min-width: 174px;
-  background: var(--paper, #f8f7f3);
+  background: var(--paper);
 }
 .calculation-table th small {
   display: block;
@@ -193,7 +193,7 @@
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
-  padding: 18px 0 25px;
+  padding: 16px 0 24px;
   border-top: 1px solid var(--line);
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -220,14 +220,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 25px;
+  gap: 24px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  padding: 23px 0;
+  padding: 24px 0;
 }
 .aggregation-summary h2 {
   font-size: var(--text-xl);
-  margin-bottom: 7px;
+  margin-bottom: 6px;
 }
 .aggregation-summary p {
   font-size: var(--text-xs);
@@ -265,10 +265,10 @@
   font-variant-numeric: tabular-nums;
 }
 .window-score-scroll td {
-  padding: 12px 18px;
+  padding: 12px 16px;
 }
 .window-score-scroll th {
-  padding: 12px 18px;
+  padding: 12px 16px;
 }
 .window-score-scroll button {
   white-space: nowrap;
@@ -331,14 +331,14 @@
 .explanation-index {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0 30px;
-  padding: 15px 0 25px;
+  gap: 0 28px;
+  padding: 14px 0 24px;
   border-top: 1px solid var(--line);
   position: absolute;
   top: 100%;
   width: 100%;
   background: var(--paper);
-  box-shadow: 0 8px 16px #24292312;
+  box-shadow: var(--shadow-float);
   max-height: min(65dvh, 560px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -350,7 +350,7 @@
   gap: 12px;
   color: var(--ink);
   font-size: var(--text-sm);
-  padding: 11px 0;
+  padding: 10px 0;
   text-decoration: none;
 }
 .explanation-index a span {
@@ -364,16 +364,16 @@
   color: var(--blue);
 }
 .explanation-entry {
-  padding: 36px 0;
+  padding: 32px 0;
   border-top: 1px solid var(--line);
-  scroll-margin-top: var(--explanation-scroll-offset, 100px);
+  scroll-margin-top: var(--explanation-scroll-offset, 96px);
   outline: none;
 }
 .explanation-heading {
   display: flex;
   align-items: baseline;
-  gap: 18px;
-  margin-bottom: 22px;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 .explanation-number {
   font-family: var(--numeral);
@@ -400,11 +400,11 @@
   text-wrap: pretty;
 }
 .explanation-body > p {
-  margin-bottom: 15px;
+  margin-bottom: 14px;
   max-width: 920px;
 }
 .explanation-body > div > p {
-  margin-bottom: 15px;
+  margin-bottom: 14px;
   max-width: 920px;
 }
 .reference-table-scroll .anomaly-label-table {
@@ -475,7 +475,7 @@
   .explanation-index a {
     gap: 10px;
     margin-left: -1px;
-    padding: 7px 0 7px 16px;
+    padding: 6px 0 6px 16px;
     border-left: 1.5px solid transparent;
     color: var(--muted);
     font-size: var(--text-xs);
@@ -500,14 +500,14 @@
     padding-top: 8px;
   }
 }
-@media (max-width: 1050px) {
+@media (max-width: 1120px) {
   .calculation-layout {
     grid-template-columns: 1fr;
     gap: 24px;
   }
   .calculation-total {
     border-left: 0;
-    padding: 22px 0 0;
+    padding: 20px 0 0;
     border-top: 1px solid var(--line);
   }
   .aggregation-summary {
@@ -583,7 +583,7 @@
     margin-left: auto;
   }
   .aggregation-formula {
-    gap: 7px;
+    gap: 6px;
     font-size: var(--text-xs);
   }
   .aggregation-formula strong {
@@ -591,13 +591,13 @@
   }
   .explanation-index {
     grid-template-columns: 1fr;
-    padding-bottom: 18px;
+    padding-bottom: 16px;
   }
   .explanation-index-toggle {
     gap: 10px;
   }
   .explanation-index a {
-    padding: 9px 0;
+    padding: 8px 0;
     font-size: var(--text-sm);
   }
   .explanation-heading {
@@ -704,7 +704,7 @@
 }
 .metrics-example {
   border-top: 1px solid var(--line);
-  padding-top: 26px;
+  padding-top: 24px;
 }
 .metrics-example-heading {
   display: flex;
@@ -718,21 +718,21 @@
 }
 .metrics-presets {
   display: flex;
-  gap: 9px;
+  gap: 8px;
   flex-shrink: 0;
   align-items: center;
   flex-wrap: wrap;
 }
 .metrics-presets button {
   font-size: var(--text-sm);
-  padding: 9px 12px;
+  padding: 8px 12px;
   min-height: 42px;
 }
 .metrics-presets .text-button {
-  padding: 9px 5px;
+  padding: 8px 4px;
 }
 .metrics-track-instruction {
-  margin: 23px 0 10px;
+  margin: 24px 0 10px;
   font-size: var(--text-sm);
   color: var(--muted);
 }
@@ -742,7 +742,7 @@
 .metrics-track-scroll {
   overflow-x: auto;
   overscroll-behavior-x: contain;
-  padding: 4px 0 9px;
+  padding: 4px 0 8px;
   scrollbar-width: thin;
   outline-offset: 4px;
 }
@@ -792,9 +792,9 @@
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
   background: var(--surface);
-  color: #6c7066;
+  color: var(--muted);
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: var(--radius-mark);
   padding: 0;
   transition:
     background 0.16s,
@@ -805,8 +805,8 @@
   height: 28px;
 }
 .metrics-point.is-anomaly {
-  background: #edd8c3;
-  color: #805029;
+  background: var(--clay-surface-strong);
+  color: var(--clay-ink);
 }
 .metrics-alarm-track {
   margin-top: 4px;
@@ -814,36 +814,36 @@
 }
 .metrics-alarm-track .metrics-point {
   height: 44px;
-  border-color: #b5bcb2;
+  border-color: var(--line-strong);
   background: var(--paper);
   border-radius: var(--radius-small);
 }
 .metrics-alarm-track .metrics-point:hover {
-  background: #e4e9ea;
+  background: var(--data-surface);
   border-color: var(--blue);
 }
 .metrics-point.is-alarm {
   background: var(--blue);
   border-color: var(--blue);
-  color: #fff;
+  color: var(--on-ink);
 }
 .metrics-alarm-track .metrics-point.is-alarm {
   background: var(--blue);
   border-color: var(--blue);
-  color: #fff;
+  color: var(--on-ink);
 }
 .metrics-alarm-track .metrics-point.is-alarm:hover {
-  background: #294d66;
+  background: var(--data-ink);
 }
 .metrics-point.is-added {
-  background: #e0e9ed;
+  background: var(--data-surface);
   border: 1px dashed var(--blue);
-  color: #294f69;
+  color: var(--data-ink);
 }
 .metrics-track-key i.is-added {
-  background: #e0e9ed;
+  background: var(--data-surface);
   border: 1px dashed var(--blue);
-  color: #294f69;
+  color: var(--data-ink);
 }
 .metrics-alarm-track .metrics-point:focus-visible {
   position: relative;
@@ -861,18 +861,18 @@
 .metrics-track-key > span {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
 }
 .metrics-track-key i {
   width: 16px;
   height: 14px;
   display: inline-block;
-  border-radius: 1px;
+  border-radius: var(--radius-mark);
 }
 .metrics-effect {
   font-size: var(--text-md);
   line-height: 1.85;
-  margin: 20px 0 22px;
+  margin: 20px 0 20px;
   color: var(--muted);
 }
 .metrics-effect strong {
@@ -889,7 +889,7 @@
   position: static;
   border-top: 1px solid var(--line);
   font-size: var(--text-md);
-  padding: 15px 0;
+  padding: 14px 0;
 }
 .metrics-comparison th:first-child {
   width: 50%;
@@ -944,11 +944,11 @@
   font-size: var(--text-sm);
 }
 .metrics-archive th {
-  padding: 15px 12px;
+  padding: 14px 12px;
   text-align: right;
 }
 .metrics-archive td {
-  padding: 15px 12px;
+  padding: 14px 12px;
   text-align: right;
 }
 .metrics-archive th:first-child {
@@ -976,13 +976,13 @@
   background: transparent;
 }
 .metrics-archive tbody + tbody {
-  border-top: 1px solid #aeb5a9;
+  border-top: 1px solid var(--line-strong);
 }
 .metrics-archive-f1 {
   font-weight: 600;
   color: var(--data);
 }
-@media (max-width: 1050px) {
+@media (max-width: 1120px) {
   .metrics-example-heading {
     display: block;
   }
@@ -995,18 +995,18 @@
   }
   .metrics-comparison tbody th small {
     display: block;
-    margin: 5px 0 0;
+    margin: 4px 0 0;
   }
 }
 @media (max-width: 680px) {
   .metrics-example {
-    padding-top: 23px;
+    padding-top: 24px;
   }
   .metrics-example-heading h2 {
     font-size: var(--text-2xl);
   }
   .metrics-track-instruction {
-    margin-top: 19px;
+    margin-top: 20px;
     font-size: var(--text-xs);
   }
   .metrics-track-instruction > span {
@@ -1024,11 +1024,11 @@
   }
   .metrics-track-key {
     font-size: var(--text-2xs);
-    gap: 9px;
+    gap: 8px;
   }
   .metrics-effect {
     font-size: var(--text-sm);
-    margin: 19px 0;
+    margin: 20px 0;
   }
   .metrics-comparison th:first-child {
     width: 42%;
@@ -1058,13 +1058,13 @@
     font-size: var(--text-xs);
   }
   .metrics-archive th {
-    padding: 13px 10px;
+    padding: 12px 10px;
   }
   .metrics-archive td {
-    padding: 13px 10px;
+    padding: 12px 10px;
   }
   .metrics-page .report-section {
-    margin-top: 38px;
+    margin-top: 40px;
   }
   .metrics-archive th[rowspan] {
     position: sticky;
@@ -1085,7 +1085,7 @@
   margin: 28px 0;
 }
 .evaluation-thresholds h3 {
-  margin: 0 0 18px;
+  margin: 0 0 16px;
 }
 .evaluation-thresholds dl {
   margin: 0;
@@ -1095,16 +1095,16 @@
   justify-content: space-between;
   gap: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid #dcded6;
+  border-bottom: 1px solid var(--line);
 }
 .evaluation-thresholds dt {
-  color: #586257;
+  color: var(--muted);
 }
 .evaluation-thresholds dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
 }
-@media (max-width: 640px) {
+@media (max-width: 680px) {
   .evaluation-thresholds {
     grid-template-columns: 1fr;
     gap: 28px;
@@ -1118,8 +1118,8 @@
   gap: 24px;
 }
 .metrics-page .metrics-effect {
-  margin-top: 26px;
-  margin-bottom: 26px;
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 .metrics-page .metrics-definition {
   margin-top: 20px;

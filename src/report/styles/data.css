@@ -10,7 +10,7 @@
   letter-spacing: 0.04em;
   color: var(--muted);
   display: block;
-  margin-bottom: 17px;
+  margin-bottom: 16px;
 }
 .balanced-split {
   display: grid;
@@ -70,20 +70,20 @@
 .normalization-plots {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 25px;
+  gap: 24px;
 }
 .normalization-plots > .curve {
   min-width: 0;
 }
 .normalization-plots > .curve + .curve {
   border-left: 1px solid var(--line);
-  padding-left: 25px;
+  padding-left: 24px;
 }
 .normalization-plots .curve-top {
   display: block;
 }
 .normalization-plots .legend {
-  margin-top: 9px;
+  margin-top: 8px;
 }
 .normalization-equation {
   font-family: var(--metric);
@@ -106,7 +106,7 @@
   font-weight: 500;
   color: var(--data);
 }
-@media (max-width: 1050px) {
+@media (max-width: 1120px) {
   .normalization-heading {
     grid-template-columns: 1fr;
   }
@@ -139,7 +139,7 @@
   display: grid;
   grid-template-columns: minmax(230px, 0.85fr) minmax(0, 1.6fr);
   gap: 56px;
-  padding: 36px 0;
+  padding: 32px 0;
   border-bottom: 1px solid var(--line);
 }
 .cleaning-intro .small-step {
@@ -162,7 +162,7 @@
   flex-wrap: wrap;
   align-items: baseline;
   gap: 16px;
-  margin-top: 22px;
+  margin-top: 20px;
 }
 .cleaning-count strong {
   font-family: var(--metric);
@@ -238,12 +238,18 @@
   font-size: var(--text-2xs);
 }
 .record-strip .valid {
-  background: #dfe7e7;
-  color: #345365;
+  background: var(--data-surface);
+  color: var(--data-ink);
 }
 .record-strip .invalid {
-  background: repeating-linear-gradient(135deg, #e4c8b6 0, #e4c8b6 5px, #f0e1d6 5px, #f0e1d6 9px);
-  color: #71462c;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--clay-stripe) 0,
+    var(--clay-stripe) 5px,
+    var(--clay-stripe-soft) 5px,
+    var(--clay-stripe-soft) 9px
+  );
+  color: var(--clay-ink);
   min-width: 8px;
 }
 .record-strip span {
@@ -270,19 +276,19 @@
   opacity: 0.4;
 }
 .invalid-intervals > div {
-  border-left: 2px solid #c99876;
-  padding-left: 13px;
+  border-left: 2px solid var(--clay-border);
+  padding-left: 12px;
 }
 .invalid-intervals span {
   display: block;
   font-size: var(--text-xs);
-  color: #875638;
+  color: var(--clay-ink);
 }
 .invalid-intervals strong {
   display: block;
   font-size: var(--text-sm);
   font-weight: 500;
-  margin: 5px 0;
+  margin: 4px 0;
 }
 .invalid-intervals p {
   font-size: var(--text-xs);
@@ -313,7 +319,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 5px 14px;
+  gap: 4px 14px;
   margin-bottom: 14px;
   font-size: var(--text-xs);
   color: var(--muted);
@@ -351,17 +357,17 @@
   }
 }
 .missing-example th {
-  padding: 11px 16px;
+  padding: 10px 16px;
 }
 .missing-example td {
-  padding: 11px 16px;
+  padding: 10px 16px;
   width: 37%;
 }
 .missing-example th:first-child {
   width: 26%;
 }
 .filled-row {
-  background: #edf0e8;
+  background: var(--surface);
 }
 .missing-value {
   color: var(--muted);
@@ -454,10 +460,10 @@
   font-size: var(--text-2xs);
   font-weight: 400;
   color: var(--muted);
-  margin-top: 5px;
+  margin-top: 4px;
 }
 .raw-missing-cell {
-  background: #f3ece3;
+  background: var(--clay-surface);
 }
 .example-caption {
   font-size: var(--text-xs);
@@ -472,16 +478,16 @@
   white-space: nowrap;
 }
 .removed-record-row {
-  background: #f3ece3;
+  background: var(--clay-surface);
 }
 .removed-record-row strong {
-  color: #875638;
+  color: var(--clay-ink);
   font-weight: 500;
 }
-@media (max-width: 1050px) {
+@media (max-width: 1120px) {
   .cleaning-step {
     grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.5fr);
-    gap: 30px;
+    gap: 28px;
   }
   .removed-sensors ul {
     grid-template-columns: 1fr;
@@ -501,7 +507,7 @@
 @media (max-width: 680px) {
   .cleaning-step {
     grid-template-columns: minmax(0, 1fr);
-    gap: 22px;
+    gap: 20px;
     padding: 28px 0;
   }
   .cleaning-intro h3 {
@@ -535,7 +541,7 @@
   .missing-switch {
     display: flex;
     width: fit-content;
-    margin-top: 18px;
+    margin-top: 16px;
   }
   .missing-switch button {
     min-width: 90px;
@@ -553,15 +559,15 @@
     width: 100%;
   }
   .missing-example th {
-    padding: 10px 9px;
+    padding: 10px 8px;
     font-size: var(--text-xs);
   }
   .missing-example td {
-    padding: 10px 9px;
+    padding: 10px 8px;
     font-size: var(--text-xs);
   }
   .filled-value {
-    gap: 7px;
+    gap: 6px;
   }
   .filled-value span {
     font-size: var(--text-2xs);
@@ -570,7 +576,7 @@
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-bottom: 22px;
+    margin-bottom: 20px;
   }
   .record-example-tabs button {
     flex: 1;
@@ -602,10 +608,10 @@
     font-size: var(--text-xs);
   }
   .record-examples .missing-example th {
-    padding: 10px 9px;
+    padding: 10px 8px;
   }
   .record-examples .missing-example td {
-    padding: 10px 9px;
+    padding: 10px 8px;
   }
   .record-examples .example-caption {
     font-size: var(--text-2xs);

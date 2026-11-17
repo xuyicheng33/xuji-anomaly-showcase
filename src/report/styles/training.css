@@ -34,7 +34,7 @@
 }
 .window-position-actions button {
   font-size: var(--text-xs);
-  padding: 9px 13px;
+  padding: 8px 12px;
   min-height: var(--control-height);
   background: var(--paper);
 }
@@ -46,7 +46,7 @@
   .training-window-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 13px;
+    gap: 12px;
   }
   .window-position-actions {
     display: grid;
