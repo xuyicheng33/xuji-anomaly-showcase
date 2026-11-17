@@ -153,12 +153,6 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
             </div>
           ))}
         </div>
-        {!wind && (
-          <p className="split-context quiet">
-            模型使用时，两段各跳过首条记录：训练 {number(data.summary.trainRows, 0)} 条，测试{' '}
-            {number(data.summary.testRows, 0)} 条。
-          </p>
-        )}
       </Section>
 
       <div ref={normalizationRef} className="normalization-section">

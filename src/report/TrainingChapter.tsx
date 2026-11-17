@@ -135,7 +135,8 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
                   onChange={(e) => setWindowStart(+e.target.value)}
                 />
                 <span>
-                  {start + 1}—{start + data.window}
+                  {(start + 1).toLocaleString('en-US')}—
+                  {(start + data.window).toLocaleString('en-US')}
                 </span>
               </label>
               <div className="window-position-actions">

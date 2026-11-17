@@ -133,7 +133,7 @@ export function ScoreCalculation({
               className="calculation-table-scroll"
               tabIndex={0}
               role="region"
-              aria-label={`全部${features}个测点计算明细`}
+              aria-label={`全部 ${features} 个测点计算明细`}
               aria-describedby={id + '-scroll-hint'}
             >
               <table className="calculation-table">
@@ -181,7 +181,7 @@ export function ScoreCalculation({
           </div>
         </div>
         <div className="calculation-total">
-          <h3>汇总全部{features}项</h3>
+          <h3>汇总全部 {features} 项</h3>
           <p>平方误差合计</p>
           <strong className="sum-value" data-testid={id + '-sum'}>
             {decimal(calculation.sum)}

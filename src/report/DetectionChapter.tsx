@@ -192,7 +192,7 @@ export function DetectionChapter(p: DetectionProps) {
           />
         </label>
         <input
-          aria-label={`选择${window}点片段`}
+          aria-label={`选择 ${window} 点片段`}
           type="range"
           min="0"
           max={data.times.length - window}
@@ -204,7 +204,7 @@ export function DetectionChapter(p: DetectionProps) {
           }}
         />
         <span>
-          第 {start + 1}—{start + window} 点
+          第 {(start + 1).toLocaleString('en-US')}—{(start + window).toLocaleString('en-US')} 点
         </span>
         <button
           className="primary"
@@ -230,7 +230,7 @@ export function DetectionChapter(p: DetectionProps) {
       </p>
       {ready && stats && (
         <div className="detection-summary" ref={resultSummary} aria-live="polite">
-          <ResultSummary metrics={stats} scope={`独立窗口 · 第 ${start + 1}—${start + window} 点`}>
+          <ResultSummary metrics={stats} scope="独立窗口">
             <button
               className="inline-link"
               onClick={() =>
@@ -292,7 +292,6 @@ export function DetectionChapter(p: DetectionProps) {
       {ready && stats && (
         <div className="result-reveal">
           <div className="evaluation-context">
-            <span>独立窗口评估</span>
             <p>
               判定阈值{' '}
               <span className="note-anchor">
@@ -306,7 +305,7 @@ export function DetectionChapter(p: DetectionProps) {
             note="score-calculation"
             reference="ref-detection-score-plot"
             lines={[
-              { name: `${features}测点平均平方误差`, values: resultScores, color: colors.score },
+              { name: `${features} 测点平均平方误差`, values: resultScores, color: colors.score },
             ]}
             labels={labs}
             threshold={threshold}
@@ -340,9 +339,6 @@ export function DetectionChapter(p: DetectionProps) {
                 <Confusion metrics={stats} />
                 <Rates metrics={stats} />
               </div>
-              <p className="quiet">
-                统计范围：第 {start + 1}—{start + window} 点
-              </p>
             </Section>
           </div>
           <ScoreCalculation

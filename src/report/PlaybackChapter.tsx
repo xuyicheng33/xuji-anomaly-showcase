@@ -169,12 +169,14 @@ export function PlaybackChapter(p: PlaybackProps) {
         </p>
       )}
       <div className="playback-status" ref={overview}>
-        <span>{count ? data.times[idx] : data.times[from]}</span>
-        {count ? (
-          <Outcome label={data.labels[idx]} score={model.scores[idx]} model={model} />
-        ) : null}
+        <span className="playback-moment">
+          <span>{count ? data.times[idx] : data.times[from]}</span>
+          {count ? (
+            <Outcome label={data.labels[idx]} score={model.scores[idx]} model={model} />
+          ) : null}
+        </span>
         <span data-testid="played-count">
-          已查看 {count} / {total} 点
+          已查看 {count.toLocaleString('en-US')} / {total.toLocaleString('en-US')} 点
         </span>
       </div>
       <input
@@ -295,16 +297,13 @@ export function PlaybackChapter(p: PlaybackProps) {
           <div>
             <div className="current-score">
               <span>
-                当前时刻分数 /{' '}
-                <span className="note-anchor">
-                  阈值
-                  <Footnote note="thresholds" reference="ref-playback-threshold-value" />
-                </span>
+                当前时刻分数
+                <Footnote note="thresholds" reference="ref-playback-threshold-value" />
               </span>
               <strong>
-                {count ? model.scores[idx].toFixed(5) : '—'}{' '}
+                {count ? model.scores[idx].toFixed(6) : '—'}{' '}
                 <small>
-                  {count ? (pred ? '>' : '≤') : '/'} {threshold.toFixed(5)}
+                  {count ? (pred ? '>' : '≤') : '/'} 阈值 {threshold.toFixed(6)}
                 </small>
               </strong>
             </div>
@@ -395,7 +394,7 @@ export function PlaybackChapter(p: PlaybackProps) {
             </table>
           </div>
           <p className="quiet">
-            {data.times.length.toLocaleString('en-US')} 个时刻，检出、误报与漏检按逐点统计。
+            {data.times.length.toLocaleString('en-US')} 个时刻逐点统计
             <Footnote note="thresholds" reference="ref-playback-thresholds" />
           </p>
         </Section>

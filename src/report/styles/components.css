@@ -189,13 +189,6 @@
 .chapter-heading h1 {
   font-size: var(--title-page);
 }
-.chapter-heading p {
-  max-width: 42em;
-  margin-top: 16px;
-  font-size: var(--text-lg);
-  color: var(--muted);
-  line-height: 1.8;
-}
 .chapter-navigation {
   display: flex;
   flex-wrap: wrap;
@@ -1076,10 +1069,27 @@ details[open] > summary::before {
   z-index: 2;
   background: var(--paper);
 }
-.reference-table-hint {
-  font-size: var(--text-xs);
-  color: var(--muted);
-  line-height: 1.7;
+/* Scroll regions fade the edge that still has content; the hint is for screen readers. */
+[data-more] {
+  mask-image:
+    linear-gradient(
+      to right,
+      transparent,
+      #000 var(--fade-start, 0px),
+      #000 calc(100% - var(--fade-end, 0px)),
+      transparent
+    ),
+    linear-gradient(to bottom, #000 calc(100% - var(--fade-bottom, 0px)), transparent);
+  mask-composite: intersect;
+}
+[data-more~='start'] {
+  --fade-start: 32px;
+}
+[data-more~='end'] {
+  --fade-end: 32px;
+}
+[data-more~='bottom'] {
+  --fade-bottom: 32px;
 }
 .math-fraction {
   display: inline-grid;
@@ -1381,10 +1391,6 @@ details[open] > summary::before {
   }
   .chapter-heading h1 {
     line-height: 1.5;
-  }
-  .chapter-heading p {
-    margin-top: 12px;
-    font-size: var(--text-md);
   }
   .toolbar,
   .model-selection-row {

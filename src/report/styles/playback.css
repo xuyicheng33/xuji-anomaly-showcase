@@ -95,6 +95,11 @@
   padding-top: 16px;
   font-size: var(--text-sm);
 }
+.playback-moment {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 16px;
+}
 .playhead {
   width: 100%;
   margin: 10px 0;
@@ -148,15 +153,6 @@
   .playback-settings label {
     flex-wrap: wrap;
   }
-  .current-score {
-    flex-wrap: wrap;
-  }
-  .current-score strong {
-    white-space: normal;
-  }
-  .current-score small {
-    display: block;
-  }
   .aggregation-formula {
     flex-wrap: wrap;
     min-width: 0;
@@ -192,9 +188,9 @@
 }
 .current-score {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   margin-bottom: 28px;
 }
 .current-score > span {
@@ -204,11 +200,13 @@
 .current-score strong {
   font-size: var(--text-2xl);
   font-weight: 500;
-  white-space: nowrap;
 }
 .current-score small {
+  display: block;
+  margin-top: 4px;
   color: var(--muted);
   font-size: var(--text-sm);
+  font-weight: 400;
 }
 .replay-links {
   display: flex;
@@ -238,9 +236,6 @@
   .playback-statistics .matrix-caption {
     margin-bottom: 12px;
   }
-  .playback-statistics .confusion {
-    gap: 6px;
-  }
   .playback-statistics .confusion-cell {
     padding: 12px;
     min-height: 76px;
@@ -251,6 +246,7 @@
   .replay-workspace > .statistics {
     display: flex;
     flex-direction: column;
+    align-items: stretch;
     gap: 20px;
     padding: 7px 0 0 20px;
     border-left: 1px solid var(--line);

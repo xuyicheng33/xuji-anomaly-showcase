@@ -1,3 +1,4 @@
+import TableScrollHint from './TableScrollHint';
 import { loadCalculationIndex, loadPointScores } from '../calculationIndex';
 import { coveringWindows } from '../dataGeometry';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -125,7 +126,7 @@ export function PlaybackCalculation({
       {open && index !== null && (
         <div className="aggregation-detail result-reveal">
           <p>
-            各窗口在同一时刻的{data.features.length}项平方误差取平均，再合并这 {starts.length}{' '}
+            各窗口在同一时刻的 {data.features.length} 项平方误差取平均，再合并这 {starts.length}{' '}
             个窗口分数。
           </p>
           {catalog.error || scoresAsset.error ? (
@@ -167,7 +168,8 @@ export function PlaybackCalculation({
                         className={selected === row.start ? 'selected-sensor' : undefined}
                       >
                         <th scope="row">
-                          第 {row.start + 1}—{row.start + data.window} 点
+                          第 {(row.start + 1).toLocaleString('en-US')}—
+                          {(row.start + data.window).toLocaleString('en-US')} 点
                         </th>
                         <td>
                           {index - row.start + 1} / {data.window}
@@ -189,7 +191,7 @@ export function PlaybackCalculation({
                               );
                             }}
                           >
-                            查看{data.features.length}项
+                            查看 {data.features.length} 项
                           </button>
                         </td>
                       </tr>
@@ -197,9 +199,7 @@ export function PlaybackCalculation({
                   </tbody>
                 </table>
               </div>
-              <p className="window-score-hint" id="window-score-hint">
-                左右滑动查看计算明细。
-              </p>
+              <TableScrollHint id="window-score-hint">左右滑动查看计算明细。</TableScrollHint>
               <p className="window-score-total">
                 已计入全部 {rows.length} 个覆盖窗口：
                 <span className="score-equation" data-testid="aggregate-equation">
@@ -237,7 +237,7 @@ export function PlaybackCalculation({
                   id="coverage-window-calculation"
                 />
               ) : (
-                <p role="status">正在读取该窗口的{data.features.length}项计算…</p>
+                <p role="status">正在读取该窗口的 {data.features.length} 项计算…</p>
               ))}
           </div>
         </div>

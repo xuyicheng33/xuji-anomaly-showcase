@@ -173,21 +173,38 @@
   transform: translateX(-50%);
   padding: 0;
   border: 0;
-  border-radius: 1px;
-  background: #dce0d4;
+  border-radius: 0;
+  background: transparent;
   min-width: 0;
+}
+/* Cells centre on their points; the first and last paint only the half inside the plot. */
+.case-label-cells button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1px;
+  background: var(--label-cell, #dce0d4);
   transition: background var(--motion-normal) var(--ease-out);
+}
+.case-label-cells button:first-child::before {
+  left: 50%;
+}
+.case-label-cells button:last-child::before {
+  right: 50%;
 }
 .case-label-cells button:active:not(:disabled) {
   transform: translateX(-50%);
 }
 .case-label-cells button.marked {
-  background: #d7956b;
+  --label-cell: #d7956b;
 }
 .case-label-cells button[aria-pressed='true'] {
+  outline: 0;
+  z-index: 1;
+}
+.case-label-cells button[aria-pressed='true']::before {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
-  z-index: 1;
 }
 .case-labels .case-point-slider {
   display: block;
@@ -228,6 +245,9 @@
   align-items: center;
   padding: 26px 0 22px;
   border-bottom: 1px solid var(--line);
+}
+.case-point:last-child {
+  border-bottom: 0;
 }
 .case-point > span:first-child {
   font-size: var(--text-xs);
@@ -908,7 +928,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .case-label-cells button {
+  .case-label-cells button::before {
     transition: none;
   }
   .case-navigation-options.is-open {

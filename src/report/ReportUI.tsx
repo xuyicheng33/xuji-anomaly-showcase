@@ -110,19 +110,10 @@ export function FeatureSelect({
     />
   );
 }
-export function Heading({
-  title,
-  label,
-  children,
-}: {
-  title: React.ReactNode;
-  label?: string;
-  children?: React.ReactNode;
-}) {
+export function Heading({ title, label }: { title: React.ReactNode; label?: string }) {
   return (
     <div className="chapter-heading">
       <h1 aria-label={label}>{title}</h1>
-      {children && <p>{children}</p>}
     </div>
   );
 }

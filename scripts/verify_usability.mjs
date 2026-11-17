@@ -142,7 +142,7 @@ try {
     await startInput.pressSequentially('500');
     assert.equal(await startInput.inputValue(), '500');
     await startInput.press('Enter');
-    assert.equal(await page.getByRole('slider', { name: '选择64点片段' }).inputValue(), '499');
+    assert.equal(await page.getByRole('slider', { name: '选择 64 点片段' }).inputValue(), '499');
     await startInput.fill('108');
     if (width <= 390) await selectFeature(page, '5');
     await page.getByRole('button', { name: '查看模型结果 →', exact: true }).click();

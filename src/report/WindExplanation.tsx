@@ -19,7 +19,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
   const duration = `${Math.floor(minutes / 60)} 小时 ${minutes % 60} 分钟`;
   return (
     <div className="explanation-page">
-      <Heading title="数据与评估说明">风电数据来源、计算过程与评估规则。</Heading>
+      <Heading title="数据与评估说明" />
       <ExplanationIndex address={address} />
       <NoteSection id="data-records">
         <WindSource data={data} />
@@ -61,7 +61,8 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         </p>
         {data.methodResults && (
           <p>
-            归一化后沿用实验保存的含噪训练与测试数组，不重新生成噪声。两种方法保留各自的测试输入；本版有565个异常时刻，与此前483个异常时刻属于不同实验结果，不能据此直接判断方法改进幅度。
+            归一化后沿用实验保存的含噪训练与测试数组，不重新生成噪声。两种方法保留各自的测试输入；本版有
+            565 个异常时刻，与此前 483 个异常时刻属于不同实验结果，不能据此直接判断方法改进幅度。
           </p>
         )}
       </NoteSection>
@@ -171,13 +172,13 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         <p>
           {data.methodResults
             ? model.id === 'model1'
-              ? '本页采用STAM-AD：Local和Global两个时间分支学习局部变化与较长范围的规律，融合后由解码器重建28维风电窗口。'
+              ? '本页采用STAM-AD：Local和Global两个时间分支学习局部变化与较长范围的规律，融合后由解码器重建 28 维风电窗口。'
               : '本页采用SMST-AD：多尺度时间分支与测点间的空间分支分别提取特征，时空融合结果送入解码器生成重建；训练还计算空间正则。'
-            : '本页采用SMST-AD：多尺度时空依赖建模的自监督TCN-Transformer异常检测模型，保留实现来自DTAAD_64_n2的28维实验。多尺度Local分支和Global分支提取时间特征，融合后生成重建。保留实现还包含空间分支，但当前解码输出使用时间融合结果，页面按实际生效路径说明。'}
+            : '本页采用SMST-AD：多尺度时空依赖建模的自监督TCN-Transformer异常检测模型，保留实现来自DTAAD_64_n2的 28 维实验。多尺度Local分支和Global分支提取时间特征，融合后生成重建。保留实现还包含空间分支，但当前解码输出使用时间融合结果，页面按实际生效路径说明。'}
         </p>
         <p>
-          检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32 保存，误差与聚合按
-          float64 计算。网站内各处使用同一份结果与精度。
+          检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32保存，误差与聚合按
+          float64计算。网站内各处使用同一份结果与精度。
         </p>
       </NoteSection>
       <NoteSection id="training-mse">

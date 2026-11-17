@@ -85,9 +85,6 @@
   border-bottom: 1px solid var(--line);
   margin: 26px 0 24px;
 }
-.evaluation-context > span {
-  font-weight: 600;
-}
 .evaluation-context p {
   flex: 1;
   color: var(--muted);

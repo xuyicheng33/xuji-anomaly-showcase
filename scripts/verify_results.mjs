@@ -120,7 +120,7 @@ async function checkPlayback(page, root, data, index) {
     model.scores[index].toFixed(9),
   );
   await page
-    .getByRole('button', { name: `查看${features}项`, exact: true })
+    .getByRole('button', { name: `查看 ${features} 项`, exact: true })
     .first()
     .click();
   await page.getByTestId('coverage-window-calculation-score').waitFor();
@@ -157,7 +157,9 @@ try {
           .locator('.model-select button[aria-pressed=true]')
           .filter({ hasText: method.name })
           .waitFor();
-        assert.ok((await page.locator('.model-flow').innerText()).includes(`${data.window}个时刻`));
+        assert.ok(
+          (await page.locator('.model-flow').innerText()).includes(`${data.window} 个时刻`),
+        );
         assert.equal(await page.locator('.mask-example-cells i').count(), data.window);
         assert.equal(await page.locator('.mask-example-cells i.masked').count(), method.maskSpan);
         if (dataset === 'wind' && method.id === 'model2')

@@ -124,7 +124,7 @@ export function ModelsChapter({
       <section aria-label="从输入到异常评分">
         <div className="model-flow steps" aria-label="模型处理流程">
           {[
-            ['输入窗口', `${data.window}个时刻 × ${data.features.length}个测点`],
+            ['输入窗口', `${data.window} 个时刻 × ${data.features.length} 个测点`],
             [
               multi && (!wind || spatialDecoder) ? '时间与空间编码' : '局部与全局编码',
               multi && (!wind || spatialDecoder)
@@ -162,7 +162,7 @@ export function ModelsChapter({
           </div>
           <div
             className="mask-example"
-            aria-label={`${data.window}点窗口中连续${maskSpan}点遮蔽`}
+            aria-label={`${data.window} 点窗口中连续 ${maskSpan} 点遮蔽`}
             style={{ '--mask-points': data.window } as CSSProperties}
           >
             <div className="mask-example-top">

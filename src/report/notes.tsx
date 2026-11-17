@@ -83,7 +83,8 @@ export function Footnote({ note, reference }: { note: NoteId; reference?: string
 export function NoteSection({ id, children }: { id: NoteId; children: ReactNode }) {
   const origin = presentationMemory.noteOrigin;
   const index = notes.findIndex((item) => item.id === id),
-    item = notes[index];
+    item = notes[index],
+    target = new URLSearchParams(location.hash.split('?')[1] ?? '').get('note');
   return (
     <section
       className="explanation-entry"
@@ -94,9 +95,11 @@ export function NoteSection({ id, children }: { id: NoteId; children: ReactNode 
       <div className="explanation-heading">
         <span className="explanation-number">{String(index + 1).padStart(2, '0')}</span>
         <h2 id={'note-title-' + id}>{item.title}</h2>
-        <a className="inline-link note-return" href={origin?.hash ?? '#/' + item.page}>
-          返回{origin ? '引用处' : '正文'} ↑
-        </a>
+        {origin && target === id && (
+          <a className="inline-link note-return" href={origin.hash}>
+            返回引用处 ↑
+          </a>
+        )}
       </div>
       <div className="explanation-body">{children}</div>
     </section>
