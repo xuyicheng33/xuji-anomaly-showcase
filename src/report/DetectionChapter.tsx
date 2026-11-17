@@ -9,7 +9,6 @@ import {
   Rates,
   ResultSummary,
   colors,
-  SelectionIndicator,
 } from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
@@ -142,8 +141,8 @@ export function DetectionChapter(p: DetectionProps) {
           }}
         />
       </div>
-      <div className="segmented example-picker" role="group" aria-label="典型片段">
-        <SelectionIndicator />
+      <div className="example-picker" role="group" aria-label="典型片段">
+        <span aria-hidden="true">典型片段</span>
         {model.examples.map((e) => (
           <button
             key={e.code}

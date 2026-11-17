@@ -22,7 +22,7 @@ class DataArchiveTests(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
-        self.root = Path(temporary.name) / "project"
+        self.root = Path(temporary.name).resolve() / "project"
         self.root.mkdir()
         self.archive = self.root.with_name("external-experiments")
         self.environment = patch.dict(os.environ, {"SHOWCASE_DATA_ROOT": ""})

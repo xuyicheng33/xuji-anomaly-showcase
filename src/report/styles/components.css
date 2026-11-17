@@ -340,7 +340,7 @@
   font-size: var(--text-sm);
   line-height: 1.8;
   text-decoration: underline;
-  text-decoration-color: var(--link-line);
+  text-decoration-color: transparent;
   text-underline-offset: 5px;
   text-decoration-thickness: 1px;
   transition:
@@ -352,7 +352,7 @@ button.inline-link {
 }
 .inline-link:hover:not(:disabled) {
   background: none;
-  text-decoration-color: currentColor;
+  text-decoration-color: var(--link-line);
 }
 details > summary {
   display: flex;
@@ -735,28 +735,191 @@ details[open] > summary::before {
 .outcome.tn {
   color: var(--normal);
 }
-.inline-facts strong {
-  font-family: var(--metric);
-  font-size: var(--text-4xl);
-  min-width: 0;
-  overflow-wrap: anywhere;
-  font-weight: 400;
-  color: var(--data);
-  font-variant-numeric: tabular-nums;
+/* Facts: labelled figures in one row, divided by hairlines. Label, value, note. */
+.facts {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  border-block: 1px solid var(--line);
+  padding: 24px 0;
 }
-.inline-facts > strong > span {
-  font-family: var(--sans);
-  display: block;
+.facts > * {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 24px;
+}
+.facts > :first-child {
+  padding-left: 0;
+}
+.facts > * + * {
+  border-left: 1px solid var(--line);
+}
+.facts span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
   font-size: var(--text-xs);
   color: var(--muted);
-  margin-top: 8px;
 }
-
-.inline-facts {
+.facts strong {
+  font-family: var(--metric);
+  font-size: var(--text-4xl);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--data);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.chapter-chart-panel + .facts {
+  border-top: 0;
+}
+.facts.is-lead strong {
+  font-size: var(--text-5xl);
+}
+.facts strong .unit {
+  margin-left: 6px;
+  font-family: var(--sans);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.facts small {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.facts .info-trigger {
+  min-height: 20px;
+  min-width: 28px;
+  padding: 0 4px;
+}
+/* Comparison: two parallel columns, each with label, heading and copy. */
+.comparison {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 32px;
-  padding: 26px 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px;
+}
+.comparison > * {
+  min-width: 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.comparison > * > span {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.comparison h3 {
+  margin: 12px 0 8px;
+  font-size: var(--text-lg);
+}
+.comparison p {
+  max-width: 34em;
+  font-size: var(--text-md);
+  line-height: 1.85;
+  color: var(--muted);
+  text-wrap: pretty;
+}
+@container (max-width: 640px) {
+  .comparison {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .comparison p {
+    font-size: var(--text-sm);
+  }
+}
+/* Steps: numbered stages in reading order, divided by hairlines. */
+.steps {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.steps > * {
+  min-width: 0;
+  padding: 0 24px;
+}
+.steps > :first-child {
+  padding-left: 0;
+}
+.steps > * + * {
+  border-left: 1px solid var(--line);
+}
+.steps > * > span {
+  display: block;
+  font-family: var(--numeral);
+  font-size: var(--text-2xl);
+  line-height: 1.2;
+  color: var(--muted);
+}
+.steps h3 {
+  margin: 12px 0 8px;
+  font-size: var(--text-md);
+}
+.steps p {
+  font-size: var(--text-sm);
+  line-height: 1.75;
+  color: var(--muted);
+}
+@container (max-width: 640px) {
+  .facts {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 24px;
+  }
+  .facts > :nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .steps {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 20px;
+  }
+  .steps > * {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    column-gap: 12px;
+    padding: 0;
+    border-left: 0;
+  }
+  .steps > * > span {
+    grid-row: 1 / span 3;
+  }
+  .steps > * > :not(span) {
+    grid-column: 2;
+  }
+  .steps h3 {
+    margin: 2px 0 6px;
+  }
+  .facts strong,
+  .facts.is-lead strong {
+    font-size: var(--text-3xl);
+  }
+}
+@container (max-width: 260px) {
+  .facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .facts > * {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .facts > * + * {
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+  }
+  .steps > * {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .steps > * > span,
+  .steps > * > :not(span) {
+    grid-row: auto;
+    grid-column: 1;
+  }
 }
 
 .statistics {
@@ -781,8 +944,7 @@ details[open] > summary::before {
   gap: 1px;
   overflow: hidden;
   background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
+  border-block: 1px solid var(--line);
 }
 .confusion-cell {
   display: grid;
@@ -1307,15 +1469,6 @@ details[open] > summary::before {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
-  }
-  .inline-facts {
-    gap: 14px;
-  }
-  .inline-facts strong {
-    font-size: var(--text-2xl);
-  }
-  .inline-facts > strong > span {
-    font-size: var(--text-xs);
   }
   .statistics {
     grid-template-columns: minmax(0, 1fr);

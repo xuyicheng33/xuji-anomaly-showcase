@@ -1,3 +1,4 @@
+import { availableMethods } from '../resultCatalog';
 import { usePlayback } from './usePlayback';
 import { useRef } from 'react';
 import { usePlaybackControls } from './usePlaybackControls';
@@ -374,19 +375,19 @@ export function PlaybackChapter(p: PlaybackProps) {
                 </tr>
               </thead>
               <tbody>
-                {data.models.map((m) => {
+                {availableMethods(data).map((m) => {
                   const v = m.metrics.point_wise;
                   return (
                     <tr key={m.id}>
                       <th>{modelName(m)}</th>
                       <td>{pct(v.f1)}</td>
                       <td>{pct(m.metrics.point_adjusted.f1)}</td>
-                      <td> {pct(v.precision)}</td>
-                      <td> {pct(v.recall)}</td>
-                      <td>{v.tp}</td>
-                      <td>{v.fp}</td>
-                      <td>{v.fn}</td>
-                      <td>{v.tn}</td>
+                      <td>{pct(v.precision)}</td>
+                      <td>{pct(v.recall)}</td>
+                      <td>{v.tp.toLocaleString('en-US')}</td>
+                      <td>{v.fp.toLocaleString('en-US')}</td>
+                      <td>{v.fn.toLocaleString('en-US')}</td>
+                      <td>{v.tn.toLocaleString('en-US')}</td>
                     </tr>
                   );
                 })}

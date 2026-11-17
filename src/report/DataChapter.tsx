@@ -92,7 +92,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           </>
         }
       />
-      <div className="data-ledger" aria-label="数据规模">
+      <div className="data-ledger facts is-lead" aria-label="数据规模">
         <div>
           <span>原始记录</span>
           <strong>{number(data.summary.rawRows, 0)}</strong>
@@ -136,19 +136,15 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
         <div className="balanced-split">
           {(
             [
-              ['前段 · 训练集', '70%', split.trainCount, split.trainStart, split.trainEnd],
-              ['后段 · 测试集', '30%', split.testCount, split.testStart, split.testEnd],
+              ['前段 · 训练集', '70%', split.trainStart, split.trainEnd],
+              ['后段 · 测试集', '30%', split.testStart, split.testEnd],
             ] as const
-          ).map(([title, ratio, total, begin, end]) => (
+          ).map(([title, ratio, begin, end]) => (
             <div key={title}>
               <span>
                 {title}
                 <span className="split-ratio">{ratio}</span>
               </span>
-              <strong>
-                {number(total, 0)}
-                <small> 个时刻</small>
-              </strong>
               <p className="split-dates">
                 <time dateTime={begin.replace(' ', 'T')}>{begin}</time>
                 <span>—</span>
@@ -189,7 +185,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           </div>
           {norm && times ? (
             <>
-              <div className="normalization-facts">
+              <div className="normalization-facts facts">
                 <div>
                   <span>训练段最小值</span>
                   <strong>{number(norm.min, 4)}</strong>

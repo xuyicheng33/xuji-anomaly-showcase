@@ -122,7 +122,7 @@ export function ModelsChapter({
         </h2>
       </div>
       <section aria-label="从输入到异常评分">
-        <div className="model-flow" aria-label="模型处理流程">
+        <div className="model-flow steps" aria-label="模型处理流程">
           {[
             ['输入窗口', `${data.window}个时刻 × ${data.features.length}个测点`],
             [
@@ -183,7 +183,7 @@ export function ModelsChapter({
       </Section>
 
       <Section title="有界异常损失">
-        <div className="loss-explanation">
+        <div className="loss-explanation comparison">
           <div>
             <span>正常位置</span>
             <h3>减小重建误差</h3>
@@ -198,7 +198,7 @@ export function ModelsChapter({
 
       {!wind && (
         <Section title="两种方法的侧重点">
-          <div className="model-comparison">
+          <div className="model-comparison comparison">
             <div>
               <span>STAM-AD</span>
               <h3>局部与全局互补</h3>

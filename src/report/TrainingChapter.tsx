@@ -165,16 +165,17 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             </p>
           )}
         </div>
-        <div className="window-rules">
+        <div className="window-rules facts">
           <div>
+            <span>窗口形状（时刻 × 测点）</span>
             <strong>
               {data.window} × {data.features.length}
             </strong>
-            <span>时刻 × 测点</span>
           </div>
           <div>
+            <span>完整窗口数</span>
             <strong>{(lastStart + 1).toLocaleString('zh-CN')}</strong>
-            <span>完整窗口数 · 步长 1</span>
+            <small>步长 1</small>
           </div>
         </div>
       </Section>
@@ -226,19 +227,19 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             </span>
           </label>
         </div>
-        <div className="training-metrics inline-facts">
-          <strong>
-            {record.loss.toFixed(5)}
-            <span>当前轮次MSE</span>
-          </strong>
-          <strong>
-            {record.lr.toExponential(2)}
+        <div className="training-metrics facts">
+          <div>
+            <span>当前轮次 MSE</span>
+            <strong>{record.loss.toFixed(5)}</strong>
+          </div>
+          <div>
             <span>当前学习率</span>
-          </strong>
+            <strong>{record.lr.toExponential(2)}</strong>
+          </div>
         </div>
       </Section>
       <Section title="参数优化流程">
-        <ol className="training-steps">
+        <ol className="training-steps steps">
           {[
             ['输入窗口', '输入数据、标签与掩码。'],
             ['序列重建', '根据当前参数生成重建结果。'],

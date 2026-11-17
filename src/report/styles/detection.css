@@ -48,7 +48,34 @@
   border-color: var(--negative);
 }
 .example-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 16px;
+}
+.example-picker > span {
+  margin-right: 4px;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.example-picker button {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: var(--text-sm);
+  color: var(--muted);
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+.example-picker button:hover:not([aria-pressed='true']) {
+  color: var(--ink);
+}
+.example-picker button[aria-pressed='true'] {
+  background: var(--selected);
+  border-color: var(--selected-border);
+  color: var(--blue);
 }
 .evaluation-context {
   display: flex;
@@ -99,12 +126,14 @@
     --toolbar-space: 16px;
   }
   .example-picker {
-    gap: 8px;
-    margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .example-picker > span {
+    display: none;
   }
   .example-picker button {
-    flex: 1;
-    padding: 8px 6px;
+    padding: 6px 4px;
   }
   .selection-panel {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -153,14 +182,20 @@
   }
 }
 @media (min-width: 241px) and (max-width: 380px) {
-  .example-picker button {
-    padding-inline: 2px;
-    font-size: var(--text-2xs);
-    white-space: nowrap;
-  }
   .selection-panel > .field {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+@container detection (max-width: 320px) {
+  .example-picker button {
+    padding-inline: 2px;
+    font-size: var(--text-2xs);
+  }
+}
+@container detection (max-width: 200px) {
+  .example-picker {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @container detection (max-width: 240px) {
