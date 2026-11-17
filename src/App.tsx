@@ -53,9 +53,9 @@ const loading = (
 );
 
 export default function App() {
-  const { data, error, retry } = useJourney(route() !== 'home');
-  const { page, address, contentPage, menu, setMenu, menuButton, reveal } = useReportNavigation();
   const [modelId, setModel] = useState<string>(dataset.modelId);
+  const { data, error, retry } = useJourney(route() !== 'home', modelId);
+  const { page, address, contentPage, menu, setMenu, menuButton, reveal } = useReportNavigation();
   const [feature, setFeature] = useState(5);
   const [start, setStart] = useState(107);
   const [viewFeature, setViewFeature] = useState(-1);

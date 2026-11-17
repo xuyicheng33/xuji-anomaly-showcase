@@ -6,9 +6,10 @@ import json
 from pathlib import Path
 
 import numpy as np
+from dataset_paths import retained_path
 
 ROOT = Path(__file__).resolve().parents[1]
-BASE = ROOT / "data/reference"
+BASE = retained_path("data/reference")
 
 
 def export(check=False):

@@ -1,0 +1,47 @@
+{
+  "version": "candidate-supplement-v1-20261116-converter2",
+  "policy": {
+    "id": "pa-f1-exhaustive-v1",
+    "name": "事后回看评估",
+    "objective": "point_adjusted_f1",
+    "candidates": "midpoints between distinct scores plus bounds outside the score range",
+    "comparison": "score > threshold",
+    "tieBreak": [
+      "point_wise_f1",
+      "higher_threshold"
+    ],
+    "usesTestLabels": true,
+    "windowSegments": "each 64-point window is evaluated independently"
+  },
+  "models": [
+    {
+      "id": "model2",
+      "sequence": {
+        "value": 0.02996247477803691,
+        "candidateCount": 2398,
+        "sampleCount": 2397,
+        "abnormalCount": 490,
+        "sequenceCount": 1,
+        "pointWiseF1": 0.7867647058823529,
+        "pointAdjustedF1": 0.9400428265524625,
+        "tp": 321,
+        "fp": 5,
+        "paTp": 439,
+        "selectedCandidateIndex": 2071
+      },
+      "window": {
+        "value": 0.027635078792678826,
+        "candidateCount": 149377,
+        "sampleCount": 149376,
+        "abnormalCount": 29098,
+        "sequenceCount": 2334,
+        "pointWiseF1": 0.8540844419629965,
+        "pointAdjustedF1": 0.9646715023743673,
+        "tp": 22181,
+        "fp": 662,
+        "paTp": 27729,
+        "selectedCandidateIndex": 126533
+      }
+    }
+  ]
+}

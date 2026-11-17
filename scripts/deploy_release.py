@@ -14,8 +14,11 @@ from pathlib import Path
 from textwrap import dedent
 
 import paramiko
-from dataset_paths import DATASETS
+from data_archive import INDEX as ARCHIVE_INDEX
+from data_archive import verify as verify_archive_data
+from dataset_paths import DATASETS, retained_path
 from release_validation import fallback_release, site_config, validate_evaluation
+from result_catalog import results
 
 SITE = "/var/www/xuji-showcase"
 CONFIG = "/etc/nginx/conf.d/xuji-showcase-9010.conf"
@@ -185,6 +188,14 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
             probes.append(
                 "data/" + name + "/" + manifest["models"][0]["windows"]["chunks"][0]["file"]
             )
+        for result in results(root):
+            name = DATASETS[result["dataset"]][1].name
+            manifest = json.loads(
+                (root / "dist/data" / name / result["manifest"]["file"]).read_text(encoding="utf8")
+            )
+            probes.append(
+                "data/" + name + "/" + manifest["models"][0]["windows"]["chunks"][0]["file"]
+            )
         with client.open_sftp() as sftp:
             sftp.put(str(root / "scripts/release_files.py"), staging + "/release_files.py")
             sftp.put(str(archive), staging + "/changes.tar.gz")
@@ -259,10 +270,19 @@ def main():
     root = Path(__file__).resolve().parents[1]
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=root, text=True).strip():
         raise RuntimeError("Commit the release changes before deployment.")
+    if (root / ARCHIVE_INDEX).is_file():
+        verify_archive_data(project=root)
     subprocess.run(["node", "scripts/build_record.mjs", "check"], cwd=root, check=True)
     record = json.loads((root / ".qa/build.json").read_text(encoding="utf8"))
     for reference, public in DATASETS.values():
         validate_evaluation(root / "dist/data" / public.name, reference / "manifest.json")
+    for result in results(root):
+        validate_evaluation(
+            root / "dist/data" / DATASETS[result["dataset"]][1].name,
+            retained_path(result["reference"], root) / "manifest.json",
+            result["manifest"]["file"],
+            result["evaluation"]["file"],
+        )
     output = args.qa_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
     with closing(paramiko.SSHClient()) as client:
@@ -277,13 +297,19 @@ def main():
         )
 
         def verify_site():
-            subprocess.run(
-                ["node", "scripts/verify_release.mjs"],
-                cwd=root,
-                check=True,
-                env={**os.environ, "SHOWCASE_URL": URL, "QA_DIR": str(output / "browser")},
-                timeout=600,
-            )
+            for script, legacy in [("verify_release.mjs", "1"), ("verify_results.mjs", "0")]:
+                subprocess.run(
+                    ["node", "scripts/" + script],
+                    cwd=root,
+                    check=True,
+                    env={
+                        **os.environ,
+                        "SHOWCASE_URL": URL,
+                        "SHOWCASE_LEGACY": legacy,
+                        "QA_DIR": str(output / "browser" / script.removesuffix(".mjs")),
+                    },
+                    timeout=600,
+                )
 
         publish(client, root, output, record["commit"], record["files"], args.scope, verify_site)
 

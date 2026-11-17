@@ -7,22 +7,32 @@ from pathlib import Path
 import numpy as np
 from array_assets import read_array as read
 from data_geometry import geometry
-from dataset_paths import dataset_info, selected_paths
+from dataset_paths import dataset_info, retained_path, selected_paths
+from result_catalog import registered_files
 
 ROOT = Path(__file__).resolve().parents[1]
 PUBLIC = ROOT / "public/data/journey"
-REFERENCE = ROOT / "data/reference"
+REFERENCE = retained_path("data/reference")
 
 
-def verify():
+def verify(reference=None, public=None, runtime=None):
+    REFERENCE = reference or globals()["REFERENCE"]
+    PUBLIC = public or globals()["PUBLIC"]
     source = json.loads((REFERENCE / "manifest.json").read_text(encoding="utf-8"))
-    runtime = json.loads((PUBLIC / "manifest.json").read_text(encoding="utf-8"))
+    runtime = runtime or json.loads((PUBLIC / "manifest.json").read_text(encoding="utf-8"))
     _, features, window = geometry(source)
     assert runtime["dataset"] == dataset_info(source)
     for key in ("features", "times", "labels", "summary", "removedFeatures", "resultVersion"):
         assert runtime[key] == source[key], key
     arrays = {
-        a["file"]: read(REFERENCE, a) for a in [*source["assets"], *source["datasets"].values()]
+        a["file"]: read(REFERENCE, a)
+        for a in [
+            source["input"],
+            source["labelMatrix"],
+            *([source["normalizedTrain"]] if "normalizedTrain" in source else []),
+            *(m[k] for m in source["models"] for k in ("recon", "errors")),
+            *source["datasets"].values(),
+        ]
     }
     raw = arrays[source["input"]["file"]]
     labels = arrays[source["labelMatrix"]["file"]]
@@ -37,6 +47,7 @@ def verify():
         source["input"],
         source["datasets"]["train"],
         source["labelMatrix"],
+        *([source["normalizedTrain"]] if "normalizedTrain" in source else []),
         *(m["recon"] for m in source["models"]),
     ]:
         values = arrays[asset["file"]]
@@ -46,6 +57,7 @@ def verify():
                 runtime["input"],
                 runtime["datasets"]["train"],
                 runtime["labelMatrix"],
+                *([runtime["datasets"]["normalizedTrain"]] if "normalizedTrain" in source else []),
                 *(m["recon"] for m in runtime["models"]),
             ]
             if a["file"] == asset["file"]
@@ -62,9 +74,9 @@ def verify():
             ), name
             mean += values[:, feature]
             expected.add(name)
-        if asset["sha256"] not in (
-            source["datasets"]["train"]["sha256"],
-            source["labelMatrix"]["sha256"],
+        if asset["sha256"] in (
+            source["input"]["sha256"],
+            *(model["recon"]["sha256"] for model in source["models"]),
         ):
             name = f"curves-v1/{asset['sha256']}/mean.bin"
             np.testing.assert_array_equal(
@@ -172,10 +184,16 @@ def verify():
         for p in PUBLIC.rglob("*")
         if p.is_file() and "anomaly-cases-v1" not in p.parts
     }
-    assert actual == expected, {
-        "extra": sorted(actual - expected),
-        "missing": sorted(expected - actual),
-    }
+    if reference is None:
+        expected |= {
+            name for name in registered_files(PUBLIC) if "anomaly-cases-v1" not in Path(name).parts
+        }
+        assert actual == expected, {
+            "extra": sorted(actual - expected),
+            "missing": sorted(expected - actual),
+        }
+    else:
+        assert expected - {"manifest.json", "evaluation.json"} <= actual
     print(
         f"PASS {len(expected)} runtime files: exact curves, row chunks, all window scores, focus indexes and examples"
     )

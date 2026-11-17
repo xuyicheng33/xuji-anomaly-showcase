@@ -68,6 +68,12 @@ export default function AnomalyChapter({
     startPlaying,
     jump,
   } = state;
+  const begin = selected?.begin ?? 0,
+    end = selected?.end ?? data.window;
+  const span = end - begin,
+    scale = selected?.source.scale ?? 3;
+  const peak = selected?.source.peak ?? 30,
+    patch = selected?.source.patchSize ?? 4;
   return (
     <div className="anomaly-page case-page">
       <Heading title={chapterContent.anomalies.title} />
@@ -183,7 +189,10 @@ export default function AnomalyChapter({
                     labels={visibleLabels}
                     selection={
                       kind === 'peak'
-                        ? { start: 26, end: 34 }
+                        ? {
+                            start: Math.max(0, peak - patch),
+                            end: Math.min(data.window - 1, peak + patch),
+                          }
                         : { start: selected.begin, end: selected.end - 1 }
                     }
                     selected={point}
@@ -197,15 +206,15 @@ export default function AnomalyChapter({
                   <p>
                     {phase === 0
                       ? kind === 'peak'
-                        ? '第 31 点改变数值，第 27—35 点生成标签'
-                        : '第 19—42 点，24 个时刻'
+                        ? `第 ${peak + 1} 点改变数值，第 ${Math.max(0, peak - patch) + 1}—${Math.min(data.window - 1, peak + patch) + 1} 点生成标签`
+                        : `第 ${begin + 1}—${end} 点，${span} 个时刻`
                       : kind === 'reference'
-                        ? '真实参考 24 点 → 时间反转 → 1 − 数值'
+                        ? `真实参考 ${span} 点 → 时间反转 → 1 − 数值`
                         : kind === 'uniform'
-                          ? '固定构造值 → 填充 24 个时刻'
+                          ? `固定构造值 → 填充 ${span} 个时刻`
                           : kind === 'peak'
                             ? '当前值 → 相反方向极值'
-                            : '原片段 8 点 → 每点重复 3 次 → 24 点'}
+                            : `原片段 ${span / scale} 点 → 每点重复 ${scale} 次 → ${span} 点`}
                   </p>
                   <InfoTip label="当前构造步骤说明">
                     {phase === 0
@@ -217,7 +226,7 @@ export default function AnomalyChapter({
                             ? '沿时间顺序写入素材，经过的位置取对应素材值。'
                             : '按保存的权重将素材融入原片段，中央权重为 0.7。'
                           : kind === 'peak'
-                            ? '极值改变一个时刻，标签覆盖该点及前后各 4 个时刻。'
+                            ? `极值改变一个时刻，标签覆盖该点及前后各 ${patch} 个时刻。`
                             : '选定测点的目标区间标记为 1，其余位置保持为 0。'}
                   </InfoTip>
                 </div>
@@ -359,8 +368,15 @@ export default function AnomalyChapter({
               {kind === 'length' && (
                 <LengthConstruction
                   key={selected.id + ':' + feature}
-                  values={base.slice(18, 26)}
+                  values={base.slice(
+                    selected.source.sourceBegin ?? begin,
+                    selected.source.sourceEnd ?? begin + span / scale,
+                  )}
                   insertion={insertion}
+                  begin={begin}
+                  end={end}
+                  length={selected.times.length}
+                  scale={scale}
                 />
               )}
               <div className="case-result-action">

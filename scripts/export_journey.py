@@ -10,7 +10,7 @@ from pathlib import Path
 
 from data_versions import version_assets
 from dataset_paths import selected_paths
-from evaluation_policy import POLICY
+from evaluation_policy import POLICY, policy_for_window
 from export_runtime import export as export_runtime
 from release_validation import validate_evaluation
 
@@ -18,7 +18,10 @@ from release_validation import validate_evaluation
 def build_export(reference, public):
     reference, public = Path(reference), Path(public)
     source = json.loads((reference / "manifest.json").read_text(encoding="utf8"))
-    if any(source["evaluation"].get(key) != value for key, value in POLICY.items()):
+    if any(
+        source["evaluation"].get(key) != value
+        for key, value in policy_for_window(source.get("window", 64)).items()
+    ):
         raise ValueError("Retained evaluation policy differs")
     public.mkdir(parents=True, exist_ok=True)
     for model in source["models"]:

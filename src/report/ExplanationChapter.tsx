@@ -8,9 +8,18 @@ import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
 import { featureName } from './featureNames';
+import { availableMethods, caseGeometry } from '../resultCatalog';
+import { modelName } from './modelNames';
+import ResultVersionLink from './ResultVersionLink';
 
 export default function ExplanationChapter({ data, address }: { data: Journey; address: string }) {
   if (data.dataset?.id === 'wind') return <WindExplanation data={data} address={address} />;
+  const g = caseGeometry(data),
+    window = data.window,
+    count = data.models[0].windows.count;
+  const span = g.end - g.begin,
+    sampleCount = g.sourceEnd - g.sourceBegin;
+  const exampleCount = Math.min(48, window);
   return (
     <div className="explanation-page">
       <Heading title="数据与评估说明">数据来源、计算过程与评估规则。</Heading>
@@ -109,7 +118,8 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           单元格为0表示正常，为1表示该测点在这个时刻处于构造异常区间。
         </p>
         <p>
-          以参考片段案例为例，测点5和测点6属于选中测点，测点8保留原值。第19—42点的选中测点标为1。
+          以参考片段案例为例，测点5和测点6属于选中测点，测点8保留原值。第{g.begin + 1}—{g.end}
+          点的选中测点标为1。
         </p>
         <div
           className="reference-table-scroll"
@@ -129,10 +139,10 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
             </thead>
             <tbody>
               {[
-                [18, 0],
-                [19, 1],
-                [42, 1],
-                [43, 0],
+                [g.begin, 0],
+                [g.begin + 1, 1],
+                [g.end, 1],
+                [g.end + 1, 0],
               ].map(([point, label]) => (
                 <tr key={point}>
                   <th>第{point}点</th>
@@ -154,13 +164,20 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="anomaly-cases">
         <p>
-          八个案例由“替换、混合”两种插入方式与四种素材组合而成。每个案例从清洁测试数据中取64个时刻，在32个选定测点上构造异常，再由两个模型分别重建和评估。
+          八个案例由“替换、混合”两种插入方式与四种素材组合而成。每个案例从清洁测试数据中取{window}
+          个时刻，在32个选定测点上构造异常，由对应模型重建和评估。
         </p>
         <ul>
           <li>参考片段：取一段真实记录，先反转时间顺序，再用“1 − 数值”翻转幅值。</li>
           <li>均匀值：在目标区间内写入同一个值，形成平台。</li>
-          <li>峰值噪声：改变第31点的数值，将第27—35点标为异常。</li>
-          <li>长度调整：将第19—26点的8个值各重复3次，写入第19—42点。</li>
+          <li>
+            峰值噪声：改变第{g.peak + 1}点的数值，将第{g.peak - g.patchSize + 1}—
+            {g.peak + g.patchSize + 1}点标为异常。
+          </li>
+          <li>
+            长度调整：将第{g.sourceBegin + 1}—{g.sourceEnd}点的{sampleCount}个值各重复{g.scale}
+            次，写入第{g.begin + 1}—{g.end}点。
+          </li>
         </ul>
         <p>
           替换直接写入素材值；混合按“原值 ×（1 − 权重）+ 素材 ×
@@ -172,29 +189,34 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="length-sampling">
         <p>
-          拉长是重复采样：A、B、C →
-          A、A、A、B、B、B、C、C、C。当前案例将8点变成24点，写入第19—42点，其余位置保留原值。
+          拉长是重复采样：A、B、C → A、A、A、B、B、B、C、C、C。当前案例将{sampleCount}点变成{span}
+          点，写入第{g.begin + 1}—{g.end}点，其余位置保留原值。
         </p>
         <p>缩短是间隔采样：A、B、C、D、E、F、G、H → A、C、E、G，将原来的8点变化压缩到4个位置。</p>
         <p>案例在选定区间和测点内完成采样；实验函数的长度调整还会移动窗口内的前后片段。</p>
       </NoteSection>
       <NoteSection id="window-settings">
         <p>
-          <strong>64×125是一个窗口的形状：</strong>
-          64个时刻，每个时刻125个测点。步长1表示下一个窗口向后移动一个时刻，例如第1—64点、第2—65点。2,397个测试时刻共形成2,334个完整窗口。
+          <strong>{window}×125是一个窗口的形状：</strong>
+          {window}个时刻，每个时刻125个测点。步长1表示下一个窗口向后移动一个时刻，例如第1—{window}
+          点、第2—{window + 1}点。2,397个测试时刻共形成{count.toLocaleString('zh-CN')}个完整窗口。
         </p>
         <p>
-          训练时把多个窗口组成一批，整批形状是B×64×125，B表示窗口数量。当前训练配置每批128个窗口，最后一批按剩余数量组成；各窗口分别重建，整批计算损失并更新一次参数。
+          训练时把多个窗口组成一批，整批形状是B×{window}
+          ×125，B表示窗口数量。当前训练配置每批128个窗口，最后一批按剩余数量组成；各窗口分别重建，整批计算损失并更新一次参数。
         </p>
         <p>
-          窗口结果导出于2026年10月27日。每个窗口包含64×125个重建值，Global分支每个测点遮蔽16个位置，Local分支接收完整窗口。
+          窗口结果导出于{data.methodResults ? '2026年11月16日' : '2026年10月27日'}。每个窗口包含
+          {window}×125个重建值，Global分支每个测点遮蔽{window / 4}个位置，Local分支接收完整窗口。
+          {data.methodResults && '本版使用保留权重、固定并保存的掩码导出，没有重新训练。'}
         </p>
-        <p>训练序列开头以首个观测值补齐窗口；片段检测使用连续64个观测值组成的完整窗口。</p>
+        <p>训练序列开头以首个观测值补齐窗口；片段检测使用连续{window}个观测值组成的完整窗口。</p>
       </NoteSection>
       <NoteSection id="score-calculation">
         <p>
           <strong>片段页展示当前选中窗口的重建结果。</strong>
-          选择直流电流和第1—64点，就显示这个窗口重建出的直流电流64个值。选择“全部测点平均”时，曲线取125个测点的平均值。
+          选择直流电流和第1—{window}点，就显示这个窗口重建出的直流电流{window}
+          个值。选择“全部测点平均”时，曲线取125个测点的平均值。
         </p>
         <p>
           输入来自送入模型的测试数据，其中包含构造异常。上方曲线随测点选择变化，下方异常分数始终汇总全部125个测点。
@@ -204,8 +226,8 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           <Fraction numerator="125个测点的平方误差合计" denominator="125" />
         </p>
         <p>
-          对同一时刻的各测点分别计算“（输入 −
-          该窗口重建）²”，将125项相加再除以125。一个窗口有64个时刻，因此得到64个分数。
+          对同一时刻的各测点分别计算“（输入 − 该窗口重建）²”，将125项相加再除以125。一个窗口有
+          {window}个时刻，因此得到{window}个分数。
         </p>
         <p>计算与阈值比较使用完整精度，明细表显示9位小数。</p>
       </NoteSection>
@@ -214,9 +236,9 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           <strong>分数大于阈值时报警，等于或低于阈值时判为正常。</strong>
         </p>
         <div className="evaluation-thresholds">
-          {data.models.map((model) => (
+          {availableMethods(data).map((model) => (
             <div key={model.id}>
-              <h3>{model.name}</h3>
+              <h3>{modelName(model)}</h3>
               <dl>
                 <div>
                   <dt>独立窗口阈值</dt>
@@ -234,7 +256,9 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           当前阈值通过扫描选择：对照测试标签，逐一比较不同阈值的报警结果，选择区间点调整F1最高的值。并列时先比较逐点F1，再选择较高的阈值。
         </p>
         <p>
-          片段检测和连续回放分别选取阈值。片段页的阈值统一依据全部2,334个窗口选出，各窗口分别进行区间点调整后汇总；回放阈值依据完整序列的合并分数选出。
+          片段检测和连续回放分别选取阈值。片段页的阈值依据当前方法的全部
+          {count.toLocaleString('zh-CN')}
+          个窗口选出，各窗口分别进行区间点调整后汇总；回放阈值依据完整序列的合并分数选出。
         </p>
         <p>报告第4.4节采用POT阈值：用训练集异常分数拟合尾部分布，再确定测试时的报警阈值。</p>
       </NoteSection>
@@ -277,10 +301,13 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           <Fraction numerator="覆盖该时刻的窗口分数合计" denominator="实际覆盖窗口数" />
         </p>
         <p>
-          例如第48点出现在第1—64点至第48—111点这48个窗口中，“48个覆盖窗口”就是这48份结果。序列中间最多有64份，首尾按实际数量取平均。
+          例如第{exampleCount}点出现在第1—{window}点至第{exampleCount}—{exampleCount + window - 1}
+          点这{exampleCount}个窗口中，“{exampleCount}个覆盖窗口”就是这{exampleCount}
+          份结果。序列中间最多有{window}份，首尾按实际数量取平均。
         </p>
         <p>
-          两次平均可以交换顺序：先平均各窗口的平方误差，再平均125个测点，结果相同。48个窗口时，也就是将48×125项平方误差相加，除以48×125。
+          两次平均可以交换顺序：先平均各窗口的平方误差，再平均125个测点，结果相同。{exampleCount}
+          个窗口时，也就是将{exampleCount}×125项平方误差相加，除以{exampleCount}×125。
         </p>
         <p>
           重建值平均和误差平均是两项计算。例如输入0.5，两个窗口重建为0.4和0.6：平均重建值是0.5；两个平方误差均为0.01，平均误差仍为0.01。
@@ -308,6 +335,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           参数更新使用有界异常损失：正常时刻减小重建误差，异常时刻将误差推动到设定边界；SMST-AD同时计算空间正则。训练曲线读取保存的MSE记录，学习率读取对应轮次的优化器记录。
         </p>
       </NoteSection>
+      <ResultVersionLink />
     </div>
   );
 }

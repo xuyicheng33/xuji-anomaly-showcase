@@ -580,5 +580,581 @@
     "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_64_n2/checkpoints/DTAAD_xuji_28/model.ckpt",
     "bytes": 5258666,
     "sha256": "7a4abd770a61714810610b0e88833a2469111efbc9b84eb70cd724686093b9cd"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/best_config.json",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/best_config.json",
+    "bytes": 371,
+    "sha256": "2fe1cd6a11df4ba22f6193474b933be93a7cafb2bd85f7d6a6bad902ea8ea49b"
+  },
+  {
+    "local": "data/models/results-v1/converter1.ckpt",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/best_model.ckpt",
+    "bytes": 13472694,
+    "sha256": "abdacebefd17c30f33e56dc8e6df3c3f9e0bf61a680b5c36ed6e61d8e8f7fa07"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/regen_viz_data.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/regen_viz_data.py",
+    "bytes": 3772,
+    "sha256": "e6f2c8780261226579d02e14a8deca74d6b4ae8c7c4439641753de0224c492b3"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/viz_best.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/viz_best.py",
+    "bytes": 8656,
+    "sha256": "4f084248a89e1006e41f7a47d021d06b473121596af4f6d6b1c97b67f21cf01a"
+  },
+  {
+    "local": "data/source/results-v1/converter1/adaptive_mask.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/adaptive_mask.py",
+    "bytes": 5038,
+    "sha256": "2e8f6b1d9c32c1315e76b194fc54e5c5e033cff1d1ac573b8ebe6aa12ec12f8b"
+  },
+  {
+    "local": "data/source/results-v1/converter1/newMain17.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/newMain17.py",
+    "bytes": 42525,
+    "sha256": "74c652bedf2d73e841712747307e255780ead471c69911246e5ce252aea62611"
+  },
+  {
+    "local": "data/source/results-v1/converter1/src/models.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/src/models.py",
+    "bytes": 27510,
+    "sha256": "d5f190b571943063c8cb676bd1f87186ff5e06b21ea6d12cb07c06cce8cb9eb8"
+  },
+  {
+    "local": "data/source/results-v1/converter1/src/gltcn.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/src/gltcn.py",
+    "bytes": 5575,
+    "sha256": "ee5f6148c14cd89b5916fd5f3eff7a78afb578a0ec474106a41af9de461209b9"
+  },
+  {
+    "local": "data/source/results-v1/converter1/src/dlutils.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/src/dlutils.py",
+    "bytes": 13844,
+    "sha256": "67f938707a76b6ed371607a20c2a1c0831993529bd68cf4efb592c5d2669294f"
+  },
+  {
+    "local": "data/source/results-v1/converter1/src/constants.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/src/constants.py",
+    "bytes": 4488,
+    "sha256": "5f25314fa4dc421e788c04c0da17e78bed27caf947bdd6701ff36b5598718735"
+  },
+  {
+    "local": "data/source/results-v1/converter1/src/folderconstants.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "local": "data/source/results-v1/converter1/src/parser.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/src/parser.py",
+    "bytes": 2887,
+    "sha256": "fcea8aff3e502b55da7b80cc59a101a34015d77efe2aaf2f09ecb72cfdc9066d"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/data/testRaw.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/data/testRaw.npy",
+    "bytes": 2397128,
+    "sha256": "568d483762a68c1ee842b0d3ca569aba1b4b53ab4e661b21e6722eff061fbe69"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/data/labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/data/labels.npy",
+    "bytes": 19304,
+    "sha256": "a62dc0839da8d6497b0e7c23294ee0e6db90a0e11eb8feb661fb7934fe1dadef"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/data/lossFinal.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/data/lossFinal.npy",
+    "bytes": 19304,
+    "sha256": "82dde0eaab03e22a6b20f1c28e1e29512259b6ea480344489474bd0cb93f2ee5"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/data/lossPerFeat.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/data/lossPerFeat.npy",
+    "bytes": 2397128,
+    "sha256": "e3ac9601cbf10c8f2ec07b0ba9ea7449b6abb54f05d9c089f7e33d942167bea5"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/data/recon.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/data/recon.npy",
+    "bytes": 2397128,
+    "sha256": "18917b1a32590ef9cc2be6798994a3a1c4a1e9dab15b920345a009a261bedc39"
+  },
+  {
+    "local": "data/source/results-v1/converter1/processed/converter/converter_train.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/processed/converter/converter_train.npy",
+    "bytes": 5593128,
+    "sha256": "8a9d1d7fceba6bea024ec82e3888baba190b53bfb9239bdddf52d7d55a79f636"
+  },
+  {
+    "local": "data/source/results-v1/converter1/processed/converter/converter_test.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/processed/converter/converter_test.npy",
+    "bytes": 2397128,
+    "sha256": "568d483762a68c1ee842b0d3ca569aba1b4b53ab4e661b21e6722eff061fbe69"
+  },
+  {
+    "local": "data/source/results-v1/converter1/processed/converter/converter_labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/processed/converter/converter_labels.npy",
+    "bytes": 1198628,
+    "sha256": "f78bb4c3bc2eda8009ca7546c1bd952f54cb2ea84538e41d81561e0d11e3f387"
+  },
+  {
+    "local": "data/source/results-v1/converter1/viz/hpscan_summary.csv",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_1/viz/hpscan_summary.csv",
+    "bytes": 1071,
+    "sha256": "0717499dcc0cfd44bd72170160d92fd358915b9987d7b3348ef3512cfd7ff109"
+  },
+  {
+    "local": "data/source/results-v1/converter1/online-baseline-manifest.json",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\manifest.json",
+    "bytes": 636762,
+    "sha256": "395e43c8a3d1235529d313a1aa38d626999304e94f62ac733cb6c498a7a25580"
+  },
+  {
+    "local": "data/source/results-v1/converter1/raw-train.bin",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\train-full.bin",
+    "bytes": 5593000,
+    "sha256": "2a129d9fe52f76e4c4b857ba3eb2bd5fe43b06eb98fc88c0e5baa766164bf078"
+  },
+  {
+    "local": "data/source/results-v1/converter1/clean-test.bin",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\clean-test.bin",
+    "bytes": 2397000,
+    "sha256": "b4cc3f349d62ba55ee0f6f4eab2653bdc7af8483b8fcb67e5ed639322a0746fb"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/best_config.json",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/best_config.json",
+    "bytes": 371,
+    "sha256": "dc745f976e0f3a519abe1c4e55d3aac284031abf6a2481cc0bd02a62e4fcfefa"
+  },
+  {
+    "local": "data/models/results-v1/converter2.ckpt",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/best_model.ckpt",
+    "bytes": 37888618,
+    "sha256": "14430b0d6e8053e50a6de3341ff038228dc9083b0ff2cde42315d3881da4d106"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/regen_viz_data.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/regen_viz_data.py",
+    "bytes": 4697,
+    "sha256": "554039bb7d9926f66119d1b4a6968192a67da38c71827e5758017f8bdda14a81"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/viz_best.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/viz_best.py",
+    "bytes": 8669,
+    "sha256": "ed3bd09ee94d88a4be0ca73648a3260de81f2d847ea52e1e1449323a21d8af4d"
+  },
+  {
+    "local": "data/source/results-v1/converter2/adaptive_mask.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/adaptive_mask.py",
+    "bytes": 5038,
+    "sha256": "c87d57ce4e98c9d3d55a17502e5fb76a6d4f8963e9547f84adde59c31ecf50ff"
+  },
+  {
+    "local": "data/source/results-v1/converter2/newMain17.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/newMain17.py",
+    "bytes": 45673,
+    "sha256": "f490773fe9c798ff3d6f85652c00a0654cd78b3d59d806aee706bae34ece0d0b"
+  },
+  {
+    "local": "data/source/results-v1/converter2/src/models.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/src/models.py",
+    "bytes": 36487,
+    "sha256": "c5d04417edc0b6297ff8a78d61702dedacbba946b71b121b178fd3f0b0c5152d"
+  },
+  {
+    "local": "data/source/results-v1/converter2/src/gltcn.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/src/gltcn.py",
+    "bytes": 6382,
+    "sha256": "7b076b9fc252ce8f8a375a33876382682cce5cb4100853bfd18fff46199e5091"
+  },
+  {
+    "local": "data/source/results-v1/converter2/src/dlutils.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/src/dlutils.py",
+    "bytes": 13844,
+    "sha256": "67f938707a76b6ed371607a20c2a1c0831993529bd68cf4efb592c5d2669294f"
+  },
+  {
+    "local": "data/source/results-v1/converter2/src/constants.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/src/constants.py",
+    "bytes": 4497,
+    "sha256": "33ce50d7a9ddc01287e4b7370afa892bb9772b0e8fb32c73c9d9690de3635ed2"
+  },
+  {
+    "local": "data/source/results-v1/converter2/src/folderconstants.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "local": "data/source/results-v1/converter2/src/parser.py",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/src/parser.py",
+    "bytes": 2886,
+    "sha256": "66e0de080e5c7445faf7a2d00110d9df63e4e353897d967326f6176257a91527"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/data/testRaw.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/data/testRaw.npy",
+    "bytes": 2397128,
+    "sha256": "568d483762a68c1ee842b0d3ca569aba1b4b53ab4e661b21e6722eff061fbe69"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/data/labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/data/labels.npy",
+    "bytes": 19304,
+    "sha256": "a62dc0839da8d6497b0e7c23294ee0e6db90a0e11eb8feb661fb7934fe1dadef"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/data/lossFinal.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/data/lossFinal.npy",
+    "bytes": 19304,
+    "sha256": "cd09ae753e2098dc652cb89279a3b957ec4bd32d2a50f0facf3585080d754464"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/data/lossPerFeat.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/data/lossPerFeat.npy",
+    "bytes": 2397128,
+    "sha256": "f619c3e1be360ba221dcec49bdf849b9b9c7056501f22ac8f2b20f0ba5427695"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/data/recon.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/data/recon.npy",
+    "bytes": 2397128,
+    "sha256": "77a41ae7a0e20fbf48258e5a40d216885b11a19129735cf17562359d32404901"
+  },
+  {
+    "local": "data/source/results-v1/converter2/processed/converter/converter_train.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/processed/converter/converter_train.npy",
+    "bytes": 5593128,
+    "sha256": "8a9d1d7fceba6bea024ec82e3888baba190b53bfb9239bdddf52d7d55a79f636"
+  },
+  {
+    "local": "data/source/results-v1/converter2/processed/converter/converter_test.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/processed/converter/converter_test.npy",
+    "bytes": 2397128,
+    "sha256": "568d483762a68c1ee842b0d3ca569aba1b4b53ab4e661b21e6722eff061fbe69"
+  },
+  {
+    "local": "data/source/results-v1/converter2/processed/converter/converter_labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/processed/converter/converter_labels.npy",
+    "bytes": 1198628,
+    "sha256": "f78bb4c3bc2eda8009ca7546c1bd952f54cb2ea84538e41d81561e0d11e3f387"
+  },
+  {
+    "local": "data/source/results-v1/converter2/viz/hpscan_summary.csv",
+    "remote": "/root/gpufree-data/DTAAD/converter/DTAAD_2/viz/hpscan_summary.csv",
+    "bytes": 961,
+    "sha256": "474b9dd3263a76d145331be837f0dfdfdede86a3b032900360c639bdd89f8fad"
+  },
+  {
+    "local": "data/source/results-v1/converter2/online-baseline-manifest.json",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\manifest.json",
+    "bytes": 636762,
+    "sha256": "395e43c8a3d1235529d313a1aa38d626999304e94f62ac733cb6c498a7a25580"
+  },
+  {
+    "local": "data/source/results-v1/converter2/raw-train.bin",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\train-full.bin",
+    "bytes": 5593000,
+    "sha256": "2a129d9fe52f76e4c4b857ba3eb2bd5fe43b06eb98fc88c0e5baa766164bf078"
+  },
+  {
+    "local": "data/source/results-v1/converter2/clean-test.bin",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\clean-test.bin",
+    "bytes": 2397000,
+    "sha256": "b4cc3f349d62ba55ee0f6f4eab2653bdc7af8483b8fcb67e5ed639322a0746fb"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/best_config.json",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/best_config.json",
+    "bytes": 683,
+    "sha256": "47cc404f20c7381f9f15882da0d7bdc82c7cb7d1427bc45380295a4f9c648116"
+  },
+  {
+    "local": "data/models/results-v1/wind1.ckpt",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/best_model.ckpt",
+    "bytes": 1144342,
+    "sha256": "c2ed11310cc3689dfe0614334c599f16aec1dd8910cf30962b8239b4b57da2e3"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/regen_viz_data.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/regen_viz_data.py",
+    "bytes": 3657,
+    "sha256": "cb038db1bdecf066c5546301e4a539c2ae89cbc63096a1e979361848d703d3c7"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/viz_best.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/viz_best.py",
+    "bytes": 8669,
+    "sha256": "ed3bd09ee94d88a4be0ca73648a3260de81f2d847ea52e1e1449323a21d8af4d"
+  },
+  {
+    "local": "data/source/results-v1/wind1/adaptive_mask.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/adaptive_mask.py",
+    "bytes": 5038,
+    "sha256": "2e8f6b1d9c32c1315e76b194fc54e5c5e033cff1d1ac573b8ebe6aa12ec12f8b"
+  },
+  {
+    "local": "data/source/results-v1/wind1/newMain17.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/newMain17.py",
+    "bytes": 42867,
+    "sha256": "8af18c3f5fc28cdece15c469a9f71683bb0114dafbd9cf7a12874ff2a26bed08"
+  },
+  {
+    "local": "data/source/results-v1/wind1/src/models.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/src/models.py",
+    "bytes": 27510,
+    "sha256": "d5f190b571943063c8cb676bd1f87186ff5e06b21ea6d12cb07c06cce8cb9eb8"
+  },
+  {
+    "local": "data/source/results-v1/wind1/src/gltcn.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/src/gltcn.py",
+    "bytes": 5575,
+    "sha256": "ee5f6148c14cd89b5916fd5f3eff7a78afb578a0ec474106a41af9de461209b9"
+  },
+  {
+    "local": "data/source/results-v1/wind1/src/dlutils.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/src/dlutils.py",
+    "bytes": 13844,
+    "sha256": "67f938707a76b6ed371607a20c2a1c0831993529bd68cf4efb592c5d2669294f"
+  },
+  {
+    "local": "data/source/results-v1/wind1/src/constants.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/src/constants.py",
+    "bytes": 5182,
+    "sha256": "41ebcbee793863fdd452c82f69d8e19d200844bd0e8487b3721178c46967f10f"
+  },
+  {
+    "local": "data/source/results-v1/wind1/src/folderconstants.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "local": "data/source/results-v1/wind1/src/parser.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/src/parser.py",
+    "bytes": 2887,
+    "sha256": "fcea8aff3e502b55da7b80cc59a101a34015d77efe2aaf2f09ecb72cfdc9066d"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/data/testRaw.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/data/testRaw.npy",
+    "bytes": 588800,
+    "sha256": "117713e77aeb76cf7ee9c64feaff536bf22ce6050286d7efc70396e0ecd345ee"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/data/labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/data/labels.npy",
+    "bytes": 21152,
+    "sha256": "6b0a237a56b8b396020056e18eedb85a9128048cae18102da0f8c170f76e004e"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/data/lossFinal.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/data/lossFinal.npy",
+    "bytes": 21152,
+    "sha256": "cb0d98bc828102748ce37b2079da82e08c1d8ae72b8b6724d86e4d04f18d5509"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/data/lossPerFeat.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/data/lossPerFeat.npy",
+    "bytes": 588800,
+    "sha256": "4ffba6f12beeb4cd7ab8f08833916c32c10cd6bc7bd5c63476f1a637caa3ef73"
+  },
+  {
+    "local": "data/source/results-v1/wind1/viz/data/recon.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/viz/data/recon.npy",
+    "bytes": 588800,
+    "sha256": "4d705416939c9100cdfa3faebed6483bc4d6e322118a64ae69b2ec410a5dfb83"
+  },
+  {
+    "local": "data/source/results-v1/wind1/processed/xuji_28/xuji_28_train.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/processed/xuji_28/xuji_28_train.npy",
+    "bytes": 1373472,
+    "sha256": "596aaeb10c98ee995ede30b848b4fc19eb4564e044db42baa9abfd4a0fb36676"
+  },
+  {
+    "local": "data/source/results-v1/wind1/processed/xuji_28/xuji_28_test.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/processed/xuji_28/xuji_28_test.npy",
+    "bytes": 588800,
+    "sha256": "6be3704b0b322740a3368a93acd710ff5399e7e55323d3f463aea9486de3318d"
+  },
+  {
+    "local": "data/source/results-v1/wind1/insertedData/xuji_28/xuji_28_test_seq.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/insertedData/xuji_28/xuji_28_test_seq.npy",
+    "bytes": 588800,
+    "sha256": "117713e77aeb76cf7ee9c64feaff536bf22ce6050286d7efc70396e0ecd345ee"
+  },
+  {
+    "local": "data/source/results-v1/wind1/insertedData/xuji_28/xuji_28_labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_1/insertedData/xuji_28/xuji_28_labels.npy",
+    "bytes": 588800,
+    "sha256": "5a072f5919614c18bd6e880909b59a02e5db97bd38e6be103e0976d003abf066"
+  },
+  {
+    "local": "data/source/results-v1/wind1/retrain.log",
+    "remote": "/root/gpufree-data/DTAAD/xuji/logs_best_viz/DTAAD_1_retrain_w96_lr3e-4_ar0.70_e50.log",
+    "bytes": 136312,
+    "sha256": "3c602c502d2b2024f7de1009ee04a93ee595825d81b38f3b8a9e1d68563349d9"
+  },
+  {
+    "local": "data/source/results-v1/wind1/online-baseline-manifest.json",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\wind\\manifest.json",
+    "bytes": 272750,
+    "sha256": "0d814d7c72126b928175b45737557b5bde0ec387120e017d7081746e76bafc0c"
+  },
+  {
+    "local": "data/source/results-v1/wind1/raw-train.bin",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\wind\\train.bin",
+    "bytes": 1373344,
+    "sha256": "b3e9f27c7ec0e1b72d713d72ebeaa2f899e8c7e0040c6308cc4a4d9d2223fdb1"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/best_config.json",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/best_config.json",
+    "bytes": 742,
+    "sha256": "f1106adbb637a91287156aeedca034ff44856cf29c3c717074c68faaffa43a30"
+  },
+  {
+    "local": "data/models/results-v1/wind2.ckpt",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/best_model.ckpt",
+    "bytes": 6444570,
+    "sha256": "e3dc2d3e5676790b4c42d448c34b190e195769f30c28b1b9dae82fb45c1c7026"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/regen_viz_data.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/regen_viz_data.py",
+    "bytes": 4501,
+    "sha256": "96a86e8c68ced4d4dae634a758d5b389428bcd20beabde6a6900b7134bd7c12e"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/viz_best.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/viz_best.py",
+    "bytes": 8669,
+    "sha256": "ed3bd09ee94d88a4be0ca73648a3260de81f2d847ea52e1e1449323a21d8af4d"
+  },
+  {
+    "local": "data/source/results-v1/wind2/adaptive_mask.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/adaptive_mask.py",
+    "bytes": 5038,
+    "sha256": "c87d57ce4e98c9d3d55a17502e5fb76a6d4f8963e9547f84adde59c31ecf50ff"
+  },
+  {
+    "local": "data/source/results-v1/wind2/newMain17.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/newMain17.py",
+    "bytes": 44678,
+    "sha256": "6c4aae7e024fddf55670a5f30b4cd7e40f5e8eecf69828a08e76054ec4a62efa"
+  },
+  {
+    "local": "data/source/results-v1/wind2/src/models.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/src/models.py",
+    "bytes": 36581,
+    "sha256": "2a2b46e43d75f564dc47be865cadffe8aea63b835f32b07ef3772dad7c49b40e"
+  },
+  {
+    "local": "data/source/results-v1/wind2/src/gltcn.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/src/gltcn.py",
+    "bytes": 6382,
+    "sha256": "7b076b9fc252ce8f8a375a33876382682cce5cb4100853bfd18fff46199e5091"
+  },
+  {
+    "local": "data/source/results-v1/wind2/src/dlutils.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/src/dlutils.py",
+    "bytes": 13844,
+    "sha256": "67f938707a76b6ed371607a20c2a1c0831993529bd68cf4efb592c5d2669294f"
+  },
+  {
+    "local": "data/source/results-v1/wind2/src/constants.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/src/constants.py",
+    "bytes": 5457,
+    "sha256": "3d3701fa51a0c96dbc78a2d8963c31a57f6ea940eaa24696879272208c3793f6"
+  },
+  {
+    "local": "data/source/results-v1/wind2/src/folderconstants.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/src/folderconstants.py",
+    "bytes": 64,
+    "sha256": "831cfaf9e9e29e244d0d50328fb018c2204bf2794e8ba6facb6227bab37b4fa8"
+  },
+  {
+    "local": "data/source/results-v1/wind2/src/parser.py",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/src/parser.py",
+    "bytes": 2886,
+    "sha256": "66e0de080e5c7445faf7a2d00110d9df63e4e353897d967326f6176257a91527"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/data/testRaw.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/data/testRaw.npy",
+    "bytes": 588800,
+    "sha256": "95a116125bc802cd8ab4490c0675ada6ea05ab675dc099fac466213cc8d39b29"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/data/labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/data/labels.npy",
+    "bytes": 21152,
+    "sha256": "6b0a237a56b8b396020056e18eedb85a9128048cae18102da0f8c170f76e004e"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/data/lossFinal.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/data/lossFinal.npy",
+    "bytes": 21152,
+    "sha256": "3b0e6bb54063bd3b38caf636db058eecdda4556f7c864fcbb535aaea35d04031"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/data/lossPerFeat.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/data/lossPerFeat.npy",
+    "bytes": 588800,
+    "sha256": "70d57b5d9134b4f095ddc1b293764e9f603daf4d85991a5724cfeddb2095fd04"
+  },
+  {
+    "local": "data/source/results-v1/wind2/viz/data/recon.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/viz/data/recon.npy",
+    "bytes": 588800,
+    "sha256": "d647106677a95b28f0ed726cf295b1a0a1ba82ed4427bb366500587aedb4c9df"
+  },
+  {
+    "local": "data/source/results-v1/wind2/processed/xuji_28/xuji_28_train.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/processed/xuji_28/xuji_28_train.npy",
+    "bytes": 1373472,
+    "sha256": "596aaeb10c98ee995ede30b848b4fc19eb4564e044db42baa9abfd4a0fb36676"
+  },
+  {
+    "local": "data/source/results-v1/wind2/processed/xuji_28/xuji_28_test.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/processed/xuji_28/xuji_28_test.npy",
+    "bytes": 588800,
+    "sha256": "6be3704b0b322740a3368a93acd710ff5399e7e55323d3f463aea9486de3318d"
+  },
+  {
+    "local": "data/source/results-v1/wind2/insertedData/xuji_28/xuji_28_test_seq.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/insertedData/xuji_28/xuji_28_test_seq.npy",
+    "bytes": 588800,
+    "sha256": "95a116125bc802cd8ab4490c0675ada6ea05ab675dc099fac466213cc8d39b29"
+  },
+  {
+    "local": "data/source/results-v1/wind2/insertedData/xuji_28/xuji_28_labels.npy",
+    "remote": "/root/gpufree-data/DTAAD/xuji/DTAAD_2/insertedData/xuji_28/xuji_28_labels.npy",
+    "bytes": 588800,
+    "sha256": "5a072f5919614c18bd6e880909b59a02e5db97bd38e6be103e0976d003abf066"
+  },
+  {
+    "local": "data/source/results-v1/wind2/retrain.log",
+    "remote": "/root/gpufree-data/DTAAD/xuji/logs_best_viz/DTAAD_2_retrain_w96_lr3e-4_ar0.70_e50.log",
+    "bytes": 230353,
+    "sha256": "ba7bdf33df5fa077d805dd2e2237d12c1b3e488232c8bb9eeffecefcbf1a4278"
+  },
+  {
+    "local": "data/source/results-v1/wind2/online-baseline-manifest.json",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\wind\\manifest.json",
+    "bytes": 272750,
+    "sha256": "0d814d7c72126b928175b45737557b5bde0ec387120e017d7081746e76bafc0c"
+  },
+  {
+    "local": "data/source/results-v1/wind2/raw-train.bin",
+    "remote": "LOCAL:D:\\Desktop\\学习\\许继电气展示\\data\\reference\\wind\\train.bin",
+    "bytes": 1373344,
+    "sha256": "b3e9f27c7ec0e1b72d713d72ebeaa2f899e8c7e0040c6308cc4a4d9d2223fdb1"
   }
 ]

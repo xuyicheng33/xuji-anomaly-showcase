@@ -85,6 +85,7 @@ try {
     'wind',
     'wind_ranges',
     'release',
+    'results',
   ]) {
     await new Promise((resolve, reject) => {
       const child = spawn(
@@ -99,6 +100,7 @@ try {
             SHOWCASE_BROWSER_WS: browser.wsEndpoint(),
             SHOWCASE_URL: name === 'wind_ranges' ? new URL('?dataset=wind', base).href : base,
             SHOWCASE_DATASET: name === 'wind_ranges' ? 'wind' : 'converter',
+            SHOWCASE_LEGACY: name === 'results' ? '0' : '1',
             QA_DIR: path.join(output, name),
           },
         },

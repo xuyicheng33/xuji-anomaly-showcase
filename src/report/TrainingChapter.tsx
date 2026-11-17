@@ -35,8 +35,9 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
   }, []);
 
   const point = data.features[feature],
-    train = data.datasets.train;
-  const trainingAsset = useCurveData(train, train.keys.indexOf(point.key)),
+    train = data.datasets.train,
+    normalized = data.datasets.normalizedTrain;
+  const trainingAsset = useCurveData(normalized ?? train, train.keys.indexOf(point.key)),
     training = trainingAsset.data,
     timeline = useTrainingTimes(data),
     times = timeline.data,
@@ -63,7 +64,7 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
     training && stats
       ? Array.from({ length: contextLength }, (_, i) => {
           const value = training[contextStart + i];
-          return stats.normalize(value);
+          return normalized ? value : stats.normalize(value);
         })
       : [];
   const activeEpoch = Math.min(epoch, model.history.length - 1),

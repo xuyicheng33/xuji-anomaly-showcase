@@ -70,6 +70,12 @@ def runtime_manifest(source, reference, public):
     )
     (public / time_asset["file"]).write_bytes(time_payload)
     result["datasets"]["train"]["times"] = time_asset
+    if "normalizedTrain" in source:
+        result["datasets"]["normalizedTrain"] = {
+            **with_curves(source["normalizedTrain"], False),
+            "keys": source["datasets"]["train"]["keys"],
+            "times": time_asset,
+        }
     result["models"] = []
     result["inputChunkRows"] = INPUT_CHUNK_ROWS
     labels = np.asarray(source["labels"], dtype=bool)

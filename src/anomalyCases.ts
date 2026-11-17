@@ -22,7 +22,14 @@ export type AnomalyCase = {
   feature: number;
   features: number[];
   times: string[];
-  source: { referenceStart?: number; scale?: number; peak?: number };
+  source: {
+    referenceStart?: number;
+    scale?: number;
+    peak?: number;
+    patchSize?: number;
+    sourceBegin?: number;
+    sourceEnd?: number;
+  };
   original: Asset;
   material: Asset;
   candidate: Asset;

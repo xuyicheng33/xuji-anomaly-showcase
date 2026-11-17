@@ -4,6 +4,7 @@ import { pct, outcomeCode } from '../journey';
 import FeaturePicker from './FeaturePicker';
 import { modelName } from './modelNames';
 import InfoTip from './InfoTip';
+import { availableMethods } from '../resultCatalog';
 export const colors = {
   input: 'var(--chart-input)',
   recon: 'var(--chart-recon)',
@@ -75,12 +76,12 @@ export function ModelSelect({
   value: string;
   onChange: (v: string) => void;
 }) {
-  if (data.models.length === 1)
-    return <span className="model-identity">{modelName(data.models[0])}</span>;
+  const methods = availableMethods(data);
+  if (methods.length === 1) return <span className="model-identity">{modelName(methods[0])}</span>;
   return (
     <div className="segmented model-select" aria-label="选择模型">
       <SelectionIndicator />
-      {data.models.map((m) => (
+      {methods.map((m) => (
         <button key={m.id} aria-pressed={value === m.id} onClick={() => onChange(m.id)}>
           {modelName(m)}
         </button>

@@ -14,7 +14,8 @@
     "test:browser": "npm run build && node scripts/verify_browser.mjs",
     "test:site": "node scripts/verify_browser.mjs --remote",
     "typecheck": "tsc -b",
-    "verify:data": "node scripts/run_python.mjs scripts/verify_runtime.py && npm run verify:windows && npm run verify:cases && node scripts/run_python.mjs scripts/export_data_cleaning.py --check && npm run verify:wind && npm run verify:exports",
+    "verify:data": "npm run data:verify && npm run verify:public && node scripts/run_python.mjs scripts/verify_runtime.py && npm run verify:windows && npm run verify:cases && node scripts/run_python.mjs scripts/export_data_cleaning.py --check && npm run verify:wind && npm run verify:results && npm run verify:exports",
+    "verify:results": "node scripts/run_python.mjs scripts/verify_results.py",
     "export:data": "node scripts/run_python.mjs scripts/export_journey.py",
     "verify": "npm run check && npm test && npm run test:python && npm run verify:data && npm run verify:research && npm run verify:font && npm run test:browser && node scripts/build_record.mjs verify",
     "verify:windows": "node scripts/run_python.mjs scripts/verify_windows.py",
@@ -34,9 +35,13 @@
     "verify:wind": "node scripts/run_python.mjs scripts/verify_wind_source.py && node scripts/run_python.mjs scripts/verify_runtime.py --dataset wind && node scripts/run_python.mjs scripts/verify_windows.py --dataset wind && node scripts/run_python.mjs scripts/verify_anomaly_cases.py --dataset wind",
     "export:wind": "node scripts/run_python.mjs scripts/export_journey.py --dataset wind",
     "verify:exports": "node scripts/run_python.mjs scripts/verify_exports.py",
-    "verify:ci": "npm run verify && npm audit",
+    "verify:frontend": "npm run check && npm test && npm run test:python:ci && npm run verify:public && npm run test:browser",
+    "verify:public": "node scripts/run_python.mjs scripts/verify_public.py",
+    "verify:ci": "npm run verify:frontend && npm audit",
     "test:python:ci": "node scripts/run_python.mjs --public-only -m unittest discover -s tests",
-    "backup:prune": "node scripts/run_python.mjs scripts/backup_project.py --prune"
+    "backup:prune": "node scripts/run_python.mjs scripts/backup_project.py --prune",
+    "data:verify": "node scripts/run_python.mjs scripts/data_archive.py verify",
+    "data:use": "node scripts/run_python.mjs scripts/data_archive.py use"
   },
   "dependencies": {
     "@noble/hashes": "2.4.0",

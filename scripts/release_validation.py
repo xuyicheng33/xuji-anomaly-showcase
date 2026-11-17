@@ -91,10 +91,12 @@ def site_config(existing, desired, previous=None):
     return desired[:end].rstrip() + "".join(extra) + "\n" + desired[end:]
 
 
-def validate_evaluation(folder, reference):
+def validate_evaluation(
+    folder, reference, manifest_file="manifest.json", evaluation_file="evaluation.json"
+):
     folder = Path(folder)
-    manifest = json.loads((folder / "manifest.json").read_text(encoding="utf8"))
-    evaluation = json.loads((folder / "evaluation.json").read_text(encoding="utf8"))
+    manifest = json.loads((folder / manifest_file).read_text(encoding="utf8"))
+    evaluation = json.loads((folder / evaluation_file).read_text(encoding="utf8"))
     source = json.loads(Path(reference).read_text(encoding="utf8"))
     if not manifest["resultVersion"] == evaluation["version"] == source["resultVersion"]:
         raise ValueError("Evaluation versions differ")

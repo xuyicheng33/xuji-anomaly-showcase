@@ -27,6 +27,7 @@ def install(source, target, journey):
         for c in construct(
             clean,
             list(range(len(data["features"]))) if dataset_info(data)["id"] == "wind" else None,
+            window=data["window"],
         )
     }
     records = []
@@ -77,7 +78,10 @@ def install(source, target, journey):
         }
         material = np.asarray(c["original"]).copy()
         if c["kind"] == "reference":
-            material[c["begin"] : c["end"], c["features"]] = clean[175:199, c["features"]]
+            start = c["source"]["referenceStart"]
+            material[c["begin"] : c["end"], c["features"]] = clean[
+                start : start + c["end"] - c["begin"], c["features"]
+            ]
         rec.update(
             name=("替换" if c["insertion"] == "replace" else "混合") + "：" + names[c["kind"]],
             times=data["times"][c["start"] : c["start"] + len(c["original"])],
@@ -113,7 +117,7 @@ def install(source, target, journey):
             for m, e in exports.items()
         },
         construction="Four candidate generators crossed with replacement / 0.7 blending. Controlled new offline cases, not historical static/dynamic combinations.",
-        lengthPolicy="Repeat 8 points by scale 3 inside a 24-point interval; no tail shift or unlabelled feature changes.",
+        lengthPolicy=f"Repeat {(first['end'] - first['begin']) // 3} points by scale 3 inside a {first['end'] - first['begin']}-point interval; no tail shift or unlabelled feature changes.",
         thresholdPolicy="Reuse frozen independent-window thresholds; never optimize on these eight cases.",
     )
     payload = json.dumps(manifest, ensure_ascii=False, indent=2).encode("utf-8")
@@ -133,9 +137,11 @@ def install(source, target, journey):
 
 
 if __name__ == "__main__":
+    from dataset_paths import retained_path
+
     p = argparse.ArgumentParser()
-    p.add_argument("--source", default="data/reference/cases")
+    p.add_argument("--source", default=retained_path("data/reference/cases"))
     p.add_argument("--target", default="public/data/journey/anomaly-cases-v1")
-    p.add_argument("--journey", default="data/reference/manifest.json")
+    p.add_argument("--journey", default=retained_path("data/reference/manifest.json"))
     a = p.parse_args()
     install(a.source, a.target, a.journey)
