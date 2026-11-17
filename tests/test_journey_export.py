@@ -1,12 +1,15 @@
 import hashlib
 import json
 import os
+import sys
 import unittest
 from pathlib import Path
 
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from dataset_paths import retained_path
 
 
 @unittest.skipIf(
@@ -16,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class JourneyExportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.folder = ROOT / "data/reference"
+        cls.folder = retained_path("data/reference")
         cls.data = json.loads((cls.folder / "manifest.json").read_text(encoding="utf-8"))
 
     def test_mapping_and_counts(self):

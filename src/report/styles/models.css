@@ -163,7 +163,7 @@
 }
 .mask-example-cells {
   display: grid;
-  grid-template-columns: repeat(64, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--mask-points, 64), minmax(0, 1fr));
   gap: 2px;
   height: 42px;
   margin: 22px 0 16px;

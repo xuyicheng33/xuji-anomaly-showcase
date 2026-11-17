@@ -9,10 +9,11 @@ from dataset_paths import selected_paths
 from evaluation_policy import POLICY, select_threshold
 
 
-def verify():
-    reference, folder = selected_paths()
+def verify(reference=None, folder=None, published=None):
+    if reference is None:
+        reference, folder = selected_paths()
     data = json.loads((reference / "manifest.json").read_text("utf8"))
-    published = json.loads((folder / "manifest.json").read_text("utf8"))
+    published = published or json.loads((folder / "manifest.json").read_text("utf8"))
     _, features, window = geometry(data)
     raw = np.fromfile(reference / data["input"]["file"], dtype="<f8").reshape(-1, features)
     labels = np.fromfile(reference / data["labelMatrix"]["file"], dtype="<f8").reshape(-1, features)

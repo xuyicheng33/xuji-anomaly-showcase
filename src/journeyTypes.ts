@@ -48,7 +48,36 @@ export type Feature = {
   label: string;
   description: string;
 };
+export type CaseGeometry = {
+  start: number;
+  begin: number;
+  end: number;
+  referenceStart: number;
+  peak: number;
+  patchSize: number;
+  sourceBegin: number;
+  sourceEnd: number;
+  scale: number;
+};
+export type MethodResult = Pick<
+  Model,
+  'id' | 'name' | 'metrics' | 'threshold' | 'windowThreshold'
+> & {
+  manifest: Pick<Asset, 'file' | 'bytes' | 'sha256'>;
+  window: number;
+  epochs: number;
+  maskSpan: number;
+  decoder: 'temporal' | 'spatiotemporal';
+  caseGeometry: CaseGeometry;
+};
+export type ResultCatalog = {
+  schemaVersion: number;
+  dataset: string;
+  defaultModel: string;
+  methods: MethodResult[];
+};
 export type Journey = {
+  methodResults?: MethodResult[];
   dataset?: {
     id: string;
     title: string;

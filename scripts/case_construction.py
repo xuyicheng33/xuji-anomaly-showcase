@@ -5,7 +5,7 @@ import numpy as np
 START, BEGIN, END, SEED = 107, 18, 42, 20261028
 
 
-def construct(clean, selected_features=None):
+def construct(clean, selected_features=None, window=64):
     """Separate candidate construction from replacement/blending composition.
 
     Reference flipping, uniform value, peak selection and repeat-interleave
@@ -13,7 +13,12 @@ def construct(clean, selected_features=None):
     dimensions: the historical function also shifts the tail without labeling
     all changed dimensions; that behavior is deliberately not copied.
     """
-    base = clean[START : START + 64].copy()
+    begin, end = round(BEGIN * window / 64), round(END * window / 64)
+    peak, patch = round(30 * window / 64), max(1, round(4 * window / 64))
+    span = end - begin
+    if span % 3 or not 0 <= begin < end <= window:
+        raise ValueError("Unsupported retained case geometry")
+    base = clean[START : START + window].copy()
     # A fixed multivariate selection makes the aggregate score interpretable.
     features = [
         4,
@@ -53,9 +58,10 @@ def construct(clean, selected_features=None):
         features = selected_features
     feature_count = clean.shape[1]
     rng = np.random.default_rng(SEED)
-    mask = np.ones((64, feature_count), np.uint8)
-    for f, begin in enumerate(rng.integers(0, 49, feature_count)):
-        mask[begin : begin + 16, f] = 0
+    mask = np.ones((window, feature_count), np.uint8)
+    zero_span = window // 4
+    for f, offset in enumerate(rng.integers(0, window - zero_span + 1, feature_count)):
+        mask[offset : offset + zero_span, f] = 0
     cases = []
     for kind in ["reference", "uniform", "peak", "length"]:
         candidate = base.copy()
@@ -65,36 +71,35 @@ def construct(clean, selected_features=None):
         active = np.zeros_like(base, bool)
         if kind == "reference":
             source.update(referenceStart=175, verticalFlip=True, horizontalFlip=True)
-            reference = 1 - clean[175:199, features][::-1]
-            candidate[BEGIN:END, features] = reference
-            active[BEGIN:END, features] = True
-            labels[BEGIN:END, features] = 1
+            reference = 1 - clean[175 : 175 + span, features][::-1]
+            candidate[begin:end, features] = reference
+            active[begin:end, features] = True
+            labels[begin:end, features] = 1
         elif kind == "uniform":
             values = rng.uniform(0.08, 0.18, len(features))
             values[features.index(4)] = 0.923039436340332
-            candidate[BEGIN:END, features] = values
+            candidate[begin:end, features] = values
             source.update(values=values.tolist())
-            active[BEGIN:END, features] = True
-            labels[BEGIN:END, features] = 1
+            active[begin:end, features] = True
+            labels[begin:end, features] = 1
         elif kind == "peak":
-            peak = 30
             opposite = (base[peak, features] < 0.5).astype(float)
             values = opposite + 0.1 * (1 - 2 * opposite) * rng.random(len(features))
             candidate[peak, features] = values
             active[peak, features] = True
-            labels[peak - 4 : peak + 5, features] = 1
-            source.update(peak=peak, patchSize=4, values=values.tolist())
+            labels[max(0, peak - patch) : min(window, peak + patch + 1), features] = 1
+            source.update(peak=peak, patchSize=patch, values=values.tolist())
         else:
             scale = 3
-            candidate[BEGIN:END, features] = np.repeat(
-                base[BEGIN : BEGIN + 8, features], scale, axis=0
+            candidate[begin:end, features] = np.repeat(
+                base[begin : begin + span // scale, features], scale, axis=0
             )
-            active[BEGIN:END, features] = True
-            labels[BEGIN:END, features] = 1
+            active[begin:end, features] = True
+            labels[begin:end, features] = 1
             source.update(
                 scale=scale,
-                sourceBegin=BEGIN,
-                sourceEnd=BEGIN + 8,
+                sourceBegin=begin,
+                sourceEnd=begin + span // scale,
                 boundary="selected interval and features only; tail unchanged",
             )
         for insertion in ["replace", "blend"]:
@@ -102,13 +107,17 @@ def construct(clean, selected_features=None):
             weights[active] = 1 if insertion == "replace" else 0.7
             if insertion == "blend" and kind != "peak":
                 # Same 10% warmup/cooldown rule as the research soft replacement.
-                warmup = (END - BEGIN) // 10
-                envelope = np.r_[
-                    np.linspace(0, 0.7, warmup),
-                    np.full(END - BEGIN - 2 * warmup, 0.7),
-                    np.linspace(0.7, 0, warmup),
-                ]
-                weights[BEGIN:END, features] = envelope[:, None]
+                warmup = span // 10
+                envelope = (
+                    np.r_[
+                        np.linspace(0, 0.7, warmup),
+                        np.full(span - 2 * warmup, 0.7),
+                        np.linspace(0.7, 0, warmup),
+                    ]
+                    if warmup
+                    else np.full(span, 0.7)
+                )
+                weights[begin:end, features] = envelope[:, None]
             after = base * (1 - weights) + candidate * weights
             cases.append(
                 dict(
@@ -116,8 +125,8 @@ def construct(clean, selected_features=None):
                     insertion=insertion,
                     kind=kind,
                     start=START,
-                    begin=BEGIN,
-                    end=END,
+                    begin=begin,
+                    end=end,
                     feature=4 if kind in ["uniform", "length"] else 5,
                     features=features,
                     source=source,

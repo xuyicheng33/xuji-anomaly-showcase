@@ -6,14 +6,15 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from dataset_paths import retained_path
 from evaluation_policy import counts
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def verify():
-    source = ROOT / "data/source/wind"
-    reference = ROOT / "data/reference/wind"
+    source = retained_path("data/source/wind")
+    reference = retained_path("data/reference/wind")
     index = json.loads((ROOT / "data/wind-reference-index.json").read_text(encoding="utf8"))
     actual = {p.relative_to(reference).as_posix() for p in reference.rglob("*") if p.is_file()}
     assert actual == set(index), "Wind reference inventory changed"
@@ -47,7 +48,7 @@ def verify():
     assert set(df.stationid) == {41} and not df[keys].isna().any().any()
     assert data["dataset"]["outsideUnitRange"] == int(((test < 0) | (test > 1)).sum())
     assert (
-        hashlib.sha256((ROOT / "data/models/wind/method2.ckpt").read_bytes()).hexdigest()
+        hashlib.sha256(retained_path("data/models/wind/method2.ckpt").read_bytes()).hexdigest()
         == data["models"][0]["provenance"]["checkpointSHA256"]
     )
     model = data["models"][0]

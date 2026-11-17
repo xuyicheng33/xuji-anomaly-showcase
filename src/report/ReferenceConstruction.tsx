@@ -75,7 +75,11 @@ export default function ReferenceConstruction({
       <div className="curve-top">
         <strong>{names[step]}</strong>
         <span className="reference-rule">
-          {step === 0 ? '取出连续24个观测值' : step === 1 ? '第1点 ↔ 第24点' : '新值 = 1 − 原值'}
+          {step === 0
+            ? `取出连续${values.length}个观测值`
+            : step === 1
+              ? `第1点 ↔ 第${values.length}点`
+              : '新值 = 1 − 原值'}
         </span>
       </div>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`参考片段：${names[step]}`}>

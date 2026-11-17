@@ -5,9 +5,18 @@ import { NoteSection } from './notes';
 import ExplanationIndex from './ExplanationIndex';
 import WindSource from './WindSource';
 import Fraction from './Fraction';
+import { caseGeometry } from '../resultCatalog';
+import { modelName } from './modelNames';
+import ResultVersionLink from './ResultVersionLink';
 
 export default function WindExplanation({ data, address }: { data: Journey; address: string }) {
   const model = data.models[0];
+  const g = caseGeometry(data),
+    span = g.end - g.begin;
+  const sampleCount = g.sourceEnd - g.sourceBegin,
+    window = data.window;
+  const minutes = (window - 1) * (data.dataset?.samplingMinutes ?? 15);
+  const duration = `${Math.floor(minutes / 60)} 小时 ${minutes % 60} 分钟`;
   return (
     <div className="explanation-page">
       <Heading title="数据与评估说明">风电数据来源、计算过程与评估规则。</Heading>
@@ -50,6 +59,11 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           不截断超出 0—1 的数值。清洁测试集有 {data.dataset?.outsideUnitRange}{' '}
           个越界单元格；这些仍是原实验输入，页面保留其实际数值。
         </p>
+        {data.methodResults && (
+          <p>
+            归一化后沿用实验保存的含噪训练与测试数组，不重新生成噪声。两种方法保留各自的测试输入；本版有565个异常时刻，与此前483个异常时刻属于不同实验结果，不能据此直接判断方法改进幅度。
+          </p>
+        )}
       </NoteSection>
       <NoteSection id="anomaly-process">
         <p>
@@ -73,18 +87,21 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       <NoteSection id="anomaly-cases">
         <p>
           四类素材为参考片段、均匀值、峰值噪声和长度调整，分别用直接替换与 0.7
-          权重混合，形成八个案例。每个案例保存原片段、素材、候选值、权重、输入、标签、掩码及SMST-AD的实际重建。
+          权重混合，形成八个案例。每个案例保存原片段、素材、候选值、权重、输入、标签、掩码及
+          {modelName(model)}的实际重建。
         </p>
         <p>
-          案例以清洁风电测试集第 108—171 点为底稿，目标区间为窗口第 19—42
-          点。参考片段来自清洁测试集第 176—199 点。混合计算为：原值 ×（1 − 权重）＋候选值 ×
-          权重；峰值只改变一个时刻，标签覆盖其前后各 4 点。
+          案例以清洁风电测试集第 {g.start + 1}—{g.start + window} 点为底稿，目标区间为窗口第{' '}
+          {g.begin + 1}—{g.end}
+          点。参考片段来自清洁测试集第 {g.referenceStart + 1}—{g.referenceStart + span}{' '}
+          点。混合计算为：原值 ×（1 − 权重）＋候选值 × 权重；峰值只改变一个时刻，标签覆盖其前后各{' '}
+          {g.patchSize} 点。
         </p>
         <p>案例复用本版独立窗口阈值，不针对八个案例另外挑选阈值。</p>
       </NoteSection>
       <NoteSection id="length-sampling">
         <p>
-          从目标区间取 8 个点，每点重复 3 次形成 24
+          从目标区间取 {sampleCount} 个点，每点重复 {g.scale} 次形成 {span}
           点。仅改选定区间和字段，后续时间位置保持不变。每点的实际时间间隔仍为 15
           分钟，动画速度只影响展示速度。
         </p>
@@ -93,11 +110,13 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         <p>
           每个窗口包含 {data.window} 个时刻、{data.features.length} 个字段。步长为 1，2,628
           个测试时刻形成 {model.windows.count.toLocaleString('zh-CN')}{' '}
-          个完整窗口；每个窗口首尾时间相差 15 小时 45 分钟。
+          个完整窗口；每个窗口首尾时间相差 {duration}。
         </p>
         <p>
-          检查点保存于 2026 年 10 月 27 日，主训练 5 轮。展示数据在 2026 年 11 月 5 日用保留权重经
-          CPU 推理导出，没有重新训练。Local 分支接收完整窗口，Global 分支每个字段连续遮蔽 16
+          {data.methodResults
+            ? `主训练 ${model.history.length} 轮。展示数据在 2026 年 11 月 16 日用保留权重经 GPU 推理导出`
+            : '检查点保存于 2026 年 10 月 27 日，主训练 5 轮。展示数据在 2026 年 11 月 5 日用保留权重经 CPU 推理导出'}
+          ，没有重新训练。Local 分支接收完整窗口，Global 分支每个字段连续遮蔽 {window / 4}
           个位置；掩码固定并保存。
         </p>
         <p>
@@ -134,7 +153,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       <NoteSection id="window-aggregation">
         <p>
           同一时刻可被多个窗口覆盖。重建曲线取这些窗口的重建均值；评分取这些窗口的平方误差均值，再对
-          28 个字段取平均。首尾各由一个窗口覆盖，中间最多 64 个。
+          28 个字段取平均。首尾各由一个窗口覆盖，中间最多 {window} 个。
         </p>
         <p>
           测点贡献为该字段平均平方误差除以 28，28
@@ -150,9 +169,11 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="model-design">
         <p>
-          本页采用SMST-AD：多尺度时空依赖建模的自监督TCN-Transformer异常检测模型，保留实现来自
-          DTAAD_64_n2 的 28 维实验。多尺度 Local 分支和 Global
-          分支提取时间特征，融合后生成重建。保留实现还包含空间分支，但当前解码输出使用时间融合结果，页面按实际生效路径说明。
+          {data.methodResults
+            ? model.id === 'model1'
+              ? '本页采用STAM-AD：Local和Global两个时间分支学习局部变化与较长范围的规律，融合后由解码器重建28维风电窗口。'
+              : '本页采用SMST-AD：多尺度时间分支与测点间的空间分支分别提取特征，时空融合结果送入解码器生成重建；训练还计算空间正则。'
+            : '本页采用SMST-AD：多尺度时空依赖建模的自监督TCN-Transformer异常检测模型，保留实现来自DTAAD_64_n2的28维实验。多尺度Local分支和Global分支提取时间特征，融合后生成重建。保留实现还包含空间分支，但当前解码输出使用时间融合结果，页面按实际生效路径说明。'}
         </p>
         <p>
           检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32 保存，误差与聚合按
@@ -161,10 +182,12 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="training-mse">
         <p>
-          训练曲线读取检查点中的 5 条 MSE 与学习率记录，轮次显示为 1—5。MSE
+          训练曲线读取检查点中的 {model.history.length} 条 MSE 与学习率记录，轮次显示为 1—
+          {model.history.length}。MSE
           是记录的重建误差，训练优化还含有界异常损失等约束，二者不是同一个数。移动训练窗口只改变显示，不会触发训练。
         </p>
       </NoteSection>
+      <ResultVersionLink />
     </div>
   );
 }

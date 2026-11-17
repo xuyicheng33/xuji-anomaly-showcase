@@ -13,7 +13,10 @@ export function useCaseConstruction(data: Journey, model: Model) {
   const [kind, setKind] = usePresentationState<Construction>('case:kind', 'reference');
   const [progress, setProgress] = usePresentationState('case:progress', 0),
     [playing, setPlaying] = useState(false),
-    [point, setPoint] = usePresentationState('case:point', 30),
+    [savedPoint, setPoint] = usePresentationState(
+      `case:point:${data.resultVersion}`,
+      Math.round((30 * data.window) / 64),
+    ),
     [showResult, setShowResult] = usePresentationState('case:result', false);
   const [selectedFeature, setSelectedFeature] = usePresentationState<number | null>(
     'case:feature',
@@ -29,7 +32,10 @@ export function useCaseConstruction(data: Journey, model: Model) {
   const selected = catalog.data?.cases.find((c) => c.insertion === insertion && c.kind === kind);
   const cm = selected?.models.find((m) => m.id === model.id);
   const readArrays = useCallback(() => loadCaseArrays(selected!), [selected]);
-  const bundle = useResource(selected?.id ?? null, readArrays);
+  const bundle = useResource(
+    selected ? `${data.resultVersion}:${selected.input.sha256}` : null,
+    readArrays,
+  );
   const arrays = bundle.data;
   const error = catalog.error || bundle.error;
   const retry = () => {
@@ -44,9 +50,9 @@ export function useCaseConstruction(data: Journey, model: Model) {
     setProgress(0);
     setPlaying(false);
     setShowResult(false);
-    setPoint(30);
+    setPoint(Math.round((30 * data.window) / 64));
     setSelectedFeature(null);
-  }, [insertion, kind, setProgress, setShowResult, setPoint, setSelectedFeature]);
+  }, [insertion, kind, data.window, setProgress, setShowResult, setPoint, setSelectedFeature]);
   useEffect(() => {
     setPlaying(false);
   }, [model.id]);
@@ -69,11 +75,30 @@ export function useCaseConstruction(data: Journey, model: Model) {
     if (progress >= 1) setPlaying(false);
   }, [progress]);
   const method = methods.find((m) => m.id === insertion)!,
-    construction = kinds.find((k) => k.id === kind)!;
+    baseConstruction = kinds.find((k) => k.id === kind)!;
   const feature = selectedFeature ?? selected?.feature ?? 4;
   const phase = progress < 0.16 ? 0 : progress <= 0.58 ? 1 : progress < 0.9 ? 2 : 3;
   const blend = Math.max(0, Math.min(1, (progress - 0.58) / 0.32));
   const length = selected?.times.length ?? data.window;
+  const point = Math.min(savedPoint, length - 1);
+  const begin = selected?.begin ?? 0,
+    end = selected?.end ?? length;
+  const span = end - begin,
+    scale = selected?.source.scale ?? 3;
+  const patch = selected?.source.patchSize ?? 4;
+  const construction =
+    kind === 'length'
+      ? {
+          ...baseConstruction,
+          copy: `将 ${span / scale} 个采样点各重复 ${scale} 次，形成 ${span} 点素材，写入固定区间。`,
+          detail: `来源为第 ${begin + 1}—${begin + span / scale} 点，重复采样后写入第 ${begin + 1}—${end} 点；第 ${end + 1}—${length} 点保留原值。`,
+        }
+      : kind === 'peak'
+        ? {
+            ...baseConstruction,
+            detail: `原值较高时取接近 0 的值，原值较低时取接近 1 的值；前后各 ${patch} 点一并标记。`,
+          }
+        : baseConstruction;
   const features = data.features.length;
   const { material, base, candidate, after, labels, weights, activePoints, stableRange } =
     useMemo(() => {

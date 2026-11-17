@@ -1,5 +1,0 @@
-{
-  "path": "/root/gpufree-data/DTAAD/DTAAD_64_n/processed/converterold/converter_test.npy",
-  "sha256": "c5bd71d3d4379cbf89092861fe5b4cc16a736732218ffcfb2de854ad5dfcf591",
-  "normalization": "training min/max; clip 0..1"
-}

@@ -1,4 +1,4 @@
-name: Verify maintenance changes
+name: Verify frontend maintenance changes
 on:
   push:
     branches: [main]

@@ -14,6 +14,10 @@ POLICY = {
 }
 
 
+def policy_for_window(window):
+    return {**POLICY, "windowSegments": f"each {window}-point window is evaluated independently"}
+
+
 def select_threshold(scores, labels):
     """Search every achievable alarm set; window boundaries split PA segments."""
     scores, labels = np.asarray(scores, float), np.asarray(labels, bool)

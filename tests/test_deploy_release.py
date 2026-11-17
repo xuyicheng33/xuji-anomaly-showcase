@@ -13,6 +13,50 @@ import deploy_release as deployment
 
 
 class DeploymentTests(unittest.TestCase):
+    def test_invalid_new_result_stops_before_ssh_connection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            (root / ".qa").mkdir()
+            (root / "data").mkdir()
+            (root / ".qa/build.json").write_text(json.dumps({"commit": "abcdef0", "files": {}}))
+            result = {
+                "dataset": "wind",
+                "reference": "reference/results/wind1",
+                "manifest": {"file": "results-v1/m/manifest.json"},
+                "evaluation": {"file": "results-v1/e/evaluation.json"},
+            }
+            (root / "data/results-index.json").write_text(json.dumps({"results": [result]}))
+            datasets = {
+                name: (root / "reference" / name, root / "public/data" / name)
+                for name in ("converter", "wind")
+            }
+
+            def validate(*args):
+                if len(args) == 4:
+                    raise ValueError("New result evaluation differs")
+
+            with (
+                patch.object(deployment, "__file__", str(root / "scripts/deploy_release.py")),
+                patch.object(deployment, "DATASETS", datasets),
+                patch.object(deployment, "validate_evaluation", side_effect=validate) as checked,
+                patch.object(deployment.paramiko, "SSHClient") as ssh,
+                patch.object(deployment.subprocess, "check_output", return_value=""),
+                patch.object(deployment.subprocess, "run"),
+                patch("sys.argv", ["deploy"]),
+            ):
+                with self.assertRaisesRegex(ValueError, "New result evaluation differs"):
+                    deployment.main()
+                ssh.assert_not_called()
+                self.assertEqual(
+                    checked.call_args.args,
+                    (
+                        root / "dist/data/wind",
+                        root / result["reference"] / "manifest.json",
+                        result["manifest"]["file"],
+                        result["evaluation"]["file"],
+                    ),
+                )
+
     def test_entry_checks_evaluation_in_dist_data_before_connecting(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()

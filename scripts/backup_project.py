@@ -8,6 +8,7 @@ import zipfile
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+from dataset_paths import retained_path
 from recovery_archive import (
     GitObjects,
     digest,
@@ -36,21 +37,29 @@ def workspace_files(root, output):
         )
     )
     for name in RETAINED:
-        folder = root / name
+        folder = retained_path(name, root)
         if not folder.is_dir():
             raise FileNotFoundError(f"Required recovery source is missing: {name}")
         if output == folder or folder in output.parents or output in folder.parents:
             raise ValueError("Backup output overlaps retained source materials")
         names.update(
-            p.relative_to(root).as_posix()
+            name + "/" + p.relative_to(folder).as_posix()
             for p in folder.rglob("*")
             if p.is_file() and "__pycache__" not in p.parts
         )
-    return {
+    files = {
         name: safe_path(root, name)
         for name in names
         if not (root / name).resolve().is_relative_to(output) and (root / name).is_file()
     }
+    for name in names:
+        if any(name.startswith(folder + "/") for folder in RETAINED):
+            file = retained_path(name, root)
+            if file.is_file():
+                files[name] = file
+    # Restored archives use their own local copies, never another checkout's data root.
+    files.pop(".qa/data-location.json", None)
+    return files
 
 
 def create_backup(root, output):

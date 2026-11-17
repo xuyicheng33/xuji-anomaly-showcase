@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "dataset": "wind",
+  "defaultModel": "model1",
+  "methods": [
+    {
+      "id": "model1",
+      "name": "STAM-AD",
+      "manifest": {
+        "file": "results-v1/b3f14b71a13ebe1da94e0f71c3a501fefa44e520ad4078db63942c90a66b927f/manifest.json",
+        "bytes": 182845,
+        "sha256": "b3f14b71a13ebe1da94e0f71c3a501fefa44e520ad4078db63942c90a66b927f"
+      },
+      "window": 96,
+      "epochs": 50,
+      "maskSpan": 24,
+      "metrics": {
+        "point_wise": {
+          "tp": 207,
+          "fp": 33,
+          "fn": 358,
+          "tn": 2030,
+          "precision": 0.8625,
+          "recall": 0.3663716814159292,
+          "f1": 0.5142857142857142
+        },
+        "point_adjusted": {
+          "tp": 565,
+          "fp": 33,
+          "fn": 0,
+          "tn": 2030,
+          "precision": 0.9448160535117057,
+          "recall": 1.0,
+          "f1": 0.9716251074806534
+        },
+        "continuous_score_auc": 0.8011805129569018
+      },
+      "threshold": 0.09820302230959908,
+      "windowThreshold": 0.0970115874841725,
+      "decoder": "temporal",
+      "caseGeometry": {
+        "start": 107,
+        "begin": 27,
+        "end": 63,
+        "referenceStart": 175,
+        "peak": 45,
+        "patchSize": 6,
+        "sourceBegin": 27,
+        "sourceEnd": 39,
+        "scale": 3
+      }
+    },
+    {
+      "id": "model2",
+      "name": "SMST-AD",
+      "manifest": {
+        "file": "results-v1/6de99d3649b10bed70bc43b55e216b9fc2e0bbc57f447845db0c37e8bb81425e/manifest.json",
+        "bytes": 183654,
+        "sha256": "6de99d3649b10bed70bc43b55e216b9fc2e0bbc57f447845db0c37e8bb81425e"
+      },
+      "window": 96,
+      "epochs": 50,
+      "maskSpan": 24,
+      "metrics": {
+        "point_wise": {
+          "tp": 80,
+          "fp": 50,
+          "fn": 485,
+          "tn": 2013,
+          "precision": 0.6153846153846154,
+          "recall": 0.1415929203539823,
+          "f1": 0.2302158273381295
+        },
+        "point_adjusted": {
+          "tp": 514,
+          "fp": 50,
+          "fn": 51,
+          "tn": 2013,
+          "precision": 0.9113475177304965,
+          "recall": 0.9097345132743363,
+          "f1": 0.9105403011514615
+        },
+        "continuous_score_auc": 0.7085145354947473
+      },
+      "threshold": 0.053635040618505436,
+      "windowThreshold": 0.054313212424528384,
+      "decoder": "spatiotemporal",
+      "caseGeometry": {
+        "start": 107,
+        "begin": 27,
+        "end": 63,
+        "referenceStart": 175,
+        "peak": 45,
+        "patchSize": 6,
+        "sourceBegin": 27,
+        "sourceEnd": 39,
+        "scale": 3
+      }
+    }
+  ]
+}

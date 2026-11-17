@@ -35,6 +35,14 @@ export async function launchBrowser() {
   const newPage = browser.newPage.bind(browser);
   browser.newPage = async (...args) => {
     const page = await newPage(...args);
+    if (process.env.SHOWCASE_LEGACY === '1') {
+      const goto = page.goto.bind(page);
+      page.goto = (url, ...options) => {
+        const target = new URL(url);
+        target.searchParams.set('version', 'legacy');
+        return goto(target.href, ...options);
+      };
+    }
     page.setDefaultTimeout(Number(process.env.BROWSER_TIMEOUT || 60000));
     return page;
   };

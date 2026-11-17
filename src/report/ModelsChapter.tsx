@@ -1,4 +1,6 @@
 import { type Journey, type Model } from '../journey';
+import { type CSSProperties } from 'react';
+import { availableMethods } from '../resultCatalog';
 import { Heading, Section, ModelSelect } from './ReportUI';
 import { Footnote } from './notes';
 import { modelName, modelNames } from './modelNames';
@@ -69,7 +71,31 @@ export function ModelsChapter({
 }) {
   const multi = model.id === 'model2',
     wind = data.dataset?.id === 'wind',
-    description = wind ? windDescription : descriptions[multi ? 'model2' : 'model1'];
+    spatialDecoder =
+      data.methodResults?.find((method) => method.id === model.id)?.decoder === 'spatiotemporal',
+    methods = availableMethods(data),
+    description =
+      wind && !data.methodResults
+        ? windDescription
+        : !multi
+          ? descriptions.model1
+          : spatialDecoder
+            ? descriptions.model2
+            : {
+                ...descriptions.model2,
+                intro:
+                  'SMST-AD通过多尺度时间分支与空间分支学习时间变化和测点关联，当前保留实现由时间融合特征生成重建。',
+                details: [
+                  ...descriptions.model2.details.slice(0, 2),
+                  [
+                    '时间融合与重建',
+                    '当前解码器使用局部与全局时间融合特征生成重建；空间分支计算注意力与空间正则，训练记录和评分沿用保存结果。',
+                  ],
+                ],
+              },
+    maskSpan =
+      data.methodResults?.find((method) => method.id === model.id)?.maskSpan ?? data.window / 4,
+    maskBegin = Math.round((22 * data.window) / 64);
   return (
     <div className="models-chapter">
       <Heading
@@ -81,13 +107,13 @@ export function ModelsChapter({
           </>
         }
       />
-      {data.models.length > 1 && (
+      {methods.length > 1 && (
         <div className="model-selection-row">
           <ModelSelect data={data} value={model.id} onChange={setModel} />
         </div>
       )}
       <div className="model-intro">
-        {data.models.length === 1 && <span>{modelName(model)}</span>}
+        {methods.length === 1 && <span>{modelName(model)}</span>}
         <h2>
           {description.title}
           <InfoTip label="模型设计说明">
@@ -100,10 +126,12 @@ export function ModelsChapter({
           {[
             ['输入窗口', `${data.window}个时刻 × ${data.features.length}个测点`],
             [
-              multi && !wind ? '时间与空间编码' : '局部与全局编码',
-              multi && !wind ? '多尺度时间建模，测点间注意力' : 'TCN提取变化，Transformer学习关联',
+              multi && (!wind || spatialDecoder) ? '时间与空间编码' : '局部与全局编码',
+              multi && (!wind || spatialDecoder)
+                ? '多尺度时间建模，测点间注意力'
+                : 'TCN提取变化，Transformer学习关联',
             ],
-            [multi && !wind ? '时空融合与重建' : '特征融合与重建', '还原各时刻的测点数值'],
+            [spatialDecoder ? '时空融合与重建' : '特征融合与重建', '还原各时刻的测点数值'],
             ['误差聚合与判定', '平方误差聚合为时刻分数'],
           ].map(([title, copy], i) => (
             <div key={title}>
@@ -132,19 +160,23 @@ export function ModelsChapter({
               通过频域分析观察各测点的周期性，再对Global分支输入中的连续片段进行遮蔽，促使模型利用其余可见时刻建立时间关联。Local分支保留完整输入，补充细节。
             </p>
           </div>
-          <div className="mask-example" aria-label="64点窗口中连续16点遮蔽">
+          <div
+            className="mask-example"
+            aria-label={`${data.window}点窗口中连续${maskSpan}点遮蔽`}
+            style={{ '--mask-points': data.window } as CSSProperties}
+          >
             <div className="mask-example-top">
               <span>Global分支输入</span>
-              <strong>64 点</strong>
+              <strong>{data.window} 点</strong>
             </div>
             <div className="mask-example-cells">
-              {Array.from({ length: 64 }, (_, i) => (
-                <i key={i} className={i >= 22 && i < 38 ? 'masked' : ''} />
+              {Array.from({ length: data.window }, (_, i) => (
+                <i key={i} className={i >= maskBegin && i < maskBegin + maskSpan ? 'masked' : ''} />
               ))}
             </div>
             <div className="mask-example-key">
               <span>保留可见记录</span>
-              <span>连续遮蔽 16 点</span>
+              <span>连续遮蔽 {maskSpan} 点</span>
             </div>
           </div>
         </div>
@@ -175,7 +207,7 @@ export function ModelsChapter({
             <div>
               <span>SMST-AD</span>
               <h3>多尺度时间与空间协同</h3>
-              <p>在多尺度时间建模之外，显式学习测点之间的依赖，并融合时空特征。</p>
+              <p>在多尺度时间建模之外，计算测点之间的依赖与空间正则；本版重建使用时间融合特征。</p>
             </div>
           </div>
         </Section>

@@ -7,10 +7,10 @@ from pathlib import Path
 import numpy as np
 from array_assets import read_array, window_scores, write_array
 from data_geometry import CALCULATION_CHUNK_ROWS, geometry
-from dataset_paths import selected_paths
+from dataset_paths import retained_path, selected_paths
 
 ROOT = Path(__file__).resolve().parents[1] / "public/data/journey"
-REFERENCE = ROOT.parents[2] / "data/reference"
+REFERENCE = retained_path("data/reference")
 
 
 def main(reference=REFERENCE, public=ROOT):

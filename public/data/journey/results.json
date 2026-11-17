@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "dataset": "converter",
+  "defaultModel": "model1",
+  "methods": [
+    {
+      "id": "model1",
+      "name": "STAM-AD",
+      "manifest": {
+        "file": "results-v1/8e8c9a555481097b910186bd62c1b71e01c8b56b99d1bb97191705aad2cd120c/manifest.json",
+        "bytes": 219108,
+        "sha256": "8e8c9a555481097b910186bd62c1b71e01c8b56b99d1bb97191705aad2cd120c"
+      },
+      "window": 16,
+      "epochs": 15,
+      "maskSpan": 4,
+      "metrics": {
+        "point_wise": {
+          "tp": 274,
+          "fp": 8,
+          "fn": 216,
+          "tn": 1899,
+          "precision": 0.9716312056737588,
+          "recall": 0.5591836734693878,
+          "f1": 0.7098445595854922
+        },
+        "point_adjusted": {
+          "tp": 439,
+          "fp": 8,
+          "fn": 51,
+          "tn": 1899,
+          "precision": 0.9821029082774049,
+          "recall": 0.8959183673469387,
+          "f1": 0.9370330843116329
+        },
+        "continuous_score_auc": 0.9051132776130904
+      },
+      "threshold": 0.03433791466786543,
+      "windowThreshold": 0.035079359693327324,
+      "decoder": "temporal",
+      "caseGeometry": {
+        "start": 107,
+        "begin": 4,
+        "end": 10,
+        "referenceStart": 175,
+        "peak": 8,
+        "patchSize": 1,
+        "sourceBegin": 4,
+        "sourceEnd": 6,
+        "scale": 3
+      }
+    },
+    {
+      "id": "model2",
+      "name": "SMST-AD",
+      "manifest": {
+        "file": "results-v1/b2432a91c417b725601638be819085db954fc34d006c08339c60cae22fc5c8fb/manifest.json",
+        "bytes": 222805,
+        "sha256": "b2432a91c417b725601638be819085db954fc34d006c08339c60cae22fc5c8fb"
+      },
+      "window": 64,
+      "epochs": 80,
+      "maskSpan": 16,
+      "metrics": {
+        "point_wise": {
+          "tp": 321,
+          "fp": 5,
+          "fn": 169,
+          "tn": 1902,
+          "precision": 0.9846625766871165,
+          "recall": 0.6551020408163265,
+          "f1": 0.7867647058823529
+        },
+        "point_adjusted": {
+          "tp": 439,
+          "fp": 5,
+          "fn": 51,
+          "tn": 1902,
+          "precision": 0.9887387387387387,
+          "recall": 0.8959183673469387,
+          "f1": 0.9400428265524625
+        },
+        "continuous_score_auc": 0.9365185193112379
+      },
+      "threshold": 0.02996247477803691,
+      "windowThreshold": 0.027635078792678826,
+      "decoder": "temporal",
+      "caseGeometry": {
+        "start": 107,
+        "begin": 18,
+        "end": 42,
+        "referenceStart": 175,
+        "peak": 30,
+        "patchSize": 4,
+        "sourceBegin": 18,
+        "sourceEnd": 26,
+        "scale": 3
+      }
+    }
+  ]
+}

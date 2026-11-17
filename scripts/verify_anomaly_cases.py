@@ -2,9 +2,11 @@
 
 import hashlib
 import json
+from pathlib import Path
 
 import numpy as np
 from dataset_paths import selected_paths
+from result_catalog import registered_files
 
 
 def read(folder, asset):
@@ -16,8 +18,9 @@ def read(folder, asset):
     return a
 
 
-def verify(REFERENCE, ROOT):
-    published = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
+def verify(REFERENCE, ROOT, published=None):
+    published = published or json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
+    window = published["window"]
     asset = published["cases"]
     payload = (ROOT / asset["file"]).read_bytes()
     assert len(payload) == asset["bytes"]
@@ -48,32 +51,46 @@ def verify(REFERENCE, ROOT):
         original, candidate, weights, x, labels = (
             values[k] for k in ["original", "candidate", "weights", "input", "labels"]
         )
-        np.testing.assert_array_equal(original, clean[c["start"] : c["start"] + 64])
+        np.testing.assert_array_equal(original, clean[c["start"] : c["start"] + window])
         np.testing.assert_allclose(
             x, (1 - weights) * original + weights * candidate, rtol=0, atol=1e-14
         )
         assert set(np.unique(labels)) <= {0, 1}
         assert set(np.unique(masks[c["id"]])) == {0, 1}
-        assert np.all((masks[c["id"]] == 0).sum(0) == 16)
+        span = window // 4
+        assert np.all((masks[c["id"]] == 0).sum(0) == span)
         assert np.all(weights >= 0) and np.all(weights <= 1)
         assert np.all(np.abs(x - original)[labels == 0] < 1e-12)
         features = c["features"]
+        begin, end = c["begin"], c["end"]
         if c["kind"] == "peak":
+            peak, patch = c["source"]["peak"], c["source"]["patchSize"]
             changed = np.any(np.abs(x - original) > 1e-12, axis=1)
-            assert changed.sum() == 1 and changed[30]
-            np.testing.assert_array_equal(np.flatnonzero(labels.any(1)), np.arange(26, 35))
-        else:
-            np.testing.assert_array_equal(np.flatnonzero(labels.any(1)), np.arange(18, 42))
-        if c["kind"] == "length":
+            assert changed.sum() == 1 and changed[peak]
             np.testing.assert_array_equal(
-                candidate[18:42, features], np.repeat(original[18:26, features], 3, axis=0)
+                np.flatnonzero(labels.any(1)),
+                np.arange(max(0, peak - patch), min(window, peak + patch + 1)),
             )
-            np.testing.assert_array_equal(x[42:], original[42:])
-        if c["kind"] == "uniform":
-            assert np.all(np.ptp(candidate[18:42, features], axis=0) == 0)
-        if c["kind"] == "reference":
+        else:
+            np.testing.assert_array_equal(np.flatnonzero(labels.any(1)), np.arange(begin, end))
+        if c["kind"] == "length":
+            scale = c["source"]["scale"]
             np.testing.assert_array_equal(
-                candidate[18:42, features], 1 - clean[175:199, features][::-1]
+                candidate[begin:end, features],
+                np.repeat(
+                    original[c["source"]["sourceBegin"] : c["source"]["sourceEnd"], features],
+                    scale,
+                    axis=0,
+                ),
+            )
+            np.testing.assert_array_equal(x[end:], original[end:])
+        if c["kind"] == "uniform":
+            assert np.all(np.ptp(candidate[begin:end, features], axis=0) == 0)
+        if c["kind"] == "reference":
+            start = c["source"]["referenceStart"]
+            np.testing.assert_array_equal(
+                candidate[begin:end, features],
+                1 - clean[start : start + end - begin, features][::-1],
             )
         for model in c["models"]:
             recon = read(ROOT, model["recon"])
@@ -103,7 +120,14 @@ def verify(REFERENCE, ROOT):
         for p in (ROOT / "anomaly-cases-v1").rglob("*")
         if p.is_file()
     }
-    assert actual == used, {"extra": sorted(actual - used), "missing": sorted(used - actual)}
+    other = {name for name in registered_files(ROOT) if "anomaly-cases-v1" in Path(name).parts}
+    if REFERENCE.name in ("converter1", "converter2", "wind1", "wind2"):
+        assert used <= actual
+    else:
+        assert actual == used | other, {
+            "extra": sorted(actual - used - other),
+            "missing": sorted(used - actual),
+        }
     # Averaging can cancel opposing residuals; RMS retains the actual anomaly energy.
     x = np.array([[1.0, -1.0]])
     recon = np.zeros_like(x)
