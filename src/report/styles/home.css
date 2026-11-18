@@ -1,7 +1,7 @@
 /* Home styles. Edit existing rules and breakpoints here. */
 .home-hero {
   container-type: inline-size;
-  padding: 64px 0 56px;
+  padding: var(--space-16) 0 var(--space-14);
   border-bottom: 1px solid var(--line);
 }
 .hero-subject,
@@ -19,47 +19,47 @@
 .hero-bottom {
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-top: 32px;
+  gap: var(--space-6);
+  margin-top: var(--space-8);
 }
 .hero-bottom .primary {
   min-width: min(156px, 100%);
   max-width: 100%;
-  padding: 14px 28px;
+  padding: var(--space-3) var(--space-7);
   white-space: normal;
 }
 .chapter-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 64px;
+  column-gap: var(--space-16);
 }
 .chapter-list > a {
   display: grid;
   grid-template-columns: 42px minmax(0, 1fr) 24px;
   align-items: center;
-  gap: 20px;
-  padding: 32px 0;
+  gap: var(--space-5);
+  padding: var(--space-8) 0;
   border-bottom: 1px solid var(--line);
   transition: color var(--motion-fast) var(--ease-out);
-  animation: stage-in var(--motion-slow) var(--ease-out) backwards;
+  animation: rise-in var(--motion-slow) var(--ease-spring) backwards;
 }
 .chapter-list > a:nth-child(1) {
-  animation-delay: 160ms;
+  animation-delay: 60ms;
 }
 .chapter-list > a:nth-child(2) {
-  animation-delay: 200ms;
+  animation-delay: 100ms;
 }
 .chapter-list > a:nth-child(3) {
-  animation-delay: 240ms;
+  animation-delay: 140ms;
 }
 .chapter-list > a:nth-child(4) {
-  animation-delay: 280ms;
+  animation-delay: 180ms;
 }
 .chapter-list > a:nth-child(5) {
-  animation-delay: 320ms;
+  animation-delay: 220ms;
 }
 .chapter-list > a:nth-child(6) {
-  animation-delay: 360ms;
+  animation-delay: 260ms;
 }
 .large-index {
   font-family: var(--numeral);
@@ -76,8 +76,11 @@
   font-family: var(--sans);
   font-size: var(--text-xl);
   color: var(--muted);
+  opacity: 0;
+  translate: -4px 0;
   transition:
-    transform var(--motion-normal) var(--ease-out),
+    opacity var(--motion-fast) var(--ease-out),
+    translate var(--motion-normal) var(--ease-spring),
     color var(--motion-fast) var(--ease-out);
 }
 .chapter-list > a:is(:hover, :focus-visible) {
@@ -85,18 +88,19 @@
 }
 .chapter-list > a:is(:hover, :focus-visible) .chapter-entry-arrow {
   color: var(--blue);
-  transform: translateX(4px);
+  opacity: 1;
+  translate: 0 0;
 }
 @media (max-width: 680px) {
   .home-hero {
-    padding: 40px 0;
+    padding: var(--space-10) 0;
   }
   .home-hero h1 {
     font-size: clamp(32px, 16cqi, 58px);
   }
   .hero-bottom {
     flex-wrap: wrap;
-    margin-top: 24px;
+    margin-top: var(--space-6);
   }
   .chapter-list {
     grid-template-columns: 1fr;
@@ -104,8 +108,8 @@
   }
   .chapter-list > a {
     grid-template-columns: 32px minmax(0, 1fr) 18px;
-    gap: 16px;
-    padding: 24px 0;
+    gap: var(--space-4);
+    padding: var(--space-6) 0;
   }
   .chapter-list h2 {
     font-size: var(--text-xl);

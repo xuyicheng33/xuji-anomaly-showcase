@@ -7,52 +7,52 @@
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-3);
   padding-block: var(--heading-space);
 }
 .playback-heading .chapter-heading {
   padding: 0;
 }
 .playback-calculation {
-  margin: 28px 0;
-  scroll-margin-top: var(--playback-scroll-offset, 24px);
+  margin: var(--space-7) 0;
+  scroll-margin-top: var(--playback-scroll-offset, var(--space-6));
 }
 .replay-intro {
-  padding: 8px 0;
+  padding: var(--space-2) 0;
 }
 #full-evaluation {
-  scroll-margin-top: var(--playback-scroll-offset, 24px);
+  scroll-margin-top: var(--playback-scroll-offset, var(--space-6));
 }
 .playback-command-bar {
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 16px;
+  gap: var(--space-4);
+  padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--line);
 }
 .playback-controls {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--space-3);
 }
 .playback-transport,
 .playback-settings {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
 }
 .playback-settings {
-  gap: 12px;
+  gap: var(--space-3);
 }
 .playback-controls button,
 .playback-settings button {
   font-size: var(--text-sm);
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   min-height: var(--control-height);
 }
 .playback-controls .primary {
@@ -62,7 +62,7 @@
 .playback-settings label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   font-size: var(--text-xs);
   color: var(--muted);
   max-width: 100%;
@@ -80,48 +80,48 @@
 .playback-scope {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 20px;
-  margin-top: 12px;
+  gap: var(--space-1) var(--space-5);
+  margin-top: var(--space-3);
   font-variant-numeric: tabular-nums;
 }
 .playback-status {
-  scroll-margin-top: var(--playback-scroll-offset, 24px);
+  scroll-margin-top: var(--playback-scroll-offset, var(--space-6));
   display: flex;
   justify-content: space-between;
   align-items: center;
   min-height: 37px;
-  gap: 8px 16px;
+  gap: var(--space-2) var(--space-4);
   flex-wrap: wrap;
-  padding-top: 16px;
+  padding-top: var(--space-4);
   font-size: var(--text-sm);
 }
 .playback-moment {
   display: inline-flex;
   align-items: baseline;
-  gap: 16px;
+  gap: var(--space-4);
 }
 .playhead {
   width: 100%;
-  margin: 10px 0;
+  margin: var(--space-2) 0;
 }
 .playback-plots > .curve {
-  margin-top: 16px;
+  margin-top: var(--space-4);
 }
 .playback-statistics {
-  padding-top: 28px;
-  margin-bottom: 10px;
-  gap: 48px;
+  padding-top: var(--space-7);
+  margin-bottom: var(--space-2);
+  gap: var(--space-12);
   min-width: 0;
 }
 .playback-statistics-context {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 16px;
+  gap: var(--space-1) var(--space-4);
   grid-column: 1 / -1;
   font-size: var(--text-xs);
   line-height: 1.7;
   color: var(--muted);
-  margin-bottom: -16px;
+  margin-bottom: calc(-1 * var(--space-4));
   font-variant-numeric: tabular-nums;
 }
 @container (max-width: 220px) {
@@ -178,7 +178,7 @@
 }
 .playback-statistics .confusion-cell {
   min-height: 68px;
-  padding: 10px 14px;
+  padding: var(--space-2) var(--space-3);
 }
 .playback-statistics .confusion-cell strong {
   font-size: var(--text-2xl);
@@ -190,20 +190,23 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 28px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-7);
 }
 .current-score > span {
   font-size: var(--text-xs);
   color: var(--muted);
 }
 .current-score strong {
+  max-width: 100%;
   font-size: var(--text-2xl);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 .current-score small {
   display: block;
-  margin-top: 4px;
+  margin-top: var(--space-1);
   color: var(--muted);
   font-size: var(--text-sm);
   font-weight: 400;
@@ -212,43 +215,43 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-top: 20px;
+  margin: var(--space-2) 0 var(--space-4);
 }
 .replay-links > div {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .replay-links .secondary {
   min-height: 38px;
-  padding: 6px 14px;
+  padding: var(--space-1) var(--space-3);
 }
 @container (min-width: 1000px) {
   .replay-workspace {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 280px;
-    gap: 24px;
+    gap: var(--space-6);
     align-items: start;
   }
   .playback-plots .curve-top {
-    padding: 6px 0;
+    padding: var(--space-1) 0;
   }
   .playback-statistics .matrix-caption {
-    margin-bottom: 12px;
+    margin-bottom: var(--space-3);
   }
   .playback-statistics .confusion-cell {
-    padding: 12px;
+    padding: var(--space-3);
     min-height: 76px;
   }
   .playback-page .playhead {
-    margin: 8px 0;
+    margin: var(--space-2) 0;
   }
   .replay-workspace > .statistics {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 20px;
-    padding: 6px 0 0 20px;
+    gap: var(--space-5);
+    padding: var(--space-1) 0 0 var(--space-5);
     border-left: 1px solid var(--line);
     margin: 0;
   }
@@ -262,7 +265,7 @@
   }
   .playback-statistics .rates {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: var(--space-3);
   }
   .playback-statistics .rates > div {
     flex-direction: row;
@@ -274,13 +277,13 @@
   }
   .current-score {
     display: block;
-    padding-bottom: 16px;
-    margin-bottom: 16px;
+    padding-bottom: var(--space-4);
+    margin-bottom: var(--space-4);
     border-bottom: 1px solid var(--line);
   }
   .current-score strong {
     display: block;
-    margin-top: 8px;
+    margin-top: var(--space-2);
     font-size: var(--text-2xl);
   }
   .replay-workspace .legend {
@@ -305,8 +308,8 @@
     top: var(--sticky-top);
     z-index: 4;
     background: var(--paper);
-    gap: 8px;
-    padding: 8px 0 12px;
+    gap: var(--space-2);
+    padding: var(--space-2) 0 var(--space-3);
     border-bottom: 1px solid var(--line);
   }
   .playback-transport {
@@ -317,16 +320,16 @@
     display: grid;
     grid-template-columns: 68px minmax(0, 1fr) auto;
     align-items: end;
-    gap: 8px;
+    gap: var(--space-2);
   }
   .playback-settings label {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 4px;
+    gap: var(--space-1);
   }
   .playback-settings .text-button {
-    padding-inline: 4px;
+    padding-inline: var(--space-1);
     white-space: nowrap;
   }
   .site-main .playback-page > .toolbar {
@@ -335,21 +338,21 @@
     margin-bottom: var(--toolbar-space);
   }
   .playback-page .playback-status {
-    padding-top: 10px;
+    padding-top: var(--space-2);
   }
   .playback-plots > .curve {
-    margin-top: 10px;
+    margin-top: var(--space-2);
   }
   .playback-status {
     flex-wrap: wrap;
     font-size: var(--text-xs);
-    gap: 10px;
+    gap: var(--space-2);
   }
   .playback-status .outcome {
     font-size: var(--text-sm);
   }
   .playback-statistics {
-    gap: 28px;
+    gap: var(--space-7);
   }
   .playback-page .rates strong {
     font-size: var(--text-2xl);
@@ -361,23 +364,51 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: space-between;
-    margin-top: 8px;
-    gap: 8px;
+    margin-top: var(--space-2);
+    gap: var(--space-2);
   }
   .replay-links .secondary {
-    padding-inline: 4px;
+    padding-inline: var(--space-1);
     font-size: var(--text-xs);
   }
-  .playback-page .table-scroll th:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: var(--paper);
-    box-shadow: 1px 0 var(--line);
+  /* Each method reads as its own list of metrics instead of a clipped wide table. */
+  .evaluation-table thead {
+    display: none;
   }
-  .playback-page .table-scroll thead th:first-child {
-    z-index: 3;
-    background: var(--paper);
+  .evaluation-table,
+  .evaluation-table tbody {
+    display: block;
+  }
+  .evaluation-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-6);
+    padding: var(--space-4) 0 var(--space-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .evaluation-table tr:first-child {
+    border-top: 1px solid var(--control-border);
+  }
+  .evaluation-table :is(th, td) {
+    padding: 0;
+    border: 0;
+  }
+  .evaluation-table tbody th {
+    grid-column: 1 / -1;
+    padding-bottom: var(--space-2);
+    font-size: var(--text-md);
+  }
+  .evaluation-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+  }
+  .evaluation-table td::before {
+    content: attr(data-label);
+    font-size: var(--text-xs);
+    color: var(--muted);
   }
 }
 @container (max-width: 220px) {

@@ -120,7 +120,7 @@ export function PlaybackCalculation({
           aria-expanded={open}
           onClick={() => (open ? setOpen(false) : reveal())}
         >
-          {open ? '收起计算' : '查看当前点计算'} {open ? '↑' : '↓'}
+          {open ? '收起计算' : '查看当前点计算'}
         </button>
       </div>
       {open && index !== null && (

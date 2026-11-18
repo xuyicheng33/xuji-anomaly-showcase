@@ -5,7 +5,6 @@ import { Footnote } from './notes';
 import { Outcome } from './ReportUI';
 import Fraction from './Fraction';
 import { featureName } from './featureNames';
-import { modelName } from './modelNames';
 
 function pointCalculation(
   input: Float64Array,
@@ -35,6 +34,7 @@ export function ScoreCalculation({
   id = 'window-calculation',
   focusFeature = -1,
   labels,
+  stale = false,
 }: {
   data: Journey;
   model: Model;
@@ -45,6 +45,8 @@ export function ScoreCalculation({
   id?: string;
   focusFeature?: number;
   labels?: Float64Array | null;
+  /** Shown while the next window loads; results are marked only once they are current. */
+  stale?: boolean;
 }) {
   const features = data.features.length;
   const index = start + point,
@@ -74,15 +76,12 @@ export function ScoreCalculation({
             异常分数计算
             <Footnote note="score-calculation" reference={'ref-' + id} />
           </h2>
-          <p>
-            {modelName(model)}，第 {start + 1}—{start + data.window} 点窗口，窗口内第 {point + 1} /{' '}
-            {data.window} 个时刻
+          <p className="calculation-time">
+            {data.times[index]}，第 {index + 1} 点，窗口内第 {point + 1} / {data.window}{' '}
+            个时刻，归一化数值
           </p>
         </div>
       </div>
-      <p className="calculation-time">
-        {data.times[index]}，第 {index + 1} 点，归一化数值
-      </p>
       <div className="calculation-layout">
         <div className="calculation-details" data-expanded={expanded}>
           <button
@@ -92,7 +91,6 @@ export function ScoreCalculation({
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? '收起测点明细' : `查看全部 ${features} 个测点明细`}
-            <span aria-hidden="true">{expanded ? '−' : '+'}</span>
           </button>
           <div id={id + '-rows'} className="calculation-rows">
             <h3>逐项相减，再平方</h3>
@@ -168,7 +166,6 @@ export function ScoreCalculation({
                 </tbody>
               </table>
             </div>
-            <p className="calculation-help">平方误差 =（输入 − 重建）²。</p>
             {focusFeature >= 0 && labels && (
               <p className="calculation-help">
                 当前测点标签：第 {index + 1} 点，{featureName(data.features[focusFeature])}，
@@ -183,7 +180,7 @@ export function ScoreCalculation({
         <div className="calculation-total">
           <h3>汇总全部 {features} 项</h3>
           <p>平方误差合计</p>
-          <strong className="sum-value" data-testid={id + '-sum'}>
+          <strong className="sum-value" data-testid={stale ? undefined : id + '-sum'}>
             {decimal(calculation.sum)}
           </strong>
           <div className="calculation-equation">
@@ -191,7 +188,13 @@ export function ScoreCalculation({
             <span className="equation-result">
               <span>=</span>
               <strong
-                data-testid={id === 'window-calculation' ? 'calculated-score' : id + '-score'}
+                data-testid={
+                  stale
+                    ? undefined
+                    : id === 'window-calculation'
+                      ? 'calculated-score'
+                      : id + '-score'
+                }
               >
                 {decimal(calculation.score)}
               </strong>
@@ -201,14 +204,19 @@ export function ScoreCalculation({
           <p className="calculation-comparison">
             {decimal(calculation.score)}{' '}
             <b>{calculation.score > model.windowThreshold ? '>' : '≤'}</b>{' '}
-            {decimal(model.windowThreshold)}
+            <span
+              data-testid={
+                stale ? undefined : id === 'window-calculation' ? 'window-threshold' : undefined
+              }
+            >
+              {decimal(model.windowThreshold)}
+            </span>
           </p>
           <Outcome
             label={data.labels[index]}
             score={calculation.score}
             model={{ ...model, threshold: model.windowThreshold }}
           />
-          <p className="calculation-scope">当前时刻整体判定，综合全部 {features} 个测点。</p>
         </div>
       </div>
     </section>

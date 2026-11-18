@@ -81,19 +81,9 @@ try {
         'The initial curve fits in the mobile screen',
       );
     }
-    await page.getByRole('button', { name: /查看模型结果/ }).click();
     await page.getByTestId('calculated-score').waitFor();
-    if (width <= 390) {
-      await page.waitForFunction(() => {
-        const box = document.querySelector('.detection-summary').getBoundingClientRect();
-        return box.top >= 0 && box.bottom < innerHeight;
-      });
-      assert.equal(await page.locator('.calculation-rows').isVisible(), false);
-      assert.ok(await page.getByTestId('calculated-score').isVisible());
-    }
+    if (width <= 390) assert.equal(await page.locator('.calculation-rows').isVisible(), false);
     const plot = await page.locator('.reconstruction-view svg[role="img"]').boundingBox();
-    const summary = await page.locator('.detection-summary').boundingBox();
-    assert.ok(summary.y + summary.height <= plot.y, 'The result summary precedes its chart');
     if (width <= 390)
       assert.ok(plot.y < 760, 'The mobile chart is visible within the first screen');
     await page.goto(showcaseUrl + '#/training');
@@ -192,7 +182,6 @@ try {
       document.documentElement.style.zoom = '';
     });
     await page.goto(showcaseUrl + '#/detection');
-    await page.getByRole('button', { name: /查看模型结果/ }).click();
     await page.getByTestId('calculated-score').waitFor();
     const table = page.locator('.calculation-table-scroll');
     await page.getByRole('button', { name: '选择测点', exact: true }).click();

@@ -17,5 +17,6 @@ export function useJourney(enabled: boolean, methodId: string) {
   return useResource(
     enabled ? (isLegacy ? 'manifest.json' : `result:${datasetId}:${methodId}`) : null,
     read,
+    true,
   );
 }

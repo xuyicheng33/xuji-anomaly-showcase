@@ -3,14 +3,7 @@
   container: data-chapter / inline-size;
 }
 .wind-source-groups {
-  margin-top: 32px;
-}
-.small-step {
-  font-size: var(--text-xs);
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  display: block;
-  margin-bottom: 16px;
+  margin-top: var(--space-8);
 }
 .balanced-split {
   display: grid;
@@ -20,12 +13,12 @@
 .balanced-split > div {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
-  padding: 24px 24px 24px 0;
+  padding: var(--space-6) var(--space-6) var(--space-6) 0;
 }
 .balanced-split > div + div {
-  padding-left: 24px;
+  padding-left: var(--space-6);
   border-left: 1px solid var(--line);
 }
 .balanced-split > div > span {
@@ -36,7 +29,7 @@
   display: flex;
   flex-wrap: nowrap;
   align-items: baseline;
-  gap: 4px 12px;
+  gap: var(--space-1) var(--space-3);
   font-family: var(--metric);
   font-size: var(--text-md);
   line-height: 1.5;
@@ -52,7 +45,7 @@
 .normalization-heading {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 28px;
+  gap: var(--space-7);
   align-items: start;
 }
 .normalization-heading .reading-copy {
@@ -60,7 +53,7 @@
   max-width: 600px;
 }
 .normalization-facts {
-  margin: 4px 0 24px;
+  margin: var(--space-1) 0 var(--space-6);
 }
 .normalization-facts .sample-time {
   font-family: var(--sans);
@@ -70,20 +63,20 @@
 .normalization-plots {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  gap: var(--space-6);
 }
 .normalization-plots > .curve {
   min-width: 0;
 }
 .normalization-plots > .curve + .curve {
   border-left: 1px solid var(--line);
-  padding-left: 24px;
+  padding-left: var(--space-6);
 }
 .normalization-plots .curve-top {
   display: block;
 }
 .normalization-plots .legend {
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 .normalization-equation {
   font-family: var(--metric);
@@ -91,9 +84,9 @@
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 20px;
-  padding: 24px 0 0;
-  margin-top: 24px;
+  gap: var(--space-5);
+  padding: var(--space-6) 0 0;
+  margin-top: var(--space-6);
   border-top: 1px solid var(--line);
   color: var(--ink);
   font-size: var(--text-2xl);
@@ -117,18 +110,18 @@
 @media (max-width: 680px) {
   .normalization-plots {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: var(--space-5);
   }
   .normalization-plots > .curve + .curve {
     border-left: 0;
     padding-left: 0;
     border-top: 1px solid var(--line);
-    padding-top: 16px;
+    padding-top: var(--space-4);
   }
   .normalization-equation {
     flex-wrap: wrap;
-    gap: 12px;
-    padding: 20px 0 0;
+    gap: var(--space-3);
+    padding: var(--space-5) 0 0;
     font-size: var(--text-md);
   }
 }
@@ -138,19 +131,16 @@
 .cleaning-step {
   display: grid;
   grid-template-columns: minmax(230px, 0.85fr) minmax(0, 1.6fr);
-  gap: 56px;
-  padding: 32px 0;
+  gap: var(--space-14);
+  padding: var(--space-8) 0;
   border-bottom: 1px solid var(--line);
-}
-.cleaning-intro .small-step {
-  margin-bottom: 12px;
 }
 .cleaning-intro h3 {
   font-family: var(--serif);
   font-weight: 500;
   font-size: var(--text-2xl);
   line-height: 1.6;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
 }
 .cleaning-intro p {
   font-size: var(--text-md);
@@ -161,8 +151,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 16px;
-  margin-top: 20px;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
 }
 .cleaning-count strong {
   font-family: var(--metric);
@@ -181,28 +171,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
   font-size: var(--text-xs);
   color: var(--muted);
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
+}
+.removed-sensors {
+  margin-top: var(--space-3);
 }
 .removed-sensors summary {
-  padding: 12px 0;
-  border-top: 1px solid var(--line);
+  padding: var(--space-2) 0;
 }
 .removed-sensors ul {
   list-style: none;
   padding: 0;
-  margin: 12px 0 0;
+  margin: var(--space-3) 0 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: 24px;
+  column-gap: var(--space-6);
 }
 .removed-sensors li {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
-  padding: 10px 0;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
   border-top: 1px solid var(--line);
   align-items: center;
   font-size: var(--text-2xs);
@@ -216,7 +208,7 @@
 .record-strip {
   display: flex;
   height: 36px;
-  gap: 3px;
+  gap: var(--space-1);
   overflow: hidden;
 }
 .record-strip > div {
@@ -227,13 +219,14 @@
   justify-content: center;
   overflow: hidden;
   transition:
-    flex-grow var(--motion-slow) var(--ease-in-out),
-    opacity var(--motion-normal) var(--ease-out);
+    flex-grow var(--motion-slow) var(--ease-spring),
+    min-width var(--motion-slow) var(--ease-spring),
+    opacity var(--motion-fast) var(--ease-out) var(--motion-slow);
   font-size: var(--text-2xs);
 }
 .record-strip .valid {
-  background: var(--data-surface);
-  color: var(--data-ink);
+  background: var(--surface);
+  color: var(--ink);
 }
 .record-strip .invalid {
   background: repeating-linear-gradient(
@@ -249,12 +242,22 @@
 .record-strip span {
   white-space: nowrap;
 }
+.record-strip {
+  transition: gap var(--motion-slow) var(--ease-spring);
+}
+.result-strip.is-trimmed > div {
+  transition:
+    flex-grow var(--motion-slow) var(--ease-spring) var(--motion-fast),
+    min-width var(--motion-slow) var(--ease-spring) var(--motion-fast),
+    opacity var(--motion-fast) var(--ease-out);
+}
 .result-strip.is-trimmed .invalid {
   min-width: 0;
   opacity: 0;
 }
 .result-strip.is-trimmed {
   gap: 0;
+  transition-delay: var(--motion-fast);
 }
 .result-strip.is-trimmed > div:nth-child(3) {
   border-left: 2px dashed var(--paper);
@@ -262,8 +265,8 @@
 .invalid-intervals {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  margin: 16px 0 24px;
+  gap: var(--space-6);
+  margin: var(--space-4) 0 var(--space-6);
   transition: opacity var(--motion-normal) var(--ease-out);
 }
 .record-trimming:has(.is-trimmed) .invalid-intervals {
@@ -271,7 +274,7 @@
 }
 .invalid-intervals > div {
   border-left: 2px solid var(--line-strong);
-  padding-left: 12px;
+  padding-left: var(--space-3);
 }
 .invalid-intervals span {
   display: block;
@@ -282,7 +285,7 @@
   display: block;
   font-size: var(--text-sm);
   font-weight: 500;
-  margin: 4px 0;
+  margin: var(--space-1) 0;
 }
 .invalid-intervals p {
   font-size: var(--text-xs);
@@ -293,7 +296,7 @@
 .trim-action {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-4);
 }
 .trim-action button {
   flex-shrink: 0;
@@ -307,14 +310,14 @@
   color: var(--data);
 }
 .missing-switch {
-  margin-top: 24px;
+  margin-top: var(--space-6);
 }
 .missing-context {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 14px;
-  margin-bottom: 14px;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-3);
   font-size: var(--text-xs);
   color: var(--muted);
 }
@@ -333,7 +336,7 @@
 .missing-example {
   min-width: 0;
   container-type: inline-size;
-  animation: arrive var(--motion-normal) var(--ease-out);
+  animation: rise-in var(--motion-normal) var(--ease-spring);
 }
 .missing-example .reference-table-scroll table {
   min-width: 0;
@@ -351,10 +354,10 @@
   }
 }
 .missing-example th {
-  padding: 10px 16px;
+  padding: var(--space-2) var(--space-4);
 }
 .missing-example td {
-  padding: 10px 16px;
+  padding: var(--space-2) var(--space-4);
   width: 37%;
 }
 .missing-example th:first-child {
@@ -370,7 +373,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: baseline;
-  gap: 12px;
+  gap: var(--space-3);
   color: var(--data);
   font-weight: 500;
 }
@@ -379,7 +382,7 @@
   color: var(--muted);
 }
 .split-ratio {
-  margin-left: 8px;
+  margin-left: var(--space-2);
 }
 .constant-equation {
   font-size: var(--text-md);
@@ -392,7 +395,7 @@
   flex-wrap: nowrap;
   width: fit-content;
   max-width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
 .record-examples .record-example-tabs button {
   min-width: 0;
@@ -400,14 +403,14 @@
   line-height: 1.5;
 }
 .record-example-panel {
-  animation: arrive var(--motion-normal) var(--ease-out);
+  animation: rise-in var(--motion-normal) var(--ease-spring);
 }
 .example-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
 }
 .example-heading h3 {
   font-family: var(--serif);
@@ -434,11 +437,11 @@
   min-width: 650px;
 }
 .record-examples th {
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
 }
 .record-examples td {
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   font-size: var(--text-sm);
 }
 .raw-record-example thead th:first-child {
@@ -454,7 +457,7 @@
   font-size: var(--text-2xs);
   font-weight: 400;
   color: var(--muted);
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 .raw-missing-cell {
   background: var(--surface);
@@ -463,7 +466,7 @@
   font-size: var(--text-xs);
   color: var(--muted);
   line-height: 1.8;
-  margin-top: 16px;
+  margin-top: var(--space-4);
 }
 .crop-record-example table {
   min-width: 650px;
@@ -481,7 +484,7 @@
 @media (max-width: 1120px) {
   .cleaning-step {
     grid-template-columns: minmax(210px, 0.8fr) minmax(0, 1.5fr);
-    gap: 28px;
+    gap: var(--space-7);
   }
   .removed-sensors ul {
     grid-template-columns: 1fr;
@@ -501,48 +504,48 @@
 @media (max-width: 680px) {
   .cleaning-step {
     grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
-    padding: 28px 0;
+    gap: var(--space-5);
+    padding: var(--space-7) 0;
   }
   .cleaning-intro h3 {
     font-size: var(--text-xl);
-    margin-bottom: 10px;
+    margin-bottom: var(--space-2);
   }
   .cleaning-intro p {
     max-width: none;
     font-size: var(--text-sm);
   }
   .cleaning-count {
-    margin-top: 16px;
+    margin-top: var(--space-4);
   }
   .removed-sensors li {
     font-size: var(--text-2xs);
-    padding: 10px 0;
+    padding: var(--space-2) 0;
   }
   .invalid-intervals {
     grid-template-columns: minmax(0, 1fr);
-    gap: 16px;
+    gap: var(--space-4);
   }
   .invalid-intervals > div {
-    padding-left: 10px;
+    padding-left: var(--space-2);
   }
   .invalid-intervals strong {
     font-size: var(--text-xs);
   }
   .trim-action {
     flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .missing-switch {
     display: flex;
     width: fit-content;
-    margin-top: 16px;
+    margin-top: var(--space-4);
   }
   .missing-switch button {
     min-width: 90px;
   }
   .missing-context {
-    gap: 6px;
+    gap: var(--space-1);
   }
   .missing-context strong {
     width: 100%;
@@ -554,15 +557,15 @@
     width: 100%;
   }
   .missing-example th {
-    padding: 10px 8px;
+    padding: var(--space-2) var(--space-2);
     font-size: var(--text-xs);
   }
   .missing-example td {
-    padding: 10px 8px;
+    padding: var(--space-2) var(--space-2);
     font-size: var(--text-xs);
   }
   .filled-value {
-    gap: 6px;
+    gap: var(--space-1);
   }
   .filled-value span {
     font-size: var(--text-2xs);
@@ -571,16 +574,16 @@
     width: 100%;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    margin-bottom: 20px;
+    margin-bottom: var(--space-5);
   }
   .record-example-tabs button {
     flex: 1;
-    padding-inline: 4px;
+    padding-inline: var(--space-1);
   }
   .example-heading {
     align-items: flex-start;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .example-heading h3 {
     font-size: var(--text-xl);
@@ -595,18 +598,18 @@
     overflow-wrap: anywhere;
   }
   .record-examples th {
-    padding: 10px 12px;
+    padding: var(--space-2) var(--space-3);
     font-size: var(--text-xs);
   }
   .record-examples td {
-    padding: 10px 12px;
+    padding: var(--space-2) var(--space-3);
     font-size: var(--text-xs);
   }
   .record-examples .missing-example th {
-    padding: 10px 8px;
+    padding: var(--space-2) var(--space-2);
   }
   .record-examples .missing-example td {
-    padding: 10px 8px;
+    padding: var(--space-2) var(--space-2);
   }
   .record-examples .example-caption {
     font-size: var(--text-2xs);
@@ -625,13 +628,13 @@
 }
 
 .wind-fields {
-  margin-top: 24px;
+  margin-top: var(--space-6);
 }
 .wind-fields summary {
-  padding: 12px 0;
+  padding: var(--space-3) 0;
 }
 .wind-fields .reference-table-scroll {
-  margin-top: 12px;
+  margin-top: var(--space-3);
   max-height: 420px;
 }
 @container data-chapter (max-width: 240px) {

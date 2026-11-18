@@ -1,4 +1,5 @@
 import { chapters } from './navigation';
+import { dataset } from '../datasets';
 import { rememberNoteOrigin } from './notes';
 
 export default function ChapterNavigation({ page }: { page: string }) {
@@ -10,7 +11,15 @@ export default function ChapterNavigation({ page }: { page: string }) {
     <nav className="chapter-navigation" aria-label="章节衔接">
       <a href={previous ? '#/' + previous.id : '#/'}>
         <span>{previous ? '← 上一章' : '← 返回首页'}</span>
-        <strong>{previous?.title ?? '完整研究流程'}</strong>
+        <strong>
+          {previous?.title ?? (
+            <>
+              {dataset.title}
+              <wbr />
+              异常检测研究
+            </>
+          )}
+        </strong>
       </a>
       {next ? (
         <a href={'#/' + next.id}>

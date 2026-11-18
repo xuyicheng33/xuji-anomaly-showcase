@@ -69,7 +69,6 @@ try {
       );
       await page.goto(home + '#/detection');
       await page.getByRole('spinbutton', { name: '片段起点' }).fill('1');
-      await page.getByRole('button', { name: /查看模型结果/ }).click();
       await page.getByTestId('calculated-score').waitFor();
       assert.equal(await page.locator('.score-calculation tbody tr').count(), data.features.length);
       if (width === 390) {

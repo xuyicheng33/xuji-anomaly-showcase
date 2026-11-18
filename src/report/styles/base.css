@@ -18,7 +18,7 @@
   --line: #ddded5;
   /* Blue marks what can be operated; data stays in ink; clay marks anomalies. */
   --blue: #355f7b;
-  --data: #1f2a2e;
+  --data: var(--ink);
   --clay: #b35a35;
   --clay-surface: #f3e4da;
   --header-surface: #f8f7f3d9;
@@ -30,16 +30,7 @@
   --selected: #e9eeeb;
   --selected-border: #9bafb1;
   --link-line: #355f7b55;
-  --positive: #2e7061;
-  --positive-surface: #e2e7dc;
-  --positive-border: #7e8e79;
-  --warning: #a1662d;
-  --warning-surface: #f0e1cc;
-  --warning-border: #b19062;
   --negative: #af493b;
-  --negative-surface: #f0ded8;
-  --negative-border: #b97667;
-  --normal: #4d6352;
   --line-strong: #b5bcb2;
   --on-ink: #fff;
   --ink-hover: #3a4139;
@@ -49,7 +40,6 @@
   --clay-stripe: #e4c8b6;
   --clay-stripe-soft: #f0e1d6;
   --data-surface: #e0e9ed;
-  --data-fill: #b3c4cd;
   --data-ink: #294f69;
   --scrim: #24292326;
   --shadow-raised: 0 1px 2px #2028201a, 0 0 0 0.5px #20282014;
@@ -58,7 +48,7 @@
   --shadow-sheet: 0 18px 40px #2429231f;
   --chart-input: #283c4c;
   --chart-recon: #258077;
-  --chart-score: #33434f;
+  --chart-score: var(--chart-input);
   --chart-threshold: #bd653c;
   --chart-label: #d99763;
   --chart-muted: #96988f;
@@ -89,17 +79,37 @@
   --radius-control: 8px;
   --radius-panel: 14px;
   --radius-pill: 999px;
+  /* Spacing scale: every gap, margin and padding comes from these 4px steps. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
   --header-height: 64px;
   --sticky-top: 0px;
   --control-height: 42px;
-  --section-space: 64px;
-  --title-space: 28px;
-  --heading-space: 32px;
-  --toolbar-space: 24px;
+  --section-space: var(--space-16);
+  --title-space: var(--space-7);
+  --heading-space: var(--space-8);
+  --toolbar-space: var(--space-6);
+  /* Motion: feedback is quick, movement settles like iOS, exits leave faster than they came. */
   --motion-fast: 120ms;
   --motion-normal: 240ms;
-  --motion-slow: 400ms;
+  --motion-move: 300ms;
+  --motion-slow: 420ms;
+  --motion-exit: 180ms;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --disclosure-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%2362665e' stroke-width='1.5'%3E%3Cpath d='m3 4 3 3 3-3'/%3E%3C/svg%3E");
   font-family: var(--sans);
@@ -147,12 +157,13 @@ button,
 input,
 select {
   font: inherit;
+  color: inherit;
 }
 button {
   background: transparent;
   border: 1px solid var(--control-border);
   border-radius: var(--radius-control);
-  padding: 8px 14px;
+  padding: var(--space-2) var(--space-3);
   color: var(--ink);
   line-height: 1.5;
   cursor: pointer;
@@ -204,7 +215,7 @@ input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  margin-top: -6px;
+  margin-top: calc(-1 * var(--space-1));
   border-radius: 50%;
   background: var(--paper);
   border: 1px solid #20282026;
@@ -235,7 +246,7 @@ select {
   color: var(--ink);
   border: 1px solid var(--control-border);
   border-radius: var(--radius-control);
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   min-height: var(--control-height);
   max-width: 100%;
   font-size: var(--text-sm);
@@ -247,7 +258,7 @@ select {
 }
 select {
   appearance: none;
-  padding-right: 32px;
+  padding-right: var(--space-8);
   background-image: var(--disclosure-arrow);
   background-repeat: no-repeat;
   background-position: right 12px center;
@@ -290,7 +301,7 @@ table {
 }
 th,
 td {
-  padding: 14px 16px;
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--line);
   text-align: left;
   white-space: nowrap;
@@ -313,16 +324,25 @@ table :is(td, th):not(:first-child) {
   text-align: right;
 }
 #window-evaluation {
-  scroll-margin-top: 24px;
+  scroll-margin-top: var(--space-6);
 }
-@keyframes arrive {
+/* Three entrances: fade for swaps, rise for content arriving, pop for floating panels. */
+@keyframes fade-in {
+  from {
+    opacity: var(--fade-from, 0);
+  }
+}
+@keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    translate: 0 var(--rise-from, 8px);
   }
-  to {
-    opacity: 1;
-    transform: none;
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+    translate: 0 -4px;
   }
 }
 @keyframes note-focus {
@@ -344,10 +364,10 @@ table :is(td, th):not(:first-child) {
     --title-page: 32px;
     --title-section: 24px;
     --control-height: 44px;
-    --section-space: 44px;
-    --title-space: 22px;
-    --heading-space: 24px;
-    --toolbar-space: 20px;
+    --section-space: var(--space-12);
+    --title-space: var(--space-5);
+    --heading-space: var(--space-6);
+    --toolbar-space: var(--space-5);
   }
   input[type='range'] {
     height: 36px;

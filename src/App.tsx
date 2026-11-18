@@ -1,6 +1,6 @@
 import { dataset } from './datasets';
 import { lazyChapter } from './report/lazyChapter';
-import { Suspense, useLayoutEffect, useState, type ReactNode } from 'react';
+import { Suspense, useEffect, useLayoutEffect, useState, type ReactNode } from 'react';
 import { useReportNavigation } from './report/useReportNavigation';
 import { chapters, route } from './report/navigation';
 import { useJourney } from './report/useJourney';
@@ -60,6 +60,14 @@ export default function App() {
   const [start, setStart] = useState(107);
   const [viewFeature, setViewFeature] = useState(-1);
   useScrolledHeader();
+  // The entrance plays once per chapter visit; later swaps inside the chapter update in place.
+  const stageReady = contentPage === 'home' || !!data || !!error;
+  const [entered, setEntered] = useState<string | null>(null);
+  useEffect(() => {
+    if (!stageReady) return;
+    const timer = setTimeout(() => setEntered(contentPage), 900);
+    return () => clearTimeout(timer);
+  }, [contentPage, stageReady]);
   const model = data?.models.find((m) => m.id === modelId) ?? data?.models[0];
   const selectedFeature = data ? Math.min(feature, data.features.length - 1) : feature;
   const selectedStart = data ? Math.min(start, data.times.length - data.window) : start;
@@ -91,6 +99,9 @@ export default function App() {
           aria-controls="chapter-navigation"
         >
           目录
+          <svg viewBox="0 0 12 12" aria-hidden="true">
+            <path d="m3 4.5 3 3 3-3" />
+          </svg>
         </button>
         <nav
           id="chapter-navigation"
@@ -118,7 +129,12 @@ export default function App() {
       </header>
       {menu && <div className="menu-scrim" aria-hidden="true" onClick={() => setMenu(false)} />}
       <main id="main" tabIndex={-1} className="site-main">
-        <div className="chapter-stage" hidden={page === 'metrics'} key={contentPage}>
+        <div
+          className="chapter-stage"
+          hidden={page === 'metrics'}
+          key={contentPage}
+          data-entered={entered === contentPage ? '' : undefined}
+        >
           <ReportFailure contained>
             <Suspense fallback={loading}>
               <ChapterReady

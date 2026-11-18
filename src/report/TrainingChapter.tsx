@@ -86,9 +86,12 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             value={point.index}
             onChange={setFeature}
             name="训练测点"
-            label="显示测点"
           />
-          <span>训练集，{length.toLocaleString('zh-CN')} 个时刻</span>
+          {training && times && (
+            <span>
+              {times[start]} — {times[start + data.window - 1]}
+            </span>
+          )}
         </div>
         <div className="chapter-chart-panel" ref={chartPanel}>
           {error ? (
@@ -105,18 +108,9 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             </div>
           ) : training && stats && times ? (
             <>
-              <div className="chart-context">
-                <span className="training-selection-key">
-                  <i aria-hidden="true" />
-                  选定窗口，{data.window} 点
-                </span>
-                <span>
-                  {times[start]} — {times[start + data.window - 1]}
-                </span>
-              </div>
               <Curve
                 title="归一化训练数据"
-                legend={false}
+                selectionLabel={`选定窗口，${data.window} 点`}
                 lines={[{ name: featureName(point), values, color: colors.input }]}
                 times={times.slice(contextStart, contextStart + contextLength)}
                 selection={{
@@ -168,6 +162,10 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
           )}
         </div>
         <div className="window-rules facts">
+          <div>
+            <span>训练集时刻</span>
+            <strong>{length.toLocaleString('zh-CN')}</strong>
+          </div>
           <div>
             <span>窗口形状（时刻 × 测点）</span>
             <strong>
@@ -240,22 +238,6 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             <strong>{record.lr.toExponential(2)}</strong>
           </div>
         </div>
-      </Section>
-      <Section title="参数优化流程">
-        <ol className="training-steps steps">
-          {[
-            ['输入窗口', '输入数据、标签与掩码'],
-            ['序列重建', '根据当前参数生成重建结果'],
-            ['损失计算', '计算重建差异及模型约束'],
-            ['参数更新', '通过反向传播优化模型参数'],
-          ].map(([title, text], i) => (
-            <li key={title}>
-              <span>0{i + 1}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </li>
-          ))}
-        </ol>
       </Section>
     </div>
   );

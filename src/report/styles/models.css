@@ -3,7 +3,7 @@
   container-type: inline-size;
 }
 .model-intro {
-  margin: 32px 0;
+  margin: var(--space-8) 0;
 }
 .model-intro > span {
   font-family: var(--numeral);
@@ -12,7 +12,7 @@
 }
 .model-intro h2 {
   font-size: var(--text-4xl);
-  margin: 14px 0;
+  margin: var(--space-3) 0;
 }
 
 .models-chapter .model-details {
@@ -27,7 +27,7 @@
 }
 .models-chapter .model-details p {
   max-width: 42em;
-  margin: 0 0 16px 20px;
+  margin: 0 0 var(--space-4) var(--space-5);
   font-size: var(--text-sm);
   line-height: 1.85;
   color: var(--muted);
@@ -35,33 +35,22 @@
 }
 .model-explanation {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: start;
-}
-.model-explanation p {
-  padding-top: 24px;
-  font-size: var(--text-md);
-  color: var(--muted);
-  line-height: 1.85;
-  max-width: 37em;
-  text-wrap: pretty;
 }
 .mask-example {
-  padding: 24px 0;
+  padding: var(--space-6) 0;
   border-block: 1px solid var(--line);
 }
 .mask-example-top {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--space-4);
   font-size: var(--text-xs);
   color: var(--muted);
 }
 .mask-example-key {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--space-4);
   font-size: var(--text-xs);
   color: var(--muted);
 }
@@ -74,10 +63,10 @@
   grid-template-columns: repeat(var(--mask-points, 64), minmax(0, 1fr));
   gap: 2px;
   height: 42px;
-  margin: 20px 0 16px;
+  margin: var(--space-5) 0 var(--space-4);
 }
 .mask-example-cells i {
-  background: var(--data-fill);
+  background: color-mix(in srgb, var(--ink) 22%, var(--paper));
 }
 .mask-example-cells i.masked {
   background: var(--surface);
@@ -89,21 +78,12 @@
     font-size: var(--text-3xl);
   }
   .model-intro {
-    margin: 24px 0;
-  }
-}
-@media (max-width: 1120px) {
-  .model-explanation {
-    grid-template-columns: 1fr;
-    gap: 24px;
+    margin: var(--space-6) 0;
   }
 }
 @media (max-width: 680px) {
-  .model-explanation p {
-    font-size: var(--text-sm);
-  }
   .mask-example {
-    padding: 20px 0;
+    padding: var(--space-5) 0;
   }
   .mask-example-cells {
     gap: 1px;

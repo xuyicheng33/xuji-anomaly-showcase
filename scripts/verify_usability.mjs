@@ -145,12 +145,7 @@ try {
     assert.equal(await page.getByRole('slider', { name: '选择 64 点片段' }).inputValue(), '499');
     await startInput.fill('108');
     if (width <= 390) await selectFeature(page, '5');
-    await page.getByRole('button', { name: '查看模型结果', exact: true }).click();
     await page.getByTestId('calculated-score').waitFor();
-    assert.match(
-      await page.locator('.calculation-scope').innerText(),
-      /当前时刻整体判定.*全部 125 个测点/,
-    );
     const scrollHint = page.locator('#window-calculation-scroll-hint');
     assert.match(await scrollHint.innerText(), /125 个测点.*上下滑动/);
     const horizontalOverflow = await page
@@ -272,21 +267,21 @@ try {
       assert.match(await selected().getAttribute('aria-label'), /^第 64 点/);
       await page.getByRole('slider', { name: '案例查看时刻' }).fill('30');
       assert.match(await selected().getAttribute('aria-label'), /^第 31 点/);
-      await page.getByRole('button', { name: '前一点', exact: true }).click();
+      await page.getByRole('button', { name: '前移 1 点', exact: true }).click();
       assert.match(await selected().getAttribute('aria-label'), /^第 30 点/);
-      await page.getByRole('button', { name: '后一点', exact: true }).click();
+      await page.getByRole('button', { name: '后移 1 点', exact: true }).click();
       assert.match(await selected().getAttribute('aria-label'), /^第 31 点/);
       await page.locator('.case-label-cells button').first().click({ force: true });
       assert.equal(
-        await page.getByRole('button', { name: '前一点', exact: true }).isDisabled(),
+        await page.getByRole('button', { name: '前移 1 点', exact: true }).isDisabled(),
         true,
       );
       await page.locator('.case-label-cells button').last().click({ force: true });
       assert.equal(
-        await page.getByRole('button', { name: '后一点', exact: true }).isDisabled(),
+        await page.getByRole('button', { name: '后移 1 点', exact: true }).isDisabled(),
         true,
       );
-      const size = await page.getByRole('button', { name: '前一点', exact: true }).boundingBox();
+      const size = await page.getByRole('button', { name: '前移 1 点', exact: true }).boundingBox();
       assert.ok(size.width >= 60 && size.height >= 40);
       await page.locator('#ref-anomalies-point-labels').click();
       await page.locator('#note-anomaly-labels:focus').waitFor();
@@ -338,16 +333,16 @@ try {
       await progress.fill('2397');
       assert.equal(await page.locator('.replay-links button:disabled').count(), 3);
     }
-    await page.goto(base + '#/models');
-    const help = page.getByRole('button', { name: '模型设计说明', exact: true });
+    await page.goto(base + '#/data');
+    const help = page.getByRole('button', { name: '无效记录处理说明', exact: true });
     await help.click();
     await page.getByRole('tooltip').waitFor();
-    assert.equal(new URL(page.url()).hash, '#/models', 'Short help keeps the current page');
+    assert.equal(new URL(page.url()).hash, '#/data', 'Short help keeps the current page');
     await help.click();
     assert.equal(await page.getByRole('tooltip').count(), 0, 'A second click dismisses short help');
     await help.click();
     await page.getByRole('tooltip').waitFor();
-    await page.getByRole('heading', { name: '异常检测模型', exact: true }).click();
+    await page.getByRole('heading', { name: '监测数据预处理', exact: true }).click();
     assert.equal(await page.getByRole('tooltip').count(), 0, 'Outside clicks dismiss short help');
     await help.focus();
     await page.getByRole('tooltip').waitFor();
@@ -363,6 +358,7 @@ try {
       await page.keyboard.press('Escape');
       await page.evaluate(() => (document.documentElement.style.zoom = ''));
     }
+    await page.goto(base + '#/models');
     await page.getByRole('link', { name: /^模型说明：/ }).click();
     await page.locator('#note-model-design:focus').waitFor();
     await page.locator('#note-model-design .note-return').click();
