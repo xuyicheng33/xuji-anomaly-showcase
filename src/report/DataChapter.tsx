@@ -215,7 +215,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                   title="归一化后"
                   legend={false}
                   lines={[
-                    { name: featureName(point), values: norm.normalized, color: colors.recon },
+                    { name: featureName(point), values: norm.normalized, color: colors.input },
                   ]}
                   times={times.slice(norm.start, norm.start + displaySettings.playbackPoints)}
                   selected={sampleIndex}

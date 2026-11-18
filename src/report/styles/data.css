@@ -239,8 +239,8 @@
   font-size: var(--text-2xs);
 }
 .record-strip .valid {
-  background: var(--data-surface);
-  color: var(--data-ink);
+  background: var(--surface);
+  color: var(--ink);
 }
 .record-strip .invalid {
   background: repeating-linear-gradient(
