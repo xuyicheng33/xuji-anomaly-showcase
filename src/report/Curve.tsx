@@ -9,6 +9,7 @@ export default function Curve({
   labels = [],
   labelKey,
   selection,
+  selectionLabel,
   selected,
   reveal,
   threshold,
@@ -36,6 +37,8 @@ export default function Curve({
   labelKey?: string;
   /** Inclusive local sample range, independently rendered from anomaly labels. */
   selection?: { start: number; end: number };
+  /** Legend entry for the shaded selection, such as the chosen window. */
+  selectionLabel?: string;
   selected?: number;
   reveal?: number;
   threshold?: number;
@@ -135,7 +138,13 @@ export default function Curve({
                 {thresholdLabel}
               </span>
             )}
-            {labelKey && (
+            {selection && selectionLabel && (
+              <span>
+                <i className="selection-swatch" />
+                {selectionLabel}
+              </span>
+            )}
+            {labelKey && intervals.length > 0 && (
               <span>
                 <i className="label-swatch" />
                 {labelKey}

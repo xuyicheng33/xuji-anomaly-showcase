@@ -43,6 +43,12 @@
   height: 0;
   border-top: 2px dashed var(--chart-threshold);
 }
+.legend .selection-swatch {
+  height: 10px;
+  width: 14px;
+  background: var(--blue);
+  opacity: 0.12;
+}
 .legend .label-swatch {
   height: 10px;
   width: 14px;

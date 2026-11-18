@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { countMetrics, meanSeries, loadWindow, windowScores } from '../journey';
-import { Heading, Section, ModelSelect, FeatureSelect, Confusion, Rates, colors } from './ReportUI';
+import {
+  Heading,
+  Section,
+  ModelSelect,
+  FeatureSelect,
+  Confusion,
+  Rates,
+  SelectionIndicator,
+  colors,
+} from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
 import { useCurveData, useWindowInput } from './useCurveData';
@@ -119,31 +128,36 @@ export function DetectionChapter(p: DetectionProps) {
           }}
         />
       </div>
-      <div className="example-picker" role="group" aria-label="典型片段">
+      <div className="example-picker">
         <span aria-hidden="true">典型片段</span>
-        {model.examples.map((e) => (
-          <button
-            key={e.code}
-            aria-pressed={start === e.start && feature === e.feature && point === e.index - e.start}
-            onClick={() => {
-              pendingExample.current =
-                start === e.start
-                  ? null
-                  : {
-                      key: `${model.run}:${model.id}:${e.start}`,
-                      point: e.index - e.start,
-                    };
-              setPoint(e.index - e.start);
-              setDraftStart(null);
-              setValidateStart(false);
-              setStart(e.start);
-              setFeature(e.feature);
-              setViewFeature(e.feature);
-            }}
-          >
-            {names[e.code]}
-          </button>
-        ))}
+        <div className="segmented" role="group" aria-label="典型片段">
+          <SelectionIndicator />
+          {model.examples.map((e) => (
+            <button
+              key={e.code}
+              aria-pressed={
+                start === e.start && feature === e.feature && point === e.index - e.start
+              }
+              onClick={() => {
+                pendingExample.current =
+                  start === e.start
+                    ? null
+                    : {
+                        key: `${model.run}:${model.id}:${e.start}`,
+                        point: e.index - e.start,
+                      };
+                setPoint(e.index - e.start);
+                setDraftStart(null);
+                setValidateStart(false);
+                setStart(e.start);
+                setFeature(e.feature);
+                setViewFeature(e.feature);
+              }}
+            >
+              {names[e.code]}
+            </button>
+          ))}
+        </div>
       </div>
       <div className="selection-panel">
         <label className="field">
@@ -181,8 +195,11 @@ export function DetectionChapter(p: DetectionProps) {
             setStart(+e.target.value);
           }}
         />
-        <span>
+        <span className="window-range">
           第 {(start + 1).toLocaleString('en-US')}—{(start + window).toLocaleString('en-US')} 点
+          <small>
+            {data.times[start]} — {data.times[start + window - 1]}
+          </small>
         </span>
       </div>
       <p
@@ -193,11 +210,6 @@ export function DetectionChapter(p: DetectionProps) {
         {validateStart && invalidStart
           ? `输入 1—${maximumStart} 之间的整数，当前仍显示第 ${start + 1} 点起的片段。`
           : `可选起点：1—${maximumStart}`}
-      </p>
-      <p className="quiet time-range">
-        <span>
-          {data.times[start]} — {data.times[start + window - 1]}
-        </span>
       </p>
       {inputCurve.data ? (
         <ReconstructionView

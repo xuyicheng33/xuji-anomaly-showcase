@@ -418,6 +418,11 @@
   padding: var(--space-2) var(--space-1);
   white-space: normal;
 }
+/* Sensor names are text: read from the left at body weight. */
+.sensor-list :is(th, td):nth-child(2) {
+  text-align: left;
+  font-weight: 400;
+}
 .sensor-list-hint {
   font-size: var(--text-xs);
   color: var(--muted);

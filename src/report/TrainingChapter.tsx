@@ -87,7 +87,11 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             onChange={setFeature}
             name="训练测点"
           />
-          <span>训练集，{length.toLocaleString('zh-CN')} 个时刻</span>
+          {training && times && (
+            <span>
+              {times[start]} — {times[start + data.window - 1]}
+            </span>
+          )}
         </div>
         <div className="chapter-chart-panel" ref={chartPanel}>
           {error ? (
@@ -104,18 +108,9 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             </div>
           ) : training && stats && times ? (
             <>
-              <div className="chart-context">
-                <span className="training-selection-key">
-                  <i aria-hidden="true" />
-                  选定窗口，{data.window} 点
-                </span>
-                <span>
-                  {times[start]} — {times[start + data.window - 1]}
-                </span>
-              </div>
               <Curve
                 title="归一化训练数据"
-                legend={false}
+                selectionLabel={`选定窗口，${data.window} 点`}
                 lines={[{ name: featureName(point), values, color: colors.input }]}
                 times={times.slice(contextStart, contextStart + contextLength)}
                 selection={{
@@ -167,6 +162,10 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
           )}
         </div>
         <div className="window-rules facts">
+          <div>
+            <span>训练集时刻</span>
+            <strong>{length.toLocaleString('zh-CN')}</strong>
+          </div>
           <div>
             <span>窗口形状（时刻 × 测点）</span>
             <strong>

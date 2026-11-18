@@ -32,9 +32,29 @@
   font-weight: inherit;
 }
 .case-kinds {
+  position: relative;
+  isolation: isolate;
   display: grid;
 }
+/* The chosen method is marked by one plate that slides between rows. */
+.case-kind-indicator {
+  position: absolute;
+  z-index: 0;
+  background: var(--surface-soft);
+  box-shadow: inset 2px 0 0 var(--blue);
+  pointer-events: none;
+}
+.case-kind-indicator.is-ready {
+  transition:
+    left var(--motion-move) var(--ease-spring),
+    width var(--motion-move) var(--ease-spring),
+    top var(--motion-move) var(--ease-spring),
+    height var(--motion-move) var(--ease-spring),
+    opacity var(--motion-fast) var(--ease-out);
+}
 .case-kinds button {
+  position: relative;
+  z-index: 1;
   border: 0;
   border-bottom: 1px solid var(--line);
   border-radius: 0;
@@ -48,9 +68,10 @@
   padding: var(--space-4) var(--space-2);
 }
 .case-kinds button[aria-pressed='true'] {
-  background: var(--surface-soft);
   color: var(--ink);
-  box-shadow: inset 2px 0 0 var(--blue);
+}
+.case-kinds button[aria-pressed='true']:hover {
+  background: none;
 }
 .case-kinds strong {
   font-weight: 500;

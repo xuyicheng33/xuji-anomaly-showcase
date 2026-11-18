@@ -3,17 +3,6 @@
   container-type: inline-size;
 }
 
-.training-selection-key {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.training-selection-key i {
-  width: 14px;
-  height: 10px;
-  background: var(--blue);
-  opacity: 0.12;
-}
 .training-window-header {
   display: flex;
   align-items: center;

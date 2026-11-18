@@ -63,6 +63,7 @@ export default function CaseNavigation({
         <div className="case-nav-group">
           <h2>构造方法</h2>
           <div className="case-kinds">
+            <SelectionIndicator className="case-kind-indicator" />
             {kinds.map((k, i) => (
               <button
                 key={k.id}
