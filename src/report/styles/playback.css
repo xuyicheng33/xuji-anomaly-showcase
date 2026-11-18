@@ -368,16 +368,44 @@
     padding-inline: var(--space-1);
     font-size: var(--text-xs);
   }
-  .playback-page .table-scroll th:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    background: var(--paper);
-    box-shadow: 1px 0 var(--line);
+  /* Each method reads as its own list of metrics instead of a clipped wide table. */
+  .evaluation-table thead {
+    display: none;
   }
-  .playback-page .table-scroll thead th:first-child {
-    z-index: 3;
-    background: var(--paper);
+  .evaluation-table,
+  .evaluation-table tbody {
+    display: block;
+  }
+  .evaluation-table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-6);
+    padding: var(--space-4) 0 var(--space-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .evaluation-table tr:first-child {
+    border-top: 1px solid var(--control-border);
+  }
+  .evaluation-table :is(th, td) {
+    padding: 0;
+    border: 0;
+  }
+  .evaluation-table tbody th {
+    grid-column: 1 / -1;
+    padding-bottom: var(--space-2);
+    font-size: var(--text-md);
+  }
+  .evaluation-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-block: var(--space-2);
+  }
+  .evaluation-table td::before {
+    content: attr(data-label);
+    font-size: var(--text-xs);
+    color: var(--muted);
   }
 }
 @container (max-width: 220px) {

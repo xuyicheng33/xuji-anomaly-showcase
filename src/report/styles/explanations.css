@@ -366,7 +366,7 @@
   color: var(--blue);
 }
 .explanation-entry {
-  padding: var(--space-8) 0;
+  padding: var(--space-10) 0;
   border-top: 1px solid var(--line);
   scroll-margin-top: var(--explanation-scroll-offset, var(--space-24));
   outline: none;
@@ -402,13 +402,11 @@
 .explanation-body p {
   text-wrap: pretty;
 }
-.explanation-body > p {
-  margin-bottom: var(--space-3);
-  max-width: 920px;
-}
+/* Prose keeps a reading measure; tables and figures may use the full column. */
+.explanation-body > p,
 .explanation-body > div > p {
-  margin-bottom: var(--space-3);
-  max-width: 920px;
+  margin-bottom: var(--space-4);
+  max-width: 44em;
 }
 .reference-table-scroll .anomaly-label-table {
   min-width: 0;

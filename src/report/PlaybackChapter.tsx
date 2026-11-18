@@ -299,9 +299,9 @@ export function PlaybackChapter(p: PlaybackProps) {
                 <Footnote note="thresholds" reference="ref-playback-threshold-value" />
               </span>
               <strong>
-                {count ? model.scores[idx].toFixed(6) : '—'}{' '}
+                {count ? model.scores[idx].toFixed(9) : '—'}{' '}
                 <small>
-                  {count ? (pred ? '>' : '≤') : '/'} 阈值 {threshold.toFixed(6)}
+                  {count ? (pred ? '>' : '≤') : '/'} 阈值 {threshold.toFixed(9)}
                 </small>
               </strong>
             </div>
@@ -342,7 +342,7 @@ export function PlaybackChapter(p: PlaybackProps) {
             aria-label="完整测试集评估指标"
             aria-describedby="playback-table-hint"
           >
-            <table>
+            <table className="evaluation-table">
               <thead>
                 <tr>
                   <th>方法</th>
@@ -362,14 +362,14 @@ export function PlaybackChapter(p: PlaybackProps) {
                   return (
                     <tr key={m.id}>
                       <th>{modelName(m)}</th>
-                      <td>{pct(v.f1)}</td>
-                      <td>{pct(m.metrics.point_adjusted.f1)}</td>
-                      <td>{pct(v.precision)}</td>
-                      <td>{pct(v.recall)}</td>
-                      <td>{v.tp.toLocaleString('en-US')}</td>
-                      <td>{v.fp.toLocaleString('en-US')}</td>
-                      <td>{v.fn.toLocaleString('en-US')}</td>
-                      <td>{v.tn.toLocaleString('en-US')}</td>
+                      <td data-label="逐点 F1">{pct(v.f1)}</td>
+                      <td data-label="区间点调整 F1">{pct(m.metrics.point_adjusted.f1)}</td>
+                      <td data-label="精确率">{pct(v.precision)}</td>
+                      <td data-label="召回率">{pct(v.recall)}</td>
+                      <td data-label="检出">{v.tp.toLocaleString('en-US')}</td>
+                      <td data-label="误报">{v.fp.toLocaleString('en-US')}</td>
+                      <td data-label="漏检">{v.fn.toLocaleString('en-US')}</td>
+                      <td data-label="正确正常">{v.tn.toLocaleString('en-US')}</td>
                     </tr>
                   );
                 })}
