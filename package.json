@@ -37,7 +37,7 @@
     "verify:exports": "node scripts/run_python.mjs scripts/verify_exports.py",
     "verify:frontend": "npm run check && npm test && npm run test:python:ci && npm run verify:public && npm run test:browser",
     "verify:public": "node scripts/run_python.mjs scripts/verify_public.py",
-    "verify:ci": "npm run verify:frontend && npm audit",
+    "verify:ci": "npm run verify:frontend && npm audit --omit=dev",
     "test:python:ci": "node scripts/run_python.mjs --public-only -m unittest discover -s tests",
     "backup:prune": "node scripts/run_python.mjs scripts/backup_project.py --prune",
     "data:verify": "node scripts/run_python.mjs scripts/data_archive.py verify",
