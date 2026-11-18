@@ -91,6 +91,9 @@ export default function App() {
           aria-controls="chapter-navigation"
         >
           目录
+          <svg viewBox="0 0 12 12" aria-hidden="true">
+            <path d="m3 4.5 3 3 3-3" />
+          </svg>
         </button>
         <nav
           id="chapter-navigation"

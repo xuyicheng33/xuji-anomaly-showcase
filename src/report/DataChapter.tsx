@@ -92,7 +92,7 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
           </>
         }
       />
-      <div className="data-ledger facts is-lead" aria-label="数据规模">
+      <div className="data-ledger facts" aria-label="数据规模">
         <div>
           <span>原始记录</span>
           <strong>{number(data.summary.rawRows, 0)}</strong>

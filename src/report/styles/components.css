@@ -4,13 +4,13 @@
   position: relative;
   z-index: 50;
   width: 100%;
-  padding: 10px max(var(--gutter), calc((100% - 1200px) / 2));
+  padding: var(--space-2) max(var(--gutter), calc((100% - 1200px) / 2));
   min-height: var(--header-height);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: var(--space-5);
   background: var(--header-surface);
   box-shadow: 0 1px 0 transparent;
   transition: box-shadow var(--motion-normal) var(--ease-out);
@@ -33,7 +33,7 @@
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   max-width: 100%;
   flex-wrap: wrap;
   font-size: var(--text-md);
@@ -43,18 +43,18 @@
   white-space: nowrap;
 }
 .brand > a {
-  padding-block: 10px;
+  padding-block: var(--space-2);
 }
 .dataset-picker {
   position: relative;
   border-left: 1px solid var(--control-border);
-  padding-left: 10px;
+  padding-left: var(--space-2);
 }
 .dataset-trigger {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 4px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-1);
   min-height: var(--control-height);
   border: 0;
   font-size: var(--text-xs);
@@ -74,21 +74,21 @@
 .dataset-options {
   position: fixed;
   z-index: 60;
-  padding: 6px;
+  padding: var(--space-1);
   background: var(--paper);
   border: 1px solid var(--control-border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-popover);
   transform-origin: top left;
-  animation: feature-open var(--motion-normal) var(--ease-out);
+  animation: pop-in var(--motion-normal) var(--ease-spring);
 }
 .dataset-options a {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
   min-height: 44px;
-  padding: 10px;
+  padding: var(--space-2);
   font-size: var(--text-sm);
   border-radius: var(--radius-small);
 }
@@ -108,19 +108,19 @@
   position: relative;
   overflow: hidden;
   overflow: clip;
-  padding-inline: 6px;
-  margin-inline: -6px;
+  padding-inline: var(--space-1);
+  margin-inline: calc(-1 * var(--space-1));
   display: flex;
   align-items: center;
   max-width: 100%;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 24px;
+  gap: var(--space-6);
   font-size: var(--text-sm);
 }
 .site-nav a {
   position: relative;
-  padding: 12px 0;
+  padding: var(--space-3) 0;
   color: var(--muted);
   white-space: nowrap;
   transition: color var(--motion-fast) var(--ease-out);
@@ -150,17 +150,12 @@
   margin: auto;
   width: 100%;
   max-width: 1280px;
-  padding: 16px 40px 80px;
+  padding: var(--space-4) var(--space-10) var(--space-20);
   outline: none;
 }
 /* Entering a chapter: heading first, then content in reading order. */
-@keyframes stage-in {
-  from {
-    opacity: 0;
-  }
-}
 :is(.chapter-stage > :first-child, .explanation-page) > * {
-  animation: stage-in var(--motion-slow) var(--ease-out) backwards;
+  animation: rise-in var(--motion-slow) var(--ease-spring) backwards;
 }
 :is(.chapter-stage > :first-child, .explanation-page) > :nth-child(2) {
   animation-delay: 60ms;
@@ -172,15 +167,11 @@
   animation-delay: 180ms;
 }
 .value-tick {
-  animation: value-in var(--motion-normal) var(--ease-out);
+  --fade-from: 0.2;
+  animation: fade-in var(--motion-normal) var(--ease-out);
 }
 .playback-statistics .value-tick {
   animation: none;
-}
-@keyframes value-in {
-  from {
-    opacity: 0.2;
-  }
 }
 .chapter-heading {
   padding: var(--heading-space) 0;
@@ -193,15 +184,15 @@
   display: flex;
   flex-wrap: wrap;
   container-type: inline-size;
-  gap: 32px;
+  gap: var(--space-8);
   margin-top: var(--section-space);
-  padding-top: 24px;
+  padding-top: var(--space-6);
   border-top: 1px solid var(--line);
 }
 .chapter-navigation a {
   flex: 1 1 120px;
   min-width: 0;
-  padding: 12px 0;
+  padding: var(--space-3) 0;
 }
 .chapter-navigation a:last-child {
   text-align: right;
@@ -212,7 +203,7 @@
 }
 .chapter-navigation strong {
   display: block;
-  margin-top: 10px;
+  margin-top: var(--space-2);
   font-family: var(--serif);
   font-size: var(--text-2xl);
   line-height: 1.6;
@@ -237,7 +228,7 @@
   max-width: 42em;
   color: var(--muted);
   font-size: var(--text-md);
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
   line-height: 1.85;
 }
 .toolbar,
@@ -245,7 +236,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: var(--space-5);
   flex-wrap: wrap;
   margin-bottom: var(--toolbar-space);
 }
@@ -268,13 +259,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--space-3);
   min-height: var(--control-height);
   background: var(--ink);
   color: var(--on-ink);
   border: 1px solid var(--ink);
   border-radius: var(--radius-control);
-  padding: 10px 20px;
+  padding: var(--space-2) var(--space-5);
   font-size: var(--text-sm);
   font-weight: 500;
   line-height: 1.5;
@@ -300,9 +291,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: var(--space-2);
   min-height: var(--control-height);
-  padding: 10px 16px;
+  padding: var(--space-2) var(--space-4);
   background: var(--paper);
   border: 1px solid var(--control-border);
   border-radius: var(--radius-control);
@@ -319,7 +310,7 @@
 .text-button {
   border: 1px solid transparent;
   min-height: var(--control-height);
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-2);
   color: var(--blue);
   font-size: var(--text-sm);
 }
@@ -328,7 +319,7 @@
   color: var(--blue);
   border: 0;
   border-radius: 0;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
   background: none;
   font-size: var(--text-sm);
   line-height: 1.8;
@@ -350,9 +341,9 @@ button.inline-link {
 details > summary {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   min-height: var(--control-height);
-  padding: 10px 0;
+  padding: var(--space-2) 0;
   list-style: none;
   color: var(--blue);
   font-size: var(--text-sm);
@@ -381,7 +372,7 @@ details[open] > summary::before {
   flex-wrap: wrap;
   align-items: center;
   gap: 2px;
-  padding: 3px;
+  padding: var(--space-1);
   width: fit-content;
   max-width: 100%;
   background: var(--surface);
@@ -392,7 +383,7 @@ details[open] > summary::before {
   z-index: 1;
   border: 0;
   min-height: 36px;
-  padding: 6px 14px;
+  padding: var(--space-1) var(--space-3);
   font-size: var(--text-sm);
   border-radius: var(--radius-control);
   color: var(--muted);
@@ -445,7 +436,7 @@ details[open] > summary::before {
 .field {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   min-height: var(--control-height);
   min-width: 0;
   color: var(--muted);
@@ -468,12 +459,12 @@ details[open] > summary::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-2);
   width: 100%;
   min-height: var(--control-height);
   text-align: left;
   background: var(--paper);
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   font-size: var(--text-sm);
 }
 .feature-trigger > span {
@@ -514,39 +505,14 @@ details[open] > summary::before {
   border: 1px solid var(--control-border);
   border-radius: var(--radius-panel);
   box-shadow: var(--shadow-popover);
-  padding: 12px;
+  padding: var(--space-3);
   transform-origin: top center;
-  animation: feature-open var(--motion-normal) var(--ease-out);
-}
-@keyframes menu-open {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-@keyframes scrim-in {
-  from {
-    opacity: 0;
-  }
-}
-@keyframes feature-open {
-  from {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  animation: pop-in var(--motion-normal) var(--ease-spring);
 }
 .feature-search {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .feature-search input,
 .contribution-search input {
@@ -555,18 +521,18 @@ details[open] > summary::before {
 }
 .feature-search .text-button {
   flex-shrink: 0;
-  padding-inline: 4px;
+  padding-inline: var(--space-1);
 }
 .feature-groups {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin: 12px 0;
+  gap: var(--space-1);
+  margin: var(--space-3) 0;
   flex-shrink: 0;
 }
 .feature-groups button {
   border: 1px solid transparent;
-  padding: 6px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-small);
   font-size: var(--text-xs);
   min-height: 36px;
@@ -584,7 +550,7 @@ details[open] > summary::before {
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
   border-block: 1px solid var(--line);
-  padding: 4px 0;
+  padding: var(--space-1) 0;
 }
 .feature-option {
   display: block;
@@ -592,7 +558,7 @@ details[open] > summary::before {
   text-align: left;
   border: 0;
   border-radius: var(--radius-small);
-  padding: 10px 8px;
+  padding: var(--space-2) var(--space-2);
   font-size: var(--text-sm);
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -601,12 +567,12 @@ details[open] > summary::before {
   outline-offset: -2px;
 }
 .feature-no-results {
-  padding: 20px 8px;
+  padding: var(--space-5) var(--space-2);
   color: var(--muted);
   font-size: var(--text-sm);
 }
 .feature-result-count {
-  margin-top: 8px;
+  margin-top: var(--space-2);
   color: var(--muted);
   font-size: var(--text-xs);
   flex-shrink: 0;
@@ -615,10 +581,10 @@ details[open] > summary::before {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 16px;
+  gap: var(--space-4);
   font-size: var(--text-sm);
   color: var(--muted);
-  margin-top: 16px;
+  margin-top: var(--space-4);
 }
 .slider-label input {
   width: 100%;
@@ -629,15 +595,15 @@ details[open] > summary::before {
   font-variant-numeric: tabular-nums;
 }
 .chapter-chart-panel {
-  padding: 24px 0;
+  padding: var(--space-6) 0;
   border-block: 1px solid var(--line);
 }
 .chart-context {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 8px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
   color: var(--muted);
   font-size: var(--text-xs);
   line-height: 1.7;
@@ -648,17 +614,17 @@ details[open] > summary::before {
   line-height: 1.8;
 }
 .state-panel {
-  padding: 72px 0;
+  padding: var(--space-20) 0;
   min-height: 50vh;
   color: var(--muted);
   font-size: var(--text-md);
 }
 .state-panel h2 {
   color: var(--ink);
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
 .chapter-loading {
-  padding: 56px 16px;
+  padding: var(--space-14) var(--space-4);
   text-align: center;
   color: var(--muted);
   font-size: var(--text-sm);
@@ -681,6 +647,11 @@ details[open] > summary::before {
 .chapter-loading[role='status'] {
   min-height: 280px;
 }
+@keyframes menu-drop {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+}
 @keyframes skeleton-shimmer {
   from {
     background-position: 100% 0;
@@ -690,15 +661,15 @@ details[open] > summary::before {
   }
 }
 .chapter-loading button {
-  margin-top: 16px;
+  margin-top: var(--space-4);
   min-height: var(--control-height);
 }
 .inline-error {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 20px;
+  gap: var(--space-3) var(--space-5);
   align-items: center;
-  padding: 16px 0;
+  padding: var(--space-4) 0;
   color: var(--negative);
   font-size: var(--text-sm);
 }
@@ -730,15 +701,15 @@ details[open] > summary::before {
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   border-block: 1px solid var(--line);
-  padding: 24px 0;
+  padding: var(--space-6) 0;
 }
 .facts > * {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
-  padding: 0 24px;
+  padding: 0 var(--space-6);
 }
 .facts > :first-child {
   padding-left: 0;
@@ -770,11 +741,8 @@ details[open] > summary::before {
 .report-section:last-child > :is(.facts, .steps, .comparison):last-child {
   border-bottom: 0;
 }
-.facts.is-lead strong {
-  font-size: var(--text-5xl);
-}
 .facts strong .unit {
-  margin-left: 6px;
+  margin-left: var(--space-1);
   font-family: var(--sans);
   font-size: var(--text-xs);
   color: var(--muted);
@@ -786,7 +754,7 @@ details[open] > summary::before {
 .facts .info-trigger {
   min-height: 20px;
   min-width: 28px;
-  padding: 0 4px;
+  padding: 0 var(--space-1);
 }
 /* Comparison: two parallel columns, each with label, heading and copy. */
 .comparison {
@@ -796,10 +764,10 @@ details[open] > summary::before {
 }
 .comparison > * {
   min-width: 0;
-  padding: 24px 24px 24px 0;
+  padding: var(--space-6) var(--space-6) var(--space-6) 0;
 }
 .comparison > * + * {
-  padding: 24px 0 24px 24px;
+  padding: var(--space-6) 0 var(--space-6) var(--space-6);
   border-left: 1px solid var(--line);
 }
 .comparison > * > span {
@@ -807,8 +775,8 @@ details[open] > summary::before {
   color: var(--muted);
 }
 .comparison h3 {
-  margin: 12px 0 8px;
-  font-size: var(--text-lg);
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--text-md);
 }
 .comparison p {
   max-width: 34em;
@@ -823,7 +791,7 @@ details[open] > summary::before {
   }
   .comparison > *,
   .comparison > * + * {
-    padding: 20px 0;
+    padding: var(--space-5) 0;
     border-left: 0;
   }
   .comparison > * + * {
@@ -839,13 +807,13 @@ details[open] > summary::before {
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
   margin: 0;
-  padding: 24px 0;
+  padding: var(--space-6) 0;
   border-block: 1px solid var(--line);
   list-style: none;
 }
 .steps > * {
   min-width: 0;
-  padding: 0 24px;
+  padding: 0 var(--space-6);
 }
 .steps > :first-child {
   padding-left: 0;
@@ -861,7 +829,7 @@ details[open] > summary::before {
   color: var(--muted);
 }
 .steps h3 {
-  margin: 12px 0 8px;
+  margin: var(--space-3) 0 var(--space-2);
   font-size: var(--text-md);
 }
 .steps p {
@@ -873,7 +841,7 @@ details[open] > summary::before {
   .facts {
     grid-auto-flow: row;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 24px;
+    row-gap: var(--space-6);
   }
   .facts > :nth-child(odd) {
     padding-left: 0;
@@ -882,12 +850,12 @@ details[open] > summary::before {
   .steps {
     grid-auto-flow: row;
     grid-template-columns: minmax(0, 1fr);
-    row-gap: 20px;
+    row-gap: var(--space-5);
   }
   .steps > * {
     display: grid;
     grid-template-columns: 32px minmax(0, 1fr);
-    column-gap: 12px;
+    column-gap: var(--space-3);
     padding: 0;
     border-left: 0;
   }
@@ -898,10 +866,9 @@ details[open] > summary::before {
     grid-column: 2;
   }
   .steps h3 {
-    margin: 2px 0 6px;
+    margin: 2px 0 var(--space-1);
   }
-  .facts strong,
-  .facts.is-lead strong {
+  .facts strong {
     font-size: var(--text-3xl);
   }
 }
@@ -914,7 +881,7 @@ details[open] > summary::before {
     border-left: 0;
   }
   .facts > * + * {
-    padding-top: 20px;
+    padding-top: var(--space-5);
     border-top: 1px solid var(--line);
   }
   .steps > * {
@@ -931,13 +898,13 @@ details[open] > summary::before {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
-  gap: 40px;
+  gap: var(--space-10);
 }
 .matrix-caption {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 16px;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
 }
 .matrix-caption h3 {
   font-size: var(--text-md);
@@ -953,10 +920,10 @@ details[open] > summary::before {
 .confusion-cell {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: 6px;
+  column-gap: var(--space-1);
   align-items: center;
   min-height: 80px;
-  padding: 16px;
+  padding: var(--space-4);
   background: var(--paper);
   border: 1px solid transparent;
   transition:
@@ -991,9 +958,9 @@ details[open] > summary::before {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px 24px;
-  padding: 16px 0;
-  margin: 12px 0 24px;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-4) 0;
+  margin: var(--space-3) 0 var(--space-6);
   border-block: 1px solid var(--line);
   color: var(--muted);
   font-size: var(--text-xs);
@@ -1004,14 +971,14 @@ details[open] > summary::before {
 .result-summary-values {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 24px;
-  padding-left: 24px;
+  gap: var(--space-3) var(--space-6);
+  padding-left: var(--space-6);
   border-left: 1px solid var(--line);
 }
 .result-summary-values > span {
   display: inline-flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--space-2);
   white-space: nowrap;
 }
 .result-summary strong {
@@ -1027,12 +994,12 @@ details[open] > summary::before {
 .rates {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
+  gap: var(--space-5);
 }
 .rates > div {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-3);
   align-items: flex-start;
   min-width: 0;
 }
@@ -1059,7 +1026,7 @@ details[open] > summary::before {
   border-block: 1px solid var(--line);
   scrollbar-gutter: stable;
   max-height: 350px;
-  margin: 20px 0;
+  margin: var(--space-5) 0;
   max-width: 100%;
 }
 .reference-table-scroll table {
@@ -1069,10 +1036,10 @@ details[open] > summary::before {
   font-variant-numeric: tabular-nums;
 }
 .reference-table-scroll th {
-  padding: 10px 16px;
+  padding: var(--space-2) var(--space-4);
 }
 .reference-table-scroll td {
-  padding: 10px 16px;
+  padding: var(--space-2) var(--space-4);
 }
 .reference-table-scroll thead th {
   position: sticky;
@@ -1116,7 +1083,7 @@ details[open] > summary::before {
   flex-shrink: 0;
 }
 .math-fraction > span {
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-2);
   white-space: nowrap;
 }
 .math-fraction > span + span {
@@ -1125,7 +1092,7 @@ details[open] > summary::before {
 .equation-result {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-width: 0;
   max-width: 100%;
   white-space: normal;
@@ -1143,13 +1110,13 @@ details[open] > summary::before {
   font-weight: 400;
   vertical-align: middle;
   display: inline-flex;
-  margin-left: 10px;
+  margin-left: var(--space-2);
 }
 .footnote a {
   display: inline-flex;
   align-items: center;
   min-height: 32px;
-  padding-block: 4px;
+  padding-block: var(--space-1);
   color: var(--blue);
   border-bottom: 1px solid transparent;
   white-space: nowrap;
@@ -1165,7 +1132,7 @@ details[open] > summary::before {
   justify-content: center;
   min-height: 32px;
   min-width: 32px;
-  padding: 6px;
+  padding: var(--space-1);
   border: 0;
   line-height: 1;
   text-decoration: none;
@@ -1201,7 +1168,7 @@ details[open] > summary::before {
   position: fixed;
   z-index: 60;
   display: block;
-  padding: 14px 16px;
+  padding: var(--space-3) var(--space-4);
   background: var(--paper);
   color: var(--ink);
   border: 1px solid var(--line);
@@ -1214,13 +1181,13 @@ details[open] > summary::before {
   overflow-wrap: anywhere;
   max-height: calc(100dvh - 24px);
   overflow-y: auto;
-  animation: feature-open var(--motion-normal) var(--ease-out);
+  animation: pop-in var(--motion-normal) var(--ease-spring);
 }
 .info-tooltip > span {
   display: block;
 }
 .info-tooltip > span + span {
-  margin-top: 6px;
+  margin-top: var(--space-1);
 }
 .window-scope {
   white-space: nowrap;
@@ -1246,33 +1213,33 @@ details[open] > summary::before {
   left: 20px;
   width: auto;
   height: auto;
-  padding: 14px;
+  padding: var(--space-3);
   clip-path: none;
   overflow: visible;
 }
 .result-reveal {
-  animation: arrive var(--motion-normal) var(--ease-out);
+  animation: rise-in var(--motion-normal) var(--ease-spring);
 }
 @media (max-width: 1120px) {
   .site-header {
     --gutter: 30px;
     gap: 0;
-    padding-block: 6px 0;
+    padding-block: var(--space-1) 0;
   }
   .site-nav {
     width: calc(100% + 12px);
     justify-content: space-between;
-    gap: 12px;
+    gap: var(--space-3);
     font-size: var(--text-xs);
   }
   .site-nav a {
-    padding-block: 10px;
+    padding-block: var(--space-2);
   }
   .site-main {
-    padding-inline: 28px;
+    padding-inline: var(--space-7);
   }
   .statistics {
-    gap: 28px;
+    gap: var(--space-7);
   }
   .rates strong {
     font-size: var(--text-2xl);
@@ -1280,8 +1247,8 @@ details[open] > summary::before {
 }
 @media (max-width: 680px) {
   .chapter-navigation {
-    gap: 20px;
-    padding-top: 16px;
+    gap: var(--space-5);
+    padding-top: var(--space-4);
   }
   .chapter-navigation strong {
     font-size: var(--text-lg);
@@ -1290,44 +1257,44 @@ details[open] > summary::before {
   .feature-field {
     flex-direction: column;
     align-items: stretch;
-    gap: 8px;
+    gap: var(--space-2);
   }
   .result-summary {
-    gap: 10px;
-    padding-block: 14px;
-    margin-block: 12px 20px;
+    gap: var(--space-2);
+    padding-block: var(--space-3);
+    margin-block: var(--space-3) var(--space-5);
   }
   .result-summary-values {
-    gap: 10px;
+    gap: var(--space-2);
     padding-left: 0;
     border-left: 0;
   }
   .result-summary-values > span {
-    gap: 4px;
+    gap: var(--space-1);
   }
   .result-summary strong {
     font-size: clamp(16px, 4.8vw, 20px);
   }
   .result-summary .inline-link {
     min-height: 0;
-    padding: 4px 0;
+    padding: var(--space-1) 0;
     font-size: var(--text-xs);
   }
 
   .site-header {
     --gutter: 22px;
-    padding-block: 8px;
+    padding-block: var(--space-2);
     min-height: var(--header-height);
   }
   .brand {
-    gap: 10px;
+    gap: var(--space-2);
   }
   .mobile-menu {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     min-height: var(--control-height);
-    padding: 8px 14px;
+    padding: var(--space-2) var(--space-3);
     margin-left: auto;
     border-color: transparent;
     border-radius: var(--radius-pill);
@@ -1337,6 +1304,17 @@ details[open] > summary::before {
   }
   .mobile-menu[aria-expanded='true'] {
     background: var(--surface);
+  }
+  .mobile-menu svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    transition: rotate var(--motion-normal) var(--ease-spring);
+  }
+  .mobile-menu[aria-expanded='true'] svg {
+    rotate: 180deg;
   }
   .site-nav {
     display: none;
@@ -1351,20 +1329,38 @@ details[open] > summary::before {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
-    padding: 4px var(--gutter) 16px;
+    padding: var(--space-1) var(--gutter) var(--space-4);
     background: var(--paper);
     border-bottom: 1px solid var(--line);
     box-shadow: var(--shadow-sheet);
     max-height: calc(100dvh - var(--header-height));
     overflow-y: auto;
-    transform-origin: top center;
-    animation: menu-open var(--motion-normal) var(--ease-out);
+    animation: menu-drop var(--motion-move) var(--ease-spring);
+  }
+  .site-nav.open a {
+    --rise-from: -6px;
+    animation: rise-in var(--motion-normal) var(--ease-spring) backwards;
+  }
+  .site-nav.open a:nth-child(3) {
+    animation-delay: 20ms;
+  }
+  .site-nav.open a:nth-child(4) {
+    animation-delay: 40ms;
+  }
+  .site-nav.open a:nth-child(5) {
+    animation-delay: 60ms;
+  }
+  .site-nav.open a:nth-child(6) {
+    animation-delay: 80ms;
+  }
+  .site-nav.open a:nth-child(n + 7) {
+    animation-delay: 100ms;
   }
   .site-nav a {
     display: flex;
     align-items: center;
     min-height: 50px;
-    padding-block: 12px;
+    padding-block: var(--space-3);
     border-bottom: 1px solid var(--line);
     font-size: var(--text-md);
     color: var(--ink);
@@ -1380,7 +1376,7 @@ details[open] > summary::before {
     content: '';
     width: 6px;
     height: 6px;
-    margin-left: 10px;
+    margin-left: var(--space-2);
     border-radius: 50%;
     background: var(--blue);
   }
@@ -1393,10 +1389,10 @@ details[open] > summary::before {
     inset: 0;
     z-index: 40;
     background: var(--scrim);
-    animation: scrim-in var(--motion-normal) var(--ease-out);
+    animation: fade-in var(--motion-normal) var(--ease-out);
   }
   .site-main {
-    padding: 8px 20px 56px;
+    padding: var(--space-2) var(--space-5) var(--space-14);
   }
   .chapter-heading {
     padding-block: var(--heading-space);
@@ -1406,17 +1402,17 @@ details[open] > summary::before {
   }
   .toolbar,
   .model-selection-row {
-    gap: 14px;
+    gap: var(--space-3);
     margin-bottom: var(--toolbar-space);
   }
   .analysis-toolbar {
-    gap: 10px;
+    gap: var(--space-2);
   }
   .analysis-toolbar .feature-field {
     flex-direction: row;
     align-items: center;
     flex-wrap: nowrap;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .analysis-toolbar .feature-field > span {
     white-space: nowrap;
@@ -1428,14 +1424,14 @@ details[open] > summary::before {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: end;
-    gap: 16px;
+    gap: var(--space-4);
   }
   .toolbar > .model-identity {
-    padding-bottom: 12px;
+    padding-bottom: var(--space-3);
   }
   .field {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--space-2);
     width: 100%;
   }
   .field select {
@@ -1457,7 +1453,7 @@ details[open] > summary::before {
   }
   .segmented button {
     flex: 1;
-    padding-inline: 10px;
+    padding-inline: var(--space-2);
     min-width: 0;
     font-size: var(--text-xs);
     min-height: 40px;
@@ -1468,7 +1464,7 @@ details[open] > summary::before {
   }
   .slider-label {
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 12px;
+    gap: var(--space-1) var(--space-3);
     font-size: var(--text-xs);
   }
   .slider-label > input {
@@ -1481,48 +1477,48 @@ details[open] > summary::before {
     min-width: 0;
   }
   .chapter-chart-panel {
-    padding: 16px 0;
+    padding: var(--space-4) 0;
   }
   .chart-context {
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
+    gap: var(--space-1);
   }
   .statistics {
     grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
+    gap: var(--space-6);
   }
   .matrix-caption {
     align-items: flex-start;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .confusion-cell {
-    padding: 14px 12px;
+    padding: var(--space-3) var(--space-3);
   }
   .rates {
-    gap: 16px;
+    gap: var(--space-4);
   }
   .rates strong {
     font-size: var(--text-2xl);
   }
   .math-fraction > span {
-    padding: 4px 6px;
+    padding: var(--space-1) var(--space-1);
   }
 }
 @media (max-width: 380px) {
   .rates {
     grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+    gap: var(--space-3);
   }
   .rates > div {
     flex-direction: row;
     justify-content: space-between;
     align-items: baseline;
-    gap: 16px;
+    gap: var(--space-4);
   }
   .confusion-cell {
     grid-template-columns: minmax(0, 1fr);
-    row-gap: 4px;
+    row-gap: var(--space-1);
   }
   .confusion-cell strong {
     justify-self: start;
@@ -1536,10 +1532,10 @@ details[open] > summary::before {
 }
 @media (max-width: 380px) {
   .brand {
-    gap: 6px;
+    gap: var(--space-1);
   }
   .dataset-picker {
-    padding-left: 6px;
+    padding-left: var(--space-1);
   }
 }
 @container (max-width: 240px) {

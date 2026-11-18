@@ -6,9 +6,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: var(--space-3);
   min-height: 37px;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
 }
 .curve-top strong {
   font-size: var(--text-sm);
@@ -16,12 +16,12 @@
 }
 .legend {
   display: flex;
-  gap: 20px;
+  gap: var(--space-5);
   color: var(--muted);
   font-size: var(--text-xs);
   flex-wrap: wrap;
   justify-content: flex-end;
-  row-gap: 6px;
+  row-gap: var(--space-1);
 }
 .legend strong {
   font-size: inherit;
@@ -32,7 +32,7 @@
 .legend span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
 }
 .legend i {
   display: block;
@@ -56,7 +56,7 @@
   font-size: var(--text-2xs);
 }
 .curve-range {
-  margin-top: 4px;
+  margin-top: var(--space-1);
   font-size: var(--text-xs);
   color: var(--muted);
   line-height: 1.7;
@@ -70,13 +70,13 @@
   .curve-top {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: var(--space-2);
   }
   .curve-top strong {
     font-size: var(--text-sm);
   }
   .legend {
-    column-gap: 14px;
+    column-gap: var(--space-3);
     justify-content: flex-start;
   }
 }
@@ -123,10 +123,10 @@
   top: 44px;
   z-index: 5;
   display: grid;
-  gap: 4px;
+  gap: var(--space-1);
   min-width: 140px;
-  padding: 10px 12px;
-  margin-left: 14px;
+  padding: var(--space-2) var(--space-3);
+  margin-left: var(--space-3);
   background: color-mix(in srgb, var(--paper) 94%, transparent);
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
@@ -135,7 +135,7 @@
   color: var(--muted);
   white-space: nowrap;
   pointer-events: none;
-  animation: readout-in var(--motion-fast) var(--ease-out);
+  animation: fade-in var(--motion-fast) var(--ease-out);
 }
 .curve-readout.is-left {
   margin-left: 0;
@@ -144,7 +144,7 @@
 .curve-readout > span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
 }
 .curve-readout > span:first-child {
   margin-bottom: 2px;
@@ -158,23 +158,18 @@
 }
 .curve-readout strong {
   margin-left: auto;
-  padding-left: 14px;
+  padding-left: var(--space-3);
   font-family: var(--metric);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   color: var(--data);
-}
-@keyframes readout-in {
-  from {
-    opacity: 0;
-  }
 }
 .curve-loading {
   min-height: 270px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: var(--space-4);
   color: var(--muted);
   font-size: var(--text-sm);
   border-block: 1px solid var(--line);
@@ -189,7 +184,7 @@
   .curve-loading {
     min-height: 220px;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: var(--space-2);
   }
   .curve-loading.compact {
     min-height: 180px;

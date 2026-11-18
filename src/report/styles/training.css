@@ -6,7 +6,7 @@
 .training-selection-key {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .training-selection-key i {
   width: 14px;
@@ -18,8 +18,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
 }
 .training-window-header > span {
   font-size: var(--text-xs);
@@ -28,13 +28,13 @@
 }
 .window-position-actions {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   justify-content: flex-end;
-  margin-top: 20px;
+  margin-top: var(--space-5);
 }
 .window-position-actions button {
   font-size: var(--text-xs);
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   min-height: var(--control-height);
   background: var(--paper);
 }
@@ -46,18 +46,18 @@
   .training-window-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--space-3);
   }
   .window-position-actions {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 8px;
+    gap: var(--space-2);
   }
   .window-position-actions button {
     font-size: var(--text-xs);
     min-height: var(--control-height);
     min-width: 0;
-    padding-inline: 6px;
+    padding-inline: var(--space-1);
     overflow-wrap: anywhere;
   }
 }
@@ -71,7 +71,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .training-chapter .model-select button {
-    padding-inline: 3px;
+    padding-inline: var(--space-1);
     font-size: var(--text-xs);
     white-space: normal;
     overflow-wrap: anywhere;
