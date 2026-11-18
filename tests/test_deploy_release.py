@@ -1,9 +1,11 @@
 """Exercise generated remote Python and rollback without connecting to a server."""
 
+import io
 import json
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -55,6 +57,7 @@ class DeploymentTests(unittest.TestCase):
             with (
                 patch.object(deployment, "__file__", str(root / "scripts/deploy_release.py")),
                 patch.object(deployment, "DATASETS", datasets),
+                patch.object(deployment, "verify_archive_data"),
                 patch.object(deployment, "validate_evaluation", side_effect=validate) as checked,
                 patch.object(deployment.paramiko, "SSHClient") as ssh,
                 patch.object(deployment.subprocess, "check_output", return_value=""),
@@ -95,6 +98,7 @@ class DeploymentTests(unittest.TestCase):
             with (
                 patch.object(deployment, "__file__", str(root / "scripts/deploy_release.py")),
                 patch.object(deployment, "DATASETS", datasets),
+                patch.object(deployment, "verify_archive_data") as verify_archive,
                 patch.object(deployment, "validate_evaluation") as validate,
                 patch.object(deployment, "publish") as publish,
                 patch.object(deployment.paramiko, "SSHClient"),
@@ -103,6 +107,7 @@ class DeploymentTests(unittest.TestCase):
                 patch("sys.argv", ["deploy", "--qa-dir", str(root / ".qa/deployment")]),
             ):
                 deployment.main()
+            verify_archive.assert_called_once_with(project=root)
             self.assertEqual(
                 [call.args for call in validate.call_args_list],
                 [
@@ -112,7 +117,7 @@ class DeploymentTests(unittest.TestCase):
             )
             self.assertTrue(callable(publish.call_args.args[-1]))
 
-    def test_publish_builds_valid_sources_and_uses_public_dataset_paths(self):
+    def test_publish_checks_public_datasets_and_reports_retention_failure_separately(self):
         sources = []
         root = Path(__file__).resolve().parents[1]
         config = (root / "deploy/nginx-9010.conf").read_text(encoding="utf8")
@@ -132,6 +137,8 @@ class DeploymentTests(unittest.TestCase):
                     return config
                 if "print(rollback_config" in source:
                     return "/var/www/xuji-showcase/config-backups/abcdef0.conf"
+                if "release_files.prune_releases" in source:
+                    raise RuntimeError("simulated retention failure")
             return ""
 
         with tempfile.TemporaryDirectory() as temporary:
@@ -149,10 +156,15 @@ class DeploymentTests(unittest.TestCase):
                     ),
                     encoding="utf8",
                 )
-            with patch.object(deployment, "run", side_effect=run):
+            error = io.StringIO()
+            with patch.object(deployment, "run", side_effect=run), redirect_stderr(error):
                 deployment.publish_locked(
                     MagicMock(), folder, folder, "abcdef0123", {}, "test publication"
                 )
+            self.assertIn("Release abcdef0 is live; retention cleanup failed", error.getvalue())
+            self.assertEqual(
+                json.loads((folder / "deploy-result.json").read_text())["release"], "abcdef0"
+            )
             probes = [source for source in sources if "urlopen" in source]
             self.assertEqual(len(probes), 2)
             self.assertIn("data/journey/windows-v1/", probes[0])

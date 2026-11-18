@@ -41,13 +41,13 @@ def release_path(folder, name):
     return path
 
 
-def prepare_release(previous, target, archive, expected, changed):
+def prepare_release(previous, target, archive, expected, changed, previous_files):
     previous, target = Path(previous).resolve(), Path(target).resolve()
     if target.parent != previous.parent:
         raise ValueError("Release target must be in the current release directory")
     if target.exists():
         return prepare_existing(target, expected)
-    previous_files = hashes(previous)
+    changed = set(changed)
     by_digest = {}
     for name, checksum in previous_files.items():
         by_digest.setdefault(checksum, name)
@@ -60,7 +60,7 @@ def prepare_release(previous, target, archive, expected, changed):
             names = [member.name for member in members]
             if (
                 len(names) != len(set(names))
-                or set(names) != set(changed)
+                or set(names) != changed
                 or not set(names) <= set(expected)
             ):
                 raise ValueError("Release archive does not match the changed-file list")
@@ -120,8 +120,10 @@ def prepare_existing(target, expected):
 
 def prepare_staged(previous, target, staging, changed):
     staging = Path(staging)
-    expected = json.loads((staging / "files.json").read_text())
-    prepare_release(previous, target, staging / "changes.tar.gz", expected, changed)
+    files = json.loads((staging / "files.json").read_text())
+    prepare_release(
+        previous, target, staging / "changes.tar.gz", files["next"], changed, files["previous"]
+    )
 
 
 def atomic_write(file, content):

@@ -14,7 +14,6 @@ from pathlib import Path
 from textwrap import dedent
 
 import paramiko
-from data_archive import INDEX as ARCHIVE_INDEX
 from data_archive import verify as verify_archive_data
 from dataset_paths import DATASETS, retained_path
 from release_validation import fallback_release, site_config, validate_evaluation
@@ -156,8 +155,12 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
         from pathlib import Path
         import hashlib, json
         folder = Path({previous!r})
-        print(json.dumps({{p.relative_to(folder).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-                          for p in folder.rglob('*') if p.is_file() and p.suffix != '.gz'}}))
+        files = {{}}
+        for p in sorted(folder.rglob('*')):
+            if p.is_file() and p.suffix != '.gz':
+                with p.open('rb') as stream:
+                    files[p.relative_to(folder).as_posix()] = hashlib.file_digest(stream, 'sha256').hexdigest()
+        print(json.dumps(files))
     """,
         )
     )
@@ -202,7 +205,8 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
         with client.open_sftp() as sftp:
             sftp.put(str(root / "scripts/release_files.py"), staging + "/release_files.py")
             sftp.put(str(archive), staging + "/changes.tar.gz")
-            for name, content in [("files.json", json.dumps(records)), ("site.conf", updated)]:
+            inventory = json.dumps({"next": records, "previous": old})
+            for name, content in [("files.json", inventory), ("site.conf", updated)]:
                 with sftp.open(staging + "/" + name, "w") as file:
                     file.write(content)
         release_call(client, staging, "prepare_staged", previous, target, staging, changed)
@@ -240,13 +244,22 @@ def publish_locked(client, root, output, commit, records, scope, verify=None):
             verify,
             lambda: release_call(client, staging, "record_deployment", SITE, result),
         )
-        (output / "deploy-result.json").write_text(json.dumps(result, indent=2), encoding="utf8")
         print(json.dumps(result), flush=True)
-        retention = release_call(
-            client, staging, "prune_releases", SITE, target, fallback, retained_backup
+        cleanup(
+            lambda: (output / "deploy-result.json").write_text(
+                json.dumps(result, indent=2), encoding="utf8"
+            ),
+            f"Release {release} is live; local receipt could not be written",
         )
-        if retention.strip():
-            print(retention.strip(), flush=True)
+        cleanup(
+            lambda: print(
+                release_call(
+                    client, staging, "prune_releases", SITE, target, fallback, retained_backup
+                ).strip(),
+                flush=True,
+            ),
+            f"Release {release} is live; retention cleanup failed",
+        )
     finally:
         cleanup(
             lambda: remote_python(
@@ -273,8 +286,7 @@ def main():
     root = Path(__file__).resolve().parents[1]
     if subprocess.check_output(["git", "status", "--porcelain"], cwd=root, text=True).strip():
         raise RuntimeError("Commit the release changes before deployment.")
-    if (root / ARCHIVE_INDEX).is_file():
-        verify_archive_data(project=root)
+    verify_archive_data(project=root)
     subprocess.run(["node", "scripts/build_record.mjs", "check"], cwd=root, check=True)
     record = json.loads((root / ".qa/build.json").read_text(encoding="utf8"))
     for reference, public in DATASETS.values():

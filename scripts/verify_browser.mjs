@@ -1,19 +1,15 @@
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import path from 'node:path';
-import { readFile, writeFile } from 'node:fs/promises';
 import { stripVTControlCharacters } from 'node:util';
 import { chromium } from 'playwright';
 import { browserOptions } from './browser.mjs';
 
 const remote = process.argv.includes('--remote');
-if (process.env.SHOWCASE_URL && !remote)
-  throw new Error('Release verification uses local dist. Use npm run test:site for another URL.');
 if (remote && !process.env.SHOWCASE_URL)
   throw new Error('Set SHOWCASE_URL when running npm run test:site.');
 const base = remote ? process.env.SHOWCASE_URL : 'http://127.0.0.1:4175/';
 const output = process.env.QA_DIR || '.qa/verification';
-const build = remote ? null : JSON.parse(await readFile('.qa/build.json', 'utf8'));
 let server, browser;
 try {
   if (!remote) {
@@ -111,7 +107,6 @@ try {
       );
     });
   }
-  if (build) await writeFile('.qa/browser.json', JSON.stringify(build) + '\n');
 } finally {
   await browser?.close();
   server?.kill();

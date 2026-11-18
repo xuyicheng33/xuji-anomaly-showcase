@@ -3,6 +3,22 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, readdirSync, mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
+const mode = process.argv[2];
+const recordPath = '.qa/build.json';
+if (mode === 'verify') {
+  for (const task of [
+    'check',
+    'test',
+    'test:python',
+    'verify:data',
+    'verify:research',
+    'verify:font',
+    'test:browser',
+  ]) {
+    execFileSync(process.execPath, [process.env.npm_execpath, 'run', task], { stdio: 'inherit' });
+  }
+}
+
 const digest = (file) => createHash('sha256').update(readFileSync(file)).digest('hex');
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
 const tracked = [
@@ -29,24 +45,16 @@ function walk(directory) {
   }
 }
 walk('dist');
-const recordPath = '.qa/build.json';
-const mode = process.argv[2];
 if (mode === 'verify' || mode === 'check') {
   const build = JSON.parse(readFileSync(recordPath, 'utf8'));
-  const browser = JSON.parse(readFileSync('.qa/browser.json', 'utf8'));
   if (
     build.sourceHash !== sourceHash ||
     build.commit !== commit ||
-    JSON.stringify(build.files) !== JSON.stringify(files) ||
-    browser.commit !== commit ||
-    browser.sourceHash !== sourceHash ||
-    JSON.stringify(browser.files) !== JSON.stringify(files)
+    JSON.stringify(build.files) !== JSON.stringify(files)
   ) {
-    throw new Error(
-      'Local browser verification does not match this build. Run npm run verify again.',
-    );
+    throw new Error('Build or sources changed. Run npm run verify again.');
   }
-  if (mode === 'check' && !build.verified) throw new Error('Build has not passed verification.');
+  if (mode === 'check' && !build.verified) throw new Error('Build has not passed npm run verify.');
 }
 if (mode === 'check') {
   console.log(`Verified build remains unchanged: ${commit.slice(0, 7)}.`);

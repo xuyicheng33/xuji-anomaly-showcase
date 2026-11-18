@@ -1,10 +1,9 @@
-"""Exercise recovery contents and the binding between browser checks and a build."""
+"""Exercise recovery contents and the release gate for an unverified build."""
 
 import contextlib
 import importlib.util
 import io
 import json
-import os
 import subprocess
 import sys
 import tempfile
@@ -63,7 +62,7 @@ class MaintenanceTests(unittest.TestCase):
             for name in backup.RETAINED:
                 self.assertEqual(content(f"{name}/source.txt"), b"retained experiment")
 
-    def test_release_record_requires_browser_checks_for_the_same_build(self):
+    def test_browser_record_does_not_authorize_deployment(self):
         (self.folder / "dist").mkdir()
         (self.folder / "dist/index.html").write_text("build one")
         script = ROOT / "scripts/build_record.mjs"
@@ -71,27 +70,12 @@ class MaintenanceTests(unittest.TestCase):
             ["node", str(script), "build"], cwd=self.folder, check=True, capture_output=True
         )
         record = json.loads((self.folder / ".qa/build.json").read_text())
-        browser = {**record, "files": {"index.html": "another build"}}
-        (self.folder / ".qa/browser.json").write_text(json.dumps(browser))
-        result = subprocess.run(
-            ["node", str(script), "verify"], cwd=self.folder, capture_output=True
-        )
-        self.assertNotEqual(result.returncode, 0)
-        self.assertFalse(json.loads((self.folder / ".qa/build.json").read_text())["verified"])
         (self.folder / ".qa/browser.json").write_text(json.dumps(record))
-        subprocess.run(
-            ["node", str(script), "verify"], cwd=self.folder, check=True, capture_output=True
-        )
-        self.assertTrue(json.loads((self.folder / ".qa/build.json").read_text())["verified"])
-
         result = subprocess.run(
-            ["node", str(ROOT / "scripts/verify_browser.mjs")],
-            cwd=self.folder,
-            env={**os.environ, "SHOWCASE_URL": "http://127.0.0.1:1/"},
-            capture_output=True,
+            ["node", str(script), "check"], cwd=self.folder, capture_output=True
         )
         self.assertNotEqual(result.returncode, 0)
-        self.assertIn(b"Release verification uses local dist", result.stderr)
+        self.assertIn(b"Build has not passed npm run verify", result.stderr)
 
     def test_restore_preserves_workspace_edits_and_deletions(self):
         modules = {}

@@ -48,8 +48,9 @@ def verify(reference=None, folder=None, published=None):
             for j, pred in enumerate(preds):
                 i = chunk["start"] + j
                 total[i : i + window] += pred
-                loss[i : i + window] += (raw[i : i + window] - pred.astype(float)) ** 2
-                window_scores.append(((raw[i : i + window] - pred.astype(float)) ** 2).mean(1))
+                squared = (raw[i : i + window] - pred.astype(float)) ** 2
+                loss[i : i + window] += squared
+                window_scores.append(squared.mean(1))
                 count[i : i + window] += 1
             next_start += chunk["count"]
         assert next_start == len(raw) - window + 1

@@ -13,11 +13,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from release_files import (
     hashes,
     install_config,
-    prepare_release,
     prune_releases,
     restore_config,
     rollback_config,
 )
+from release_files import (
+    prepare_release as prepare_from_inventory,
+)
+
+
+def prepare_release(previous, target, archive, expected, changed):
+    return prepare_from_inventory(previous, target, archive, expected, changed, hashes(previous))
 
 
 class ReleaseFileTests(unittest.TestCase):

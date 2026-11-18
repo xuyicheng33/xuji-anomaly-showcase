@@ -17,7 +17,7 @@
     "verify:data": "npm run data:verify && npm run verify:public && node scripts/run_python.mjs scripts/verify_runtime.py && npm run verify:windows && npm run verify:cases && node scripts/run_python.mjs scripts/export_data_cleaning.py --check && npm run verify:wind && npm run verify:results && npm run verify:exports",
     "verify:results": "node scripts/run_python.mjs scripts/verify_results.py",
     "export:data": "node scripts/run_python.mjs scripts/export_journey.py",
-    "verify": "npm run check && npm test && npm run test:python && npm run verify:data && npm run verify:research && npm run verify:font && npm run test:browser && node scripts/build_record.mjs verify",
+    "verify": "node scripts/build_record.mjs verify",
     "verify:windows": "node scripts/run_python.mjs scripts/verify_windows.py",
     "verify:cases": "node scripts/run_python.mjs scripts/verify_anomaly_cases.py",
     "verify:loading": "node scripts/verify_loading.mjs",
