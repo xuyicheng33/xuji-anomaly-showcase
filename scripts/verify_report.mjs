@@ -62,7 +62,6 @@ try {
       if (name === 'anomalies')
         await page.getByRole('button', { name: '播放构造', exact: true }).click();
       if (name === 'detection') {
-        await page.getByRole('button', { name: '查看模型结果', exact: true }).click();
         await page.getByTestId('calculated-score').waitFor();
       }
       if (name === 'playback') await page.getByRole('slider', { name: '播放进度' }).fill('150');
@@ -169,7 +168,6 @@ try {
     await page.getByRole('button', { name: model.name, exact: true }).click();
     for (const start of [0, 107, 2333]) {
       await page.getByRole('spinbutton', { name: '片段起点' }).fill(String(start + 1));
-      await page.getByRole('button', { name: /查看模型结果|重新查看结果/ }).click();
       await page.getByTestId('calculated-score').waitFor();
       const chunk = model.windows.chunks.find((c) => start >= c.start && start < c.start + c.count),
         buffer = await readFile('public/data/journey/' + chunk.file),
@@ -192,7 +190,7 @@ try {
       }
       assert.equal(
         await page.getByTestId('window-threshold').innerText(),
-        model.windowThreshold.toFixed(6),
+        model.windowThreshold.toFixed(9),
       );
       const stats = { tp: 0, fp: 0, fn: 0, tn: 0 };
       scores.forEach(
@@ -219,7 +217,6 @@ try {
     await page.getByRole('button', { name: model.name, exact: true }).click();
     for (const example of model.examples) {
       await page.getByRole('button', { name: exampleNames[example.code], exact: true }).click();
-      await page.getByRole('button', { name: /查看模型结果|重新查看结果/ }).click();
       await page.getByTestId('calculated-score').waitFor();
       assert.equal(
         await page.locator('#window-calculation').getAttribute('data-point'),
@@ -288,7 +285,6 @@ try {
     fail ? r.fulfill({ status: 503, body: 'failed' }) : r.continue(),
   );
   await go(failPage, 'detection');
-  await failPage.getByRole('button', { name: '查看模型结果', exact: true }).click();
   await failPage.getByRole('alert').waitFor();
   fail = false;
   await failPage.getByRole('button', { name: '重试', exact: true }).click();

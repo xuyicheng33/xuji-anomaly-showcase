@@ -34,6 +34,7 @@ export function ScoreCalculation({
   id = 'window-calculation',
   focusFeature = -1,
   labels,
+  stale = false,
 }: {
   data: Journey;
   model: Model;
@@ -44,6 +45,8 @@ export function ScoreCalculation({
   id?: string;
   focusFeature?: number;
   labels?: Float64Array | null;
+  /** Shown while the next window loads; results are marked only once they are current. */
+  stale?: boolean;
 }) {
   const features = data.features.length;
   const index = start + point,
@@ -177,7 +180,7 @@ export function ScoreCalculation({
         <div className="calculation-total">
           <h3>汇总全部 {features} 项</h3>
           <p>平方误差合计</p>
-          <strong className="sum-value" data-testid={id + '-sum'}>
+          <strong className="sum-value" data-testid={stale ? undefined : id + '-sum'}>
             {decimal(calculation.sum)}
           </strong>
           <div className="calculation-equation">
@@ -185,7 +188,13 @@ export function ScoreCalculation({
             <span className="equation-result">
               <span>=</span>
               <strong
-                data-testid={id === 'window-calculation' ? 'calculated-score' : id + '-score'}
+                data-testid={
+                  stale
+                    ? undefined
+                    : id === 'window-calculation'
+                      ? 'calculated-score'
+                      : id + '-score'
+                }
               >
                 {decimal(calculation.score)}
               </strong>
@@ -195,7 +204,13 @@ export function ScoreCalculation({
           <p className="calculation-comparison">
             {decimal(calculation.score)}{' '}
             <b>{calculation.score > model.windowThreshold ? '>' : '≤'}</b>{' '}
-            {decimal(model.windowThreshold)}
+            <span
+              data-testid={
+                stale ? undefined : id === 'window-calculation' ? 'window-threshold' : undefined
+              }
+            >
+              {decimal(model.windowThreshold)}
+            </span>
           </p>
           <Outcome
             label={data.labels[index]}

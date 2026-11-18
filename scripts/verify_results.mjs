@@ -43,7 +43,6 @@ async function checkDetection(page, root, data, start) {
   const model = data.models[0],
     features = data.features.length;
   await page.getByRole('spinbutton', { name: '片段起点' }).fill(String(start + 1));
-  await page.getByRole('button', { name: /查看模型结果|重新查看结果/ }).click();
   await page.getByTestId('calculated-score').waitFor();
   const point = Number(await page.locator('#window-calculation').getAttribute('data-point')) - 1;
   assert.ok(point >= start && point < start + data.window);

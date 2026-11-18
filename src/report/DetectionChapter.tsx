@@ -1,15 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { countMetrics, meanSeries, loadWindow, windowScores } from '../journey';
-import {
-  Heading,
-  Section,
-  ModelSelect,
-  FeatureSelect,
-  Confusion,
-  Rates,
-  ResultSummary,
-  colors,
-} from './ReportUI';
+import { Heading, Section, ModelSelect, FeatureSelect, Confusion, Rates, colors } from './ReportUI';
 import Curve from './Curve';
 import ReconstructionView from './ReconstructionView';
 import { useCurveData, useWindowInput } from './useCurveData';
@@ -41,11 +32,10 @@ export function DetectionChapter(p: DetectionProps) {
     features = data.features.length;
   const inputCurve = useCurveData(data.input, viewFeature);
   const [result, setResult] = useState<WindowResult | null>(null),
-    [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [point, setPoint] = useState(Math.min(24, window - 1)),
     [draftStart, setDraftStart] = useState<string | null>(null),
-    [request, setRequest] = useState<{ key: string; attempt: number } | null>(null);
+    [attempt, setAttempt] = useState(0);
   const viewKey = `${model.run}:${model.id}:${start}`;
   const maximumStart = data.times.length - window + 1;
   const invalidStart =
@@ -56,18 +46,13 @@ export function DetectionChapter(p: DetectionProps) {
       Number(draftStart) > maximumStart);
   const [validateStart, setValidateStart] = useState(false);
   const pendingExample = useRef<{ key: string; point: number } | null>(null);
-  const resultSummary = useRef<HTMLDivElement>(null);
-  const revealRequested = useRef(false);
-  const requestResult = () => {
-    revealRequested.current = true;
-    setRequest((previous) => ({ key: viewKey, attempt: (previous?.attempt ?? 0) + 1 }));
-  };
+  const retry = () => setAttempt((value) => value + 1);
   useEffect(() => {
     const saved =
       presentationMemory.detection?.key === viewKey ? presentationMemory.detection : null;
-    setResult(saved?.result ?? null);
+    // Keep the previous window on screen until the next one arrives.
+    if (saved) setResult(saved.result);
     setError('');
-    setBusy(false);
     const example = model.examples.find((item) => item.start === start);
     const selectedPoint =
       pendingExample.current?.key === viewKey ? pendingExample.current.point : null;
@@ -76,30 +61,25 @@ export function DetectionChapter(p: DetectionProps) {
       Math.min(window - 1, selectedPoint ?? saved?.point ?? (example ? example.index - start : 24)),
     );
   }, [viewKey, model.examples, start, window]);
-  // Bind each request to its model and window; ignore responses after the selection changes.
+  // Load the selected window automatically; a short pause lets a dragged slider settle first.
   useEffect(() => {
-    if (request?.key !== viewKey) {
-      setBusy(false);
-      return;
-    }
+    if (presentationMemory.detection?.key === viewKey) return;
     let active = true;
-    setBusy(true);
-    setError('');
-    loadWindow(model, start)
-      .then((r) => {
-        if (active) setResult(r);
-      })
-      .catch((e) => {
-        if (active) setError(e.message);
-      })
-      .finally(() => {
-        if (active) setBusy(false);
-      });
+    const timer = setTimeout(() => {
+      loadWindow(model, start)
+        .then((r) => {
+          if (active) setResult(r);
+        })
+        .catch((e) => {
+          if (active) setError(e.message);
+        });
+    }, 120);
     return () => {
       active = false;
+      clearTimeout(timer);
     };
-  }, [request, viewKey, start, model]);
-  const inputAsset = useWindowInput(data, start, request?.key === viewKey || !!result),
+  }, [viewKey, start, model, attempt]);
+  const inputAsset = useWindowInput(data, start, true),
     input = inputAsset.data;
   const ready = !!input && result?.start === start && result.modelId === model.id,
     resultScores = useMemo(
@@ -108,24 +88,20 @@ export function DetectionChapter(p: DetectionProps) {
     ),
     threshold = model.windowThreshold,
     labs = data.labels.slice(start, start + window),
-    stats = ready ? countMetrics(labs, resultScores, threshold) : null,
-    index = start + point;
+    stats = ready ? countMetrics(labs, resultScores, threshold) : null;
   const labelAsset = useCurveData(ready && viewFeature >= 0 ? data.labelMatrix : null, viewFeature);
   useEffect(() => {
     if (ready && result) presentationMemory.detection = { key: viewKey, result, point };
   }, [ready, result, point, viewKey]);
-  useEffect(() => {
-    if (!ready || !revealRequested.current) return;
-    revealRequested.current = false;
-    if (!matchMedia('(max-width: 680px)').matches) return;
-    const frame = requestAnimationFrame(() =>
-      resultSummary.current?.scrollIntoView({
-        block: 'start',
-        behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
-      }),
-    );
-    return () => cancelAnimationFrame(frame);
-  }, [ready, request]);
+  // The evaluation stays in place while the next window loads, then updates where it stands.
+  const currentView =
+    ready && stats
+      ? { model, input, recon: result.recon, start, labs, scores: resultScores, stats }
+      : null;
+  const lastView = useRef(currentView);
+  if (currentView) lastView.current = currentView;
+  const view = currentView ?? lastView.current,
+    stale = !currentView && !!view;
   return (
     <div className="detection-page">
       <Heading title={chapterContent.detection.title} />
@@ -206,13 +182,6 @@ export function DetectionChapter(p: DetectionProps) {
         <span>
           第 {(start + 1).toLocaleString('en-US')}—{(start + window).toLocaleString('en-US')} 点
         </span>
-        <button
-          className="primary"
-          disabled={busy || !inputCurve.data || invalidStart}
-          onClick={requestResult}
-        >
-          {busy ? '正在读取…' : ready ? '重新查看结果' : '查看模型结果'}
-        </button>
       </div>
       <p
         id="start-input-hint"
@@ -228,25 +197,6 @@ export function DetectionChapter(p: DetectionProps) {
           {data.times[start]} — {data.times[start + window - 1]}
         </span>
       </p>
-      {ready && stats && (
-        <div className="detection-summary" ref={resultSummary} aria-live="polite">
-          <ResultSummary metrics={stats} scope="独立窗口">
-            <button
-              className="inline-link"
-              onClick={() =>
-                document.getElementById('window-evaluation')?.scrollIntoView({
-                  behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
-                    ? 'instant'
-                    : 'smooth',
-                  block: 'start',
-                })
-              }
-            >
-              查看评估结果 ↓
-            </button>
-          </ResultSummary>
-        </div>
-      )}
       {inputCurve.data ? (
         <ReconstructionView
           features={data.features.length}
@@ -286,26 +236,21 @@ export function DetectionChapter(p: DetectionProps) {
       {error && (
         <div role="alert" className="inline-error">
           {error}
-          <button onClick={requestResult}>重试</button>
+          <button onClick={retry}>重试</button>
         </div>
       )}
-      {ready && stats && (
-        <div className="result-reveal">
+      {view && (
+        <div className={'detection-results' + (stale ? ' is-stale' : '')} aria-busy={stale}>
           <Curve
             title="窗口异常分数"
             lines={[
-              { name: `${features} 测点平均平方误差`, values: resultScores, color: colors.score },
+              { name: `${features} 测点平均平方误差`, values: view.scores, color: colors.score },
             ]}
-            labels={labs}
-            threshold={threshold}
-            thresholdLabel={
-              <>
-                阈值 <strong data-testid="window-threshold">{threshold.toFixed(6)}</strong>
-              </>
-            }
+            labels={view.labs}
+            threshold={view.model.windowThreshold}
             selected={point}
             height={190}
-            start={start}
+            start={view.start}
             onSelect={setPoint}
           />
           <label className="slider-label">
@@ -318,7 +263,7 @@ export function DetectionChapter(p: DetectionProps) {
               value={point}
               onChange={(e) => setPoint(+e.target.value)}
             />
-            <span>第 {index + 1} 点</span>
+            <span>第 {view.start + point + 1} 点</span>
           </label>
           <div id="window-evaluation">
             <Section
@@ -330,23 +275,24 @@ export function DetectionChapter(p: DetectionProps) {
               }
             >
               <div className="statistics">
-                <Confusion metrics={stats} />
+                <Confusion metrics={view.stats} />
                 <div className="matrix-section">
                   <div className="matrix-caption">
                     <h3>评估指标</h3>
                   </div>
-                  <Rates metrics={stats} />
+                  <Rates metrics={view.stats} />
                 </div>
               </div>
             </Section>
           </div>
           <ScoreCalculation
             data={data}
-            model={model}
-            input={input!}
-            recon={result.recon}
-            start={start}
+            model={view.model}
+            input={view.input!}
+            recon={view.recon}
+            start={view.start}
             point={point}
+            stale={stale}
             focusFeature={viewFeature}
             labels={labelAsset.data}
           />

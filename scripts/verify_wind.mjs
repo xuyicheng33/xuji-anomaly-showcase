@@ -64,7 +64,6 @@ try {
     await page.goto(windUrl + '#/detection');
     for (const start of [0, 1282, 2564]) {
       await page.getByRole('spinbutton', { name: '片段起点' }).fill(String(start + 1));
-      await page.getByRole('button', { name: /查看模型结果|重新查看结果/ }).click();
       await page.locator('.score-calculation').waitFor();
       assert.equal(await page.locator('.score-calculation tbody tr').count(), 28);
       const chunk = model.windows.chunks.find((c) => start >= c.start && start < c.start + c.count);
@@ -85,7 +84,6 @@ try {
       await page.locator('.example-picker button[aria-pressed=true]').innerText(),
       '漏检片段',
     );
-    await page.getByRole('button', { name: /查看模型结果|重新查看结果/ }).click();
     await page.getByTestId('calculated-score').waitFor();
     assert.equal(await page.locator('#window-calculation').getAttribute('data-point'), '21');
     if (device === 'mobile')
