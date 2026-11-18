@@ -331,7 +331,12 @@ export function DetectionChapter(p: DetectionProps) {
             >
               <div className="statistics">
                 <Confusion metrics={stats} />
-                <Rates metrics={stats} />
+                <div className="matrix-section">
+                  <div className="matrix-caption">
+                    <h3>评估指标</h3>
+                  </div>
+                  <Rates metrics={stats} />
+                </div>
               </div>
             </Section>
           </div>

@@ -121,9 +121,7 @@ export function PlaybackChapter(p: PlaybackProps) {
               <option value="window">选定片段</option>
             </select>
           </label>
-          <button className="text-button" onClick={() => seek(total)}>
-            查看末尾
-          </button>
+          <button onClick={() => seek(total)}>查看末尾</button>
         </div>
         <div className="playback-controls" ref={controls}>
           <div className="playback-transport" role="group" aria-label="播放控制">
@@ -197,6 +195,21 @@ export function PlaybackChapter(p: PlaybackProps) {
         onKeyUp={() => setScrubbing(false)}
         onBlur={() => setScrubbing(false)}
       />
+      <div className="replay-links">
+        <div>
+          {(['tp', 'fp', 'fn'] as const).map((code) => (
+            <button
+              key={code}
+              className="secondary"
+              disabled={nextPoints[code] === undefined}
+              title={nextPoints[code] === undefined ? '后续没有此类结果' : undefined}
+              onClick={() => jumpToOutcome(nextPoints[code]!)}
+            >
+              下一处{{ tp: '检出', fp: '误报', fn: '漏检' }[code]}
+            </button>
+          ))}
+        </div>
+      </div>
       {!count && (
         <div className="replay-intro">
           {inputAsset.data && (
@@ -294,21 +307,6 @@ export function PlaybackChapter(p: PlaybackProps) {
             </div>
             <Rates metrics={stats} />
           </div>
-        </div>
-      </div>
-      <div className="replay-links">
-        <div>
-          {(['tp', 'fp', 'fn'] as const).map((code) => (
-            <button
-              key={code}
-              className="secondary"
-              disabled={nextPoints[code] === undefined}
-              title={nextPoints[code] === undefined ? '后续没有此类结果' : undefined}
-              onClick={() => jumpToOutcome(nextPoints[code]!)}
-            >
-              下一处{{ tp: '检出', fp: '误报', fn: '漏检' }[code]}
-            </button>
-          ))}
         </div>
       </div>
       <div hidden={!count}>

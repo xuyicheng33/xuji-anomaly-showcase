@@ -303,7 +303,7 @@ export default function AnomalyChapter({
                         onClick={() => setPoint((value) => Math.max(0, value - 1))}
                         disabled={point === 0}
                       >
-                        前一点
+                        前移 1 点
                       </button>
                       <button
                         type="button"
@@ -312,7 +312,7 @@ export default function AnomalyChapter({
                         }
                         disabled={point === selected.times.length - 1}
                       >
-                        后一点
+                        后移 1 点
                       </button>
                     </span>
                   </span>

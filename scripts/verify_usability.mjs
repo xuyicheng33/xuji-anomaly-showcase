@@ -268,21 +268,21 @@ try {
       assert.match(await selected().getAttribute('aria-label'), /^第 64 点/);
       await page.getByRole('slider', { name: '案例查看时刻' }).fill('30');
       assert.match(await selected().getAttribute('aria-label'), /^第 31 点/);
-      await page.getByRole('button', { name: '前一点', exact: true }).click();
+      await page.getByRole('button', { name: '前移 1 点', exact: true }).click();
       assert.match(await selected().getAttribute('aria-label'), /^第 30 点/);
-      await page.getByRole('button', { name: '后一点', exact: true }).click();
+      await page.getByRole('button', { name: '后移 1 点', exact: true }).click();
       assert.match(await selected().getAttribute('aria-label'), /^第 31 点/);
       await page.locator('.case-label-cells button').first().click({ force: true });
       assert.equal(
-        await page.getByRole('button', { name: '前一点', exact: true }).isDisabled(),
+        await page.getByRole('button', { name: '前移 1 点', exact: true }).isDisabled(),
         true,
       );
       await page.locator('.case-label-cells button').last().click({ force: true });
       assert.equal(
-        await page.getByRole('button', { name: '后一点', exact: true }).isDisabled(),
+        await page.getByRole('button', { name: '后移 1 点', exact: true }).isDisabled(),
         true,
       );
-      const size = await page.getByRole('button', { name: '前一点', exact: true }).boundingBox();
+      const size = await page.getByRole('button', { name: '前移 1 点', exact: true }).boundingBox();
       assert.ok(size.width >= 60 && size.height >= 40);
       await page.locator('#ref-anomalies-point-labels').click();
       await page.locator('#note-anomaly-labels:focus').waitFor();

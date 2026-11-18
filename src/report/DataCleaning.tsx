@@ -89,17 +89,17 @@ export default function DataCleaning({ data }: { data: Journey }) {
             <strong>125</strong>
             <small>个测点</small>
           </div>
+          <details className="removed-sensors">
+            <summary>全缺失测点清单</summary>
+            <ul>
+              {cleaning.removedSensors.map((key) => (
+                <li key={key}>
+                  <code>{key}</code>
+                </li>
+              ))}
+            </ul>
+          </details>
         </div>
-        <details className="removed-sensors">
-          <summary>全缺失测点清单</summary>
-          <ul>
-            {cleaning.removedSensors.map((key) => (
-              <li key={key}>
-                <code>{key}</code>
-              </li>
-            ))}
-          </ul>
-        </details>
       </article>
       <article className="cleaning-step record-cleaning">
         <div className="cleaning-intro">

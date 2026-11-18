@@ -80,24 +80,29 @@
 .detection-page .result-reveal > .curve:first-child {
   margin-top: var(--space-8);
 }
-/* Window rates read as a facts row aligned with the matrix's closing rule. */
+/* Window rates stand beside the matrix as a list of equal height. */
 .detection-page .statistics {
-  align-items: end;
+  align-items: stretch;
+}
+.detection-page .statistics > .matrix-section {
+  display: flex;
+  flex-direction: column;
 }
 .detection-page .rates {
+  flex: 1;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   gap: 0;
-  padding: var(--space-6) 0;
   border-block: 1px solid var(--line);
 }
 .detection-page .rates > div {
-  gap: var(--space-2);
-  padding: 0 var(--space-6);
-}
-.detection-page .rates > div:first-child {
-  padding-left: 0;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
 }
 .detection-page .rates > div + div {
-  border-left: 1px solid var(--line);
+  border-top: 1px solid var(--line);
 }
 .detection-summary {
   scroll-margin-top: var(--space-5);

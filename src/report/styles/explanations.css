@@ -219,8 +219,7 @@
 .aggregation-summary {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-6);
+  gap: var(--space-8);
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   padding: var(--space-6) 0;
@@ -234,6 +233,7 @@
   color: var(--muted);
 }
 .aggregation-formula {
+  margin-left: auto;
   display: flex;
   gap: var(--space-3);
   align-items: center;

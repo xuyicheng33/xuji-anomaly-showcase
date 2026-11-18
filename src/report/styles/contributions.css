@@ -136,7 +136,8 @@
   margin-top: var(--space-1);
 }
 .contribution-other {
-  border-top-color: var(--line);
+  background: linear-gradient(var(--line), var(--line)) var(--space-2) 0 /
+    calc(100% - 2 * var(--space-2)) 1px no-repeat;
   border-radius: 0;
   margin-top: var(--space-2);
 }
