@@ -53,7 +53,9 @@ def version_assets(public):
 
     manifest = visit(manifest)
     manifest_path.write_text(
-        json.dumps(manifest, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf8"
+        json.dumps(manifest, ensure_ascii=False, separators=(",", ":")) + "\n",
+        encoding="utf8",
+        newline="\r\n",
     )
     for directory in sorted(
         (p for p in public.rglob("*") if p.is_dir()), key=lambda p: len(p.parts), reverse=True

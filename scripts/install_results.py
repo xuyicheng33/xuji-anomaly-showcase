@@ -4,13 +4,13 @@ import argparse
 import hashlib
 import json
 import shutil
-import tempfile
 from pathlib import Path
 
 import numpy as np
 from array_assets import write_array
 from dataset_paths import DATASETS, PROJECT, archive_root, retained_path
-from export_journey import export
+from export_journey import export_result
+from result_catalog import result_method, results, write_catalog
 
 
 def digest(path):
@@ -37,16 +37,8 @@ def install(source):
     records = json.loads((PROJECT / "data/manifest.json").read_text(encoding="utf-8-sig"))
     indexed = {record["local"]: record for record in records}
     registrations = []
-    prior_index = PROJECT / "data/results-index.json"
-    prior = (
-        json.loads(prior_index.read_text(encoding="utf8"))["results"]
-        if prior_index.is_file()
-        else []
-    )
-    catalogs = {
-        name: {"schemaVersion": 1, "dataset": name, "defaultModel": "model1", "methods": []}
-        for name in DATASETS
-    }
+    prior = results()
+    catalogs = {name: [] for name in DATASETS}
     for spec in snapshot["candidates"]:
         ident = spec["id"]
         family = "converter" if spec["family"] == "converter" else "wind"
@@ -116,79 +108,27 @@ def install(source):
         save_json(reference / "native/index.json", native_index)
         for name in ("inference.json", "comparison.json"):
             copy_exact(run / name, reference / name)
-        data = json.loads((reference / "manifest.json").read_text(encoding="utf8"))
-        model = data["models"][0]
-        cases = json.loads(
-            (reference / "cases" / f"{model['id']}.json").read_text(encoding="utf8")
-        )["cases"]
-        example = next(case for case in cases if case["kind"] == "reference")
-        peak = next(case for case in cases if case["kind"] == "peak")
-        length = next(case for case in cases if case["kind"] == "length")
-        public = DATASETS[family][1]
-        published = {}
-        with tempfile.TemporaryDirectory(prefix="xuji-result-import-") as temporary:
-            generated = Path(temporary)
-            export(reference, generated)
-            descriptors = {}
-            for original in generated.rglob("*"):
-                if not original.is_file():
-                    continue
-                checksum = digest(original)
-                relative = original.relative_to(generated).as_posix()
-                if relative in ("manifest.json", "evaluation.json"):
-                    relative = f"results-v1/{checksum}/{relative}"
-                    descriptors[original.name] = {
-                        "file": relative,
-                        "bytes": original.stat().st_size,
-                        "sha256": checksum,
-                    }
-                copy_exact(original, public / relative)
-                published[relative] = checksum
-        method = {
-            "id": model["id"],
-            "name": "STAM-AD" if spec["method"] == 1 else "SMST-AD",
+        descriptors, published = export_result(reference, DATASETS[family][1])
+        registration = {
+            "id": ident,
+            "dataset": family,
+            "method": spec["method"],
+            "reference": reference.relative_to(archive_root()).as_posix(),
             "manifest": descriptors["manifest.json"],
-            "window": data["window"],
-            "epochs": len(model["history"]),
-            "maskSpan": model["windows"]["maskPolicy"]["zeroSpan"],
-            "metrics": model["metrics"],
-            "threshold": model["threshold"],
-            "windowThreshold": model["windowThreshold"],
-            "decoder": "spatiotemporal" if ident == "wind2" else "temporal",
-            "caseGeometry": {
-                "start": example["start"],
-                "begin": example["begin"],
-                "end": example["end"],
-                "referenceStart": example["source"]["referenceStart"],
-                "peak": peak["source"]["peak"],
-                "patchSize": peak["source"]["patchSize"],
-                "sourceBegin": length["source"]["sourceBegin"],
-                "sourceEnd": length["source"]["sourceEnd"],
-                "scale": length["source"]["scale"],
-            },
+            "evaluation": descriptors["evaluation.json"],
+            "published": published,
+            "sources": original_sources,
+            "config": spec["config"],
         }
-        catalogs[family]["methods"].append(method)
-        registrations.append(
-            {
-                "id": ident,
-                "dataset": family,
-                "method": spec["method"],
-                "reference": reference.relative_to(archive_root()).as_posix(),
-                "manifest": descriptors["manifest.json"],
-                "evaluation": descriptors["evaluation.json"],
-                "published": published,
-                "sources": original_sources,
-                "config": spec["config"],
-            }
-        )
+        catalogs[family].append(result_method(reference, registration))
+        registrations.append(registration)
     save_json(PROJECT / "data/manifest.json", list(indexed.values()))
     save_json(
         PROJECT / "data/results-index.json",
         {"schemaVersion": 1, "supplementVersion": snapshot["version"], "results": registrations},
     )
-    for family, catalog in catalogs.items():
-        catalog["methods"].sort(key=lambda method: method["id"])
-        save_json(DATASETS[family][1] / "results.json", catalog)
+    for family, methods in catalogs.items():
+        write_catalog(DATASETS[family][1], family, methods)
     for old in prior:
         public = DATASETS[old["dataset"]][1].resolve()
         used = {

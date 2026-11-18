@@ -9,10 +9,11 @@ import time
 from pathlib import Path
 
 from data_versions import version_assets
-from dataset_paths import selected_paths
+from dataset_paths import DATASETS, retained_path, selected_dataset
 from evaluation_policy import POLICY, policy_for_window
 from export_runtime import export as export_runtime
 from release_validation import validate_evaluation
+from result_catalog import result_method, results, write_catalog
 
 
 def build_export(reference, public):
@@ -45,11 +46,51 @@ def build_export(reference, public):
         ],
     }
     (public / "evaluation.json").write_text(
-        json.dumps(evaluation, ensure_ascii=False, indent=2), encoding="utf8"
+        json.dumps(evaluation, ensure_ascii=False, indent=2), encoding="utf8", newline="\r\n"
     )
     export_runtime(reference, public)
     version_assets(public)
     validate_evaluation(public, reference / "manifest.json")
+
+
+def export_result(reference, public):
+    """Add one result's content-addressed files to the dataset tree."""
+    descriptors, published = {}, {}
+    with tempfile.TemporaryDirectory(prefix=".result-", dir=public.parent) as temporary:
+        generated = Path(temporary)
+        build_export(reference, generated)
+        for original in generated.rglob("*"):
+            if not original.is_file():
+                continue
+            with original.open("rb") as stream:
+                checksum = hashlib.file_digest(stream, "sha256").hexdigest()
+            relative = original.relative_to(generated).as_posix()
+            if relative in ("manifest.json", "evaluation.json"):
+                relative = f"results-v1/{checksum}/{relative}"
+                descriptors[original.name] = {
+                    "file": relative,
+                    "bytes": original.stat().st_size,
+                    "sha256": checksum,
+                }
+            target = public / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            original.replace(target)
+            published[relative] = checksum
+    return descriptors, published
+
+
+def build_dataset(reference, public, dataset):
+    build_export(reference, public)
+    methods = []
+    for result in results():
+        if result["dataset"] != dataset:
+            continue
+        retained = retained_path(result["reference"])
+        _, published = export_result(retained, public)
+        if published != result["published"]:
+            raise ValueError(f"Regenerated result differs: {result['id']}")
+        methods.append(result_method(retained, result))
+    write_catalog(public, dataset, methods)
 
 
 def replace_directory(source, target):
@@ -63,7 +104,7 @@ def replace_directory(source, target):
             time.sleep(0.1 * (attempt + 1))
 
 
-def export(reference, public):
+def export(reference, public, dataset):
     """Generate a complete sibling tree; failed exports leave the published tree intact."""
     reference, public = Path(reference).resolve(), Path(public).absolute()
     if public.is_symlink():
@@ -76,7 +117,7 @@ def export(reference, public):
     candidate, previous = temporary / "next", temporary / "previous"
     preserve = False
     try:
-        build_export(reference, candidate)
+        build_dataset(reference, candidate, dataset)
         existed = public.exists()
         if existed:
             replace_directory(public, previous)
@@ -96,4 +137,5 @@ def export(reference, public):
 
 
 if __name__ == "__main__":
-    export(*selected_paths())
+    dataset = selected_dataset()
+    export(*DATASETS[dataset], dataset)

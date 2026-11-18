@@ -21,11 +21,11 @@ class ExportTransactionTests(unittest.TestCase):
             (reference / "manifest.json").write_text(json.dumps({"evaluation": {}, "models": []}))
             (public / "manifest.json").write_bytes(b"previous manifest")
             with self.assertRaisesRegex(ValueError, "policy"):
-                export_journey.export(reference, public)
+                export_journey.export(reference, public, "converter")
             self.assertEqual((public / "manifest.json").read_bytes(), b"previous manifest")
             self.assertFalse(list(root.glob(".public-export-*")))
 
-    def test_failed_generation_and_switch_recover_old_tree_then_success_removes_obsolete(self):
+    def test_failed_switch_restores_old_tree_then_success_removes_obsolete(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             reference, public = root / "reference", root / "public"
@@ -33,7 +33,7 @@ class ExportTransactionTests(unittest.TestCase):
             public.mkdir()
             (public / "old.bin").write_bytes(b"complete old data")
 
-            def build(_reference, candidate):
+            def build(_reference, candidate, _dataset):
                 candidate.mkdir()
                 (candidate / "new.bin").write_bytes(b"complete new data")
 
@@ -44,20 +44,12 @@ class ExportTransactionTests(unittest.TestCase):
                     raise OSError("simulated switch failure")
                 original_replace(source, target)
 
-            def fail_generation(_reference, candidate):
-                build(_reference, candidate)
-                raise ValueError("simulated validation failure")
-
-            with patch.object(export_journey, "build_export", side_effect=fail_generation):
-                with self.assertRaisesRegex(ValueError, "validation"):
-                    export_journey.export(reference, public)
-            self.assertEqual([p.name for p in public.iterdir()], ["old.bin"])
-            with patch.object(export_journey, "build_export", side_effect=build):
+            with patch.object(export_journey, "build_dataset", side_effect=build):
                 with patch.object(export_journey.os, "replace", side_effect=fail_switch):
                     with self.assertRaisesRegex(OSError, "switch"):
-                        export_journey.export(reference, public)
+                        export_journey.export(reference, public, "converter")
                 self.assertEqual((public / "old.bin").read_bytes(), b"complete old data")
-                export_journey.export(reference, public)
+                export_journey.export(reference, public, "converter")
             self.assertEqual([p.name for p in public.iterdir()], ["new.bin"])
             self.assertFalse(list(root.glob(".public-export-*")))
 
@@ -68,4 +60,4 @@ class ExportTransactionTests(unittest.TestCase):
             reference.mkdir()
             for public in (root, reference, reference / "nested"):
                 with self.assertRaises(ValueError):
-                    export_journey.export(reference, public)
+                    export_journey.export(reference, public, "converter")

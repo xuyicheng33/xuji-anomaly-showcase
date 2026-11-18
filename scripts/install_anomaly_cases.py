@@ -1,6 +1,5 @@
 """Verify retained case outputs and publish the exact static display package."""
 
-import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -122,10 +121,6 @@ def install(source, target, journey):
     )
     payload = json.dumps(manifest, ensure_ascii=False, indent=2).encode("utf-8")
     (target / "manifest.json").write_bytes(payload)
-    used = {Path(a["file"]).name for a in assets.values()}
-    for p in target.glob("*.bin"):
-        if p.name not in used:
-            p.unlink()
     print(
         f"PASS {len(records)} cases × {len(data['models'])} models; sources, composition, labels and all feature errors verified"
     )
@@ -134,14 +129,3 @@ def install(source, target, journey):
         bytes=len(payload),
         sha256=hashlib.sha256(payload).hexdigest(),
     )
-
-
-if __name__ == "__main__":
-    from dataset_paths import retained_path
-
-    p = argparse.ArgumentParser()
-    p.add_argument("--source", default=retained_path("data/reference/cases"))
-    p.add_argument("--target", default="public/data/journey/anomaly-cases-v1")
-    p.add_argument("--journey", default=retained_path("data/reference/manifest.json"))
-    a = p.parse_args()
-    install(a.source, a.target, a.journey)

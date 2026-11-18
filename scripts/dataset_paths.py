@@ -55,8 +55,11 @@ def dataset_info(source):
     return {"id": "converter", "title": value or "第一批换流设备", "samplingMinutes": 60}
 
 
-def selected_paths():
+def selected_dataset():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", choices=DATASETS, default="converter")
-    args = parser.parse_args()
-    return DATASETS[args.dataset]
+    return parser.parse_args().dataset
+
+
+def selected_paths():
+    return DATASETS[selected_dataset()]

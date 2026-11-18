@@ -6,8 +6,8 @@ import json
 import numpy as np
 from array_assets import curve_columns, read_array, write_array
 from data_geometry import CONTRIBUTION_CHUNK_ROWS, INPUT_CHUNK_ROWS, geometry
-from dataset_paths import dataset_info, selected_paths
-from export_calculation_index import main as export_calculation
+from dataset_paths import dataset_info
+from export_calculation_index import export as export_calculation
 from install_anomaly_cases import install as install_cases
 
 
@@ -173,7 +173,3 @@ def export(reference, public):
         json.dumps(result, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8"
     )
     print(f"Runtime manifest: {(public / 'manifest.json').stat().st_size} bytes")
-
-
-if __name__ == "__main__":
-    export(*selected_paths())

@@ -2,18 +2,13 @@
 
 import hashlib
 import json
-from pathlib import Path
 
 import numpy as np
 from array_assets import read_array, window_scores, write_array
 from data_geometry import CALCULATION_CHUNK_ROWS, geometry
-from dataset_paths import retained_path, selected_paths
-
-ROOT = Path(__file__).resolve().parents[1] / "public/data/journey"
-REFERENCE = retained_path("data/reference")
 
 
-def main(reference=REFERENCE, public=ROOT):
+def export(reference, public):
     data = json.loads((reference / "manifest.json").read_text(encoding="utf8"))
     _, features, window = geometry(data)
     source = read_array(reference, data["input"])
@@ -64,7 +59,3 @@ def main(reference=REFERENCE, public=ROOT):
         bytes=len(payload),
         sha256=hashlib.sha256(payload).hexdigest(),
     )
-
-
-if __name__ == "__main__":
-    main(*selected_paths())
