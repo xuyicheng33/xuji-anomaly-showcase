@@ -345,6 +345,7 @@
   animation: pop-in var(--motion-normal) var(--ease-spring);
 }
 .explanation-index a {
+  text-wrap: balance;
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -829,8 +830,8 @@
   border-color: var(--blue);
 }
 .metrics-point.is-alarm {
-  background: var(--blue);
-  border-color: var(--blue);
+  background: var(--ink);
+  border-color: var(--ink);
   color: var(--on-ink);
 }
 .metrics-alarm-track .metrics-point.is-alarm {
@@ -842,14 +843,14 @@
   background: var(--data-ink);
 }
 .metrics-point.is-added {
-  background: var(--data-surface);
-  border: 1px dashed var(--blue);
-  color: var(--data-ink);
+  background: var(--surface);
+  border: 1px dashed var(--muted);
+  color: var(--ink);
 }
 .metrics-track-key i.is-added {
-  background: var(--data-surface);
-  border: 1px dashed var(--blue);
-  color: var(--data-ink);
+  background: var(--surface);
+  border: 1px dashed var(--muted);
+  color: var(--ink);
 }
 .metrics-alarm-track .metrics-point:focus-visible {
   position: relative;

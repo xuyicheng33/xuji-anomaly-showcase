@@ -5,20 +5,6 @@
 .wind-source-groups {
   margin-top: var(--space-8);
 }
-.small-step {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin-bottom: var(--space-4);
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-.small-step b {
-  font-family: var(--numeral);
-  font-size: var(--text-lg);
-  font-weight: 400;
-  line-height: 1;
-}
 .balanced-split {
   display: grid;
   grid-template-columns: minmax(0, 7fr) minmax(max-content, 3fr);
@@ -149,9 +135,6 @@
   padding: var(--space-8) 0;
   border-bottom: 1px solid var(--line);
 }
-.cleaning-intro .small-step {
-  margin-bottom: var(--space-3);
-}
 .cleaning-intro h3 {
   font-family: var(--serif);
   font-weight: 500;
@@ -193,9 +176,11 @@
   color: var(--muted);
   margin-bottom: var(--space-3);
 }
+.removed-sensors {
+  margin-top: var(--space-3);
+}
 .removed-sensors summary {
-  padding: var(--space-3) 0;
-  border-top: 1px solid var(--line);
+  padding: var(--space-2) 0;
 }
 .removed-sensors ul {
   list-style: none;

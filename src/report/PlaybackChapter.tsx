@@ -82,6 +82,21 @@ export function PlaybackChapter(p: PlaybackProps) {
     <div className="playback-page" data-curves-ready={curvesReady} data-started={count > 0}>
       <div className="playback-heading">
         <Heading title={chapterContent.playback.title} />
+        <button
+          className="inline-link"
+          aria-label="查看完整测试集评估"
+          onClick={() => {
+            setPlaying(false);
+            document.getElementById('full-evaluation')?.scrollIntoView({
+              block: 'start',
+              behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? 'instant'
+                : 'smooth',
+            });
+          }}
+        >
+          完整评估
+        </button>
       </div>
       <div className="toolbar analysis-toolbar">
         <ModelSelect data={data} value={model.id} onChange={setModel} />

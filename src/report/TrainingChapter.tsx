@@ -86,7 +86,6 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
             value={point.index}
             onChange={setFeature}
             name="训练测点"
-            label="显示测点"
           />
           <span>训练集，{length.toLocaleString('zh-CN')} 个时刻</span>
         </div>

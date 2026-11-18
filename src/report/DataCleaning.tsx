@@ -78,10 +78,6 @@ export default function DataCleaning({ data }: { data: Journey }) {
     <div className="cleaning-steps">
       <article className="cleaning-step">
         <div className="cleaning-intro">
-          <span className="small-step">
-            <b>01</b>
-            测点筛选
-          </span>
           <h3>剔除 11 个全缺失测点</h3>
           <div className="cleaning-count">
             <strong>136</strong>
@@ -103,10 +99,6 @@ export default function DataCleaning({ data }: { data: Journey }) {
       </article>
       <article className="cleaning-step record-cleaning">
         <div className="cleaning-intro">
-          <span className="small-step">
-            <b>02</b>
-            记录筛选
-          </span>
           <h3>
             剔除 768 条无效记录
             <InfoTip label="无效记录处理说明">
@@ -164,10 +156,6 @@ export default function DataCleaning({ data }: { data: Journey }) {
       </article>
       <article className="cleaning-step missing-cleaning">
         <div className="cleaning-intro">
-          <span className="small-step">
-            <b>03</b>
-            缺失填补
-          </span>
           <h3>170 个缺失值填 0</h3>
           <p>13 个测点的零散缺失填为 0，其余观测值保留。</p>
           <div className="segmented missing-switch" aria-label="缺失片段">
