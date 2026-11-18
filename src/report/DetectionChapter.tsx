@@ -101,7 +101,9 @@ export function DetectionChapter(p: DetectionProps) {
   const lastView = useRef(currentView);
   if (currentView) lastView.current = currentView;
   const view = currentView ?? lastView.current,
-    stale = !currentView && !!view;
+    stale = !currentView && !!view,
+    // Models can use different window lengths; keep the point inside the window on screen.
+    shownPoint = view ? Math.min(point, view.labs.length - 1) : point;
   return (
     <div className="detection-page">
       <Heading title={chapterContent.detection.title} />
@@ -248,7 +250,7 @@ export function DetectionChapter(p: DetectionProps) {
             ]}
             labels={view.labs}
             threshold={view.model.windowThreshold}
-            selected={point}
+            selected={shownPoint}
             height={190}
             start={view.start}
             onSelect={setPoint}
@@ -259,11 +261,11 @@ export function DetectionChapter(p: DetectionProps) {
               aria-label="片段查看时刻"
               type="range"
               min="0"
-              max={window - 1}
-              value={point}
+              max={view.labs.length - 1}
+              value={shownPoint}
               onChange={(e) => setPoint(+e.target.value)}
             />
-            <span>第 {view.start + point + 1} 点</span>
+            <span>第 {view.start + shownPoint + 1} 点</span>
           </label>
           <div id="window-evaluation">
             <Section
@@ -291,7 +293,7 @@ export function DetectionChapter(p: DetectionProps) {
             input={view.input!}
             recon={view.recon}
             start={view.start}
-            point={point}
+            point={shownPoint}
             stale={stale}
             focusFeature={viewFeature}
             labels={labelAsset.data}

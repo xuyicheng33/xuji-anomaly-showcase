@@ -234,8 +234,9 @@
   justify-content: center;
   overflow: hidden;
   transition:
-    flex-grow var(--motion-slow) var(--ease-in-out),
-    opacity var(--motion-normal) var(--ease-out);
+    flex-grow var(--motion-slow) var(--ease-spring),
+    min-width var(--motion-slow) var(--ease-spring),
+    opacity var(--motion-fast) var(--ease-out) var(--motion-slow);
   font-size: var(--text-2xs);
 }
 .record-strip .valid {
@@ -256,12 +257,22 @@
 .record-strip span {
   white-space: nowrap;
 }
+.record-strip {
+  transition: gap var(--motion-slow) var(--ease-spring);
+}
+.result-strip.is-trimmed > div {
+  transition:
+    flex-grow var(--motion-slow) var(--ease-spring) var(--motion-fast),
+    min-width var(--motion-slow) var(--ease-spring) var(--motion-fast),
+    opacity var(--motion-fast) var(--ease-out);
+}
 .result-strip.is-trimmed .invalid {
   min-width: 0;
   opacity: 0;
 }
 .result-strip.is-trimmed {
   gap: 0;
+  transition-delay: var(--motion-fast);
 }
 .result-strip.is-trimmed > div:nth-child(3) {
   border-left: 2px dashed var(--paper);

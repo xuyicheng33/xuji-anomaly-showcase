@@ -98,9 +98,15 @@
 .curve {
   position: relative;
 }
-/* Lines are drawn left to right the first time a chart appears. */
+/* Lines draw left to right while a chapter enters; later swaps fade in place. */
 .curve-lines {
-  animation: curve-draw 900ms var(--ease-out) backwards;
+  animation: fade-in var(--motion-normal) var(--ease-out);
+}
+.chapter-stage:not([data-entered]) .curve-lines {
+  animation: curve-draw 600ms var(--ease-spring) backwards;
+}
+.playback-page .curve-lines {
+  animation: none;
 }
 @keyframes curve-draw {
   from {

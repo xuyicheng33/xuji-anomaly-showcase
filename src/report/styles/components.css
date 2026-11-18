@@ -139,8 +139,8 @@
 }
 .nav-indicator.is-ready {
   transition:
-    left var(--motion-normal) var(--ease-out),
-    width var(--motion-normal) var(--ease-out),
+    left var(--motion-move) var(--ease-spring),
+    width var(--motion-move) var(--ease-spring),
     opacity var(--motion-fast) var(--ease-out);
 }
 .menu-scrim {
@@ -154,16 +154,16 @@
   outline: none;
 }
 /* Entering a chapter: heading first, then content in reading order. */
-:is(.chapter-stage > :first-child, .explanation-page) > * {
+:is(.chapter-stage:not([data-entered]) > :first-child, .explanation-page) > * {
   animation: rise-in var(--motion-slow) var(--ease-spring) backwards;
 }
-:is(.chapter-stage > :first-child, .explanation-page) > :nth-child(2) {
+:is(.chapter-stage:not([data-entered]) > :first-child, .explanation-page) > :nth-child(2) {
   animation-delay: 60ms;
 }
-:is(.chapter-stage > :first-child, .explanation-page) > :nth-child(3) {
+:is(.chapter-stage:not([data-entered]) > :first-child, .explanation-page) > :nth-child(3) {
   animation-delay: 120ms;
 }
-:is(.chapter-stage > :first-child, .explanation-page) > :nth-child(n + 4) {
+:is(.chapter-stage:not([data-entered]) > :first-child, .explanation-page) > :nth-child(n + 4) {
   animation-delay: 180ms;
 }
 .value-tick {
@@ -363,6 +363,10 @@ details > summary::before {
 details[open] > summary::before {
   transform: rotate(0);
 }
+details[open] > :not(summary) {
+  --rise-from: -4px;
+  animation: rise-in var(--motion-normal) var(--ease-spring);
+}
 .segmented {
   position: relative;
   isolation: isolate;
@@ -427,10 +431,10 @@ details[open] > summary::before {
 }
 .selection-indicator.is-ready {
   transition:
-    left var(--motion-normal) var(--ease-out),
-    top var(--motion-normal) var(--ease-out),
-    width var(--motion-normal) var(--ease-out),
-    height var(--motion-normal) var(--ease-out),
+    left var(--motion-move) var(--ease-spring),
+    top var(--motion-move) var(--ease-spring),
+    width var(--motion-move) var(--ease-spring),
+    height var(--motion-move) var(--ease-spring),
     opacity var(--motion-fast) var(--ease-out);
 }
 .field {
@@ -613,6 +617,9 @@ details[open] > summary::before {
   font-size: var(--text-xs);
   line-height: 1.8;
 }
+.state-panel[role='status'] {
+  animation: fade-in var(--motion-normal) var(--ease-out) 300ms backwards;
+}
 .state-panel {
   padding: var(--space-20) 0;
   min-height: 50vh;
@@ -642,7 +649,9 @@ details[open] > summary::before {
       transparent 70%
     )
     0 0 / 200% 100% var(--skeleton);
-  animation: skeleton-shimmer 1.6s linear infinite;
+  animation:
+    fade-in var(--motion-normal) var(--ease-out) 300ms backwards,
+    skeleton-shimmer 1.6s linear infinite;
 }
 .chapter-loading[role='status'] {
   min-height: 280px;
@@ -1102,7 +1111,6 @@ details[open] > summary::before {
 }
 .footnote a {
   position: relative;
-  display: inline-block;
   padding-inline: 2px;
   color: var(--blue);
   text-decoration: underline;

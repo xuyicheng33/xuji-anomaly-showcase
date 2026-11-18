@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
 /** Selection keys prevent an old response from replacing the current view. */
-export function useResource<T>(key: string | null, read: () => Promise<T>) {
+export function useResource<T>(
+  key: string | null,
+  read: () => Promise<T>,
+  /** Keep showing the last data while the next key loads, so the view updates in place. */
+  keepPrevious = false,
+) {
   const [state, setState] = useState<{ key: string | null; data: T | null; error: string }>({
     key: null,
     data: null,
@@ -11,7 +16,11 @@ export function useResource<T>(key: string | null, read: () => Promise<T>) {
   useEffect(() => {
     if (key === null) return;
     let active = true;
-    setState((previous) => ({ key, data: previous.key === key ? previous.data : null, error: '' }));
+    setState((previous) => ({
+      key,
+      data: previous.key === key || keepPrevious ? previous.data : null,
+      error: '',
+    }));
     read().then(
       (data) => {
         if (active) setState({ key, data, error: '' });
@@ -23,10 +32,10 @@ export function useResource<T>(key: string | null, read: () => Promise<T>) {
     return () => {
       active = false;
     };
-  }, [key, read, attempt]);
+  }, [key, read, attempt, keepPrevious]);
   const retry = useCallback(() => setAttempt((n) => n + 1), []);
   return {
-    data: key !== null && state.key === key ? state.data : null,
+    data: key !== null && (state.key === key || keepPrevious) ? state.data : null,
     error: key !== null && state.key === key ? state.error : '',
     retry,
   };
