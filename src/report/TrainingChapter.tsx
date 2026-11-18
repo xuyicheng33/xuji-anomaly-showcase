@@ -241,22 +241,6 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
           </div>
         </div>
       </Section>
-      <Section title="参数优化流程">
-        <ol className="training-steps steps">
-          {[
-            ['输入窗口', '输入数据、标签与掩码'],
-            ['序列重建', '根据当前参数生成重建结果'],
-            ['损失计算', '计算重建差异及模型约束'],
-            ['参数更新', '通过反向传播优化模型参数'],
-          ].map(([title, text], i) => (
-            <li key={title}>
-              <span>0{i + 1}</span>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </li>
-          ))}
-        </ol>
-      </Section>
     </div>
   );
 }

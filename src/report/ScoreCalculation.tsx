@@ -5,7 +5,6 @@ import { Footnote } from './notes';
 import { Outcome } from './ReportUI';
 import Fraction from './Fraction';
 import { featureName } from './featureNames';
-import { modelName } from './modelNames';
 
 function pointCalculation(
   input: Float64Array,
@@ -74,15 +73,12 @@ export function ScoreCalculation({
             异常分数计算
             <Footnote note="score-calculation" reference={'ref-' + id} />
           </h2>
-          <p>
-            {modelName(model)}，第 {start + 1}—{start + data.window} 点窗口，窗口内第 {point + 1} /{' '}
-            {data.window} 个时刻
+          <p className="calculation-time">
+            {data.times[index]}，第 {index + 1} 点，窗口内第 {point + 1} / {data.window}{' '}
+            个时刻，归一化数值
           </p>
         </div>
       </div>
-      <p className="calculation-time">
-        {data.times[index]}，第 {index + 1} 点，归一化数值
-      </p>
       <div className="calculation-layout">
         <div className="calculation-details" data-expanded={expanded}>
           <button
@@ -92,7 +88,6 @@ export function ScoreCalculation({
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? '收起测点明细' : `查看全部 ${features} 个测点明细`}
-            <span aria-hidden="true">{expanded ? '−' : '+'}</span>
           </button>
           <div id={id + '-rows'} className="calculation-rows">
             <h3>逐项相减，再平方</h3>
@@ -168,7 +163,6 @@ export function ScoreCalculation({
                 </tbody>
               </table>
             </div>
-            <p className="calculation-help">平方误差 =（输入 − 重建）²。</p>
             {focusFeature >= 0 && labels && (
               <p className="calculation-help">
                 当前测点标签：第 {index + 1} 点，{featureName(data.features[focusFeature])}，
@@ -208,7 +202,6 @@ export function ScoreCalculation({
             score={calculation.score}
             model={{ ...model, threshold: model.windowThreshold }}
           />
-          <p className="calculation-scope">当前时刻整体判定，综合全部 {features} 个测点。</p>
         </div>
       </div>
     </section>

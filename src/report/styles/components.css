@@ -1103,27 +1103,37 @@ details[open] > summary::before {
 .nowrap {
   white-space: nowrap;
 }
+/* Note references: the explanation entry number, set as a superscript beside its heading. */
 .footnote {
-  font-family: var(--sans);
-  font-size: var(--text-xs);
-  line-height: 1.5;
+  margin-left: var(--space-1);
+  font-family: var(--numeral);
+  font-size: clamp(var(--text-xs), 0.45em, var(--text-lg));
   font-weight: 400;
-  vertical-align: middle;
-  display: inline-flex;
-  margin-left: var(--space-2);
+  line-height: 0;
+  vertical-align: super;
+  white-space: nowrap;
 }
 .footnote a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding-block: var(--space-1);
+  position: relative;
+  display: inline-block;
+  padding-inline: 2px;
   color: var(--blue);
-  border-bottom: 1px solid transparent;
-  white-space: nowrap;
-  transition: border-color var(--motion-fast) var(--ease-out);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color var(--motion-fast) var(--ease-out);
+}
+.footnote a::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 28px;
+  height: 28px;
+  translate: -50% -50%;
 }
 .footnote a:hover {
-  border-color: var(--link-line);
+  text-decoration-color: currentColor;
 }
 .info-trigger {
   color: var(--muted);
@@ -1163,6 +1173,7 @@ details[open] > summary::before {
   display: inline-flex;
   vertical-align: middle;
   flex-shrink: 0;
+  margin-block: -6px;
 }
 .info-tooltip {
   position: fixed;

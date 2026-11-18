@@ -3,8 +3,7 @@ import { type CSSProperties } from 'react';
 import { availableMethods } from '../resultCatalog';
 import { Heading, Section, ModelSelect } from './ReportUI';
 import { Footnote } from './notes';
-import { modelName, modelNames } from './modelNames';
-import InfoTip from './InfoTip';
+import { modelName } from './modelNames';
 import { chapterContent } from './navigation';
 
 const windDescription = {
@@ -114,12 +113,7 @@ export function ModelsChapter({
       )}
       <div className="model-intro">
         {methods.length === 1 && <span>{modelName(model)}</span>}
-        <h2>
-          {description.title}
-          <InfoTip label="模型设计说明">
-            {modelNames[multi ? 'model2' : 'model1'].full}。{description.intro}
-          </InfoTip>
-        </h2>
+        <h2>{description.title}</h2>
       </div>
       <section aria-label="从输入到异常评分">
         <div className="model-flow steps" aria-label="模型处理流程">
@@ -155,13 +149,6 @@ export function ModelsChapter({
 
       <Section title="时间掩码与上下文学习">
         <div className="model-explanation">
-          <div>
-            <p>
-              通过频域分析观察各测点的周期性，再对 Global
-              分支输入中的连续片段进行遮蔽，促使模型利用其余可见时刻建立时间关联。Local
-              分支保留完整输入，补充细节。
-            </p>
-          </div>
           <div
             className="mask-example"
             aria-label={`${data.window} 点窗口中连续 ${maskSpan} 点遮蔽`}
@@ -192,8 +179,7 @@ export function ModelsChapter({
           </div>
           <div>
             <span>异常位置</span>
-            <h3>形成足够的重建差异</h3>
-            <p>误差低于设定边界时推动其增大；达到边界后停止继续推动，使训练保持稳定。</p>
+            <h3>增大重建误差，至设定边界为止</h3>
           </div>
         </div>
       </Section>

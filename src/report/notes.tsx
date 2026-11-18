@@ -64,7 +64,7 @@ export function Footnote({ note, reference }: { note: NoteId; reference?: string
   const id = reference ?? `ref-${item.page}-${note}`;
   const params = new URLSearchParams({ note });
   return (
-    <span className="footnote">
+    <sup className="footnote">
       <a
         id={id}
         href={'#/metrics?' + params}
@@ -75,9 +75,9 @@ export function Footnote({ note, reference }: { note: NoteId; reference?: string
           pausePresentation();
         }}
       >
-        <span aria-hidden="true">{noteLinks[note]} →</span>
+        <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
       </a>
-    </span>
+    </sup>
   );
 }
 export function NoteSection({ id, children }: { id: NoteId; children: ReactNode }) {
@@ -97,7 +97,7 @@ export function NoteSection({ id, children }: { id: NoteId; children: ReactNode 
         <h2 id={'note-title-' + id}>{item.title}</h2>
         {origin && target === id && (
           <a className="inline-link note-return" href={origin.hash}>
-            返回引用处 ↑
+            ← 返回引用处
           </a>
         )}
       </div>

@@ -64,6 +64,7 @@
 }
 .contribution-list {
   min-width: 0;
+  margin-inline: calc(-1 * var(--space-2));
 }
 .contribution-list.is-long {
   max-height: 610px;
@@ -80,7 +81,7 @@
 }
 .contribution-row {
   display: grid;
-  grid-template-columns: minmax(145px, 230px) minmax(65px, 1fr) 92px 12px;
+  grid-template-columns: minmax(145px, 230px) minmax(65px, 1fr) 92px;
   align-items: center;
   gap: var(--space-4);
   width: 100%;
@@ -91,24 +92,12 @@
   min-height: 69px;
 }
 .has-detail .contribution-row {
-  grid-template-columns: minmax(120px, 180px) minmax(40px, 1fr) 86px 12px;
+  grid-template-columns: minmax(120px, 180px) minmax(40px, 1fr) 86px;
   gap: var(--space-2);
 }
 .contribution-row[aria-pressed='true'] {
   border-color: var(--blue);
   background: var(--selected);
-}
-.contribution-chevron {
-  width: 12px;
-  height: 12px;
-  fill: none;
-  stroke: var(--muted);
-  stroke-width: 1.5;
-  transition: transform var(--motion-fast) var(--ease-out);
-}
-.contribution-row[aria-pressed='true'] .contribution-chevron {
-  transform: rotate(90deg);
-  stroke: var(--blue);
 }
 .contribution-name {
   font-size: var(--text-xs);
@@ -153,6 +142,9 @@
 }
 .contribution-other .contribution-track i {
   background: var(--chart-muted);
+}
+.contribution-other .contribution-name small {
+  color: var(--blue);
 }
 .contribution-empty {
   min-height: 110px;
@@ -363,7 +355,7 @@
   }
   .contribution-row,
   .has-detail .contribution-row {
-    grid-template-columns: minmax(0, 1fr) 90px 12px;
+    grid-template-columns: minmax(0, 1fr) 90px;
     gap: var(--space-1) var(--space-3);
     padding: var(--space-2) var(--space-1);
   }
@@ -382,10 +374,6 @@
   }
   .contribution-value {
     grid-column: 2;
-    grid-row: 1;
-  }
-  .contribution-chevron {
-    grid-column: 3;
     grid-row: 1;
   }
   .contribution-list.is-long {

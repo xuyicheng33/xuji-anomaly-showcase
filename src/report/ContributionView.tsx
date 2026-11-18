@@ -3,7 +3,6 @@ import { rankContributions } from '../contributions';
 import { loadAsset, type Journey, type Model } from '../journey';
 import { useDataAsset } from './useDataAsset';
 import SensorWindowDetail from './SensorWindowDetail';
-import { Footnote } from './notes';
 import { featureName, matchesFeature } from './featureNames';
 
 export default function ContributionView({
@@ -107,10 +106,7 @@ export default function ContributionView({
     >
       <div className="contribution-heading">
         <div>
-          <h2 id="contribution-title">
-            测点对分数的贡献
-            <Footnote note="window-aggregation" reference="ref-contribution-overview" />
-          </h2>
+          <h2 id="contribution-title">测点对分数的贡献</h2>
           <p className="quiet">
             {index === null ? '准备开始' : `第 ${index + 1} 点 · ${data.times[index]}`}
           </p>
@@ -143,12 +139,6 @@ export default function ContributionView({
           <div className="contribution-summary">
             <span>
               前 {rows.length} 个合计 <strong>{percentage(shown).toFixed(2)}%</strong>
-              {features > rows.length && (
-                <>
-                  ，其余 {features - rows.length} 个{' '}
-                  <strong>{percentage(remainder).toFixed(2)}%</strong>
-                </>
-              )}
             </span>
             <span>
               贡献合计 <strong data-testid="contribution-total">{ranked.total.toFixed(9)}</strong>
@@ -199,9 +189,6 @@ export default function ContributionView({
                     {row.contribution.toFixed(6)}
                     <small>{percentage(row.contribution).toFixed(2)}%</small>
                   </span>
-                  <svg className="contribution-chevron" viewBox="0 0 12 12" aria-hidden="true">
-                    <path d="m4 2 4 4-4 4" />
-                  </svg>
                 </button>
               ))}
               {visibleRows.length === 0 && (

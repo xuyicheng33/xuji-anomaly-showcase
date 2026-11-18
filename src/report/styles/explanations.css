@@ -541,13 +541,30 @@
   .calculation-details-toggle {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-3);
     width: 100%;
     min-height: var(--control-height);
+    padding: var(--space-2) 0;
+    border: 0;
+    border-block: 1px solid var(--line);
+    border-radius: 0;
     text-align: left;
     font-size: var(--text-sm);
     color: var(--blue);
+  }
+  .calculation-details-toggle:hover:not(:disabled) {
+    background: none;
+  }
+  .calculation-details-toggle::before {
+    content: '';
+    flex: 0 0 12px;
+    height: 12px;
+    background-image: var(--disclosure-arrow);
+    rotate: -90deg;
+    transition: rotate var(--motion-fast) var(--ease-out);
+  }
+  .calculation-details-toggle[aria-expanded='true']::before {
+    rotate: 0deg;
   }
   .calculation-details[data-expanded='false'] .calculation-rows {
     display: none;
