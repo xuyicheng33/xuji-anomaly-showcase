@@ -106,11 +106,14 @@ try {
       await input.blur();
       await page.locator('#start-input-hint[role=alert]').waitFor();
       assert.equal(await input.inputValue(), '99999');
-      assert.equal(await page.locator('.selection-panel .primary').isDisabled(), true);
+      assert.equal(
+        await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).inputValue(),
+        '107',
+        'An invalid start keeps the shown window',
+      );
       await input.fill('108');
       await input.press('Enter');
       assert.equal(await input.getAttribute('aria-invalid'), null);
-      await page.locator('.selection-panel .primary').click();
       await page.getByTestId('calculated-score').waitFor();
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.screenshot({ path: `${out}/${dataset}-${width}-detection.png`, fullPage: true });
