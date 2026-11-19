@@ -85,21 +85,15 @@
 .dataset-options a {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
   min-height: 44px;
   padding: var(--space-2);
   font-size: var(--text-sm);
   border-radius: var(--radius-small);
 }
-.dataset-options a span {
-  color: var(--muted);
-  font-size: var(--text-xs);
-  white-space: nowrap;
-}
 .dataset-options a[aria-current] {
   background: var(--selected);
-  color: var(--blue);
+  color: var(--ink);
+  font-weight: 500;
 }
 .dataset-options a:hover {
   background: var(--control-hover);
@@ -1101,6 +1095,77 @@ details[open] > :not(summary) {
   overflow-wrap: anywhere;
   color: var(--muted);
 }
+/* Displayed equations: centred, equals signs aligned from row to row. */
+.equation {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, auto) auto;
+  justify-content: center;
+  align-items: center;
+  column-gap: var(--space-3);
+  row-gap: var(--space-4);
+  max-width: 100%;
+  color: var(--ink);
+  font-family: var(--metric);
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+}
+.equation.is-math {
+  font-family: var(--math);
+}
+.equation-row {
+  display: contents;
+}
+.equation-lhs {
+  grid-column: 1;
+  justify-self: end;
+  white-space: nowrap;
+}
+.equation-sign {
+  grid-column: 2;
+  color: var(--muted);
+}
+.equation-expr {
+  grid-column: 3;
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25em;
+  min-width: 0;
+}
+.equation .equation-result {
+  grid-column: 4;
+  color: var(--muted);
+}
+.equation .equation-result strong {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 500;
+  color: var(--data);
+}
+.equation sub,
+.equation sup {
+  font-size: 0.66em;
+}
+.equation .math-fraction {
+  font-family: inherit;
+}
+.math-op {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin: 0 0.12em;
+  line-height: 1.05;
+}
+.math-op-symbol {
+  font-size: 1.4em;
+  line-height: 1;
+}
+.math-limit {
+  font-size: 0.6em;
+}
 .note-anchor,
 .nowrap {
   white-space: nowrap;
@@ -1259,6 +1324,11 @@ details[open] > :not(summary) {
   }
 }
 @media (max-width: 680px) {
+  .equation {
+    column-gap: var(--space-2);
+    row-gap: var(--space-3);
+    font-size: var(--text-md);
+  }
   .chapter-navigation {
     gap: var(--space-5);
     padding-top: var(--space-4);

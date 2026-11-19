@@ -1,16 +1,7 @@
 /* Explanations styles. Edit existing rules and breakpoints here. */
 .reference-equation {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  flex-wrap: wrap;
-  color: var(--data);
+  margin-block: var(--space-5);
   font-size: var(--text-lg);
-}
-.reference-equation .math-fraction {
-  flex-shrink: 1;
-  min-width: 0;
-  max-width: 100%;
 }
 .reference-equation .math-fraction > span {
   white-space: normal;

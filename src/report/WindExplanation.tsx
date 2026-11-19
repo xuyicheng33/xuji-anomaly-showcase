@@ -6,6 +6,7 @@ import { NoteSection } from './notes';
 import ExplanationIndex from './ExplanationIndex';
 import WindSource from './WindSource';
 import Fraction from './Fraction';
+import { Equation } from './MathText';
 import { caseGeometry } from '../resultCatalog';
 import { modelName } from './modelNames';
 
@@ -47,14 +48,21 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         </p>
       </NoteSection>
       <NoteSection id="normalization">
-        <p>每个字段独立使用训练段的最小值和最大值，测试段沿用相同参数。</p>
-        <p className="reference-equation">
-          <span>归一化值 =</span>
-          <Fraction
-            numerator="原始值 − 训练最小值"
-            denominator="训练最大值 − 训练最小值 + 0.0001"
-          />
-        </p>
+        <p>每个字段独立使用训练集的最小值和最大值，训练集与测试集都按这组参数归一化。</p>
+        <Equation
+          className="reference-equation"
+          rows={[
+            {
+              lhs: '归一化值',
+              expr: (
+                <Fraction
+                  numerator="原始值 − 训练集最小值"
+                  denominator="训练集最大值 − 训练集最小值 + 0.0001"
+                />
+              ),
+            },
+          ]}
+        />
         <p>
           不截断超出 0—1 的数值。清洁测试集有 {data.dataset?.outsideUnitRange}{' '}
           个越界单元格；这些仍是原实验输入，页面保留其实际数值。
@@ -146,10 +154,15 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           独立窗口内，每个时刻逐项计算“输入 − 当前窗口重建”的平方，28
           项取平均，得到该时刻的异常分数。分数严格大于阈值时判定为异常。
         </p>
-        <p className="reference-equation">
-          <span>时刻分数 =</span>
-          <Fraction numerator="28 个字段的平方误差合计" denominator="28" />
-        </p>
+        <Equation
+          className="reference-equation"
+          rows={[
+            {
+              lhs: '时刻分数',
+              expr: <Fraction numerator="28 个字段的平方误差合计" denominator="28" />,
+            },
+          ]}
+        />
         <p>
           “全部测点平均”只改变上方曲线的显示，分数始终由各字段平方误差汇总；不能用两条平均曲线的差代替。
         </p>

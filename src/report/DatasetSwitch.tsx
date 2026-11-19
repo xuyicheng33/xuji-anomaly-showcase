@@ -5,7 +5,7 @@ export default function DatasetSwitch({ page }: { page: string }) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
-  const [placement, setPlacement] = useState({ left: 0, top: 0, width: 196 });
+  const [placement, setPlacement] = useState({ left: 0, top: 0, width: 160 });
   useLayoutEffect(() => {
     if (!open) return;
     const update = () => {
@@ -14,7 +14,7 @@ export default function DatasetSwitch({ page }: { page: string }) {
       const viewport = window.visualViewport;
       const edge = viewport?.offsetLeft ?? 0;
       const available = viewport?.width ?? innerWidth;
-      const width = Math.min(196 * zoom, available - 24);
+      const width = Math.min(160 * zoom, available - 24);
       setPlacement({
         left: Math.max(edge + 12, Math.min(box.left, edge + available - width - 12)) / zoom,
         top: (box.bottom + 8) / zoom,
@@ -77,7 +77,6 @@ export default function DatasetSwitch({ page }: { page: string }) {
               onClick={() => setOpen(false)}
             >
               {datasetConfigs[id].title}
-              <span>{datasetId === id ? '当前' : '切换 →'}</span>
             </a>
           ))}
         </nav>

@@ -8,6 +8,7 @@ import Curve from './Curve';
 import { Footnote } from './notes';
 import DataCleaning from './DataCleaning';
 import Fraction from './Fraction';
+import { Equation } from './MathText';
 import cleaning from './cleaning-data.json';
 import FeaturePicker from './FeaturePicker';
 import { featureName } from './featureNames';
@@ -179,12 +180,13 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
             <p className="reading-copy">
               {wind ? (
                 <>
-                  沿用训练集的最小值和最大值，分母加 0.0001，保留超出{' '}
-                  <span className="nowrap">0—1</span> 的测试值。
+                  用训练集各测点的最小值、最大值，对训练集和测试集做最小–最大归一化；分母加
+                  0.0001，测试集保留超出 <span className="nowrap">0—1</span> 的值。
                 </>
               ) : (
                 <>
-                  沿用训练集的最小值和最大值，将测试值截断至 <span className="nowrap">0—1</span>。
+                  用训练集各测点的最小值、最大值，对训练集和测试集做最小–最大归一化；测试集超出{' '}
+                  <span className="nowrap">0—1</span> 的值截断。
                 </>
               )}
             </p>
@@ -199,11 +201,11 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
             <>
               <div className="normalization-facts facts">
                 <div>
-                  <span>训练段最小值</span>
+                  <span>训练集最小值</span>
                   <strong>{number(norm.min, 4)}</strong>
                 </div>
                 <div>
-                  <span>训练段最大值</span>
+                  <span>训练集最大值</span>
                   <strong>{number(norm.max, 4)}</strong>
                 </div>
                 <div>
@@ -248,31 +250,52 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
                   {sampleIndex + 1} / {norm.values.length}
                 </span>
               </label>
-              <div className="normalization-equation" aria-label="当前样本归一化计算">
-                {norm.min === norm.max ? (
-                  <span className="constant-equation">
-                    训练段为常量 {number(norm.min, 4)}，归一化取值
-                  </span>
-                ) : (
-                  <Fraction
-                    numerator={
-                      <>
-                        {operand(norm.values[sampleIndex])} − {operand(norm.min)}
-                      </>
-                    }
-                    denominator={
-                      <>
-                        {operand(norm.max)} − {operand(norm.min)}
-                        {wind ? ' + 0.0001' : ''}
-                      </>
-                    }
-                  />
-                )}
-                <span className="equation-result">
-                  <span>=</span>
-                  <strong>{norm.normalized[sampleIndex].toFixed(4)}</strong>
-                </span>
-              </div>
+              {norm.min === norm.max ? (
+                <Equation
+                  className="normalization-equation"
+                  label="当前样本归一化计算"
+                  rows={[
+                    {
+                      expr: <>训练集恒为 {number(norm.min, 4)}，x′</>,
+                      result: norm.normalized[sampleIndex].toFixed(4),
+                    },
+                  ]}
+                />
+              ) : (
+                <Equation
+                  className="normalization-equation"
+                  label="当前样本归一化计算"
+                  rows={[
+                    {
+                      lhs: <>x′</>,
+                      expr: (
+                        <Fraction
+                          numerator="x − min"
+                          denominator={wind ? 'max − min + 0.0001' : 'max − min'}
+                        />
+                      ),
+                    },
+                    {
+                      expr: (
+                        <Fraction
+                          numerator={
+                            <>
+                              {operand(norm.values[sampleIndex])} − {operand(norm.min)}
+                            </>
+                          }
+                          denominator={
+                            <>
+                              {operand(norm.max)} − {operand(norm.min)}
+                              {wind ? ' + 0.0001' : ''}
+                            </>
+                          }
+                        />
+                      ),
+                      result: norm.normalized[sampleIndex].toFixed(4),
+                    },
+                  ]}
+                />
+              )}
             </>
           ) : trainAsset.error || timeline.error ? (
             <div className="chapter-loading" role="alert">

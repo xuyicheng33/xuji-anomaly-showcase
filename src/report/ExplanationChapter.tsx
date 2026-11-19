@@ -8,6 +8,7 @@ import ExplanationIndex from './ExplanationIndex';
 import ModelDifferences from './ModelDifferences';
 import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
+import { Equation } from './MathText';
 import cleaning from './cleaning-data.json';
 import { featureName } from './featureNames';
 import { availableMethods, caseGeometry } from '../resultCatalog';
@@ -93,10 +94,20 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
       </NoteSection>
       <NoteSection id="normalization">
-        <p className="reference-equation">
-          <span>归一化值 =</span>
-          <Fraction numerator="原值 − 训练最小值" denominator="训练最大值 − 训练最小值" />
-        </p>
+        <Equation
+          className="reference-equation"
+          rows={[
+            {
+              lhs: '归一化值',
+              expr: (
+                <Fraction
+                  numerator="原值 − 训练集最小值"
+                  denominator="训练集最大值 − 训练集最小值"
+                />
+              ),
+            },
+          ]}
+        />
         <p>
           每个测点单独计算训练集的最大值和最小值，训练集与测试集都使用这两个值归一化。结果低于 0
           时取 0，高于 1 时取 1；训练集数值始终相同的测点取 0。
@@ -267,10 +278,15 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           输入来自送入模型的测试数据，其中包含构造异常。上方曲线随测点选择变化，下方异常分数始终汇总全部
           125 个测点。
         </p>
-        <p className="reference-equation">
-          <span>该时刻的窗口分数 =</span>
-          <Fraction numerator="125 个测点的平方误差合计" denominator="125" />
-        </p>
+        <Equation
+          className="reference-equation"
+          rows={[
+            {
+              lhs: '该时刻的窗口分数',
+              expr: <Fraction numerator="125 个测点的平方误差合计" denominator="125" />,
+            },
+          ]}
+        />
         <p>
           对同一时刻的各测点分别计算“（输入 − 该窗口重建）²”，将 125 项相加再除以 125。一个窗口有
           {window} 个时刻，因此得到 {window} 个分数。
@@ -334,10 +350,15 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           <li>重建曲线：同一测点、同一时刻的各窗口重建值取平均。</li>
           <li>异常分数：每个窗口先平均该时刻 125 项平方误差，再平均各窗口的分数。</li>
         </ul>
-        <p className="reference-equation">
-          <span>回放时刻分数 =</span>
-          <Fraction numerator="覆盖该时刻的窗口分数合计" denominator="实际覆盖窗口数" />
-        </p>
+        <Equation
+          className="reference-equation"
+          rows={[
+            {
+              lhs: '回放时刻分数',
+              expr: <Fraction numerator="覆盖该时刻的窗口分数合计" denominator="实际覆盖窗口数" />,
+            },
+          ]}
+        />
         <p>
           例如第 {exampleCount} 点出现在第 1—{window} 点至第 {exampleCount}—
           {exampleCount + window - 1}

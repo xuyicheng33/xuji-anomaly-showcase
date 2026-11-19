@@ -58,6 +58,7 @@
     -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI Variable Text', 'Segoe UI',
     'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
   --numeral: 'Instrument Serif', var(--serif);
+  --math: 'Cambria Math', 'STIX Two Math', 'Times New Roman', var(--serif);
   --metric:
     -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI Variable Display', 'Segoe UI',
     'PingFang SC', 'Microsoft YaHei', sans-serif;

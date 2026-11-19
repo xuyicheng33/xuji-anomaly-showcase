@@ -163,7 +163,10 @@ export function TrainingChapter({ data, model, setModel, feature, setFeature }: 
         </div>
         <div className="window-rules facts">
           <div>
-            <span>训练集时刻</span>
+            <span>
+              模型输入时刻
+              <Footnote note="data-split" reference="ref-training-input-times" />
+            </span>
             <strong>{length.toLocaleString('zh-CN')}</strong>
           </div>
           <div>
