@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { errorColor, sensorWindows, type SensorWindow } from '../contributions';
 import type { Journey, Model } from '../journey';
 import { useCurveData } from './useCurveData';
-import { curveDomain, curveTick } from './curveScale';
+import { curveDomain, tickLabel, valueTicks } from './curveScale';
 import { colors } from './ReportUI';
 import { Footnote } from './notes';
 import { featureName } from './featureNames';
@@ -25,6 +25,7 @@ function WindowPlot({
   const height = 190;
   const x = (i: number) => left + (i / Math.max(1, rows.length - 1)) * (width - left - right);
   const y = (v: number) => 20 + ((high - v) / (high - low)) * (height - 52);
+  const ticks = valueTicks(low, high);
   return (
     <div className="window-reconstruction-plot" ref={container}>
       <div className="legend">
@@ -42,11 +43,11 @@ function WindowPlot({
         role="group"
         aria-label="同一输入值与各覆盖窗口的重建值"
       >
-        {[low, (low + high) / 2, high].map((value) => (
+        {ticks.values.map((value) => (
           <g key={value}>
             <line x1={left} x2={width - right} y1={y(value)} y2={y(value)} stroke="var(--line)" />
             <text x={left - 10} y={y(value) + 4} textAnchor="end">
-              {curveTick(value, high - low)}
+              {tickLabel(value, ticks.step)}
             </text>
           </g>
         ))}

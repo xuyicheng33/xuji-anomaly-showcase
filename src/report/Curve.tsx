@@ -1,6 +1,6 @@
 import { useId, useState, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { colors } from './ReportUI';
-import { curveDomain, curveTick } from './curveScale';
+import { curveDomain, indexTicks, tickLabel, valueTicks } from './curveScale';
 import { Footnote, type NoteId } from './notes';
 import { usePlaybackScale, type PlaybackScale } from './usePlaybackScale';
 import { usePlotGeometry } from './usePlotGeometry';
@@ -69,6 +69,15 @@ export default function Curve({
     .filter((v): v is number => v !== null && Number.isFinite(v));
   if (threshold !== undefined) nums.push(threshold);
   const [lo, hi] = usePlaybackScale(curveDomain(nums, range), playbackScale, reveal === 0);
+  const yTicks = valueTicks(lo, hi);
+  const tickCount = width < 240 ? 1 : width < 420 ? 2 : width < (times ? 800 : 550) ? 3 : 5;
+  // Times keep evenly spread positions; point and epoch numbers use round steps.
+  const xTicks =
+    tickCount === 1
+      ? [Math.round((n - 1) / 2)]
+      : times
+        ? Array.from({ length: tickCount }, (_, k) => Math.round((k / (tickCount - 1)) * (n - 1)))
+        : indexTicks(start + 1, start + n, tickCount).map((label) => label - start - 1);
   const x = (i: number) => L + (i / (n - 1)) * (W - L - R),
     y = (v: number) => T + ((hi - v) / (hi - lo || 1)) * (height - T - B);
   const path = (vs: (number | null)[]) => {
@@ -181,17 +190,11 @@ export default function Curve({
             <rect x={L} y={T} width={W - L - R} height={height - T - B} />
           </clipPath>
         </defs>
-        {[0, 0.5, 1].map((t) => (
-          <g key={t}>
-            <line
-              x1={L}
-              x2={W - R}
-              y1={y(lo + (hi - lo) * t)}
-              y2={y(lo + (hi - lo) * t)}
-              stroke="var(--line)"
-            />
-            <text x={L - 10} y={y(lo + (hi - lo) * t) + 4} textAnchor="end">
-              {curveTick(lo + (hi - lo) * t, hi - lo)}
+        {yTicks.values.map((value) => (
+          <g key={value}>
+            <line x1={L} x2={W - R} y1={y(value)} y2={y(value)} stroke="var(--line)" />
+            <text x={L - 10} y={y(value) + 4} textAnchor="end">
+              {tickLabel(value, yTicks.step)}
             </text>
           </g>
         ))}
@@ -295,26 +298,24 @@ export default function Curve({
             </g>
           )}
         </g>
-        {(width < 240
-          ? [0.5]
-          : width < 420
-            ? [0, 1]
-            : width < (times ? 800 : 550)
-              ? [0, 0.5, 1]
-              : [0, 0.25, 0.5, 0.75, 1]
-        ).map((t) => {
-          const i = Math.round(t * (n - 1));
-          return (
-            <text
-              key={t}
-              x={width < 240 ? W / 2 : x(i)}
-              y={height - 7}
-              textAnchor={t === 0 ? 'start' : t === 1 ? 'end' : 'middle'}
-            >
-              {times?.[i]?.slice(5) || '第 ' + (start + i + 1) + ' ' + axisUnit}
-            </text>
-          );
-        })}
+        {xTicks.map((i, k) => (
+          <text
+            key={i}
+            x={width < 240 ? W / 2 : x(i)}
+            y={height - 7}
+            textAnchor={
+              width < 240
+                ? 'middle'
+                : k === 0
+                  ? 'start'
+                  : k === xTicks.length - 1
+                    ? 'end'
+                    : 'middle'
+            }
+          >
+            {times?.[i]?.slice(5) || '第 ' + (start + i + 1) + ' ' + axisUnit}
+          </text>
+        ))}
       </svg>
       {hover !== null && hoverValues.length > 0 && (
         <div

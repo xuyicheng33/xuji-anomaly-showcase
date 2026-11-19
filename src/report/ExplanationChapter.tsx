@@ -123,6 +123,31 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           1 的数量。
         </p>
       </NoteSection>
+      <NoteSection id="anomaly-cases">
+        <p>
+          八个案例由“替换、混合”两种插入方式与四种素材组合而成。每个案例从清洁测试数据中取 {window}
+          个时刻，在 32 个选定测点上构造异常，由对应模型重建和评估。
+        </p>
+        <ul>
+          <li>参考片段：取一段真实记录，先反转时间顺序，再用“1 − 数值”翻转幅值。</li>
+          <li>均匀值：在目标区间内写入同一个值，形成平台。</li>
+          <li>
+            峰值噪声：改变第 {g.peak + 1} 点的数值，将第 {g.peak - g.patchSize + 1}—
+            {g.peak + g.patchSize + 1} 点标为异常。
+          </li>
+          <li>
+            长度调整：将第 {g.sourceBegin + 1}—{g.sourceEnd} 点的 {sampleCount} 个值各重复 {g.scale}
+            次，写入第 {g.begin + 1}—{g.end} 点。
+          </li>
+        </ul>
+        <p>
+          替换直接写入素材值；混合按“原值 ×（1 − 权重）+ 素材 × 权重”计算，中央权重为
+          0.7，两端逐渐降低。异常标签标记构造区间，也包括规则指定的边缘或邻近时刻。
+        </p>
+        <p>
+          报告的四类构造为软替换、均匀替换、峰值噪声和长度调整。案例将素材生成与写入方式分开，使用固定区间展示替换和混合的过程；整条测试序列使用实验中生成的固定异常及标签。
+        </p>
+      </NoteSection>
       <NoteSection id="anomaly-labels">
         <p>本页的实验异常标签包含人为构造异常，标签来源为实验记录，用于检测效果评估。</p>
         <p>
@@ -178,31 +203,6 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           0，标签仍覆盖选定区间。
         </p>
       </NoteSection>
-      <NoteSection id="anomaly-cases">
-        <p>
-          八个案例由“替换、混合”两种插入方式与四种素材组合而成。每个案例从清洁测试数据中取 {window}
-          个时刻，在 32 个选定测点上构造异常，由对应模型重建和评估。
-        </p>
-        <ul>
-          <li>参考片段：取一段真实记录，先反转时间顺序，再用“1 − 数值”翻转幅值。</li>
-          <li>均匀值：在目标区间内写入同一个值，形成平台。</li>
-          <li>
-            峰值噪声：改变第 {g.peak + 1} 点的数值，将第 {g.peak - g.patchSize + 1}—
-            {g.peak + g.patchSize + 1} 点标为异常。
-          </li>
-          <li>
-            长度调整：将第 {g.sourceBegin + 1}—{g.sourceEnd} 点的 {sampleCount} 个值各重复 {g.scale}
-            次，写入第 {g.begin + 1}—{g.end} 点。
-          </li>
-        </ul>
-        <p>
-          替换直接写入素材值；混合按“原值 ×（1 − 权重）+ 素材 × 权重”计算，中央权重为
-          0.7，两端逐渐降低。异常标签标记构造区间，也包括规则指定的边缘或邻近时刻。
-        </p>
-        <p>
-          报告的四类构造为软替换、均匀替换、峰值噪声和长度调整。案例将素材生成与写入方式分开，使用固定区间展示替换和混合的过程；整条测试序列使用实验中生成的固定异常及标签。
-        </p>
-      </NoteSection>
       <NoteSection id="length-sampling">
         <p>
           拉长是重复采样：A、B、C → A、A、A、B、B、B、C、C、C。当前案例将 {sampleCount} 点变成{' '}
@@ -213,6 +213,9 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           缩短是间隔采样：A、B、C、D、E、F、G、H → A、C、E、G，将原来的 8 点变化压缩到 4 个位置。
         </p>
         <p>案例在选定区间和测点内完成采样；实验函数的长度调整还会移动窗口内的前后片段。</p>
+      </NoteSection>
+      <NoteSection id="model-design">
+        <ModelDifferences data={data} />
       </NoteSection>
       <NoteSection id="window-settings">
         <p>
@@ -234,6 +237,25 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           {data.methodResults && '本版使用保留权重、固定并保存的掩码导出，没有重新训练。'}
         </p>
         <p>训练序列开头以首个观测值补齐窗口；片段检测使用连续 {window} 个观测值组成的完整窗口。</p>
+      </NoteSection>
+      <NoteSection id="training-mse">
+        <p>
+          训练重建误差（MSE）记录每轮的重建误差变化。每个批次先计算各窗口、各时刻、各测点的平方误差均值，再将这一轮各批次的均值取平均，得到曲线上的一个数值。
+        </p>
+        <p>
+          参数更新使用有界异常损失：正常时刻减小重建误差，异常时刻将误差推动到设定边界；SMST-AD
+          同时计算空间正则。训练曲线读取保存的 MSE 记录，学习率读取对应轮次的优化器记录。
+        </p>
+      </NoteSection>
+      <NoteSection id="point-metrics">
+        <p>
+          每个时刻比较实验标签与模型报警，得到检出、漏检、误报或正确正常。回放中的混淆矩阵和逐点 F1
+          累计统计已经查看的时刻。
+        </p>
+        <p>
+          区间点调整用于评估计分：一个实验异常标签区间内只要出现一次报警，就将整段计为检出；整段都没有报警则计为漏检。图中的报警点按模型实际判断显示。
+        </p>
+        <MetricsChapter data={data} />
       </NoteSection>
       <NoteSection id="score-calculation">
         <p>
@@ -287,16 +309,6 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
         <p>报告第 4.4 节采用 POT 阈值：用训练集异常分数拟合尾部分布，再确定测试时的报警阈值。</p>
       </NoteSection>
-      <NoteSection id="point-metrics">
-        <p>
-          每个时刻比较实验标签与模型报警，得到检出、漏检、误报或正确正常。回放中的混淆矩阵和逐点 F1
-          累计统计已经查看的时刻。
-        </p>
-        <p>
-          区间点调整用于评估计分：一个实验异常标签区间内只要出现一次报警，就将整段计为检出；整段都没有报警则计为漏检。图中的报警点按模型实际判断显示。
-        </p>
-        <MetricsChapter data={data} />
-      </NoteSection>
       <NoteSection id="window-aggregation">
         <h3>测点贡献与窗口明细</h3>
         <p>
@@ -342,18 +354,6 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
         <p>
           回放读取整条测试序列保存的结果，覆盖窗口包括当前时刻之后的观测。“完整测试集”和“选定片段”两种范围共用这份结果与回放阈值。
-        </p>
-      </NoteSection>
-      <NoteSection id="model-design">
-        <ModelDifferences data={data} />
-      </NoteSection>
-      <NoteSection id="training-mse">
-        <p>
-          训练重建误差（MSE）记录每轮的重建误差变化。每个批次先计算各窗口、各时刻、各测点的平方误差均值，再将这一轮各批次的均值取平均，得到曲线上的一个数值。
-        </p>
-        <p>
-          参数更新使用有界异常损失：正常时刻减小重建误差，异常时刻将误差推动到设定边界；SMST-AD
-          同时计算空间正则。训练曲线读取保存的 MSE 记录，学习率读取对应轮次的优化器记录。
         </p>
       </NoteSection>
     </div>

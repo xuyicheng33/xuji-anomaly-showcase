@@ -75,16 +75,6 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           原实验没有完整保留每次构造的参考片段和随机操作记录。因此，构造章节使用独立保存的八个可追溯案例，展示同类操作；这些案例不会替换原测试集。
         </p>
       </NoteSection>
-      <NoteSection id="anomaly-labels">
-        <p>
-          标签矩阵为 {data.times.length.toLocaleString('en-US')} × {data.features.length}，共有{' '}
-          {data.dataset?.labelCells.toLocaleString('zh-CN')} 个标记单元格。每行只要有一个字段为
-          1，该时刻就标为异常；合计 {data.summary.anomalousRows} 个异常时刻。
-        </p>
-        <p>
-          指标使用保留标签。构造前后的数值变化范围与原标签范围不完全一致，不能把所有变化位置重新标为异常；也不能把未标记位置解释为已经确认的正常工况。
-        </p>
-      </NoteSection>
       <NoteSection id="anomaly-cases">
         <p>
           四类素材为参考片段、均匀值、峰值噪声和长度调整，分别用直接替换与 0.7
@@ -100,11 +90,28 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         </p>
         <p>案例复用本版独立窗口阈值，不针对八个案例另外挑选阈值。</p>
       </NoteSection>
+      <NoteSection id="anomaly-labels">
+        <p>
+          标签矩阵为 {data.times.length.toLocaleString('en-US')} × {data.features.length}，共有{' '}
+          {data.dataset?.labelCells.toLocaleString('zh-CN')} 个标记单元格。每行只要有一个字段为
+          1，该时刻就标为异常；合计 {data.summary.anomalousRows} 个异常时刻。
+        </p>
+        <p>
+          指标使用保留标签。构造前后的数值变化范围与原标签范围不完全一致，不能把所有变化位置重新标为异常；也不能把未标记位置解释为已经确认的正常工况。
+        </p>
+      </NoteSection>
       <NoteSection id="length-sampling">
         <p>
           从目标区间取 {sampleCount} 个点，每点重复 {g.scale} 次形成 {span}
           点。仅改选定区间和字段，后续时间位置保持不变。每点的实际时间间隔仍为 15
           分钟，动画速度只影响展示速度。
+        </p>
+      </NoteSection>
+      <NoteSection id="model-design">
+        <ModelDifferences data={data} />
+        <p>
+          检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32 保存，误差与聚合按
+          float64 计算。网站内各处使用同一份结果与精度。
         </p>
       </NoteSection>
       <NoteSection id="window-settings">
@@ -123,6 +130,16 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         <p>
           新导出使用全部完整窗口，按源时刻正确聚合。它是可重复核查的展示版本，不声称还原当年随机掩码和前缀填充下的逐次推理。
         </p>
+      </NoteSection>
+      <NoteSection id="training-mse">
+        <p>
+          训练曲线读取检查点中的 {model.history.length} 条 MSE 与学习率记录，轮次显示为 1—
+          {model.history.length}。MSE
+          是记录的重建误差，训练优化还含有界异常损失等约束，二者不是同一个数。移动训练窗口只改变显示，不会触发训练。
+        </p>
+      </NoteSection>
+      <NoteSection id="point-metrics">
+        <MetricsChapter data={data} />
       </NoteSection>
       <NoteSection id="score-calculation">
         <p>
@@ -148,9 +165,6 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           {model.threshold.toPrecision(12)}。两种评分方式分别评估，因此阈值分别保存。
         </p>
       </NoteSection>
-      <NoteSection id="point-metrics">
-        <MetricsChapter data={data} />
-      </NoteSection>
       <NoteSection id="window-aggregation">
         <p>
           同一时刻可被多个窗口覆盖。重建曲线取这些窗口的重建均值；评分取这些窗口的平方误差均值，再对
@@ -166,20 +180,6 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         </p>
         <p>
           连续回放使用完整测试序列，其中覆盖窗口可能包含当前时刻之后的观测。播放按钮逐步展示已保存结果，不在浏览器中训练或在线预测。
-        </p>
-      </NoteSection>
-      <NoteSection id="model-design">
-        <ModelDifferences data={data} />
-        <p>
-          检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32 保存，误差与聚合按
-          float64 计算。网站内各处使用同一份结果与精度。
-        </p>
-      </NoteSection>
-      <NoteSection id="training-mse">
-        <p>
-          训练曲线读取检查点中的 {model.history.length} 条 MSE 与学习率记录，轮次显示为 1—
-          {model.history.length}。MSE
-          是记录的重建误差，训练优化还含有界异常损失等约束，二者不是同一个数。移动训练窗口只改变显示，不会触发训练。
         </p>
       </NoteSection>
     </div>
