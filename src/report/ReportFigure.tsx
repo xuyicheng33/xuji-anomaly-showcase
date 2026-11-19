@@ -1,35 +1,43 @@
 import { useRef } from 'react';
-import figure41 from './figures/report-figure-4-1.png';
-import figure43 from './figures/report-figure-4-3.png';
-import type { Architecture } from './modelArchitecture';
+import { figures, type Architecture } from './modelArchitecture';
 
-const figures: Record<Architecture, { src: string; number: string; caption: string }> = {
-  stam: {
-    src: figure41,
-    number: '图 4-1',
-    caption: '基于自适应掩码和有界异常损失的自监督 TCN-Transformer 异常检测框架',
-  },
-  smst: {
-    src: figure43,
-    number: '图 4-3',
-    caption: '多尺度时空依赖建模的自监督 TCN-Transformer 异常检测框架',
-  },
-};
-
-/** The report's original figure, kept small beside the redrawn one and opened full size on demand. */
-export function ReportFigure({ architecture }: { architecture: Architecture }) {
+/**
+ * Opens the report figure at full size. On wide screens it is a small corner button over the
+ * interactive figure; on narrow screens the whole figure is the button.
+ */
+export function FigureZoom({
+  architecture,
+  variant,
+}: {
+  architecture: Architecture;
+  variant: 'corner' | 'overview';
+}) {
   const dialog = useRef<HTMLDialogElement>(null);
   const figure = figures[architecture];
   return (
     <>
-      <button
-        className="report-figure-thumb"
-        onClick={() => dialog.current?.showModal()}
-        aria-label={`查看报告${figure.number}原图`}
-      >
-        <img src={figure.src} alt="" />
-        <span>报告{figure.number}</span>
-      </button>
+      {variant === 'corner' ? (
+        <button
+          type="button"
+          className="figure-zoom"
+          onClick={() => dialog.current?.showModal()}
+          aria-label={`放大查看报告${figure.number}`}
+          title="放大查看"
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true">
+            <path d="M9.5 2.5h4v4M6.5 13.5h-4v-4M13.5 2.5 9 7M2.5 13.5 7 9" />
+          </svg>
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="figure-overview"
+          onClick={() => dialog.current?.showModal()}
+          aria-label={`放大查看报告${figure.number}`}
+        >
+          <img src={figure.src} alt="" width={figure.width} height={figure.height} />
+        </button>
+      )}
       <dialog
         ref={dialog}
         className="report-figure-dialog"

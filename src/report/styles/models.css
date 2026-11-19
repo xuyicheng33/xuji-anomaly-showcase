@@ -1,4 +1,4 @@
-/* Model structure: the report figure redrawn, its module explanations and visuals. */
+/* Model structure: the report figure with clickable modules, their explanations and visuals. */
 .models-chapter {
   container-type: inline-size;
 }
@@ -6,10 +6,6 @@
   margin-bottom: 0;
 }
 .model-intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-8);
   margin: var(--space-6) 0 var(--space-5);
 }
 .model-intro h2 {
@@ -39,37 +35,6 @@
   background: var(--ink);
 }
 
-/* The report's original figure, small beside the redrawn one. */
-.report-figure-thumb {
-  display: grid;
-  grid-template-columns: 112px auto;
-  align-items: center;
-  gap: var(--space-3);
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  color: var(--muted);
-  font-size: var(--text-xs);
-  text-align: left;
-}
-.report-figure-thumb:hover:not(:disabled) {
-  background: none;
-  color: var(--blue);
-}
-.report-figure-thumb img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: contain;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-small);
-  transition: box-shadow var(--motion-fast) var(--ease-out);
-}
-.report-figure-thumb:hover img {
-  box-shadow: var(--shadow-raised);
-}
 .report-figure-dialog {
   width: min(1240px, calc(100vw - 2 * var(--space-6)));
   max-height: calc(100dvh - 2 * var(--space-6));
@@ -110,153 +75,159 @@
   color: var(--muted);
 }
 
-/* Redrawn structure. */
+/* The report figure. Its white ground sits on a white card; modules are clickable areas. */
 .model-architecture {
   animation: fade-in var(--motion-normal) var(--ease-out);
 }
-.model-figure {
+.image-figure-frame {
+  position: relative;
+  padding: var(--space-4);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+}
+.image-figure {
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.image-figure img {
   display: block;
   width: 100%;
   height: auto;
-  overflow: visible;
-  font-family: var(--sans);
-  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
-.fig-region rect {
-  fill: var(--surface-soft);
-}
-.fig-region text,
-.fig-note {
-  fill: var(--muted);
-  font-size: 13px;
-}
-.fig-edge {
-  fill: none;
-  stroke: var(--chart-muted);
-  stroke-width: 1.25;
-}
-.fig-edge.is-clay {
-  stroke: var(--clay-border);
-}
-.fig-arrow {
-  fill: var(--chart-muted);
-}
-.fig-arrow.is-clay {
-  fill: var(--clay-border);
-}
-.fig-node {
-  cursor: pointer;
-  outline: none;
-  transition: opacity var(--motion-normal) var(--ease-out);
-}
-.fig-box {
-  fill: var(--paper);
-  stroke: var(--control-border);
-  stroke-width: 1;
-  transition:
-    fill var(--motion-fast) var(--ease-out),
-    stroke var(--motion-fast) var(--ease-out);
-}
-.fig-node.is-gray .fig-box {
-  fill: var(--surface-soft);
-}
-.fig-node.is-clay .fig-box,
-.fig-node.shape-stack .fig-box {
-  stroke-dasharray: 5 4;
-}
-.fig-node.is-clay .fig-box {
-  stroke: var(--clay-border);
-}
-.fig-node.shape-concat .fig-box {
-  stroke: var(--ink);
-  stroke-width: 1.5;
-}
-.fig-node:hover .fig-box {
-  fill: var(--control-hover);
-}
-.fig-node:focus-visible .fig-box {
-  stroke: var(--blue);
-  stroke-width: 2;
-}
-.fig-node.is-selected .fig-box {
-  fill: var(--selected);
-  stroke: var(--blue);
-  stroke-width: 1.5;
-}
-.fig-node:active .fig-box {
-  fill: var(--selected);
-}
-.fig-node.is-off {
-  opacity: 0.32;
-  cursor: default;
-}
-.fig-node.is-off .fig-box {
-  fill: var(--paper);
-}
-.fig-node.is-hidden {
-  opacity: 0;
+.image-figure-shade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
-.fig-label,
-.fig-title,
-.fig-stack text {
-  fill: var(--ink);
-  font-size: 14px;
-}
-.fig-title {
-  font-weight: 500;
-}
-.fig-stack text {
-  font-size: 13px;
-}
-.fig-math {
-  fill: var(--ink);
-  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', var(--serif);
-  font-size: 14px;
-}
-.fig-math .small {
-  font-size: 10px;
-}
-.fig-fraction {
-  stroke: var(--ink);
-  stroke-width: 0.8;
-}
-.fig-concat-cross {
-  stroke: var(--ink);
-  stroke-width: 1.5;
-}
-.fig-glyph path {
-  fill: none;
-  stroke: var(--chart-input);
-  stroke-width: 1.25;
-}
-.fig-glyph path:nth-child(2) {
-  stroke: var(--chart-recon);
-}
-.fig-glyph path:nth-child(3) {
-  stroke: var(--chart-muted);
-}
-.fig-glyph .fig-glyph-frame {
-  fill: none;
-  stroke: var(--line-strong);
-  stroke-width: 1;
-}
-.fig-glyph-anomaly {
-  fill: var(--clay-surface-strong);
-}
-.fig-stack-card {
+.figure-dim {
   fill: var(--paper);
-  stroke: var(--control-border);
+  opacity: 0.62;
+  animation: figure-dim var(--motion-normal) var(--ease-out);
 }
-.fig-stack-item {
-  fill: var(--surface-soft);
-  stroke: var(--line-strong);
+@keyframes figure-dim {
+  from {
+    opacity: 0;
+  }
 }
-.fig-stack-link {
-  stroke: var(--chart-muted);
+.figure-veil {
+  fill: var(--paper);
+  opacity: 0.78;
 }
-.fig-added {
-  fill: var(--ink);
+.figure-hotspot {
+  position: absolute;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  cursor: pointer;
+  transition: box-shadow var(--motion-fast) var(--ease-out);
+}
+.figure-hotspot:hover:not(:disabled),
+.figure-hotspot:active:not(:disabled) {
+  background: transparent;
+  transform: none;
+  box-shadow: 0 0 0 2px var(--link-line);
+}
+.figure-hotspot:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.figure-hotspot.is-active,
+.figure-hotspot.is-active:hover:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--blue);
+}
+.figure-hotspot.is-branch {
+  border-radius: var(--radius-panel);
+}
+.figure-hotspot:disabled {
+  cursor: default;
+}
+/* Test stage: the threshold judgement takes the loss's place in the figure. */
+.figure-hotspot.is-pot {
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  border: 1.5px dashed var(--clay-border);
+}
+.figure-hotspot.is-pot:hover:not(:disabled) {
+  background: var(--paper);
+}
+.figure-pot {
+  display: grid;
+  gap: var(--space-1);
+  text-align: center;
+  font-size: clamp(11px, 1.1cqi, var(--text-sm));
+  color: var(--muted);
+}
+.figure-pot strong {
+  font-family: var(--serif);
+  font-size: clamp(12px, 1.4cqi, var(--text-lg));
+  font-weight: 500;
+  color: var(--ink);
+}
+.figure-added {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.figure-zoom {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fffe;
+  color: var(--muted);
+}
+.figure-zoom:hover:not(:disabled) {
+  color: var(--blue);
+  background: #fff;
+}
+.figure-zoom svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+/* Narrow screens: the figure is an overview that opens full size. */
+.figure-overview {
+  display: block;
+  width: 100%;
+  padding: var(--space-3);
+  margin-bottom: var(--space-5);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+}
+.figure-overview:hover:not(:disabled),
+.figure-overview:active:not(:disabled) {
+  background: #fff;
+  transform: none;
+  box-shadow: var(--shadow-raised);
+}
+.figure-overview img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 /* Narrow screens: grouped rows of the same modules. */
@@ -405,24 +376,11 @@
   margin-top: var(--space-3);
 }
 .model-panel-text .model-formula {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-  margin-top: var(--space-4);
-  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', var(--serif);
+  margin-top: var(--space-5);
   font-size: var(--text-lg);
-  line-height: 1.5;
 }
 .model-panel-text .model-formula + .model-formula {
-  margin-top: var(--space-2);
-}
-.model-formula .math-fraction {
-  font-family: inherit;
-}
-.model-formula sub,
-.model-formula sup {
-  font-size: 0.68em;
+  margin-top: var(--space-3);
 }
 .model-lead {
   margin-top: var(--space-3);
@@ -558,6 +516,18 @@
 .visual-cursor {
   stroke: var(--chart-cursor);
 }
+.visual-line-label,
+.visual-note {
+  font-size: 11px;
+  fill: var(--ink);
+}
+.visual-note {
+  fill: var(--muted);
+}
+.visual-line-label.is-anomaly,
+.visual-note.is-anomaly {
+  fill: var(--clay-ink);
+}
 .visual-label {
   fill: var(--muted);
   font-size: 12px;
@@ -596,33 +566,10 @@
   color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
-.loss-visual-readout {
-  display: grid;
-  gap: var(--space-2);
-  margin: var(--space-4) 0 0;
-}
-.loss-visual-readout > div {
-  display: grid;
-  grid-template-columns: 6em minmax(0, 1fr);
-  gap: var(--space-3);
-  font-size: var(--text-sm);
-}
-.loss-visual-readout dt {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--muted);
-}
-.loss-visual-readout dd {
-  margin: 0;
-}
 .legend-swatch {
   width: 14px;
   height: 2px;
   background: var(--chart-input);
-}
-.legend-swatch.is-anomaly {
-  background: var(--chart-threshold);
 }
 .legend-swatch.is-numerator,
 .legend-swatch.is-denominator {
@@ -653,7 +600,7 @@
 }
 .regularizer-axis {
   display: grid;
-  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', var(--serif);
+  font-family: var(--math);
   font-size: var(--text-xs);
   color: var(--muted);
   font-style: normal;
@@ -692,17 +639,8 @@
 }
 
 @container (max-width: 760px) {
-  .model-intro {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-4);
-    margin: var(--space-6) 0 var(--space-5);
-  }
   .model-intro h2 {
     font-size: var(--text-lg);
-  }
-  .report-figure-thumb {
-    grid-template-columns: 96px minmax(0, 1fr);
-    width: 100%;
   }
   .model-panel-grid.has-visual {
     grid-template-columns: minmax(0, 1fr);
@@ -744,6 +682,7 @@
 @media (prefers-reduced-motion: reduce) {
   .model-architecture,
   .model-panel-body,
+  .figure-dim,
   .report-figure-dialog[open] {
     animation: none;
   }

@@ -5,9 +5,9 @@ import { Heading, ModelSelect, SelectionIndicator } from './ReportUI';
 import { Footnote } from './notes';
 import { chapterContent } from './navigation';
 import { fullNames, type Architecture, type Phase } from './modelArchitecture';
-import { ArchitectureFigure, FlowFigure, ModulePanel, figureNodes } from './ModelFigure';
+import { FlowFigure, ImageFigure, ModulePanel, figureNodes } from './ModelFigure';
 import { usePresentationState } from './usePresentationState';
-import { ReportFigure } from './ReportFigure';
+import { FigureZoom } from './ReportFigure';
 
 /** Below this width the figure's labels drop under 11px, so the grouped rows take over. */
 const FIGURE_WIDTH = 920;
@@ -123,16 +123,21 @@ export function ModelsChapter({
             </p>
           )}
         </div>
-        <ReportFigure architecture={architecture} />
       </div>
       <div className="model-architecture" key={'figure-' + architecture}>
         {wide ? (
           <>
-            <ArchitectureFigure {...props} />
+            <div className="image-figure-frame">
+              <ImageFigure {...props} />
+              <FigureZoom architecture={architecture} variant="corner" />
+            </div>
             {panel}
           </>
         ) : (
-          <FlowFigure {...props} panel={panel} />
+          <>
+            <FigureZoom architecture={architecture} variant="overview" />
+            <FlowFigure {...props} panel={panel} />
+          </>
         )}
       </div>
     </div>

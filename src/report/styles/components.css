@@ -1125,10 +1125,6 @@ details[open] > :not(summary) {
 .equation-expr {
   grid-column: 3;
   justify-self: start;
-  display: inline-flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.25em;
   min-width: 0;
 }
 .equation .equation-result {
@@ -1150,6 +1146,10 @@ details[open] > :not(summary) {
   max-width: 100%;
   font-family: inherit;
 }
+.equation .math-fraction > span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
 .math-op {
   display: inline-flex;
   flex-direction: column;
@@ -1164,6 +1164,15 @@ details[open] > :not(summary) {
 }
 .math-limit {
   font-size: 0.6em;
+}
+/* A sub- and superscript on the same symbol stack instead of running side by side. */
+.math-scripts {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+  margin-left: 0.05em;
+  font-size: 0.62em;
+  line-height: 1.05;
 }
 .note-anchor,
 .nowrap {

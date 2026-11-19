@@ -1,5 +1,6 @@
 import type { Journey } from '../journey';
 import ModelDifferences from './ModelDifferences';
+import ModelComponentNotes from './ModelComponentNotes';
 import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
 import { NoteSection } from './notes';
@@ -117,6 +118,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="model-design">
         <ModelDifferences data={data} />
+        <ModelComponentNotes data={data} />
         <p>
           检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32 保存，误差与聚合按
           float64 计算。网站内各处使用同一份结果与精度。

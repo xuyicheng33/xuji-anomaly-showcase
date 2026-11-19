@@ -1,4 +1,4 @@
-import { useId, type KeyboardEvent, type ReactNode } from 'react';
+import { useId, type CSSProperties, type ReactNode } from 'react';
 import {
   designRows,
   figures,
@@ -6,10 +6,12 @@ import {
   type FlowGroup,
   moduleText,
   type Architecture,
+  type Box,
+  type Figure,
   type FigureNode,
   type Phase,
 } from './modelArchitecture';
-import { FormulaLine, SvgMath } from './MathText';
+import { FormulaLine } from './MathText';
 import { ModelVisual } from './ModelVisuals';
 
 type Selection = {
@@ -27,178 +29,25 @@ export function figureNodes(architecture: Architecture, phase: Phase) {
 }
 
 /** Join wrapped lines; Latin words keep their space, Chinese runs join directly. */
-const nodeName = (node: FigureNode) =>
-  node.shape === 'concat'
-    ? '拼接'
-    : node.lines.reduce((name, line) =>
-        /[A-Za-z]$/.test(name) && /^[A-Za-z]/.test(line) ? name + ' ' + line : name + line,
-      );
+export const nodeName = (node: FigureNode) =>
+  node.lines.reduce((name, line) =>
+    /[A-Za-z]$/.test(name) && /^[A-Za-z]/.test(line) ? name + ' ' + line : name + line,
+  );
 const isOff = (node: FigureNode, phase: Phase) => phase === 'test' && !!node.trainOnly;
 
-function pressKeys(event: KeyboardEvent, action: () => void) {
-  if (event.key !== 'Enter' && event.key !== ' ') return;
-  event.preventDefault();
-  action();
-}
+/** Position of an image-pixel box as percentages of the figure. */
+const place = (figure: Figure, [x, y, w, h]: Box): CSSProperties => ({
+  left: (x / figure.width) * 100 + '%',
+  top: (y / figure.height) * 100 + '%',
+  width: (w / figure.width) * 100 + '%',
+  height: (h / figure.height) * 100 + '%',
+});
 
-function NodeGlyph({ node }: { node: FigureNode }) {
-  const { w, h } = node;
-  if (node.shape === 'series')
-    return (
-      <g className="fig-glyph">
-        {[
-          'M12 46 C24 30 32 54 46 40 S70 22 92 36',
-          'M12 32 C26 48 38 20 52 30 S76 46 92 26',
-          'M12 54 C28 50 40 58 56 50 S80 56 92 48',
-        ].map((d) => (
-          <path key={d} d={d} />
-        ))}
-      </g>
-    );
-  if (node.shape === 'insert') {
-    const frame = (w - 24) / 4;
-    return (
-      <g className="fig-glyph">
-        <rect x="12" y="34" width={w - 24} height="44" className="fig-glyph-frame" />
-        {[1, 2, 3].map((i) => (
-          <path key={i} d={`M${12 + frame * i} 34 V78`} className="fig-glyph-frame" />
-        ))}
-        <rect
-          x={12 + frame + 6}
-          y="35"
-          width={frame - 12}
-          height="42"
-          className="fig-glyph-anomaly"
-        />
-        <path d={`M14 62 C30 46 44 70 60 56 S96 40 ${w - 14} 58`} />
-      </g>
-    );
-  }
-  if (node.shape === 'stack')
-    return (
-      <g className="fig-stack">
-        {[2, 1, 0].map((k) => (
-          <g key={k} transform={`translate(${24 + k * 10} ${40 + k * 8})`}>
-            <rect width={w - 76} height="56" rx="8" className="fig-stack-card" />
-            {k === 0 && (
-              <>
-                <rect x="14" y="12" width="120" height="32" rx="6" className="fig-stack-item" />
-                <text x="74" y="33" textAnchor="middle">
-                  Local TCN
-                </text>
-                <path d="M134 28 H170" className="fig-stack-link" />
-                <rect x="170" y="12" width="168" height="32" rx="6" className="fig-stack-item" />
-                <text x="254" y="33" textAnchor="middle">
-                  Transformer Encoder
-                </text>
-              </>
-            )}
-          </g>
-        ))}
-      </g>
-    );
-  void h;
-  return null;
-}
-
-function NodeText({ node }: { node: FigureNode }) {
-  const { w, h } = node;
-  if (node.shape === 'concat')
-    return <path className="fig-concat-cross" d={`M${w / 2} 7 V${h - 7} M7 ${h / 2} H${w - 7}`} />;
-  if (node.shape === 'series' || node.shape === 'insert')
-    return (
-      <text x={w / 2} y={h - 14} textAnchor="middle" className="fig-title">
-        {node.lines[0]}
-      </text>
-    );
-  if (node.shape === 'stack')
-    return (
-      <text x={w / 2} y={26} textAnchor="middle" className="fig-title">
-        {node.lines[0]}
-      </text>
-    );
-  if (node.shape === 'formula')
-    return (
-      <>
-        <text x={w / 2} y={24} textAnchor="middle" className="fig-title">
-          {node.lines[0]}
-        </text>
-        {node.formula && <SvgMath source={node.formula} x={w / 2} y={54} className="fig-math" />}
-        {node.fraction && (
-          <>
-            <SvgMath source={node.fraction[0]} x={86} y={62} anchor="end" className="fig-math" />
-            <SvgMath source={node.fraction[1]} x={(w + 92) / 2} y={50} className="fig-math" />
-            <path className="fig-fraction" d={`M96 56 H${w - 10}`} />
-            <SvgMath source={node.fraction[2]} x={(w + 92) / 2} y={74} className="fig-math" />
-          </>
-        )}
-      </>
-    );
-  const lineHeight = 18,
-    first = h / 2 - ((node.lines.length - 1) * lineHeight) / 2 + 5;
-  return (
-    <text textAnchor="middle" className="fig-label">
-      {node.lines.map((text, i) => (
-        <tspan key={text} x={w / 2} y={first + i * lineHeight}>
-          {text}
-        </tspan>
-      ))}
-    </text>
-  );
-}
-
-function FigureNodeView({
-  node,
-  phase,
-  selected,
-  select,
-  hidden = false,
-  added,
-}: {
-  node: FigureNode;
-  phase: Phase;
-  selected: string | null;
-  select: (key: string | null) => void;
-  hidden?: boolean;
-  added: boolean;
-}) {
-  const off = isOff(node, phase) || hidden;
-  const pressed = selected === node.key;
-  const toggle = () => select(pressed ? null : node.key);
-  return (
-    <g
-      className={
-        'fig-node' +
-        (node.tone ? ' is-' + node.tone : '') +
-        (node.shape ? ' shape-' + node.shape : '') +
-        (pressed ? ' is-selected' : '') +
-        (isOff(node, phase) ? ' is-off' : '') +
-        (hidden ? ' is-hidden' : '')
-      }
-      transform={`translate(${node.x} ${node.y})`}
-      role="button"
-      tabIndex={off ? -1 : 0}
-      aria-pressed={pressed}
-      aria-disabled={off || undefined}
-      aria-hidden={hidden || undefined}
-      aria-label={nodeName(node)}
-      data-node={node.key}
-      onClick={off ? undefined : toggle}
-      onKeyDown={off ? undefined : (event) => pressKeys(event, toggle)}
-    >
-      {node.shape === 'concat' ? (
-        <circle className="fig-box" cx={node.w / 2} cy={node.h / 2} r={node.w / 2} />
-      ) : (
-        <rect className="fig-box" width={node.w} height={node.h} rx="8" />
-      )}
-      <NodeGlyph node={node} />
-      <NodeText node={node} />
-      {added && node.added && <circle className="fig-added" cx={node.w - 9} cy="9" r="3.5" />}
-    </g>
-  );
-}
-
-export function ArchitectureFigure({
+/**
+ * The report's own figure with a clickable area over each module. The chosen module stays
+ * clear while the rest of the figure recedes; in the test stage training-only parts are veiled.
+ */
+export function ImageFigure({
   architecture,
   phase,
   selected,
@@ -206,78 +55,106 @@ export function ArchitectureFigure({
   showAdded,
 }: Selection & { showAdded: boolean }) {
   const figure = figures[architecture];
-  const arrow = useId(),
-    clayArrow = useId();
+  const mask = useId();
+  const nodes = figureNodes(architecture, phase);
+  const chosen = nodes.find((node) => node.key === selected);
+  const lit = chosen
+    ? nodes.filter((node) => node === chosen || (chosen.group && node.group === chosen.group))
+    : [];
+  const veiled = phase === 'test' ? figure.nodes.filter((node) => node.trainOnly) : [];
   return (
-    <svg
-      className={'model-figure is-' + phase}
-      viewBox={`0 0 ${figure.width} ${figure.height}`}
+    <div
+      className={'image-figure is-' + phase + (chosen ? ' has-selection' : '')}
       role="group"
-      aria-label="模型结构图"
+      aria-label={'模型结构图，报告' + figure.number}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && selected) {
+          event.stopPropagation();
+          select(null);
+        }
+      }}
     >
-      <defs>
-        {[
-          [arrow, 'fig-arrow'],
-          [clayArrow, 'fig-arrow is-clay'],
-        ].map(([id, className]) => (
-          <marker
-            key={id}
-            id={id}
-            viewBox="0 0 8 8"
-            refX="7"
-            refY="4"
-            markerWidth="8"
-            markerHeight="8"
-            orient="auto-start-reverse"
+      <img src={figure.src} alt="" width={figure.width} height={figure.height} draggable={false} />
+      <svg
+        className="image-figure-shade"
+        viewBox={`0 0 ${figure.width} ${figure.height}`}
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        {veiled.map((node) =>
+          node.boxes.map((box) => (
+            <rect
+              key={node.key + box.join()}
+              className="figure-veil"
+              x={box[0]}
+              y={box[1]}
+              width={box[2]}
+              height={box[3]}
+            />
+          )),
+        )}
+        {lit.length > 0 && (
+          <>
+            <mask id={mask}>
+              <rect width={figure.width} height={figure.height} fill="white" />
+              {lit.flatMap((node) =>
+                node.boxes.map((box) => (
+                  <rect
+                    key={node.key + box.join()}
+                    x={box[0] - 4}
+                    y={box[1] - 4}
+                    width={box[2] + 8}
+                    height={box[3] + 8}
+                    rx="8"
+                    fill="black"
+                  />
+                )),
+              )}
+            </mask>
+            <rect
+              className="figure-dim"
+              width={figure.width}
+              height={figure.height}
+              mask={`url(#${mask})`}
+            />
+          </>
+        )}
+      </svg>
+      {nodes.map((node) => {
+        const off = isOff(node, phase);
+        const pressed = selected === node.key;
+        const active = lit.includes(node);
+        const toggle = () => select(pressed ? null : node.key);
+        return node.boxes.map((box, i) => (
+          <button
+            key={node.key + i}
+            type="button"
+            className={
+              'figure-hotspot' +
+              (node.branch ? ' is-branch' : '') +
+              (node.key === 'pot' ? ' is-pot' : '') +
+              (active ? ' is-active' : '')
+            }
+            style={place(figure, box)}
+            aria-pressed={i === 0 ? pressed : undefined}
+            aria-label={i === 0 ? nodeName(node) : undefined}
+            aria-hidden={i === 0 ? undefined : true}
+            tabIndex={off || i > 0 ? -1 : undefined}
+            disabled={off}
+            data-node={i === 0 ? node.key : undefined}
+            onClick={toggle}
           >
-            <path className={className} d="M0 0.5 L7 4 L0 7.5 Z" />
-          </marker>
-        ))}
-      </defs>
-      {figure.regions.map((region) => (
-        <g
-          key={region.key}
-          className={'fig-region' + (region.added && showAdded ? ' is-added' : '')}
-        >
-          <rect x={region.x} y={region.y} width={region.w} height={region.h} rx="12" />
-          <text x={region.labelX} y={region.labelY} textAnchor={region.anchor}>
-            {region.label}
-          </text>
-        </g>
-      ))}
-      {figure.edges.map((edge) => (
-        <path
-          key={edge.d}
-          className={'fig-edge' + (edge.tone ? ' is-' + edge.tone : '')}
-          d={edge.d}
-          markerEnd={edge.arrow ? `url(#${edge.tone ? clayArrow : arrow})` : undefined}
-        />
-      ))}
-      {figure.texts.map((text) => (
-        <text key={text.text} className="fig-note" x={text.x} y={text.y} textAnchor={text.anchor}>
-          {text.text}
-        </text>
-      ))}
-      {figure.nodes.map((node) => (
-        <FigureNodeView
-          key={node.key}
-          node={node}
-          phase={phase}
-          selected={selected}
-          select={select}
-          hidden={node.key === 'loss' && phase === 'test'}
-          added={showAdded}
-        />
-      ))}
-      <FigureNodeView
-        node={figure.end}
-        phase={phase}
-        selected={selected}
-        select={select}
-        hidden={phase === 'train'}
-        added={showAdded}
-      />
-    </svg>
+            {node.key === 'pot' && i === 0 && (
+              <span className="figure-pot">
+                <strong>重建误差 → POT 阈值</strong>
+                <span>异常分数超过阈值判为异常</span>
+              </span>
+            )}
+            {showAdded && node.added && i === 0 && <i className="figure-added" />}
+          </button>
+        ));
+      })}
+    </div>
   );
 }
 
@@ -394,9 +271,7 @@ export function ModulePanel({
         </div>
         <div className={'model-panel-grid' + (text.visual ? ' has-visual' : '')}>
           <div className="model-panel-text">
-            {text.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
-            ))}
+            <p>{text.role}</p>
             {text.formulas?.map((formula, i) => (
               <FormulaLine key={i} formula={formula} />
             ))}

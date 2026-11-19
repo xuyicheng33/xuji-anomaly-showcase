@@ -53,6 +53,18 @@ export function MathText({ source }: { source: string }) {
       i += upper ? 2 : 1;
       continue;
     }
+    const next = parts[i + 1];
+    if (part.level !== 'base' && next && next.level !== 'base' && next.level !== part.level) {
+      const [sup, sub] = part.level === 'sup' ? [part, next] : [next, part];
+      nodes.push(
+        <span key={i} className="math-scripts">
+          <span>{sup.text}</span>
+          <span>{sub.text}</span>
+        </span>,
+      );
+      i += 1;
+      continue;
+    }
     nodes.push(
       part.level === 'sub' ? (
         <sub key={i}>{part.text}</sub>

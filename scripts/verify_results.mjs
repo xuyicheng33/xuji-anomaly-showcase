@@ -156,8 +156,8 @@ try {
           .locator('.model-select button[aria-pressed=true]')
           .filter({ hasText: method.name })
           .waitFor();
-        const input = page.locator('[data-node=input]');
-        if ((await input.getAttribute('aria-pressed')) !== 'true') await input.click();
+        const windows = page.locator('[data-node=window]');
+        if ((await windows.getAttribute('aria-pressed')) !== 'true') await windows.click();
         assert.ok(
           (await page.locator('.model-panel').innerText()).includes(
             `每个窗口 ${data.window} 个时刻、${data.features.length} 个测点`,

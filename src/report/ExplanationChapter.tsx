@@ -6,6 +6,7 @@ import MetricsChapter from './MetricsChapter';
 import { NoteSection } from './notes';
 import ExplanationIndex from './ExplanationIndex';
 import ModelDifferences from './ModelDifferences';
+import ModelComponentNotes from './ModelComponentNotes';
 import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
 import { Equation } from './MathText';
@@ -227,6 +228,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="model-design">
         <ModelDifferences data={data} />
+        <ModelComponentNotes data={data} />
       </NoteSection>
       <NoteSection id="window-settings">
         <p>
