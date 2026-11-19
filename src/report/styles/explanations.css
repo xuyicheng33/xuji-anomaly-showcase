@@ -302,6 +302,9 @@
 }
 .explanation-index a {
   text-wrap: balance;
+  /* Titles wrap at their punctuation, never inside a word such as 批次. */
+  word-break: keep-all;
+  overflow-wrap: anywhere;
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -358,10 +361,13 @@
 .explanation-body p {
   text-wrap: pretty;
 }
-/* Prose keeps a reading measure; tables and figures may use the full column. */
+/* Prose and lists share one reading measure; tables and figures may use the full column. */
 .explanation-body > p,
 .explanation-body > div > p {
   margin-bottom: var(--space-4);
+  max-width: 44em;
+}
+.explanation-body > :is(ul, ol, h3) {
   max-width: 44em;
 }
 .reference-table-scroll .anomaly-label-table {

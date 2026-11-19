@@ -187,7 +187,7 @@ export function FlowFigure({
               return (
                 <button
                   key={node.key}
-                  className={'model-flow-node' + (node.tone === 'clay' ? ' is-clay' : '')}
+                  className={'model-flow-node' + (node.trainOnly ? ' is-train-only' : '')}
                   aria-pressed={pressed}
                   aria-label={nodeName(node)}
                   disabled={isOff(node, phase)}
