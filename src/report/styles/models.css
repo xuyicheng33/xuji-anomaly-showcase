@@ -16,9 +16,13 @@
   font-size: var(--text-xl);
   line-height: 1.5;
 }
-/* Wide layouts break the caption between phrases, never inside a term. */
+/* Each phrase moves to the next line whole; only a phrase wider than the column wraps inside. */
+.model-intro > div {
+  min-width: 0;
+}
 .title-phrase {
-  white-space: nowrap;
+  display: inline-block;
+  max-width: 100%;
 }
 .model-added-key {
   display: flex;
@@ -259,6 +263,7 @@
 .model-flow {
   --flow-rail: 24px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
 }
 /* Hairline connectors carry the data downwards; parallel branches hang off one rail. */
 .model-flow > * + * {
@@ -275,6 +280,7 @@
 }
 .model-flow-parallel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
   margin-left: var(--flow-rail);
   padding-left: var(--space-4);
@@ -319,6 +325,10 @@
 }
 .model-flow-node {
   position: relative;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
   min-height: 40px;
   padding: var(--space-2) var(--space-3);
   border: 1px solid var(--control-border);
@@ -704,6 +714,20 @@
   }
   .model-panel h3 {
     font-size: var(--text-xl);
+  }
+}
+@container (max-width: 240px) {
+  .model-flow {
+    --flow-rail: 12px;
+  }
+  .model-flow-parallel {
+    padding-left: var(--space-2);
+  }
+  .model-flow-parallel > .model-flow-step::before {
+    width: var(--space-2);
+  }
+  .model-flow-group {
+    padding: var(--space-2);
   }
 }
 @container (max-width: 420px) {

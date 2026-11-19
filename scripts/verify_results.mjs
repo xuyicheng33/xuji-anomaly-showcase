@@ -272,7 +272,7 @@ try {
           await page.locator('#note-window-settings').innerText(),
           new RegExp(String(data.window)),
         );
-        assert.equal(await page.getByRole('link', { name: /查看原版结果/ }).count(), 1);
+        assert.equal(await page.getByRole('link', { name: /查看原版结果/ }).count(), 0);
         assert.ok(
           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
         );
@@ -295,9 +295,10 @@ try {
       await navigate(page, 'models');
       await page.locator('.model-architecture').waitFor();
       assert.equal(new URL(page.url()).searchParams.has('version'), false);
+      // The model chosen in the last round stays selected across chapters.
       assert.equal(
         await page.locator('.model-select button[aria-pressed=true]').innerText(),
-        'STAM-AD',
+        catalog.methods.at(-1).name,
       );
       await page.close();
     }

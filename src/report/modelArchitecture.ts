@@ -593,6 +593,6 @@ export const designRows: Record<
 
 /** Figure captions, split into phrases that wide layouts keep on one line. */
 export const fullNames: Record<Architecture, string[]> = {
-  stam: ['基于自适应掩码和有界异常损失的', '自监督 TCN-Transformer ', '异常检测框架'],
-  smst: ['多尺度时空依赖建模的', '自监督 TCN-Transformer ', '异常检测框架'],
+  stam: ['基于自适应掩码和有界异常损失的', '自监督 TCN-Transformer', ' ', '异常检测框架'],
+  smst: ['多尺度时空依赖建模的', '自监督 TCN-Transformer', ' ', '异常检测框架'],
 };

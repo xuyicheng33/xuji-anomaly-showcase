@@ -106,11 +106,15 @@ export function ModelsChapter({
       <div className="model-intro" key={'intro-' + architecture}>
         <div>
           <h2>
-            {fullNames[architecture].map((phrase) => (
-              <span key={phrase} className="title-phrase">
-                {phrase}
-              </span>
-            ))}
+            {fullNames[architecture].map((phrase) =>
+              phrase === ' ' ? (
+                ' '
+              ) : (
+                <span key={phrase} className="title-phrase">
+                  {phrase}
+                </span>
+              ),
+            )}
           </h2>
           {props.showAdded && (
             <p className="model-added-key">
