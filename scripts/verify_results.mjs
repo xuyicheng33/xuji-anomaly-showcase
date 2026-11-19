@@ -42,8 +42,13 @@ async function exactText(page, selector, value) {
 async function checkDetection(page, root, data, start) {
   const model = data.models[0],
     features = data.features.length;
-  await page.getByRole('spinbutton', { name: '片段起点' }).fill(String(start + 1));
-  await page.getByTestId('calculated-score').waitFor();
+  await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).fill(String(start));
+  await page.waitForFunction((start) => {
+    const point = Number(
+      document.querySelector('#window-calculation')?.getAttribute('data-point') ?? 0,
+    );
+    return point > start && document.querySelector('[data-testid=calculated-score]');
+  }, start);
   const point = Number(await page.locator('#window-calculation').getAttribute('data-point')) - 1;
   assert.ok(point >= start && point < start + data.window);
   const chunk = model.windows.chunks.find((c) => start >= c.start && start < c.start + c.count);
@@ -111,20 +116,28 @@ async function checkPlayback(page, root, data, index) {
     ((input - prediction) ** 2).toFixed(9),
   );
   await page.getByRole('button', { name: '收起明细', exact: true }).click();
-  await page.getByRole('button', { name: /查看当前点计算/ }).click();
-  await page.getByTestId('aggregate-equation').waitFor();
+  await page.getByRole('link', { name: /计算过程/ }).click();
+  await page.locator('.coverage-scores').waitFor();
   assert.equal(await page.locator('.window-score-scroll tbody tr').count(), last - first + 1);
   assert.equal(
-    await page.getByTestId('aggregate-equation').locator('strong').innerText(),
+    await page.locator('.coverage-scores [data-testid=aggregate-equation] strong').innerText(),
     model.scores[index].toFixed(9),
   );
+  assert.equal(await page.getByTestId('point-score').innerText(), model.scores[index].toFixed(9));
   await page
     .getByRole('button', { name: `查看 ${features} 项`, exact: true })
     .first()
     .click();
-  await page.getByTestId('coverage-window-calculation-score').waitFor();
-  assert.equal(await page.locator('.coverage-calculation tbody tr').count(), features);
-  await page.getByRole('button', { name: /收起计算/ }).click();
+  await page.waitForFunction(
+    (first) =>
+      document
+        .querySelector('.coverage-scores tr.selected-sensor th')
+        ?.textContent.startsWith(`第 ${(first + 1).toLocaleString('en-US')}—`),
+    first,
+  );
+  await page.getByTestId('calculated-score').waitFor();
+  assert.equal(await page.locator('#window-calculation tbody tr').count(), features);
+  await navigate(page, 'playback');
 }
 
 try {
@@ -156,8 +169,8 @@ try {
           .locator('.model-select button[aria-pressed=true]')
           .filter({ hasText: method.name })
           .waitFor();
-        const input = page.locator('[data-node=input]');
-        if ((await input.getAttribute('aria-pressed')) !== 'true') await input.click();
+        const windows = page.locator('[data-node=window]');
+        if ((await windows.getAttribute('aria-pressed')) !== 'true') await windows.click();
         assert.ok(
           (await page.locator('.model-panel').innerText()).includes(
             `每个窗口 ${data.window} 个时刻、${data.features.length} 个测点`,
@@ -196,8 +209,8 @@ try {
         page.off('request', record);
         await navigate(page, 'detection');
         assert.equal(
-          await page.getByRole('spinbutton', { name: '片段起点' }).getAttribute('max'),
-          String(data.times.length - data.window + 1),
+          await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).getAttribute('max'),
+          String(data.times.length - data.window),
         );
         for (const start of [
           0,

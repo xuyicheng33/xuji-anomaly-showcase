@@ -1,10 +1,20 @@
-/* Window selection, reconstruction and its evaluation summary. */
+/* Score calculation: a window, its point scores and the three calculation steps. */
 .detection-page {
   container-type: inline-size;
   container-name: detection;
 }
 .detection-page > .toolbar {
   margin-bottom: var(--toolbar-space);
+}
+.example-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-4);
+}
+.example-picker > span {
+  font-size: var(--text-sm);
+  color: var(--muted);
 }
 .selection-panel {
   display: grid;
@@ -19,10 +29,11 @@
   min-width: 0;
   width: 100%;
 }
-.selection-panel .field input {
-  width: 100px;
+.selection-panel > .selection-label {
+  font-size: var(--text-sm);
+  color: var(--muted);
 }
-.selection-panel > span {
+.selection-panel > .window-range {
   font-size: var(--text-sm);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -36,27 +47,6 @@
   font-size: var(--text-xs);
   color: var(--muted);
 }
-.input-hint {
-  margin: calc(-1 * var(--space-4)) 0 var(--space-4);
-  font-size: var(--text-xs);
-  color: var(--muted);
-}
-.input-hint.invalid {
-  color: var(--negative);
-}
-.selection-panel input[aria-invalid='true'] {
-  border-color: var(--negative);
-}
-.example-picker {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin: 0 0 var(--space-4);
-}
-.example-picker > span {
-  font-size: var(--text-sm);
-  color: var(--muted);
-}
 .detection-results {
   animation: rise-in var(--motion-slow) var(--ease-spring);
   transition: opacity var(--motion-normal) var(--ease-out);
@@ -68,30 +58,91 @@
 .detection-results > .curve:first-child {
   margin-top: var(--space-8);
 }
-/* Window rates stand beside the matrix as a list of equal height. */
-.detection-page .statistics {
-  align-items: stretch;
-}
-.detection-page .statistics > .matrix-section {
-  display: flex;
-  flex-direction: column;
-}
-.detection-page .rates {
-  flex: 1;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: repeat(3, minmax(0, 1fr));
-  gap: 0;
-  border-block: 1px solid var(--line);
-}
-.detection-page .rates > div {
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--space-4);
-  min-height: var(--space-12);
-}
-.detection-page .rates > div + div {
+/* Report 4.4 in three numbered steps, each ending in the value the next one uses. */
+.score-steps {
+  margin-top: var(--space-8);
+  padding-top: var(--space-7);
   border-top: 1px solid var(--line);
+}
+.score-steps-heading h2 {
+  font-size: var(--title-section);
+  margin-bottom: var(--space-2);
+}
+.score-step-list {
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.score-step-list > li {
+  padding: var(--space-6) 0 var(--space-8);
+  border-top: 1px solid var(--line);
+}
+.score-step-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.score-step-title > span {
+  font-family: var(--numeral);
+  font-size: var(--text-3xl);
+  line-height: 1;
+  color: var(--muted);
+}
+.score-step-title h3 {
+  font-family: var(--serif);
+  font-size: var(--text-xl);
+  font-weight: 500;
+}
+.score-step-title small {
+  flex-basis: 100%;
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.coverage-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  padding-top: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.coverage-total .equation-result strong {
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  color: var(--data);
+}
+.score-judgement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  align-items: center;
+  gap: var(--space-6);
+}
+.score-judgement .calculation-comparison {
+  margin: 0;
+  font-size: var(--text-xl);
+}
+.score-judgement dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+.score-judgement dl > div {
+  display: grid;
+  gap: var(--space-2);
+}
+.score-judgement dt {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.score-judgement dd {
+  margin: 0;
+  font-size: var(--text-lg);
 }
 @media (max-width: 680px) {
   .detection-page {
@@ -102,79 +153,34 @@
     display: none;
   }
   .selection-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     padding: var(--space-3) 0;
     gap: var(--space-2) var(--space-3);
   }
-  .selection-panel > .field {
-    grid-column: 1;
-    grid-row: 1;
-    width: auto;
-    font-size: var(--text-xs);
-    flex-wrap: wrap;
-    gap: var(--space-1) var(--space-2);
-  }
-  .selection-panel .field input {
-    width: 60px;
-    padding-inline: var(--space-2);
-  }
-  .selection-panel > span {
-    grid-column: 2;
-    grid-row: 1;
-    min-width: 0;
+  .selection-panel > .window-range {
+    grid-column: 1 / -1;
     white-space: normal;
-    text-align: right;
     font-size: var(--text-xs);
     color: var(--muted);
   }
-  .selection-panel > input {
-    grid-column: 1 / -1;
-    grid-row: 2;
+  .window-range {
+    justify-items: start;
   }
-}
-@media (min-width: 241px) and (max-width: 380px) {
-  .selection-panel > .field {
-    flex-direction: column;
-    align-items: flex-start;
+  .score-steps-heading h2 {
+    font-size: var(--text-2xl);
+  }
+  .score-judgement {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .score-judgement .calculation-comparison {
+    font-size: var(--text-md);
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 }
 @container detection (max-width: 240px) {
-  .selection-panel {
+  .score-judgement dl {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .selection-panel > .field {
-    grid-column: 1;
-    grid-row: 1;
-    flex-wrap: wrap;
-  }
-  .selection-panel > span {
-    grid-column: 1;
-    grid-row: 2;
-    white-space: normal;
-    text-align: left;
-  }
-  .selection-panel > input {
-    grid-column: 1;
-    grid-row: 3;
-  }
-  .detection-page .confusion,
-  .detection-page .rates {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .detection-page .rates > div {
-    padding: 0;
-  }
-  .detection-page .rates > div + div {
-    padding-top: var(--space-4);
-    border-left: 0;
-    border-top: 1px solid var(--line);
-  }
-  .detection-page .note-anchor {
-    white-space: normal;
-  }
-  .detection-page .rates strong {
-    white-space: normal;
-    overflow-wrap: anywhere;
   }
   .detection-page .model-select button {
     min-width: 0;
@@ -182,13 +188,16 @@
     white-space: normal;
     overflow-wrap: anywhere;
   }
-  .detection-page .sum-value,
   .detection-page .calculation-comparison,
   .detection-page .calculation-equation {
     overflow-wrap: anywhere;
     white-space: normal;
   }
   .detection-page .calculation-equation > * {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .coverage-total .score-equation {
     max-width: 100%;
     min-width: 0;
   }

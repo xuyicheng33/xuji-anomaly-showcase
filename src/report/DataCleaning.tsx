@@ -4,7 +4,6 @@ import { usePresentationState } from './usePresentationState';
 import TableScrollHint from './TableScrollHint';
 import type { Journey } from '../journey';
 import cleaning from './cleaning-data.json';
-import InfoTip from './InfoTip';
 
 const count = (n: number) => n.toLocaleString('zh-CN');
 export function MissingExample({ data, example }: { data: Journey; example: number }) {
@@ -76,35 +75,29 @@ export default function DataCleaning({ data }: { data: Journey }) {
   ];
   return (
     <div className="cleaning-steps">
-      <article className="cleaning-step">
+      <article className="cleaning-step sensor-cleaning">
         <div className="cleaning-intro">
           <h3>剔除 11 个全缺失测点</h3>
-          <div className="cleaning-count">
-            <strong>136</strong>
-            <span aria-hidden="true">→</span>
-            <strong>125</strong>
-            <small>个测点</small>
+          <p>全部记录中均无数值</p>
+        </div>
+        <div className="removed-sensors">
+          <div className="cleaning-caption">
+            <span>全缺失测点</span>
+            <strong>{cleaning.removedSensors.length} 个</strong>
           </div>
-          <details className="removed-sensors">
-            <summary>全缺失测点清单</summary>
-            <ul>
-              {cleaning.removedSensors.map((key) => (
-                <li key={key}>
-                  <code>{key}</code>
-                </li>
-              ))}
-            </ul>
-          </details>
+          <ul aria-label="全缺失测点">
+            {cleaning.removedSensors.map((key) => (
+              <li key={key}>
+                <code>{key}</code>
+              </li>
+            ))}
+          </ul>
         </div>
       </article>
       <article className="cleaning-step record-cleaning">
         <div className="cleaning-intro">
-          <h3>
-            剔除 768 条无效记录
-            <InfoTip label="无效记录处理说明">
-              两段记录的时间与测点值全部缺失，删除对应行，保留其余记录的时间顺序。
-            </InfoTip>
-          </h3>
+          <h3>剔除 768 条无效记录</h3>
+          <p>两段记录的时间和测点值均为空</p>
         </div>
         <div className="record-trimming">
           <div className="cleaning-caption trim-result" aria-live="polite">
@@ -157,7 +150,7 @@ export default function DataCleaning({ data }: { data: Journey }) {
       <article className="cleaning-step missing-cleaning">
         <div className="cleaning-intro">
           <h3>170 个缺失值填 0</h3>
-          <p>13 个测点的零散缺失填为 0，其余观测值保留。</p>
+          <p>分布在 13 个测点</p>
           <div className="segmented missing-switch" aria-label="缺失片段">
             <SelectionIndicator />
             {cleaning.missingExamples.map((entry, i) => (

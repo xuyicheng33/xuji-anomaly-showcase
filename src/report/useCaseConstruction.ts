@@ -8,6 +8,14 @@ import { useResource } from './useResource';
 import { methods, kinds } from './caseContent';
 import { usePresentationState } from './usePresentationState';
 
+/** Progress at which each construction step starts. */
+export const stepBounds = [0, 0.16, 0.58, 0.9, 1];
+/** Milliseconds spent in each step while playing. */
+const stepDurations = [800, 1400, 2200, 1000];
+const referenceDurations = [800, 2800, 2200, 1000];
+/** Below this spread in the target interval a reference segment reads as a flat line. */
+const flatSpread = 0.1;
+
 export function useCaseConstruction(data: Journey, model: Model) {
   const [insertion, setInsertion] = usePresentationState<Insertion>('case:insertion', 'replace');
   const [kind, setKind] = usePresentationState<Construction>('case:kind', 'reference');
@@ -60,10 +68,15 @@ export function useCaseConstruction(data: Journey, model: Model) {
     if (!playing) return;
     let frame = 0,
       last: number | undefined;
+    const durations = kind === 'reference' ? referenceDurations : stepDurations;
     const tick = (now: number) => {
       if (last !== undefined && !document.hidden) {
         const delta = now - last;
-        setProgress((p) => Math.min(1, p + delta / (kind === 'reference' ? 12000 : 8000)));
+        setProgress((p) => {
+          const step = p < stepBounds[1] ? 0 : p < stepBounds[2] ? 1 : p < stepBounds[3] ? 2 : 3;
+          const rate = (stepBounds[step + 1] - stepBounds[step]) / durations[step];
+          return Math.min(1, p + delta * rate);
+        });
       }
       last = now;
       frame = requestAnimationFrame(tick);
@@ -76,8 +89,8 @@ export function useCaseConstruction(data: Journey, model: Model) {
   }, [progress]);
   const method = methods.find((m) => m.id === insertion)!,
     baseConstruction = kinds.find((k) => k.id === kind)!;
-  const feature = selectedFeature ?? selected?.feature ?? 4;
-  const phase = progress < 0.16 ? 0 : progress <= 0.58 ? 1 : progress < 0.9 ? 2 : 3;
+  const phase =
+    progress < stepBounds[1] ? 0 : progress <= stepBounds[2] ? 1 : progress < stepBounds[3] ? 2 : 3;
   const blend = Math.max(0, Math.min(1, (progress - 0.58) / 0.32));
   const length = selected?.times.length ?? data.window;
   const point = Math.min(savedPoint, length - 1);
@@ -100,6 +113,24 @@ export function useCaseConstruction(data: Journey, model: Model) {
           }
         : baseConstruction;
   const features = data.features.length;
+  // A nearly flat reference hides its own reversal; show the case's most varied point instead.
+  const defaultFeature = useMemo(() => {
+    const fallback = selected?.feature ?? 4;
+    if (!selected || !arrays || selected.kind !== 'reference') return fallback;
+    const spread = (feature: number) => {
+      let lo = Infinity,
+        hi = -Infinity;
+      for (let t = selected.begin; t < selected.end; t++) {
+        const value = arrays.material[t * features + feature];
+        lo = Math.min(lo, value);
+        hi = Math.max(hi, value);
+      }
+      return hi - lo;
+    };
+    if (spread(fallback) >= flatSpread) return fallback;
+    return selected.features.reduce((best, f) => (spread(f) > spread(best) ? f : best), fallback);
+  }, [selected, arrays, features]);
+  const feature = selectedFeature ?? defaultFeature;
   const { material, base, candidate, after, labels, weights, activePoints, stableRange } =
     useMemo(() => {
       const column = (values: Float64Array | undefined) =>
@@ -136,6 +167,12 @@ export function useCaseConstruction(data: Journey, model: Model) {
     (v, i) => material[i] + (v - material[i]) * materialProgress,
   );
   const animatedWeight = (weights[point] ?? 0) * blend;
+  // While values are written one by one, the readout follows the write cursor.
+  const cursor =
+    insertion === 'replace' && writtenCount > 0 ? activePoints[writtenCount - 1] : null;
+  useEffect(() => {
+    if (playing && phase === 2 && cursor !== null) setPoint(cursor);
+  }, [playing, phase, cursor, setPoint]);
   const startPlaying = () => {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!playing && matchMedia('(max-width: 1050px)').matches)

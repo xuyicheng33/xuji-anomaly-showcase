@@ -33,7 +33,7 @@ try {
       await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
       await page.getByRole('slider', { name: '训练窗口位置' }).fill('320');
       await page.getByRole('slider', { name: '训练轮次' }).fill('3');
-      await navigate('片段检测');
+      await navigate('分数计算');
       await page.goBack();
       await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();
       assert.equal(await page.getByRole('slider', { name: '训练窗口位置' }).inputValue(), '320');
@@ -58,7 +58,7 @@ try {
       );
       await page.getByRole('slider', { name: '播放进度' }).fill('345');
       await page.getByRole('combobox', { name: '播放速度' }).selectOption('8');
-      await navigate('片段检测');
+      await navigate('分数计算');
       await page.goBack();
       await page.getByRole('slider', { name: '播放进度' }).waitFor();
       assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '345');
@@ -101,19 +101,16 @@ try {
       await page.locator('.case-stage').waitFor();
       assert.equal(await page.getByRole('slider', { name: '案例查看时刻' }).inputValue(), '63');
       await go('detection');
-      const input = page.getByRole('spinbutton', { name: '片段起点' });
-      await input.fill('99999');
-      await input.blur();
-      await page.locator('#start-input-hint[role=alert]').waitFor();
-      assert.equal(await input.inputValue(), '99999');
+      const windowSlider = page.getByRole('slider', { name: /^选择 \d+ 点片段$/ });
+      await windowSlider.fill('107');
+      assert.equal(await windowSlider.inputValue(), '107');
+      await page.getByRole('button', { name: '检出片段', exact: true }).click();
       assert.equal(
-        await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).inputValue(),
-        '107',
-        'An invalid start keeps the shown window',
+        await page.locator('.score-judgement .outcome').innerText(),
+        '检出异常',
+        'The detected example shows a detection',
       );
-      await input.fill('108');
-      await input.press('Enter');
-      assert.equal(await input.getAttribute('aria-invalid'), null);
+      await windowSlider.fill('107');
       await page.getByTestId('calculated-score').waitFor();
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
       await page.screenshot({ path: `${out}/${dataset}-${width}-detection.png`, fullPage: true });
@@ -199,7 +196,7 @@ try {
       assert.deepEqual(errors, []);
       await page.close();
       console.log(
-        `PASS ${dataset} ${width}: chapter state, invalid input, label alignment and readable detail`,
+        `PASS ${dataset} ${width}: chapter state, typical points, label alignment and readable detail`,
       );
     }
   }

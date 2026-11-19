@@ -1,14 +1,13 @@
-import { useEffect, useRef, type CSSProperties } from 'react';
+import { type CSSProperties } from 'react';
 import AnomalyResult from './AnomalyResult';
-import InfoTip from './InfoTip';
 import type { Journey, Model } from '../journey';
 import { Heading, SelectionIndicator, colors } from './ReportUI';
 import Curve from './Curve';
 import { Footnote } from './notes';
 import LengthConstruction from './LengthConstruction';
-import ReferenceConstruction from './ReferenceConstruction';
+import { ReferenceOverlay, referenceStep, referenceSteps } from './ReferenceConstruction';
 import FeaturePicker from './FeaturePicker';
-import { useCaseConstruction } from './useCaseConstruction';
+import { stepBounds, useCaseConstruction } from './useCaseConstruction';
 import CaseNavigation from './CaseNavigation';
 import { kinds, steps } from './caseContent';
 import { usePlotGeometry } from './usePlotGeometry';
@@ -24,7 +23,6 @@ export default function AnomalyChapter({
   setModel: (id: string) => void;
 }) {
   const state = useCaseConstruction(data, model);
-  usePhaseFade(state.stageRef, state.phase);
   const { container: labelsRef, width, left, right } = usePlotGeometry();
   const {
     insertion,
@@ -46,10 +44,8 @@ export default function AnomalyChapter({
     cm,
     arrays,
     reconstruction,
-    construction,
     feature,
     phase,
-    blend,
     material,
     materialProgress,
     base,
@@ -57,9 +53,7 @@ export default function AnomalyChapter({
     labels,
     visibleLabels,
     weights,
-    activePoints,
     writtenCount,
-    written,
     visible,
     shownCandidate,
     animatedWeight,
@@ -73,6 +67,33 @@ export default function AnomalyChapter({
     scale = selected?.source.scale ?? 3;
   const peak = selected?.source.peak ?? 30,
     patch = selected?.source.patchSize ?? 4;
+  const target =
+    kind === 'peak'
+      ? { start: Math.max(0, peak - patch), end: Math.min(data.window - 1, peak + patch) }
+      : { start: begin, end: end - 1 };
+  // The target interval sweeps in during the first step of a playback.
+  const sweep = progress === 0 && !playing ? 1 : ease(Math.min(1, progress / stepBounds[1]));
+  const referenceMaterial = kind === 'reference' && phase === 1;
+  const referenceStart = selected?.source.referenceStart ?? 175;
+  const chain =
+    kind === 'reference'
+      ? [`测试集第 ${referenceStart + 1}—${referenceStart + span} 点`, '时间反转', '1 − 数值']
+      : kind === 'uniform'
+        ? ['固定构造值', `填充 ${span} 个时刻`]
+        : kind === 'peak'
+          ? ['当前值', '相反方向极值']
+          : [`原片段 ${span / scale} 点`, `每点重复 ${scale} 次`, `${span} 点`];
+  const chainStep =
+    phase > 1
+      ? chain.length - 1
+      : kind === 'reference'
+        ? referenceStep(materialProgress)
+        : Math.floor(materialProgress * (chain.length - 1) + 1e-9);
+  const inTarget = weights[point] > 0 || labels[point] > 0;
+  const materialValue =
+    phase === 0 || !inTarget || (referenceMaterial && materialProgress < 1)
+      ? '—'
+      : shownCandidate[point]?.toFixed(4);
   return (
     <div className="anomaly-page case-page">
       <Heading title={chapterContent.anomalies.title} />
@@ -150,81 +171,82 @@ export default function AnomalyChapter({
                     {selected.times[0]} — {selected.times[selected.times.length - 1]}
                   </span>
                 </div>
-                {kind === 'reference' && phase === 1 ? (
-                  <ReferenceConstruction
-                    values={material.slice(selected.begin, selected.end)}
-                    progress={materialProgress}
-                    range={stableRange}
-                    sourceStart={selected.source.referenceStart ?? 175}
-                    sourceTime={data.times[selected.source.referenceStart ?? 175]}
-                    onStep={(step) => {
-                      setPlaying(false);
-                      setProgress([0.16, 0.16 + 0.42 * 0.65, 0.58][step]);
-                    }}
-                  />
-                ) : (
-                  <Curve
-                    title="片段构造"
-                    lines={[
-                      { name: '原始片段', values: base, color: colors.muted, dash: true },
-                      ...(phase >= 1
-                        ? [
-                            {
-                              name: '异常素材',
-                              values: shownCandidate.map((v, i) =>
-                                weights[i] > 0 || labels[i] ? v : null,
-                              ),
-                              color: colors.ink,
-                              dash: true,
-                              opacity: phase === 1 ? 1 : 0.65,
-                            },
-                          ]
-                        : []),
-                      { name: '插入结果', values: visible, color: colors.input },
-                    ]}
-                    labels={visibleLabels}
-                    selection={
-                      kind === 'peak'
-                        ? {
-                            start: Math.max(0, peak - patch),
-                            end: Math.min(data.window - 1, peak + patch),
-                          }
-                        : { start: selected.begin, end: selected.end - 1 }
-                    }
-                    selected={point}
-                    onSelect={setPoint}
-                    height={260}
-                    range={stableRange}
-                  />
-                )}
+                <Curve
+                  title="片段构造"
+                  lines={[
+                    { name: '原始片段', values: base, color: colors.muted, dash: true },
+                    ...(phase >= 1
+                      ? [
+                          {
+                            name: '异常素材',
+                            values: referenceMaterial
+                              ? base.map(() => null)
+                              : shownCandidate.map((v, i) =>
+                                  weights[i] > 0 || labels[i] ? v : null,
+                                ),
+                            color: colors.ink,
+                            dash: true,
+                            opacity: phase === 1 ? 1 : 0.65,
+                          },
+                        ]
+                      : []),
+                    { name: '插入结果', values: visible, color: colors.input },
+                  ]}
+                  labels={visibleLabels}
+                  selection={{
+                    start: target.start,
+                    end: target.start + (target.end - target.start) * sweep,
+                  }}
+                  selected={point}
+                  onSelect={setPoint}
+                  height={260}
+                  range={stableRange}
+                  overlay={
+                    referenceMaterial
+                      ? (scale) => (
+                          <ReferenceOverlay
+                            scale={scale}
+                            values={material.slice(begin, end)}
+                            begin={begin}
+                            progress={materialProgress}
+                          />
+                        )
+                      : undefined
+                  }
+                />
                 <div className="case-material-strip">
                   <span>{phase === 0 ? '目标区间' : '素材构造'}</span>
-                  <p>
-                    {phase === 0
-                      ? kind === 'peak'
-                        ? `第 ${peak + 1} 点改变数值，第 ${Math.max(0, peak - patch) + 1}—${Math.min(data.window - 1, peak + patch) + 1} 点生成标签`
-                        : `第 ${begin + 1}—${end} 点，${span} 个时刻`
-                      : kind === 'reference'
-                        ? `真实参考 ${span} 点 → 时间反转 → 1 − 数值`
-                        : kind === 'uniform'
-                          ? `固定构造值 → 填充 ${span} 个时刻`
-                          : kind === 'peak'
-                            ? '当前值 → 相反方向极值'
-                            : `原片段 ${span / scale} 点 → 每点重复 ${scale} 次 → ${span} 点`}
-                    <InfoTip label="当前构造步骤说明">
-                      {phase === 0
-                        ? '观察清洁片段与目标时刻。'
-                        : phase === 1
-                          ? construction.detail
-                          : phase === 2
-                            ? insertion === 'replace'
-                              ? '沿时间顺序写入素材，经过的位置取对应素材值。'
-                              : '按保存的权重将素材融入原片段，中央权重为 0.7。'
-                            : kind === 'peak'
-                              ? `极值改变一个时刻，标签覆盖该点及前后各 ${patch} 个时刻。`
-                              : '选定测点的目标区间标记为 1，其余位置保持为 0。'}
-                    </InfoTip>
-                  </p>
+                  {phase === 0 ? (
+                    <p key="target">
+                      {kind === 'peak'
+                        ? `第 ${peak + 1} 点改变数值，第 ${target.start + 1}—${target.end + 1} 点生成标签`
+                        : `第 ${begin + 1}—${end} 点，${span} 个时刻`}
+                    </p>
+                  ) : (
+                    <ol key="chain" className="construction-chain" aria-label="素材构造步骤">
+                      {chain.map((item, i) => (
+                        <li key={item} className={i <= chainStep ? 'is-done' : undefined}>
+                          {kind === 'reference' ? (
+                            <button
+                              type="button"
+                              aria-pressed={phase === 1 && i === chainStep}
+                              onClick={() => {
+                                setPlaying(false);
+                                setProgress(
+                                  stepBounds[1] +
+                                    (stepBounds[2] - stepBounds[1]) * referenceSteps[i],
+                                );
+                              }}
+                            >
+                              {item}
+                            </button>
+                          ) : (
+                            item
+                          )}
+                        </li>
+                      ))}
+                    </ol>
+                  )}
                 </div>
                 <div className="case-labels" ref={labelsRef}>
                   <div>
@@ -320,45 +342,31 @@ export default function AnomalyChapter({
                     <span>原始值</span>
                     <strong>{base[point]?.toFixed(4)}</strong>
                   </div>
-                  <span className="case-arrow">→</span>
+                  <span className="case-arrow" aria-hidden="true">
+                    →
+                  </span>
+                  <div className="case-material-value">
+                    <span>素材值</span>
+                    <strong>{materialValue}</strong>
+                  </div>
+                  <span className="case-arrow" aria-hidden="true">
+                    →
+                  </span>
                   <div>
                     <span>插入结果</span>
                     <strong data-testid="case-after">{visible[point]?.toFixed(4)}</strong>
+                    {insertion === 'blend' && phase >= 2 && weights[point] > 0 && (
+                      <small className="case-blend">
+                        原始 × {(1 - animatedWeight).toFixed(2)} + 素材 ×{' '}
+                        {animatedWeight.toFixed(2)}
+                      </small>
+                    )}
                   </div>
                   <div>
                     <span>标签</span>
                     <strong data-testid="case-label">{visibleLabels[point]}</strong>
                   </div>
                 </div>
-                {phase >= 1 && !(kind === 'reference' && phase === 1) && (
-                  <div className="case-composition">
-                    <span>
-                      素材值 <strong>{shownCandidate[point]?.toFixed(4)}</strong>
-                    </span>
-                    <span>
-                      {insertion === 'replace' ? '写入时刻' : phase === 3 ? '插入权重' : '混合进度'}{' '}
-                      <strong>
-                        {insertion === 'replace'
-                          ? `${writtenCount} / ${activePoints.length}`
-                          : phase === 3
-                            ? weights[point]?.toFixed(2)
-                            : Math.round(blend * 100) + '%'}
-                      </strong>
-                    </span>
-                    <span>
-                      {phase < 2
-                        ? '构造素材，准备写入目标区间。'
-                        : insertion === 'replace'
-                          ? written.has(point)
-                            ? '当前时刻已写入素材值'
-                            : '当前时刻保留原始值'
-                          : '原始值 × ' +
-                            (1 - animatedWeight).toFixed(2) +
-                            ' + 素材 × ' +
-                            animatedWeight.toFixed(2)}
-                    </span>
-                  </div>
-                )}
               </div>
               {kind === 'length' && (
                 <LengthConstruction
@@ -418,26 +426,10 @@ export default function AnomalyChapter({
   );
 }
 
+const ease = (value: number) => value * value * (3 - 2 * value);
+
 /** Share of each construction step already played, for the step progress rule. */
-const stepBounds = [0, 0.16, 0.58, 0.9, 1];
 function stepFill(progress: number, step: number) {
   const [from, to] = [stepBounds[step], stepBounds[step + 1]];
   return Math.max(0, Math.min(1, (progress - from) / (to - from)));
-}
-
-/** New step content fades in where the stage swaps one view for another. */
-function usePhaseFade(stage: React.RefObject<HTMLDivElement | null>, phase: number) {
-  const previous = useRef(phase);
-  useEffect(() => {
-    if (previous.current === phase) return;
-    previous.current = phase;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    for (const child of stage.current?.children ?? []) {
-      if (child.classList.contains('case-stage-toolbar')) continue;
-      child.animate([{ opacity: 0.25 }, { opacity: 1 }], {
-        duration: 280,
-        easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-      });
-    }
-  }, [stage, phase]);
 }

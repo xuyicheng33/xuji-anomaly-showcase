@@ -192,27 +192,38 @@ function MultiscaleVisual() {
   );
 }
 
+/** Report 4.1: loss against reconstruction error, with bound set to 1. */
 function LossVisual() {
   const [error, setError] = useState(0.6);
-  const width = 320,
-    height = 180,
-    left = 16,
-    bottom = 160,
-    top = 12;
-  const sx = (v: number) => left + (v / 2) * (width - left - 8),
+  const width = 340,
+    height = 214,
+    left = 44,
+    right = 70,
+    top = 18,
+    bottom = 182;
+  const sx = (v: number) => left + (v / 2) * (width - left - right),
     sy = (v: number) => bottom - (v / 3) * (bottom - top);
-  const reached = error >= 1;
   const id = useId();
   return (
     <div className="loss-visual">
-      <svg viewBox={`0 0 ${width} ${height + 4}`} aria-hidden="true">
-        <path className="visual-axis" d={`M${left} ${top} V${bottom} H${width - 8}`} />
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label="有界异常损失随重建误差的变化">
+        <path className="visual-axis" d={`M${left} ${top} V${bottom} H${width - right + 8}`} />
         <path className="visual-guide" d={`M${sx(1)} ${top} V${bottom}`} />
-        <text className="visual-label" x={sx(1)} y={bottom + 16} textAnchor="middle">
+        <path className="visual-guide" d={`M${left} ${sy(1)} H${width - right}`} />
+        <text className="visual-label" x={left - 8} y={top + 4} textAnchor="end">
+          损失
+        </text>
+        <text className="visual-label" x={left - 8} y={sy(1) + 4} textAnchor="end">
           bound
         </text>
-        <text className="visual-label" x={left} y={bottom + 16} textAnchor="middle">
+        <text className="visual-label" x={left - 8} y={bottom + 4} textAnchor="end">
           0
+        </text>
+        <text className="visual-label" x={sx(1)} y={bottom + 18} textAnchor="middle">
+          bound
+        </text>
+        <text className="visual-label" x={width - right + 8} y={bottom + 18} textAnchor="end">
+          重建误差
         </text>
         <path
           className="visual-line"
@@ -229,6 +240,21 @@ function LossVisual() {
             [sx(2), sy(0)],
           ])}
         />
+        <text className="visual-line-label" x={sx(2) + 6} y={sy(3) + 4}>
+          正常时刻
+        </text>
+        <text className="visual-line-label is-anomaly" x={sx(2) + 6} y={sy(0) + 4}>
+          异常时刻
+        </text>
+        <text className="visual-note" x={sx(1.25)} y={sy(2.25) - 10} textAnchor="end">
+          斜率 1，压缩误差
+        </text>
+        <text className="visual-note is-anomaly" x={sx(0.04)} y={sy(0) - 8}>
+          推高误差
+        </text>
+        <text className="visual-note is-anomaly" x={sx(1.5)} y={sy(0) - 8} textAnchor="middle">
+          梯度归零
+        </text>
         <path className="visual-cursor" d={`M${sx(error)} ${top} V${bottom}`} />
         <circle className="visual-point" cx={sx(error)} cy={sy(1 + error)} r="4" />
         <circle
@@ -250,24 +276,6 @@ function LossVisual() {
           onChange={(e) => setError(Number(e.target.value))}
         />
       </label>
-      <dl className="loss-visual-readout">
-        <div>
-          <dt>
-            <i className="legend-swatch" />
-            正常时刻
-          </dt>
-          <dd>持续压缩重建误差</dd>
-        </div>
-        <div>
-          <dt>
-            <i className="legend-swatch is-anomaly" />
-            异常时刻
-          </dt>
-          <dd key={String(reached)} className="value-tick">
-            {reached ? '到达 bound，梯度归零' : '推动误差增大'}
-          </dd>
-        </div>
-      </dl>
     </div>
   );
 }

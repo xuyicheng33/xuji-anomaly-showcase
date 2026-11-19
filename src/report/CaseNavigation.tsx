@@ -80,12 +80,6 @@ export default function CaseNavigation({
             ))}
           </div>
         </div>
-        <details className="case-explanation">
-          <summary>查看构造说明与公式</summary>
-          <p>{method.copy}</p>
-          <p>{construction.copy}</p>
-          <p>{method.formula}</p>
-        </details>
       </div>
     </aside>
   );

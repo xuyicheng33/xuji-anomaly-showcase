@@ -1,11 +1,13 @@
 import type { Journey } from '../journey';
 import ModelDifferences from './ModelDifferences';
+import ModelComponentNotes from './ModelComponentNotes';
 import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
 import { NoteSection } from './notes';
 import ExplanationIndex from './ExplanationIndex';
 import WindSource from './WindSource';
 import Fraction from './Fraction';
+import { Equation } from './MathText';
 import { caseGeometry } from '../resultCatalog';
 import { modelName } from './modelNames';
 
@@ -19,7 +21,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
   const duration = `${Math.floor(minutes / 60)} 小时 ${minutes % 60} 分钟`;
   return (
     <div className="explanation-page">
-      <Heading title="数据与评估说明" />
+      <Heading title="详细说明" />
       <ExplanationIndex address={address} />
       <NoteSection id="data-records">
         <WindSource data={data} />
@@ -47,14 +49,21 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
         </p>
       </NoteSection>
       <NoteSection id="normalization">
-        <p>每个字段独立使用训练段的最小值和最大值，测试段沿用相同参数。</p>
-        <p className="reference-equation">
-          <span>归一化值 =</span>
-          <Fraction
-            numerator="原始值 − 训练最小值"
-            denominator="训练最大值 − 训练最小值 + 0.0001"
-          />
-        </p>
+        <p>每个字段独立使用训练集的最小值和最大值，训练集与测试集都按这组参数归一化。</p>
+        <Equation
+          className="reference-equation"
+          rows={[
+            {
+              lhs: '归一化值',
+              expr: (
+                <Fraction
+                  numerator="原始值 − 训练集最小值"
+                  denominator="训练集最大值 − 训练集最小值 + 0.0001"
+                />
+              ),
+            },
+          ]}
+        />
         <p>
           不截断超出 0—1 的数值。清洁测试集有 {data.dataset?.outsideUnitRange}{' '}
           个越界单元格；这些仍是原实验输入，页面保留其实际数值。
@@ -89,6 +98,10 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           {g.patchSize} 点。
         </p>
         <p>案例复用本版独立窗口阈值，不针对八个案例另外挑选阈值。</p>
+        <p>
+          与报告第 3.3
+          节的对应：参考片段（混合）对应软替换，均匀值（替换）对应均匀替换，峰值噪声与长度调整名称一致；参考片段（替换）与均匀值（混合）用于对照两种写入方式。
+        </p>
       </NoteSection>
       <NoteSection id="anomaly-labels">
         <p>
@@ -109,6 +122,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="model-design">
         <ModelDifferences data={data} />
+        <ModelComponentNotes data={data} />
         <p>
           检查点、输入、标签、固定掩码和全部窗口结果均独立保留；重建按 float32 保存，误差与聚合按
           float64 计算。网站内各处使用同一份结果与精度。
@@ -143,13 +157,18 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="score-calculation">
         <p>
-          独立窗口内，每个时刻逐项计算“输入 − 当前窗口重建”的平方，28
-          项取平均，得到该时刻的异常分数。分数严格大于阈值时判定为异常。
+          报告第 4.4 节：同一时刻被多个窗口覆盖。先在每个窗口内对 28
+          个字段的平方误差取平均，得到该窗口给这一时刻的分数；再对覆盖窗口取平均，得到异常分数。分数严格大于阈值时判定为异常。
         </p>
-        <p className="reference-equation">
-          <span>时刻分数 =</span>
-          <Fraction numerator="28 个字段的平方误差合计" denominator="28" />
-        </p>
+        <Equation
+          className="reference-equation"
+          rows={[
+            {
+              lhs: '时刻分数',
+              expr: <Fraction numerator="覆盖窗口的分数合计" denominator="实际覆盖窗口数" />,
+            },
+          ]}
+        />
         <p>
           “全部测点平均”只改变上方曲线的显示，分数始终由各字段平方误差汇总；不能用两条平均曲线的差代替。
         </p>
@@ -161,8 +180,9 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           F1，再取更高阈值。规则使用测试标签，适合回看展示，不等同于未经标注的新数据上线效果。
         </p>
         <p>
-          独立窗口阈值为 {model.windowThreshold.toPrecision(12)}，连续回放阈值为{' '}
-          {model.threshold.toPrecision(12)}。两种评分方式分别评估，因此阈值分别保存。
+          完整序列阈值为 {model.threshold.toPrecision(12)}
+          ，分数计算页与连续回放都用它判定。独立窗口阈值为 {model.windowThreshold.toPrecision(12)}
+          ，用于单个窗口的评估，随结果一同保存。
         </p>
       </NoteSection>
       <NoteSection id="window-aggregation">

@@ -1,7 +1,14 @@
 import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl, selectFeature, featureValue } from './browser.mjs';
+import {
+  featureValue,
+  launchBrowser,
+  selectFeature,
+  showcaseUrl,
+  typicalPoints,
+  windowAround,
+} from './browser.mjs';
 const base = showcaseUrl;
 const out = qaDirectory('loading');
 await mkdir(out, { recursive: true });
@@ -103,21 +110,34 @@ try {
   await det.page.locator('.reconstruction-view').waitFor();
   assert.ok(!det.requests.includes(d.datasets.train.times.file));
   await det.page.getByTestId('calculated-score').waitFor();
-  const chunk = d.models[0].windows.chunks.find((c) => 107 >= c.start && 107 < c.start + c.count);
+  // The page opens on the strongest detection; its window and the covering scores load with it.
+  const opening = typicalPoints(d.labels, d.models[0].scores, d.models[0].threshold)[0].index;
+  const first = windowAround(opening, d.window, d.times.length);
+  const chunk = d.models[0].windows.chunks.find(
+    (c) => first >= c.start && first < c.start + c.count,
+  );
+  const calculation = JSON.parse(
+    await readFile('public/data/journey/' + d.calculation.file, 'utf8'),
+  );
+  const scoreChunk = calculation.models[d.models[0].id].chunks.find(
+    (c) => opening >= c.start && opening < c.start + c.count,
+  );
+  await det.page.getByTestId('aggregate-equation').waitFor();
   only(det.requests, [
     `curves-v1/${d.input.sha256}/mean.bin`,
     ...Array.from(
       {
         length:
-          Math.floor((107 + d.window - 1) / d.inputChunkRows) -
-          Math.floor(107 / d.inputChunkRows) +
+          Math.floor((first + d.window - 1) / d.inputChunkRows) -
+          Math.floor(first / d.inputChunkRows) +
           1,
       },
       (_, i) =>
-        `input-rows-v2/${d.input.sha256}/${(Math.floor(107 / d.inputChunkRows) + i) * d.inputChunkRows}.bin`,
+        `input-rows-v2/${d.input.sha256}/${(Math.floor(first / d.inputChunkRows) + i) * d.inputChunkRows}.bin`,
     ),
     chunk.file,
     chunk.integrity.file,
+    scoreChunk.file,
   ]);
   assert.equal(await det.page.locator('.aggregate-error').count(), 0);
   await selectFeature(det.page, '4');
@@ -127,7 +147,11 @@ try {
   summary.push({
     page: 'detection',
     initialBytes: 19176,
-    initialBinaryFiles: [`curves-v1/${d.input.sha256}/mean.bin`, 'selected window'],
+    initialBinaryFiles: [
+      `curves-v1/${d.input.sha256}/mean.bin`,
+      'selected window',
+      'covering window scores',
+    ],
     singleWindowLoadedWithPage: true,
     labelsOnDemand: true,
   });
@@ -390,13 +414,13 @@ try {
         contentType: 'application/json',
       }),
     );
-    await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
+    await page.getByRole('link', { name: /计算过程/ }).click();
     await page.getByRole('alert').filter({ hasText: '数据文件' }).waitFor();
     assert.equal(await page.getByTestId('aggregate-equation').count(), 0);
     await page.getByRole('button', { name: '重试计算索引', exact: true }).click();
     await page.getByTestId('aggregate-equation').waitFor();
     assert.equal(indexReads, 2);
-    assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '133');
+    assert.equal(await page.locator('#window-calculation').getAttribute('data-point'), '133');
     assert.equal(
       await page.getByTestId('aggregate-equation').locator('strong').innerText(),
       manifest.models[0].scores[132].toFixed(9),

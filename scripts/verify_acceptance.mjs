@@ -1,6 +1,6 @@
 import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
-import { launchBrowser, showcaseUrl } from './browser.mjs';
+import { caseFeature, launchBrowser, showcaseUrl } from './browser.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 const base = showcaseUrl;
 const folder = qaDirectory('acceptance');
@@ -32,9 +32,13 @@ try {
     }
     const item = cases.find((item) => item.insertion === 'replace' && item.kind === 'reference');
     const material = await values(item.material);
+    const feature = caseFeature(item, material);
     await p.getByRole('button', { name: '异常素材', exact: true }).click();
-    for (const [step, name] of ['取参考片段', '时间反转', '幅值翻转'].entries()) {
-      await p.getByRole('button', { name, exact: true }).click();
+    for (const [step, name] of [/^测试集第 \d+—\d+ 点$/, '时间反转', '1 − 数值'].entries()) {
+      await p
+        .locator('.construction-chain')
+        .getByRole('button', { name, exact: typeof name === 'string' })
+        .click();
       const endpoints = await p
         .locator('.reference-construction [data-source-point]')
         .evaluateAll((elements) =>
@@ -46,7 +50,7 @@ try {
         );
       assert.equal(endpoints.length, 2);
       for (const endpoint of endpoints) {
-        const original = material[(item.begin + endpoint.source) * 125 + item.feature];
+        const original = material[(item.begin + endpoint.source) * 125 + feature];
         assert.ok(
           Math.abs(endpoint.position - (step === 0 ? endpoint.source : 23 - endpoint.source)) <
             1e-12,
@@ -60,7 +64,7 @@ try {
     assert.equal(await p.locator('.case-stage').getAttribute('data-written'), '12');
     for (const point of [18, 29, 30, 41]) {
       await p.locator('.case-label-cells button').nth(point).click();
-      const expected = (point < 30 ? input : original)[point * 125 + item.feature];
+      const expected = (point < 30 ? input : original)[point * 125 + feature];
       assert.equal(await p.getByTestId('case-after').innerText(), expected.toFixed(4));
     }
     if (await picker.isVisible()) await picker.click();
@@ -70,7 +74,7 @@ try {
     await p.getByRole('button', { name: '插入过程', exact: true }).click();
     const mixedBase = await values(mixed.original),
       mixedInput = await values(mixed.input),
-      index = 30 * 125 + mixed.feature;
+      index = 30 * 125 + caseFeature(mixed, await values(mixed.material));
     assert.equal(
       await p.getByTestId('case-after').innerText(),
       ((mixedBase[index] + mixedInput[index]) / 2).toFixed(4),

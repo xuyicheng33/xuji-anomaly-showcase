@@ -1,7 +1,7 @@
 import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl } from './browser.mjs';
+import { launchBrowser, selectWindow, showcaseUrl } from './browser.mjs';
 const base = showcaseUrl;
 const out = qaDirectory('calculation');
 await mkdir(out, { recursive: true });
@@ -18,6 +18,10 @@ try {
     page.on('pageerror', (e) => errors.push(String(e)));
     await page.goto(base + '#/detection');
     await page.getByTestId('calculated-score').waitFor();
+    await selectWindow(page, 107);
+    await page.waitForFunction(
+      () => document.querySelector('#window-calculation')?.getAttribute('data-point') !== null,
+    );
     await page.getByRole('slider', { name: '片段查看时刻' }).fill('25');
     await page.waitForFunction(
       () => document.querySelector('#window-calculation')?.getAttribute('data-point') === '133',
@@ -36,10 +40,18 @@ try {
     await page.getByTestId('calculated-score').waitFor();
     assert.equal(await page.getByRole('slider', { name: '片段查看时刻' }).inputValue(), '25');
     assert.equal(await page.getByTestId('calculated-score').innerText(), '0.039812995');
-    await page.goto(base + '#/playback');
-    await page.getByRole('slider', { name: '播放进度' }).fill('133');
-    await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
-    await page.getByTestId('aggregate-equation').waitFor();
+    const openCalculation = async (progress) => {
+      await page.goto(base + '#/playback');
+      await page.getByRole('slider', { name: '播放进度' }).fill(String(progress));
+      await page.getByRole('link', { name: /计算过程/ }).click();
+      await page.locator('.coverage-scores').waitFor();
+    };
+    await openCalculation(133);
+    assert.equal(
+      await page.locator('#window-calculation').getAttribute('data-point'),
+      '133',
+      'The calculation opens on the playback point',
+    );
     assert.equal(await page.locator('.window-score-scroll tbody tr').count(), 64);
     assert.equal(
       await page
@@ -61,22 +73,25 @@ try {
       await page.getByTestId('aggregate-equation').locator('strong').innerText(),
       '0.040101218',
     );
+    assert.equal(await page.getByTestId('point-score').innerText(), '0.040101218');
     await page
       .locator('.window-score-scroll tbody tr')
       .filter({ hasText: '第 108—171 点' })
       .getByRole('button')
       .click();
-    await page.getByTestId('coverage-window-calculation-score').waitFor();
-    assert.equal(
-      await page.getByTestId('coverage-window-calculation-score').innerText(),
-      '0.039812995',
+    await page.waitForFunction(
+      () => document.querySelector('[data-testid=calculated-score]')?.textContent === '0.039812995',
     );
-    await page.getByRole('slider', { name: '播放进度' }).fill('1');
-    await page.getByTestId('aggregate-equation').waitFor();
+    assert.equal(
+      await page.locator('#window-calculation').getAttribute('data-point'),
+      '133',
+      'Choosing a covering window keeps the time point',
+    );
+    await openCalculation(1);
     assert.equal(await page.locator('.window-score-scroll tbody tr').count(), 1);
-    await page.getByRole('slider', { name: '播放进度' }).fill('2397');
-    await page.getByTestId('aggregate-equation').waitFor();
+    await openCalculation(2397);
     assert.equal(await page.locator('.window-score-scroll tbody tr').count(), 1);
+    await page.goto(base + '#/playback');
     await page.getByRole('slider', { name: '播放进度' }).fill('133');
     await page.locator('.aggregation-summary').scrollIntoViewIfNeeded();
     await page.screenshot({ path: out + '/' + width + '-aggregation.png' });
@@ -93,8 +108,8 @@ try {
     const dataText = await page.locator('.data-chapter').innerText();
     assert.ok(!/缺失率|这些底部油温|均包含/.test(dataText));
     const normalizationText = await page.locator('.normalization-heading').innerText();
-    assert.match(normalizationText, /训练集的最小值和最大值/);
-    assert.match(normalizationText, /测试值截断至\s*0—1/);
+    assert.match(normalizationText, /训练集各测点的最小值、最大值/);
+    assert.match(normalizationText, /测试集超出\s*0—1\s*的值截断/);
     assert.equal(await page.locator('.removed-sensors li span').count(), 0);
     assert.equal(await page.locator('.balanced-split br').count(), 0);
     assert.ok(

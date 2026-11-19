@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { countMetrics, meanSeries, loadWindow, windowScores } from '../journey';
+import { meanSeries, loadWindow, outcomeCode } from '../journey';
 import {
   Heading,
-  Section,
   ModelSelect,
   FeatureSelect,
-  Confusion,
-  Rates,
+  Outcome,
   SelectionIndicator,
   colors,
 } from './ReportUI';
@@ -15,6 +13,7 @@ import ReconstructionView from './ReconstructionView';
 import { useCurveData, useWindowInput } from './useCurveData';
 import { Footnote } from './notes';
 import { ScoreCalculation } from './ScoreCalculation';
+import { CoverageScores } from './CoverageScores';
 import { presentationMemory } from './presentationMemory';
 import type { DetectionProps } from './detectionTypes';
 import { chapterContent } from './navigation';
@@ -30,9 +29,8 @@ export function DetectionChapter(p: DetectionProps) {
     data,
     model,
     setModel,
-    feature,
     setFeature,
-    start,
+    start: savedStart,
     setStart,
     viewFeature,
     setViewFeature,
@@ -43,18 +41,45 @@ export function DetectionChapter(p: DetectionProps) {
   const [result, setResult] = useState<WindowResult | null>(null),
     [error, setError] = useState(''),
     [point, setPoint] = useState(Math.min(24, window - 1)),
-    [draftStart, setDraftStart] = useState<string | null>(null),
     [attempt, setAttempt] = useState(0);
-  const viewKey = `${model.run}:${model.id}:${start}`;
-  const maximumStart = data.times.length - window + 1;
-  const invalidStart =
-    draftStart !== null &&
-    (!draftStart.trim() ||
-      !Number.isInteger(Number(draftStart)) ||
-      Number(draftStart) < 1 ||
-      Number(draftStart) > maximumStart);
-  const [validateStart, setValidateStart] = useState(false);
+  const lastStart = data.times.length - window;
   const pendingExample = useRef<{ key: string; point: number } | null>(null);
+  // Typical points by their final outcome: the averaged score against the playback threshold.
+  const examples = useMemo(
+    () => typicalPoints(data.labels, model.scores, model.threshold),
+    [data.labels, model.scores, model.threshold],
+  );
+  const windowAround = (index: number) => Math.max(0, Math.min(lastStart, index - (window >> 1)));
+  // Arriving from playback opens its point; the first visit opens on a detected point.
+  // The arrival window is shown from the first render, so no other window loads first.
+  const [arrival] = useState(() => {
+    const target =
+      presentationMemory.detectionTarget ??
+      (presentationMemory.detectionVisited
+        ? null
+        : (examples.find((e) => e.code === 'tp')?.index ?? null));
+    if (target === null) return null;
+    const next = windowAround(target);
+    pendingExample.current = { key: `${model.run}:${model.id}:${next}`, point: target - next };
+    return next;
+  });
+  const synced = useRef(arrival === null);
+  const start = synced.current ? savedStart : arrival!;
+  useEffect(() => {
+    presentationMemory.detectionTarget = null;
+    presentationMemory.detectionVisited = true;
+    synced.current = true;
+    if (arrival !== null) setStart(arrival);
+  }, [arrival, setStart]);
+  const viewKey = `${model.run}:${model.id}:${start}`;
+  const openPoint = (index: number) => {
+    const next = windowAround(index);
+    pendingExample.current =
+      next === start ? null : { key: `${model.run}:${model.id}:${next}`, point: index - next };
+    setPoint(index - next);
+    setStart(next);
+  };
+
   const retry = () => setAttempt((value) => value + 1);
   useEffect(() => {
     const saved =
@@ -62,14 +87,11 @@ export function DetectionChapter(p: DetectionProps) {
     // Keep the previous window on screen until the next one arrives.
     if (saved) setResult(saved.result);
     setError('');
-    const example = model.examples.find((item) => item.start === start);
     const selectedPoint =
       pendingExample.current?.key === viewKey ? pendingExample.current.point : null;
-    pendingExample.current = null;
-    setPoint(
-      Math.min(window - 1, selectedPoint ?? saved?.point ?? (example ? example.index - start : 24)),
-    );
-  }, [viewKey, model.examples, start, window]);
+    if (selectedPoint !== null) pendingExample.current = null;
+    setPoint(Math.min(window - 1, selectedPoint ?? saved?.point ?? window >> 1));
+  }, [viewKey, start, window]);
   // Load the selected window automatically; a short pause lets a dragged slider settle first.
   useEffect(() => {
     if (presentationMemory.detection?.key === viewKey) return;
@@ -91,22 +113,16 @@ export function DetectionChapter(p: DetectionProps) {
   const inputAsset = useWindowInput(data, start, true),
     input = inputAsset.data;
   const ready = !!input && result?.start === start && result.modelId === model.id,
-    resultScores = useMemo(
-      () => (ready ? windowScores(input, result.recon, 0, window, features) : []),
-      [ready, input, result, window, features],
-    ),
-    threshold = model.windowThreshold,
     labs = data.labels.slice(start, start + window),
-    stats = ready ? countMetrics(labs, resultScores, threshold) : null;
+    pointScores = model.scores.slice(start, start + window);
   const labelAsset = useCurveData(ready && viewFeature >= 0 ? data.labelMatrix : null, viewFeature);
   useEffect(() => {
     if (ready && result) presentationMemory.detection = { key: viewKey, result, point };
   }, [ready, result, point, viewKey]);
   // The evaluation stays in place while the next window loads, then updates where it stands.
-  const currentView =
-    ready && stats
-      ? { model, input, recon: result.recon, start, labs, scores: resultScores, stats }
-      : null;
+  const currentView = ready
+    ? { model, input, recon: result.recon, start, labs, scores: pointScores }
+    : null;
   const lastView = useRef(currentView);
   if (currentView) lastView.current = currentView;
   const view = currentView ?? lastView.current,
@@ -132,27 +148,11 @@ export function DetectionChapter(p: DetectionProps) {
         <span aria-hidden="true">典型片段</span>
         <div className="segmented" role="group" aria-label="典型片段">
           <SelectionIndicator />
-          {model.examples.map((e) => (
+          {examples.map((e) => (
             <button
               key={e.code}
-              aria-pressed={
-                start === e.start && feature === e.feature && point === e.index - e.start
-              }
-              onClick={() => {
-                pendingExample.current =
-                  start === e.start
-                    ? null
-                    : {
-                        key: `${model.run}:${model.id}:${e.start}`,
-                        point: e.index - e.start,
-                      };
-                setPoint(e.index - e.start);
-                setDraftStart(null);
-                setValidateStart(false);
-                setStart(e.start);
-                setFeature(e.feature);
-                setViewFeature(e.feature);
-              }}
+              aria-pressed={start + point === e.index && start === windowAround(e.index)}
+              onClick={() => openPoint(e.index)}
             >
               {names[e.code]}
             </button>
@@ -160,40 +160,16 @@ export function DetectionChapter(p: DetectionProps) {
         </div>
       </div>
       <div className="selection-panel">
-        <label className="field">
-          起始位置
-          <input
-            aria-label="片段起点"
-            type="number"
-            min="1"
-            max={data.times.length - window + 1}
-            aria-invalid={(validateStart && invalidStart) || undefined}
-            aria-describedby="start-input-hint"
-            value={draftStart ?? start + 1}
-            onChange={(e) => {
-              setDraftStart(e.target.value);
-              if (e.target.value && e.target.validity.valid) setStart(e.target.valueAsNumber - 1);
-            }}
-            onBlur={() => {
-              setValidateStart(true);
-              if (!invalidStart) setDraftStart(null);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') e.currentTarget.blur();
-            }}
-          />
-        </label>
+        <span className="selection-label" aria-hidden="true">
+          片段位置
+        </span>
         <input
           aria-label={`选择 ${window} 点片段`}
           type="range"
           min="0"
-          max={data.times.length - window}
+          max={lastStart}
           value={start}
-          onChange={(e) => {
-            setDraftStart(null);
-            setValidateStart(false);
-            setStart(+e.target.value);
-          }}
+          onChange={(e) => setStart(+e.target.value)}
         />
         <span className="window-range">
           第 {(start + 1).toLocaleString('en-US')}—{(start + window).toLocaleString('en-US')} 点
@@ -202,15 +178,6 @@ export function DetectionChapter(p: DetectionProps) {
           </small>
         </span>
       </div>
-      <p
-        id="start-input-hint"
-        className={validateStart && invalidStart ? 'input-hint invalid' : 'sr-only'}
-        role={validateStart && invalidStart ? 'alert' : undefined}
-      >
-        {validateStart && invalidStart
-          ? `输入 1—${maximumStart} 之间的整数，当前仍显示第 ${start + 1} 点起的片段。`
-          : `可选起点：1—${maximumStart}`}
-      </p>
       {inputCurve.data ? (
         <ReconstructionView
           features={data.features.length}
@@ -256,12 +223,10 @@ export function DetectionChapter(p: DetectionProps) {
       {view && (
         <div className={'detection-results' + (stale ? ' is-stale' : '')} aria-busy={stale}>
           <Curve
-            title="窗口异常分数"
-            lines={[
-              { name: `${features} 测点平均平方误差`, values: view.scores, color: colors.score },
-            ]}
+            title="异常分数"
+            lines={[{ name: '逐点异常分数', values: view.scores, color: colors.score }]}
             labels={view.labs}
-            threshold={view.model.windowThreshold}
+            threshold={view.model.threshold}
             selected={shownPoint}
             height={190}
             start={view.start}
@@ -279,37 +244,108 @@ export function DetectionChapter(p: DetectionProps) {
             />
             <span>第 {view.start + shownPoint + 1} 点</span>
           </label>
-          <div id="window-evaluation">
-            <Section
-              title={
-                <>
-                  片段评估结果
-                  <Footnote note="point-metrics" />
-                </>
-              }
-            >
-              <div className="statistics">
-                <Confusion metrics={view.stats} />
-                <div className="matrix-section">
-                  <div className="matrix-caption">
-                    <h3>评估指标</h3>
-                  </div>
-                  <Rates metrics={view.stats} />
+          <section className="score-steps" aria-labelledby="score-steps-title">
+            <div className="score-steps-heading">
+              <h2 id="score-steps-title">
+                计算过程
+                <Footnote note="score-calculation" reference="ref-window-calculation" />
+              </h2>
+              <p className="calculation-time">
+                {data.times[view.start + shownPoint]}，第 {view.start + shownPoint + 1} 点
+              </p>
+            </div>
+            <ol className="score-step-list">
+              <li>
+                <div className="score-step-title">
+                  <span>01</span>
+                  <h3>单个窗口：逐项相减再平方</h3>
+                  <small>
+                    第 {(view.start + 1).toLocaleString('en-US')}—
+                    {(view.start + window).toLocaleString('en-US')} 点窗口，窗口内第{' '}
+                    {shownPoint + 1} / {window} 个时刻
+                  </small>
                 </div>
-              </div>
-            </Section>
-          </div>
-          <ScoreCalculation
-            data={data}
-            model={view.model}
-            input={view.input!}
-            recon={view.recon}
-            start={view.start}
-            point={shownPoint}
-            stale={stale}
-            focusFeature={viewFeature}
-            labels={labelAsset.data}
-          />
+                <ScoreCalculation
+                  data={data}
+                  input={view.input!}
+                  recon={view.recon}
+                  start={view.start}
+                  point={shownPoint}
+                  stale={stale}
+                  focusFeature={viewFeature}
+                  labels={labelAsset.data}
+                />
+              </li>
+              <li>
+                <div className="score-step-title">
+                  <span>02</span>
+                  <h3>覆盖该时刻的窗口取平均</h3>
+                </div>
+                <CoverageScores
+                  data={data}
+                  model={view.model}
+                  index={view.start + shownPoint}
+                  activeStart={view.start}
+                  onSelect={(next) => {
+                    const index = view.start + shownPoint;
+                    pendingExample.current = {
+                      key: `${model.run}:${model.id}:${next}`,
+                      point: index - next,
+                    };
+                    setStart(next);
+                  }}
+                />
+              </li>
+              <li>
+                <div className="score-step-title">
+                  <span>03</span>
+                  <h3>
+                    与阈值比较
+                    <Footnote note="thresholds" reference="ref-detection-threshold" />
+                  </h3>
+                </div>
+                <div className="score-judgement">
+                  <p className="calculation-comparison">
+                    <span data-testid={stale ? undefined : 'point-score'}>
+                      {view.model.scores[view.start + shownPoint].toFixed(9)}
+                    </span>{' '}
+                    <b>
+                      {view.model.scores[view.start + shownPoint] > view.model.threshold
+                        ? '>'
+                        : '≤'}
+                    </b>{' '}
+                    <span data-testid={stale ? undefined : 'point-threshold'}>
+                      {view.model.threshold.toFixed(9)}
+                    </span>
+                  </p>
+                  <dl>
+                    <div>
+                      <dt>模型判断</dt>
+                      <dd>
+                        {view.model.scores[view.start + shownPoint] > view.model.threshold
+                          ? '异常'
+                          : '正常'}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>实验标签</dt>
+                      <dd>{data.labels[view.start + shownPoint] ? '异常' : '正常'}</dd>
+                    </div>
+                    <div>
+                      <dt>结果</dt>
+                      <dd>
+                        <Outcome
+                          label={data.labels[view.start + shownPoint]}
+                          score={view.model.scores[view.start + shownPoint]}
+                          model={view.model}
+                        />
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+              </li>
+            </ol>
+          </section>
           {viewFeature >= 0 && labelAsset.error && (
             <p role="alert" className="inline-error">
               {labelAsset.error}
@@ -319,5 +355,20 @@ export function DetectionChapter(p: DetectionProps) {
         </div>
       )}
     </div>
+  );
+}
+
+/** One representative time point per outcome: the strongest alarm for detections and false
+ * alarms, the first occurrence for misses and normal points. */
+function typicalPoints(labels: ArrayLike<number>, scores: ArrayLike<number>, threshold: number) {
+  const picks = new Map<string, number>();
+  for (let i = 0; i < scores.length; i++) {
+    const code = outcomeCode(labels[i], scores[i], threshold);
+    const current = picks.get(code);
+    if (current === undefined) picks.set(code, i);
+    else if ((code === 'tp' || code === 'fp') && scores[i] > scores[current]) picks.set(code, i);
+  }
+  return (['tp', 'fp', 'fn', 'tn'] as const).flatMap((code) =>
+    picks.has(code) ? [{ code, index: picks.get(code)! }] : [],
   );
 }

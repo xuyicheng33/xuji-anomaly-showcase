@@ -136,14 +136,11 @@ try {
     await page.getByRole('img', { name: '训练重建误差（MSE）', exact: true }).waitFor();
     await page.goto(base + '#/detection');
     await page.locator('.reconstruction-view').waitFor();
-    const startInput = page.getByRole('spinbutton', { name: '片段起点' });
-    await startInput.fill('');
-    assert.equal(await startInput.inputValue(), '');
-    await startInput.pressSequentially('500');
-    assert.equal(await startInput.inputValue(), '500');
-    await startInput.press('Enter');
-    assert.equal(await page.getByRole('slider', { name: '选择 64 点片段' }).inputValue(), '499');
-    await startInput.fill('108');
+    const windowSlider = page.getByRole('slider', { name: '选择 64 点片段' });
+    await windowSlider.focus();
+    await page.keyboard.press('Home');
+    assert.equal(await windowSlider.inputValue(), '0');
+    await windowSlider.fill('107');
     if (width <= 390) await selectFeature(page, '5');
     await page.getByTestId('calculated-score').waitFor();
     const scrollHint = page.locator('#window-calculation-scroll-hint');
@@ -242,15 +239,10 @@ try {
         if ((await picker.getAttribute('aria-expanded')) === 'false') await picker.click();
       };
       await openPicker();
-      await page.getByText('查看构造说明与公式', { exact: true }).click();
-      assert.match(await page.locator('.case-explanation').innerText(), /用异常素材替代局部原值/);
       await page.locator('.case-methods button').last().click();
       await page.locator('.case-label-cells button').last().waitFor();
       await openPicker();
-      assert.match(await page.locator('.case-explanation').innerText(), /原始值 × \(1 − 权重\)/);
       await page.locator('.case-methods button').first().click();
-      await openPicker();
-      await page.getByText('查看构造说明与公式', { exact: true }).click();
       await page.getByRole('button', { name: '标签结果', exact: true }).click();
       const selected = () => page.locator('.case-label-cells [aria-pressed=true]');
       assert.equal(await page.locator('.case-label-cells button[tabindex="0"]').count(), 1);
@@ -300,11 +292,7 @@ try {
     await page.goto(base + '#/data');
     const removed = page.locator('.removed-sensors');
     await removed.waitFor();
-    assert.equal(await removed.getAttribute('open'), null);
-    await removed.locator('summary').click();
     assert.equal(await removed.locator('li:visible').count(), 11);
-    await removed.locator('summary').click();
-    assert.equal(await removed.locator('li:visible').count(), 0);
     if (width === 1440 || width === 390) {
       await page.goto(base + '#/playback');
       await page.locator('.playback-page[data-curves-ready=true]').waitFor();
@@ -333,31 +321,7 @@ try {
       await progress.fill('2397');
       assert.equal(await page.locator('.replay-links button:disabled').count(), 3);
     }
-    await page.goto(base + '#/data');
-    const help = page.getByRole('button', { name: '无效记录处理说明', exact: true });
-    await help.click();
-    await page.getByRole('tooltip').waitFor();
-    assert.equal(new URL(page.url()).hash, '#/data', 'Short help keeps the current page');
-    await help.click();
-    assert.equal(await page.getByRole('tooltip').count(), 0, 'A second click dismisses short help');
-    await help.click();
-    await page.getByRole('tooltip').waitFor();
-    await page.getByRole('heading', { name: '监测数据预处理', exact: true }).click();
-    assert.equal(await page.getByRole('tooltip').count(), 0, 'Outside clicks dismiss short help');
-    await help.focus();
-    await page.getByRole('tooltip').waitFor();
-    await page.keyboard.press('Escape');
-    assert.equal(await page.getByRole('tooltip').count(), 0);
-    assert.equal(await help.evaluate((element) => element === document.activeElement), true);
-    if (width <= 390) {
-      await page.evaluate(() => (document.documentElement.style.zoom = '2'));
-      await help.click();
-      const tip = await page.getByRole('tooltip').boundingBox();
-      assert.ok(tip.x >= 0 && tip.x + tip.width <= width && tip.height <= 844);
-      await page.screenshot({ path: out + '/' + width + '-help-200.png' });
-      await page.keyboard.press('Escape');
-      await page.evaluate(() => (document.documentElement.style.zoom = ''));
-    }
+    assert.equal(await page.locator('.info-tip').count(), 0, 'Explanations live on the notes page');
     await page.goto(base + '#/models');
     await page.getByRole('link', { name: /^模型说明：/ }).click();
     await page.locator('#note-model-design:focus').waitFor();

@@ -336,7 +336,6 @@ export function PlaybackChapter(p: PlaybackProps) {
           data={data}
           model={model}
           index={count ? idx : null}
-          playing={playing}
           pause={() => setPlaying(false)}
         />
       </div>

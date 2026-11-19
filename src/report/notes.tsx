@@ -15,7 +15,7 @@ export const notes = [
   { id: 'window-settings', title: '窗口、训练批次与结果来源', page: 'training' },
   { id: 'training-mse', title: '训练重建误差与优化目标', page: 'training' },
   { id: 'point-metrics', title: '逐点指标与区间点调整', page: 'detection' },
-  { id: 'score-calculation', title: '单窗口异常分数计算', page: 'detection' },
+  { id: 'score-calculation', title: '异常分数计算', page: 'detection' },
   { id: 'thresholds', title: '阈值与评估规则', page: 'detection' },
   { id: 'window-aggregation', title: '连续回放与跨窗口合并', page: 'playback' },
 ] as const;

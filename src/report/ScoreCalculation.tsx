@@ -1,8 +1,7 @@
 import TableScrollHint from './TableScrollHint';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { type Journey, type Model } from '../journey';
+import { type Journey } from '../journey';
 import { Footnote } from './notes';
-import { Outcome } from './ReportUI';
 import Fraction from './Fraction';
 import { featureName } from './featureNames';
 
@@ -26,7 +25,6 @@ const decimal = (value: number) => value.toFixed(9);
 
 export function ScoreCalculation({
   data,
-  model,
   input,
   recon,
   start,
@@ -37,7 +35,6 @@ export function ScoreCalculation({
   stale = false,
 }: {
   data: Journey;
-  model: Model;
   input: Float64Array;
   recon: Float32Array;
   start: number;
@@ -67,21 +64,9 @@ export function ScoreCalculation({
     <section
       className="score-calculation"
       id={id}
-      aria-label="异常分数计算过程"
+      aria-label="单个窗口的平方误差"
       data-point={index + 1}
     >
-      <div className="calculation-heading">
-        <div>
-          <h2>
-            异常分数计算
-            <Footnote note="score-calculation" reference={'ref-' + id} />
-          </h2>
-          <p className="calculation-time">
-            {data.times[index]}，第 {index + 1} 点，窗口内第 {point + 1} / {data.window}{' '}
-            个时刻，归一化数值
-          </p>
-        </div>
-      </div>
       <div className="calculation-layout">
         <div className="calculation-details" data-expanded={expanded}>
           <button
@@ -93,7 +78,6 @@ export function ScoreCalculation({
             {expanded ? '收起测点明细' : `查看全部 ${features} 个测点明细`}
           </button>
           <div id={id + '-rows'} className="calculation-rows">
-            <h3>逐项相减，再平方</h3>
             {selectedRow && (
               <div
                 className="sensor-calculation-detail"
@@ -179,12 +163,15 @@ export function ScoreCalculation({
         </div>
         <div className="calculation-total">
           <h3>汇总全部 {features} 项</h3>
-          <p>平方误差合计</p>
-          <strong className="sum-value" data-testid={stale ? undefined : id + '-sum'}>
-            {decimal(calculation.sum)}
-          </strong>
           <div className="calculation-equation">
-            <Fraction numerator={decimal(calculation.sum)} denominator={features} />
+            <Fraction
+              numerator={
+                <span data-testid={stale ? undefined : id + '-sum'}>
+                  {decimal(calculation.sum)}
+                </span>
+              }
+              denominator={features}
+            />
             <span className="equation-result">
               <span>=</span>
               <strong
@@ -200,23 +187,6 @@ export function ScoreCalculation({
               </strong>
             </span>
           </div>
-          <h3>与窗口阈值比较</h3>
-          <p className="calculation-comparison">
-            {decimal(calculation.score)}{' '}
-            <b>{calculation.score > model.windowThreshold ? '>' : '≤'}</b>{' '}
-            <span
-              data-testid={
-                stale ? undefined : id === 'window-calculation' ? 'window-threshold' : undefined
-              }
-            >
-              {decimal(model.windowThreshold)}
-            </span>
-          </p>
-          <Outcome
-            label={data.labels[index]}
-            score={calculation.score}
-            model={{ ...model, threshold: model.windowThreshold }}
-          />
         </div>
       </div>
     </section>

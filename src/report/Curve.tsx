@@ -4,6 +4,14 @@ import { curveDomain, indexTicks, tickLabel, valueTicks } from './curveScale';
 import { Footnote, type NoteId } from './notes';
 import { usePlaybackScale, type PlaybackScale } from './usePlaybackScale';
 import { usePlotGeometry } from './usePlotGeometry';
+export type CurveScale = {
+  x: (index: number) => number;
+  y: (value: number) => number;
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+};
 export default function Curve({
   lines,
   labels = [],
@@ -25,6 +33,7 @@ export default function Curve({
   note,
   reference,
   playbackScale,
+  overlay,
 }: {
   lines: {
     name: string;
@@ -56,6 +65,8 @@ export default function Curve({
   note?: NoteId;
   reference?: string;
   playbackScale?: PlaybackScale;
+  /** Extra marks drawn with the chart's own scales, above the lines. */
+  overlay?: (scale: CurveScale) => ReactNode;
 }) {
   const { container, width, left: L, right: R } = usePlotGeometry();
   const uid = useId().replace(/:/g, '');
@@ -265,6 +276,7 @@ export default function Curve({
               />
             ))}
           </g>
+          {overlay?.({ x, y, top: T, bottom: height - B, left: L, right: W - R })}
           {hover !== null && hover !== selected && (
             <g className="curve-hover" aria-hidden="true">
               <line x1={x(hover)} x2={x(hover)} y1={T} y2={height - B} />
