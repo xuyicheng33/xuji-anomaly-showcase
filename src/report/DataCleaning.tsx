@@ -79,12 +79,6 @@ export default function DataCleaning({ data }: { data: Journey }) {
         <div className="cleaning-intro">
           <h3>剔除 11 个全缺失测点</h3>
           <p>全部记录中均无数值</p>
-          <div className="cleaning-count">
-            <strong>136</strong>
-            <span aria-hidden="true">→</span>
-            <strong>125</strong>
-            <small>个测点</small>
-          </div>
         </div>
         <div className="removed-sensors">
           <div className="cleaning-caption">

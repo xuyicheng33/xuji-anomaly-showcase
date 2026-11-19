@@ -75,7 +75,7 @@ export function CoverageScores({
           <thead>
             <tr>
               <th>覆盖窗口</th>
-              <th>窗口内位置</th>
+              <th>位置</th>
               <th>该时刻分数</th>
               <th>
                 <span className="sr-only">查看该窗口</span>

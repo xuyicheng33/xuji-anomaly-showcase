@@ -29,10 +29,10 @@
   color: var(--muted);
 }
 .model-added-key i {
-  width: 7px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--ink);
   border-radius: 50%;
-  background: var(--ink);
 }
 
 .report-figure-dialog {
@@ -81,7 +81,7 @@
 }
 .image-figure-frame {
   position: relative;
-  padding: var(--space-4);
+  overflow: hidden;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: var(--radius-panel);
@@ -173,13 +173,13 @@
 }
 .figure-added {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 8px;
-  height: 8px;
-  border: 2px solid #fff;
+  top: 5px;
+  right: 5px;
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--ink);
   border-radius: 50%;
-  background: var(--ink);
+  background: #fff;
 }
 .figure-zoom {
   position: absolute;
@@ -323,10 +323,10 @@
   position: absolute;
   top: 5px;
   right: 5px;
-  width: 5px;
-  height: 5px;
+  width: 7px;
+  height: 7px;
+  border: 1.5px solid var(--ink);
   border-radius: 50%;
-  background: var(--ink);
 }
 
 /* Explanation of the chosen module, or the design overview. */

@@ -128,26 +128,6 @@
   color: var(--muted);
   max-width: 350px;
 }
-.cleaning-count {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-4);
-  margin-top: var(--space-5);
-}
-.cleaning-count strong {
-  font-family: var(--metric);
-  font-size: var(--text-4xl);
-  font-variant-numeric: tabular-nums;
-  font-weight: 400;
-  color: var(--data);
-}
-.cleaning-count span {
-  color: var(--muted);
-}
-.cleaning-count small {
-  color: var(--muted);
-}
 .cleaning-caption {
   display: flex;
   align-items: center;
@@ -481,9 +461,6 @@
   .cleaning-intro p {
     max-width: none;
     font-size: var(--text-sm);
-  }
-  .cleaning-count {
-    margin-top: var(--space-4);
   }
   .invalid-intervals {
     grid-template-columns: minmax(0, 1fr);

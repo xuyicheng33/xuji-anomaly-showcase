@@ -163,12 +163,15 @@ export function ScoreCalculation({
         </div>
         <div className="calculation-total">
           <h3>汇总全部 {features} 项</h3>
-          <p>平方误差合计</p>
-          <strong className="sum-value" data-testid={stale ? undefined : id + '-sum'}>
-            {decimal(calculation.sum)}
-          </strong>
           <div className="calculation-equation">
-            <Fraction numerator={decimal(calculation.sum)} denominator={features} />
+            <Fraction
+              numerator={
+                <span data-testid={stale ? undefined : id + '-sum'}>
+                  {decimal(calculation.sum)}
+                </span>
+              }
+              denominator={features}
+            />
             <span className="equation-result">
               <span>=</span>
               <strong

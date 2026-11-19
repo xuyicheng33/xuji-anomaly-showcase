@@ -160,6 +160,9 @@ export function DetectionChapter(p: DetectionProps) {
         </div>
       </div>
       <div className="selection-panel">
+        <span className="selection-label" aria-hidden="true">
+          片段位置
+        </span>
         <input
           aria-label={`选择 ${window} 点片段`}
           type="range"
