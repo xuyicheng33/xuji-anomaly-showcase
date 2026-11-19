@@ -1,92 +1,691 @@
-/* Model structure and explanations. */
+/* Model structure: the report figure redrawn, its module explanations and visuals. */
 .models-chapter {
   container-type: inline-size;
 }
-.model-intro {
-  margin: var(--space-8) 0;
+.models-chapter .model-selection-row {
+  margin-bottom: 0;
 }
-.model-intro > span {
-  font-family: var(--numeral);
-  font-size: var(--text-2xl);
-  color: var(--muted);
+.model-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-8);
+  margin: var(--space-10) 0 var(--space-8);
 }
 .model-intro h2 {
-  font-size: var(--text-4xl);
-  margin: var(--space-3) 0;
+  font-size: var(--title-section);
+  line-height: 1.35;
+}
+/* Wide layouts break the caption between phrases, never inside a term. */
+.title-phrase {
+  white-space: nowrap;
+}
+.model-added-key {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.model-added-key i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
 }
 
-.models-chapter .model-details {
-  margin: 0;
-  border-bottom: 1px solid var(--line);
-}
-.models-chapter .model-details > details + details {
-  border-top: 1px solid var(--line);
-}
-.models-chapter .model-details h3 {
-  font: inherit;
-}
-.models-chapter .model-details p {
-  max-width: 42em;
-  margin: 0 0 var(--space-4) var(--space-5);
-  font-size: var(--text-sm);
-  line-height: 1.85;
-  color: var(--muted);
-  text-wrap: pretty;
-}
-.model-explanation {
+/* The report's original figure, small beside the redrawn one. */
+.report-figure-thumb {
   display: grid;
-}
-.mask-example {
-  padding: var(--space-6) 0;
-  border-block: 1px solid var(--line);
-}
-.mask-example-top {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
-  font-size: var(--text-xs);
+  gap: var(--space-2);
+  width: 184px;
+  padding: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--paper);
   color: var(--muted);
-}
-.mask-example-key {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
   font-size: var(--text-xs);
-  color: var(--muted);
+  text-align: left;
+  transition:
+    border-color var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out);
 }
-.mask-example-top strong {
-  font-weight: 500;
+.report-figure-thumb:hover:not(:disabled) {
+  background: var(--paper);
+  border-color: var(--control-border);
+  box-shadow: var(--shadow-raised);
   color: var(--ink);
 }
-.mask-example-cells {
+.report-figure-thumb img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: #fff;
+  border-radius: var(--radius-small);
+}
+.report-figure-dialog {
+  width: min(1240px, calc(100vw - 2 * var(--space-6)));
+  max-height: calc(100dvh - 2 * var(--space-6));
+  padding: var(--space-6);
+  border: 0;
+  border-radius: var(--radius-panel);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: var(--shadow-sheet);
+  overflow: auto;
+}
+.report-figure-dialog[open] {
+  animation: pop-in var(--motion-normal) var(--ease-spring);
+}
+.report-figure-dialog::backdrop {
+  background: var(--scrim);
+}
+.report-figure-dialog figure {
   display: grid;
-  grid-template-columns: repeat(var(--mask-points, 64), minmax(0, 1fr));
-  gap: 2px;
-  height: 42px;
-  margin: var(--space-5) 0 var(--space-4);
+  gap: var(--space-4);
 }
-.mask-example-cells i {
-  background: color-mix(in srgb, var(--ink) 22%, var(--paper));
+.report-figure-dialog img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  border-radius: var(--radius-control);
 }
-.mask-example-cells i.masked {
-  background: var(--surface);
-  border-block: 1px dashed var(--chart-muted);
+.report-figure-dialog figcaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+}
+.report-figure-caption {
+  margin-left: var(--space-3);
+  color: var(--muted);
 }
 
-@media (max-width: 680px) {
-  .model-intro h2 {
-    font-size: var(--text-3xl);
-  }
+/* Redrawn structure. */
+.model-architecture {
+  animation: fade-in var(--motion-normal) var(--ease-out);
+}
+.model-figure {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: var(--sans);
+  -webkit-tap-highlight-color: transparent;
+}
+.fig-region rect {
+  fill: var(--surface-soft);
+}
+.fig-region text,
+.fig-note {
+  fill: var(--muted);
+  font-size: 13px;
+}
+.fig-edge {
+  fill: none;
+  stroke: var(--chart-muted);
+  stroke-width: 1.25;
+}
+.fig-edge.is-clay {
+  stroke: var(--clay-border);
+}
+.fig-arrow {
+  fill: var(--chart-muted);
+}
+.fig-arrow.is-clay {
+  fill: var(--clay-border);
+}
+.fig-node {
+  cursor: pointer;
+  outline: none;
+  transition: opacity var(--motion-normal) var(--ease-out);
+}
+.fig-box {
+  fill: var(--paper);
+  stroke: var(--control-border);
+  stroke-width: 1;
+  transition:
+    fill var(--motion-fast) var(--ease-out),
+    stroke var(--motion-fast) var(--ease-out);
+}
+.fig-node.is-gray .fig-box {
+  fill: var(--surface);
+}
+.fig-node.is-clay .fig-box,
+.fig-node.shape-stack .fig-box {
+  stroke-dasharray: 5 4;
+}
+.fig-node.is-clay .fig-box {
+  stroke: var(--clay-border);
+}
+.fig-node.shape-concat .fig-box {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.fig-node:hover .fig-box {
+  fill: var(--control-hover);
+}
+.fig-node:focus-visible .fig-box {
+  stroke: var(--blue);
+  stroke-width: 2;
+}
+.fig-node.is-selected .fig-box {
+  fill: var(--selected);
+  stroke: var(--blue);
+  stroke-width: 1.5;
+}
+.fig-node:active .fig-box {
+  fill: var(--selected);
+}
+.fig-node.is-off {
+  opacity: 0.32;
+  cursor: default;
+}
+.fig-node.is-off .fig-box {
+  fill: var(--paper);
+}
+.fig-node.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.fig-label,
+.fig-title,
+.fig-stack text {
+  fill: var(--ink);
+  font-size: 14px;
+}
+.fig-title {
+  font-weight: 500;
+}
+.fig-stack text {
+  font-size: 13px;
+}
+.fig-math {
+  fill: var(--ink);
+  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', var(--serif);
+  font-size: 14px;
+}
+.fig-math .small {
+  font-size: 10px;
+}
+.fig-fraction {
+  stroke: var(--ink);
+  stroke-width: 0.8;
+}
+.fig-concat-cross {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.fig-glyph path {
+  fill: none;
+  stroke: var(--chart-input);
+  stroke-width: 1.25;
+}
+.fig-glyph path:nth-child(2) {
+  stroke: var(--chart-recon);
+}
+.fig-glyph path:nth-child(3) {
+  stroke: var(--chart-muted);
+}
+.fig-glyph .fig-glyph-frame {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1;
+}
+.fig-glyph-anomaly {
+  fill: var(--clay-surface-strong);
+}
+.fig-stack-card {
+  fill: var(--paper);
+  stroke: var(--control-border);
+}
+.fig-stack-item {
+  fill: var(--surface-soft);
+  stroke: var(--line-strong);
+}
+.fig-stack-link {
+  stroke: var(--chart-muted);
+}
+.fig-added {
+  fill: var(--ink);
+}
+
+/* Narrow screens: grouped rows of the same modules. */
+.model-flow {
+  display: grid;
+  gap: var(--space-3);
+}
+.model-flow-group {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-control);
+  background: var(--surface-soft);
+}
+.model-flow-label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.model-flow-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.model-flow-node {
+  position: relative;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--control-border);
+  border-radius: var(--radius-control);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: var(--text-sm);
+}
+.model-flow-node.is-clay {
+  border-style: dashed;
+  border-color: var(--clay-border);
+}
+.model-flow-node.is-gray {
+  background: var(--surface);
+}
+.model-flow-node[aria-pressed='true'] {
+  background: var(--selected);
+  border-color: var(--blue);
+}
+.model-flow-node:disabled {
+  opacity: 0.32;
+}
+.flow-added {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+/* Explanation of the chosen module, or the design overview. */
+.model-panel {
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--line);
+}
+.model-flow .model-panel {
+  margin: var(--space-2) 0 var(--space-4);
+  padding-top: var(--space-5);
+}
+.model-panel-body {
+  --rise-from: 6px;
+  animation: rise-in var(--motion-normal) var(--ease-spring);
+}
+.model-panel h3 {
+  font-family: var(--serif);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+}
+.model-panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+}
+.model-panel-heading .text-button {
+  margin-right: calc(-1 * var(--space-2));
+}
+.model-panel-grid {
+  margin-top: var(--space-4);
+}
+.model-panel-grid.has-visual {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-12);
+  align-items: start;
+}
+.model-panel-text p {
+  max-width: 38em;
+  font-size: var(--text-md);
+  line-height: 1.85;
+  text-wrap: pretty;
+}
+.model-panel-text p + p {
+  margin-top: var(--space-3);
+}
+.model-panel-text .model-formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', var(--serif);
+  font-size: var(--text-lg);
+  line-height: 1.5;
+}
+.model-panel-text .model-formula + .model-formula {
+  margin-top: var(--space-2);
+}
+.model-formula .math-fraction {
+  font-family: inherit;
+}
+.model-formula sub,
+.model-formula sup {
+  font-size: 0.68em;
+}
+.model-lead {
+  margin-top: var(--space-3);
+  max-width: 42em;
+  color: var(--muted);
+  font-size: var(--text-md);
+}
+.design-rows {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--line);
+}
+.design-rows button {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: var(--space-8);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-4) 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: none;
+  text-align: left;
+  font-size: var(--text-md);
+}
+.design-rows button:hover:not(:disabled) {
+  background: none;
+}
+.design-rows button:hover:not(:disabled) strong {
+  color: var(--blue);
+}
+.design-rows button:disabled {
+  opacity: 0.4;
+}
+.design-problem {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+.design-answer {
+  display: grid;
+  gap: var(--space-1);
+}
+.design-answer strong {
+  font-weight: 500;
+  color: var(--ink);
+  transition: color var(--motion-fast) var(--ease-out);
+}
+.design-answer span {
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+}
+
+/* Module visuals. */
+.model-panel-visual {
+  min-width: 0;
+}
+.loss-visual,
+.spatial-visual {
+  max-width: 400px;
+}
+.model-panel-visual svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.model-panel-visual figure {
+  display: grid;
+  gap: var(--space-2);
+}
+.model-panel-visual figcaption {
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.model-visual-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+.model-visual-steps.is-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.visual-line {
+  fill: none;
+  stroke: var(--chart-input);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.visual-line.is-muted {
+  stroke: var(--chart-muted);
+  stroke-dasharray: 2 3;
+}
+.visual-line.is-anomaly {
+  stroke: var(--chart-threshold);
+}
+.visual-bar {
+  fill: var(--line-strong);
+}
+.visual-bar.is-dominant {
+  fill: var(--chart-input);
+}
+.visual-hatch {
+  stroke: var(--chart-muted);
+  stroke-width: 0.8;
+}
+.visual-link {
+  stroke: var(--chart-input);
+  stroke-width: 1;
+}
+.visual-dot {
+  fill: var(--line-strong);
+}
+.visual-dot.is-active {
+  fill: var(--chart-input);
+}
+.visual-dot.is-padding {
+  fill: var(--paper);
+  stroke: var(--chart-muted);
+}
+.visual-axis,
+.visual-guide,
+.visual-cursor {
+  fill: none;
+  stroke: var(--line-strong);
+}
+.visual-guide {
+  stroke-dasharray: 3 3;
+}
+.visual-cursor {
+  stroke: var(--chart-cursor);
+}
+.visual-label {
+  fill: var(--muted);
+  font-size: 12px;
+}
+.visual-point {
+  fill: var(--chart-input);
+}
+.visual-point.is-anomaly {
+  fill: var(--chart-threshold);
+}
+.visual-cell {
+  fill: var(--surface);
+}
+.visual-cell.is-value,
+.visual-cell.is-kept {
+  fill: var(--chart-input);
+}
+.visual-cell.is-numerator {
+  fill: var(--clay-surface-strong);
+}
+.visual-cell.is-denominator {
+  fill: var(--paper);
+  stroke: var(--clay-border);
+}
+.loss-visual-control {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.loss-visual-control output {
+  min-width: 3ch;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.loss-visual-readout {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+}
+.loss-visual-readout > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  font-size: var(--text-sm);
+}
+.loss-visual-readout dt {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--muted);
+}
+.loss-visual-readout dd {
+  margin: 0;
+}
+.legend-swatch {
+  width: 14px;
+  height: 2px;
+  background: var(--chart-input);
+}
+.legend-swatch.is-anomaly {
+  background: var(--chart-threshold);
+}
+.legend-swatch.is-numerator,
+.legend-swatch.is-denominator {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--clay-surface-strong);
+}
+.legend-swatch.is-denominator {
+  background: var(--paper);
+  border: 1px solid var(--clay-border);
+}
+.regularizer-visual {
+  display: grid;
+  grid-template-columns: minmax(0, 200px) minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: center;
+}
+.regularizer-grid {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  grid-template-rows: 16px auto;
+  gap: var(--space-1);
+}
+.regularizer-grid svg {
+  grid-column: 2;
+  grid-row: 2;
+}
+.regularizer-axis {
+  display: grid;
+  font-family: 'Cambria Math', 'STIX Two Math', 'Times New Roman', var(--serif);
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-style: normal;
+}
+.regularizer-axis i {
+  font-style: normal;
+  text-align: center;
+}
+.regularizer-axis.is-top {
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-columns: 2fr 4fr;
+}
+.regularizer-axis.is-left {
+  grid-column: 1;
+  grid-row: 2;
+  grid-template-rows: 2fr 4fr;
+  align-items: center;
+}
+.regularizer-legend {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+.regularizer-legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.spatial-visual .model-visual-steps figure svg {
+  max-width: 180px;
+}
+
+@container (max-width: 760px) {
   .model-intro {
-    margin: var(--space-6) 0;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    margin: var(--space-8) 0 var(--space-6);
+  }
+  .model-intro h2 {
+    font-size: var(--text-2xl);
+  }
+  .title-phrase {
+    white-space: normal;
+  }
+  .report-figure-thumb {
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: center;
+    width: 100%;
+  }
+  .model-panel-grid.has-visual {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+  .design-rows button {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+  .model-panel h3 {
+    font-size: var(--text-xl);
   }
 }
-@media (max-width: 680px) {
-  .mask-example {
-    padding: var(--space-5) 0;
+@container (max-width: 420px) {
+  .model-visual-steps {
+    gap: var(--space-3);
   }
-  .mask-example-cells {
-    gap: 1px;
-    height: 34px;
+  .regularizer-visual {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .regularizer-visual .model-visual-single {
+    max-width: 220px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .model-architecture,
+  .model-panel-body,
+  .report-figure-dialog[open] {
+    animation: none;
   }
 }

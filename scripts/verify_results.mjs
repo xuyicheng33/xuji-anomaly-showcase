@@ -143,7 +143,7 @@ try {
       await page.evaluate(() => document.fonts.ready);
       await page.screenshot({ path: `${out}/${dataset}-home-${width}.png` });
       await navigate(page, 'models');
-      await page.locator('.model-flow').waitFor();
+      await page.locator('.model-architecture').waitFor();
       assert.equal(
         await page.locator('.model-select button[aria-pressed=true]').innerText(),
         'STAM-AD',
@@ -156,13 +156,19 @@ try {
           .locator('.model-select button[aria-pressed=true]')
           .filter({ hasText: method.name })
           .waitFor();
+        const input = page.locator('[data-node=input]');
+        if ((await input.getAttribute('aria-pressed')) !== 'true') await input.click();
         assert.ok(
-          (await page.locator('.model-flow').innerText()).includes(`${data.window} 个时刻`),
+          (await page.locator('.model-panel').innerText()).includes(
+            `每个窗口 ${data.window} 个时刻、${data.features.length} 个测点`,
+          ),
         );
-        assert.equal(await page.locator('.mask-example-cells i').count(), data.window);
-        assert.equal(await page.locator('.mask-example-cells i.masked').count(), method.maskSpan);
-        if (dataset === 'wind' && method.id === 'model2')
-          assert.match(await page.locator('.model-flow').innerText(), /时空融合与重建/);
+        assert.equal(
+          await page
+            .locator(method.id === 'model2' ? '[data-node=senc]' : '[data-node=ltcn]')
+            .count(),
+          1,
+        );
         await page.screenshot({ path: `${out}/${dataset}-${method.id}-models-${width}.png` });
         const requests = [];
         const record = (request) => requests.push(request.url());
@@ -287,7 +293,7 @@ try {
       }
       assert.equal(await page.getByRole('link', { name: /查看原版结果/ }).count(), 0);
       await navigate(page, 'models');
-      await page.locator('.model-flow').waitFor();
+      await page.locator('.model-architecture').waitFor();
       assert.equal(new URL(page.url()).searchParams.has('version'), false);
       assert.equal(
         await page.locator('.model-select button[aria-pressed=true]').innerText(),
@@ -302,7 +308,7 @@ try {
     });
     page.on('pageerror', (error) => errors.push(String(error)));
     await page.goto(url(dataset, 'models'));
-    await page.locator('.model-flow').waitFor();
+    await page.locator('.model-architecture').waitFor();
     for (const method of ['STAM-AD', 'SMST-AD']) {
       await page.getByRole('button', { name: method, exact: true }).click();
       await page

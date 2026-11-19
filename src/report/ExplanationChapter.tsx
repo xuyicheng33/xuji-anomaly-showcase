@@ -5,6 +5,7 @@ import { Heading } from './ReportUI';
 import MetricsChapter from './MetricsChapter';
 import { NoteSection } from './notes';
 import ExplanationIndex from './ExplanationIndex';
+import ModelDifferences from './ModelDifferences';
 import RecordExamples from './RecordExamples';
 import Fraction from './Fraction';
 import cleaning from './cleaning-data.json';
@@ -344,18 +345,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
         </p>
       </NoteSection>
       <NoteSection id="model-design">
-        <p>
-          STAM-AD 通过 Local 和 Global
-          两个时间分支学习短期变化与较长范围的规律，再融合特征重建窗口。
-        </p>
-        <p>
-          报告中的 SMST-AD
-          增加多尺度时间建模和空间分支。这里的“空间”是测点之间的关联：在测点维度计算注意力，用相关性掩码与空间正则约束关联，再融合时间和空间特征重建。
-        </p>
-        <p>
-          本版 SMST-AD
-          由时间特征生成重建，空间分支计算注意力和空间正则；报告的解码器融合时间与空间特征。
-        </p>
+        <ModelDifferences data={data} />
       </NoteSection>
       <NoteSection id="training-mse">
         <p>

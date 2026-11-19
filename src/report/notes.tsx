@@ -1,4 +1,3 @@
-import { isWind, isLegacy } from '../datasets';
 import { useEffect, type ReactNode } from 'react';
 import { presentationMemory } from './presentationMemory';
 
@@ -19,7 +18,7 @@ export const notes = [
   { id: 'window-aggregation', title: '连续回放与跨窗口合并', page: 'playback' },
   {
     id: 'model-design',
-    title: isWind && isLegacy ? 'SMST-AD 的设计与结果' : '两种模型的设计与结果',
+    title: '模型设计与实验实现',
     page: 'models',
   },
   { id: 'training-mse', title: '训练重建误差与优化目标', page: 'training' },
