@@ -29,7 +29,7 @@ export default function ChapterNavigation({ page }: { page: string }) {
       ) : (
         <a href="#/metrics" onClick={() => rememberNoteOrigin()}>
           <span>继续查看 →</span>
-          <strong>数据与评估说明</strong>
+          <strong>详细说明</strong>
         </a>
       )}
     </nav>

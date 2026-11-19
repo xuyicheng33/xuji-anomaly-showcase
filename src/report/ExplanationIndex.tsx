@@ -1,5 +1,17 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { notes } from './notes';
+import { chapterContent } from './navigation';
+
+/** Notes in reading order, grouped under the chapter that refers to them. */
+const groups = notes.reduce<{ page: keyof typeof chapterContent; items: number[] }[]>(
+  (all, note, i) => {
+    const last = all[all.length - 1];
+    if (last?.page === note.page) last.items.push(i);
+    else all.push({ page: note.page, items: [i] });
+    return all;
+  },
+  [],
+);
 
 const sidebarQuery = '(min-width: 1121px)';
 /** Wide screens keep the index beside the notes instead of behind a toggle. */
@@ -110,26 +122,35 @@ export default function ExplanationIndex({ address }: { address: string }) {
         <span aria-hidden="true">{open ? '收起' : '展开'}</span>
       </button>
       <div id="explanation-index" className="explanation-index" hidden={!open && !sidebar}>
-        {notes.map((note, i) => (
-          <a
-            key={note.id}
-            href={
-              '#/metrics?' + new URLSearchParams({ ...Object.fromEntries(params), note: note.id })
-            }
-            aria-current={active === note.id ? 'location' : undefined}
-            onClick={() => {
-              setOpen(false);
-              if (requested === note.id)
-                requestAnimationFrame(() => {
-                  const section = document.getElementById(`note-${note.id}`);
-                  section?.scrollIntoView({ block: 'start' });
-                  section?.focus({ preventScroll: true });
-                });
-            }}
-          >
-            <span>{String(i + 1).padStart(2, '0')}</span>
-            {note.title}
-          </a>
+        {groups.map((group) => (
+          <div key={group.page} className="explanation-index-group">
+            <span className="explanation-index-chapter">{chapterContent[group.page].name}</span>
+            {group.items.map((i) => {
+              const note = notes[i];
+              return (
+                <a
+                  key={note.id}
+                  href={
+                    '#/metrics?' +
+                    new URLSearchParams({ ...Object.fromEntries(params), note: note.id })
+                  }
+                  aria-current={active === note.id ? 'location' : undefined}
+                  onClick={() => {
+                    setOpen(false);
+                    if (requested === note.id)
+                      requestAnimationFrame(() => {
+                        const section = document.getElementById(`note-${note.id}`);
+                        section?.scrollIntoView({ block: 'start' });
+                        section?.focus({ preventScroll: true });
+                      });
+                  }}
+                >
+                  <span>{String(i + 1).padStart(2, '0')}</span>
+                  {note.title}
+                </a>
+              );
+            })}
+          </div>
         ))}
       </div>
     </nav>

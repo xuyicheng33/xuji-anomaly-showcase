@@ -123,7 +123,7 @@ export default function App() {
               pausePresentation();
             }}
           >
-            数据与评估说明
+            详细说明
           </a>
         </nav>
       </header>

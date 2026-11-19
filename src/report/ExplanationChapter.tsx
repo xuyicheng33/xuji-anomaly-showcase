@@ -25,7 +25,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
   const exampleCount = Math.min(48, window);
   return (
     <div className="explanation-page">
-      <Heading title="数据与评估说明" />
+      <Heading title="详细说明" />
       <ExplanationIndex address={address} />
       <NoteSection id="data-records">
         <RecordExamples data={data} />
@@ -157,8 +157,65 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           0.7，两端逐渐降低。异常标签标记构造区间，也包括规则指定的边缘或邻近时刻。
         </p>
         <p>
-          报告的四类构造为软替换、均匀替换、峰值噪声和长度调整。案例将素材生成与写入方式分开，使用固定区间展示替换和混合的过程；整条测试序列使用实验中生成的固定异常及标签。
+          报告第 3.3
+          节的四类构造为软替换、均匀替换、峰值噪声和长度调整。案例把素材生成与写入方式分开，用固定区间展示替换和混合；整条测试序列使用实验中生成的固定异常及标签。对应关系如下：
         </p>
+        <div
+          className="reference-table-scroll"
+          tabIndex={0}
+          role="region"
+          aria-label="报告构造名称与页面案例"
+        >
+          <table className="construction-mapping">
+            <thead>
+              <tr>
+                <th>报告名称</th>
+                <th>报告中的做法</th>
+                <th>页面案例</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th>软替换</th>
+                <td>原区间与其他位置的区间加权融合</td>
+                <td>参考片段（混合）</td>
+              </tr>
+              <tr>
+                <th>均匀替换</th>
+                <td>用恒定常数序列替换选定区间</td>
+                <td>均匀值（替换）</td>
+              </tr>
+              <tr>
+                <th>峰值噪声</th>
+                <td>在局部位置引入单点或少量峰值</td>
+                <td>峰值噪声（替换、混合）</td>
+              </tr>
+              <tr>
+                <th>长度调整</th>
+                <td>上采样扩展区间，或下采样后在区间内重复</td>
+                <td>长度调整（替换、混合）</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>参考片段（替换）与均匀值（混合）用于对照同一素材的两种写入方式。</p>
+        <h3>构造的四个步骤</h3>
+        <ol>
+          <li>原始片段：清洁片段与目标区间。</li>
+          <li>
+            异常素材：参考片段先反转时间顺序，再取 1 −
+            数值；均匀值在区间内取同一个构造值；峰值噪声在原值较高时取接近 0 的值、较低时取接近 1
+            的值；长度调整把每个采样点重复数次。
+          </li>
+          <li>
+            插入过程：替换沿时间顺序写入素材，经过的位置取对应素材值；混合按保存的权重把素材融入原片段，中央权重为
+            0.7，两端逐渐降低。
+          </li>
+          <li>
+            标签结果：选定测点的目标区间标为 1，其余位置为 0；峰值噪声标记峰值及前后各 {g.patchSize}{' '}
+            个时刻。
+          </li>
+        </ol>
       </NoteSection>
       <NoteSection id="anomaly-labels">
         <p>本页的实验异常标签包含人为构造异常，标签来源为实验记录，用于检测效果评估。</p>
@@ -249,7 +306,7 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           分支接收完整窗口。
           {data.methodResults && '本版使用保留权重、固定并保存的掩码导出，没有重新训练。'}
         </p>
-        <p>训练序列开头以首个观测值补齐窗口；片段检测使用连续 {window} 个观测值组成的完整窗口。</p>
+        <p>训练序列开头以首个观测值补齐窗口；分数计算页的单个窗口由连续 {window} 个观测值组成。</p>
       </NoteSection>
       <NoteSection id="training-mse">
         <p>
@@ -272,28 +329,37 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
       </NoteSection>
       <NoteSection id="score-calculation">
         <p>
-          <strong>片段页展示当前选中窗口的重建结果。</strong>
-          选择直流电流和第 1—{window} 点，就显示这个窗口重建出的直流电流 {window}
-          个值。选择“全部测点平均”时，曲线取 125 个测点的平均值。
+          报告第 4.4
+          节：每个窗口重建后，计算各时刻、各测点的重建误差；同一时刻被多个窗口覆盖，按覆盖次数平均，再对全部测点取平均，得到该时刻的异常分数。分数计算页按三步展示这一过程。
         </p>
-        <p>
-          输入来自送入模型的测试数据，其中包含构造异常。上方曲线随测点选择变化，下方异常分数始终汇总全部
-          125 个测点。
-        </p>
+        <ol>
+          <li>
+            单个窗口：同一时刻的 125 个测点分别计算“（输入 − 该窗口重建）²”，相加后除以
+            125，得到这个窗口给该时刻的分数。
+          </li>
+          <li>
+            覆盖窗口取平均：步长为 1，序列中间的时刻被 {window}{' '}
+            个窗口覆盖，首尾按实际覆盖数计算；这些窗口分数的平均就是该时刻的异常分数。
+          </li>
+          <li>与阈值比较：异常分数大于阈值判为异常，再与实验标签对照。</li>
+        </ol>
         <Equation
           className="reference-equation"
           rows={[
             {
-              lhs: '该时刻的窗口分数',
-              expr: <Fraction numerator="125 个测点的平方误差合计" denominator="125" />,
+              lhs: '时刻分数',
+              expr: <Fraction numerator="覆盖窗口的分数合计" denominator="实际覆盖窗口数" />,
             },
           ]}
         />
         <p>
-          对同一时刻的各测点分别计算“（输入 − 该窗口重建）²”，将 125 项相加再除以 125。一个窗口有
-          {window} 个时刻，因此得到 {window} 个分数。
+          报告先对窗口取平均、再对测点取平均；页面先在每个窗口内对测点取平均、再对窗口取平均。两次都是算术平均，交换顺序结果相同。
         </p>
-        <p>计算与阈值比较使用完整精度，明细表显示 9 位小数。</p>
+        <p>
+          上方曲线随测点选择变化，异常分数始终汇总全部 125
+          个测点。输入来自送入模型的测试数据，其中包含构造异常。计算与阈值比较使用完整精度，明细表显示
+          9 位小数。
+        </p>
       </NoteSection>
       <NoteSection id="thresholds">
         <p>
@@ -321,9 +387,9 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           最高的值。并列时先比较逐点 F1，再选择较高的阈值。
         </p>
         <p>
-          片段检测和连续回放分别选取阈值。片段页的阈值依据当前方法的全部
-          {count.toLocaleString('zh-CN')}
-          个窗口选出，各窗口分别进行区间点调整后汇总；回放阈值依据完整序列的合并分数选出。
+          分数计算页与连续回放都使用完整序列阈值，它依据覆盖窗口平均后的异常分数选出。独立窗口阈值依据当前方法的全部{' '}
+          {count.toLocaleString('zh-CN')}{' '}
+          个窗口单独评分后选出，随实验结果一同保存，页面不再用它判定。
         </p>
         <p>报告第 4.4 节采用 POT 阈值：用训练集异常分数拟合尾部分布，再确定测试时的报警阈值。</p>
       </NoteSection>

@@ -21,7 +21,7 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
   const duration = `${Math.floor(minutes / 60)} 小时 ${minutes % 60} 分钟`;
   return (
     <div className="explanation-page">
-      <Heading title="数据与评估说明" />
+      <Heading title="详细说明" />
       <ExplanationIndex address={address} />
       <NoteSection id="data-records">
         <WindSource data={data} />
@@ -98,6 +98,10 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           {g.patchSize} 点。
         </p>
         <p>案例复用本版独立窗口阈值，不针对八个案例另外挑选阈值。</p>
+        <p>
+          与报告第 3.3
+          节的对应：参考片段（混合）对应软替换，均匀值（替换）对应均匀替换，峰值噪声与长度调整名称一致；参考片段（替换）与均匀值（混合）用于对照两种写入方式。
+        </p>
       </NoteSection>
       <NoteSection id="anomaly-labels">
         <p>
@@ -153,15 +157,15 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
       </NoteSection>
       <NoteSection id="score-calculation">
         <p>
-          独立窗口内，每个时刻逐项计算“输入 − 当前窗口重建”的平方，28
-          项取平均，得到该时刻的异常分数。分数严格大于阈值时判定为异常。
+          报告第 4.4 节：同一时刻被多个窗口覆盖。先在每个窗口内对 28
+          个字段的平方误差取平均，得到该窗口给这一时刻的分数；再对覆盖窗口取平均，得到异常分数。分数严格大于阈值时判定为异常。
         </p>
         <Equation
           className="reference-equation"
           rows={[
             {
               lhs: '时刻分数',
-              expr: <Fraction numerator="28 个字段的平方误差合计" denominator="28" />,
+              expr: <Fraction numerator="覆盖窗口的分数合计" denominator="实际覆盖窗口数" />,
             },
           ]}
         />
@@ -176,8 +180,9 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           F1，再取更高阈值。规则使用测试标签，适合回看展示，不等同于未经标注的新数据上线效果。
         </p>
         <p>
-          独立窗口阈值为 {model.windowThreshold.toPrecision(12)}，连续回放阈值为{' '}
-          {model.threshold.toPrecision(12)}。两种评分方式分别评估，因此阈值分别保存。
+          完整序列阈值为 {model.threshold.toPrecision(12)}
+          ，分数计算页与连续回放都用它判定。独立窗口阈值为 {model.windowThreshold.toPrecision(12)}
+          ，用于单个窗口的评估，随结果一同保存。
         </p>
       </NoteSection>
       <NoteSection id="window-aggregation">

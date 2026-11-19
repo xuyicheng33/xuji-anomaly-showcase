@@ -12,7 +12,9 @@ export default function ModelComponentNotes({ data }: { data: Journey }) {
       {availableMethods(data).map((method) => {
         const architecture: Architecture = method.id === 'model2' ? 'smst' : 'stam';
         const figure = figures[architecture];
-        const modules = [...figure.nodes, figure.end]
+        // Modules in data-flow order, then the branches that group them.
+        const nodes = [...figure.nodes, figure.end];
+        const modules = [...nodes.filter((n) => !n.branch), ...nodes.filter((n) => n.branch)]
           .map((node) => node.module)
           .filter((module, i, all): module is ModuleId => all.indexOf(module) === i);
         return (
