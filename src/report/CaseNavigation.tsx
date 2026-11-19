@@ -31,7 +31,8 @@ export default function CaseNavigation({
         }}
       >
         <strong>
-          {method.name} · {construction.name}
+          <span>{method.name}</span>
+          <span>{construction.name}</span>
         </strong>
         <span>{pickerOpen ? '收起选择' : '更换方式'}</span>
       </button>

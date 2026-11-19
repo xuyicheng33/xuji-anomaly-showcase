@@ -1,4 +1,3 @@
-import { isWind, isLegacy } from '../datasets';
 import { useEffect, type ReactNode } from 'react';
 import { presentationMemory } from './presentationMemory';
 
@@ -9,20 +8,16 @@ export const notes = [
   { id: 'data-split', title: '训练集与测试集划分', page: 'data' },
   { id: 'normalization', title: '归一化公式与边界', page: 'data' },
   { id: 'anomaly-process', title: '序列异常插入流程', page: 'anomalies' },
-  { id: 'anomaly-labels', title: '测点标签与时刻标签', page: 'anomalies' },
   { id: 'anomaly-cases', title: '八种构造案例', page: 'anomalies' },
+  { id: 'anomaly-labels', title: '测点标签与时刻标签', page: 'anomalies' },
   { id: 'length-sampling', title: '长度调整与采样', page: 'anomalies' },
+  { id: 'model-design', title: '模型设计与实验实现', page: 'models' },
   { id: 'window-settings', title: '窗口、训练批次与结果来源', page: 'training' },
+  { id: 'training-mse', title: '训练重建误差与优化目标', page: 'training' },
+  { id: 'point-metrics', title: '逐点指标与区间点调整', page: 'detection' },
   { id: 'score-calculation', title: '单窗口异常分数计算', page: 'detection' },
   { id: 'thresholds', title: '阈值与评估规则', page: 'detection' },
-  { id: 'point-metrics', title: '逐点指标与区间点调整', page: 'detection' },
   { id: 'window-aggregation', title: '连续回放与跨窗口合并', page: 'playback' },
-  {
-    id: 'model-design',
-    title: isWind && isLegacy ? 'SMST-AD 的设计与结果' : '两种模型的设计与结果',
-    page: 'models',
-  },
-  { id: 'training-mse', title: '训练重建误差与优化目标', page: 'training' },
 ] as const;
 export type NoteId = (typeof notes)[number]['id'];
 const noteLinks: Record<NoteId, string> = {

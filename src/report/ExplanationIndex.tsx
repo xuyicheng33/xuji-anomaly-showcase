@@ -104,7 +104,8 @@ export default function ExplanationIndex({ address }: { address: string }) {
       >
         <span>说明目录</span>
         <span className="explanation-current">
-          {String(index + 1).padStart(2, '0')} · {notes[index].title}
+          <span className="explanation-current-index">{String(index + 1).padStart(2, '0')}</span>
+          {notes[index].title}
         </span>
         <span aria-hidden="true">{open ? '收起' : '展开'}</span>
       </button>

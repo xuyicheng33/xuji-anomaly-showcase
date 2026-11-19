@@ -409,6 +409,11 @@
   color: var(--muted);
   flex-shrink: 0;
 }
+.reference-origin p {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
+}
 .reference-steps {
   margin-bottom: var(--space-5);
 }
@@ -623,8 +628,14 @@
     min-height: 52px;
   }
   .case-selection-summary strong {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-3);
     font-weight: 500;
     font-size: var(--text-md);
+  }
+  .case-selection-summary strong > span:first-child {
+    color: var(--muted);
   }
   .case-selection-summary > span {
     color: var(--muted);

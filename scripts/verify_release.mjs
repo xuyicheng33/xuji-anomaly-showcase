@@ -58,7 +58,7 @@ try {
       await page.locator('.normalization-equation strong').waitFor();
       await page.goto(home + '#/anomalies');
       await page.locator('.case-stage').waitFor();
-      await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+      await page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
       await page.locator('.case-reconstruction[aria-busy=false]').waitFor();
       await page.goto(home + '#/training');
       await page.getByRole('img', { name: '归一化训练数据', exact: true }).waitFor();

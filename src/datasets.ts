@@ -11,7 +11,7 @@ export const datasetConfigs = {
   },
   wind: {
     title: '风电设备',
-    titleSuffix: ' · 风电数据集',
+    titleSuffix: '　风电数据集',
     description: '风电设备的功率与天气数据整理、异常构造、两种检测模型、训练记录与检测评估。',
     root: 'data/wind/',
     modelId: 'model1',

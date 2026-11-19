@@ -147,7 +147,7 @@ try {
             if (route === 'anomalies')
               await measure(
                 'case-result',
-                () => page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click(),
+                () => page.getByRole('button', { name: '查看该片段检测', exact: true }).click(),
                 () => page.locator('.case-reconstruction[aria-busy=false]').waitFor(),
               );
             assert.deepEqual(errors, []);

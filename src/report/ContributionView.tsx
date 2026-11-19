@@ -107,8 +107,15 @@ export default function ContributionView({
       <div className="contribution-heading">
         <div>
           <h2 id="contribution-title">测点对分数的贡献</h2>
-          <p className="quiet">
-            {index === null ? '准备开始' : `第 ${index + 1} 点 · ${data.times[index]}`}
+          <p className="quiet point-context">
+            {index === null ? (
+              '准备开始'
+            ) : (
+              <>
+                <span>第 {index + 1} 点</span>
+                <span>{data.times[index]}</span>
+              </>
+            )}
           </p>
         </div>
         <label className="field">

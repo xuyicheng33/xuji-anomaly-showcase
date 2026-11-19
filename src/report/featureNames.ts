@@ -26,7 +26,7 @@ export function featureName(feature: Feature) {
     : match[3] === 'ACTIVE POWER'
       ? '有功功率'
       : '无功功率';
-  return `${kind} · 极${match[1]}组${match[2]}`;
+  return `${kind}（极${match[1]}组${match[2]}）`;
 }
 
 export function featureGroup(feature: Feature): FeatureGroup {

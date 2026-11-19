@@ -143,7 +143,7 @@ try {
       await page.evaluate(() => document.fonts.ready);
       await page.screenshot({ path: `${out}/${dataset}-home-${width}.png` });
       await navigate(page, 'models');
-      await page.locator('.model-flow').waitFor();
+      await page.locator('.model-architecture').waitFor();
       assert.equal(
         await page.locator('.model-select button[aria-pressed=true]').innerText(),
         'STAM-AD',
@@ -156,13 +156,19 @@ try {
           .locator('.model-select button[aria-pressed=true]')
           .filter({ hasText: method.name })
           .waitFor();
+        const input = page.locator('[data-node=input]');
+        if ((await input.getAttribute('aria-pressed')) !== 'true') await input.click();
         assert.ok(
-          (await page.locator('.model-flow').innerText()).includes(`${data.window} 个时刻`),
+          (await page.locator('.model-panel').innerText()).includes(
+            `每个窗口 ${data.window} 个时刻、${data.features.length} 个测点`,
+          ),
         );
-        assert.equal(await page.locator('.mask-example-cells i').count(), data.window);
-        assert.equal(await page.locator('.mask-example-cells i.masked').count(), method.maskSpan);
-        if (dataset === 'wind' && method.id === 'model2')
-          assert.match(await page.locator('.model-flow').innerText(), /时空融合与重建/);
+        assert.equal(
+          await page
+            .locator(method.id === 'model2' ? '[data-node=senc]' : '[data-node=ltcn]')
+            .count(),
+          1,
+        );
         await page.screenshot({ path: `${out}/${dataset}-${method.id}-models-${width}.png` });
         const requests = [];
         const record = (request) => requests.push(request.url());
@@ -228,7 +234,7 @@ try {
           if (width < 1050) await page.locator('.case-selection-summary').click();
           await page.locator('.case-kinds button').filter({ hasText: kinds[example.kind] }).click();
           await page.locator(`.case-stage[data-case="${example.id}"]`).waitFor();
-          await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+          await page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
           await page.waitForFunction(
             () =>
               document.querySelector('.case-reconstruction')?.getAttribute('aria-busy') === 'false',
@@ -266,7 +272,7 @@ try {
           await page.locator('#note-window-settings').innerText(),
           new RegExp(String(data.window)),
         );
-        assert.equal(await page.getByRole('link', { name: /查看原版结果/ }).count(), 1);
+        assert.equal(await page.getByRole('link', { name: /查看原版结果/ }).count(), 0);
         assert.ok(
           await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1),
         );
@@ -285,16 +291,14 @@ try {
           'training, windows, playback arithmetic, cases and notes',
         );
       }
-      await page.getByRole('link', { name: /查看原版结果/ }).click();
-      await page.getByRole('link', { name: /返回新版结果/ }).waitFor();
-      assert.equal(new URL(page.url()).searchParams.get('version'), 'legacy');
-      await page.getByRole('link', { name: /返回新版结果/ }).click();
+      assert.equal(await page.getByRole('link', { name: /查看原版结果/ }).count(), 0);
       await navigate(page, 'models');
-      await page.locator('.model-flow').waitFor();
+      await page.locator('.model-architecture').waitFor();
       assert.equal(new URL(page.url()).searchParams.has('version'), false);
+      // The model chosen in the last round stays selected across chapters.
       assert.equal(
         await page.locator('.model-select button[aria-pressed=true]').innerText(),
-        'STAM-AD',
+        catalog.methods.at(-1).name,
       );
       await page.close();
     }
@@ -305,7 +309,7 @@ try {
     });
     page.on('pageerror', (error) => errors.push(String(error)));
     await page.goto(url(dataset, 'models'));
-    await page.locator('.model-flow').waitFor();
+    await page.locator('.model-architecture').waitFor();
     for (const method of ['STAM-AD', 'SMST-AD']) {
       await page.getByRole('button', { name: method, exact: true }).click();
       await page

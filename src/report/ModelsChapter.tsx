@@ -1,64 +1,32 @@
 import { type Journey, type Model } from '../journey';
-import { type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { availableMethods } from '../resultCatalog';
-import { Heading, Section, ModelSelect } from './ReportUI';
+import { Heading, ModelSelect, SelectionIndicator } from './ReportUI';
 import { Footnote } from './notes';
-import { modelName } from './modelNames';
 import { chapterContent } from './navigation';
+import { fullNames, type Architecture, type Phase } from './modelArchitecture';
+import { ArchitectureFigure, FlowFigure, ModulePanel, figureNodes } from './ModelFigure';
+import { usePresentationState } from './usePresentationState';
+import { ReportFigure } from './ReportFigure';
 
-const windDescription = {
-  title: '多尺度时间依赖与窗口重建',
-  intro:
-    'SMST-AD 以多尺度局部时间分支和全局时间分支重建风电窗口，结合异常增强、时间掩码与有界异常损失学习数据变化。',
-  details: [
-    ['多尺度局部依赖', '不同空洞率的 TCN 提取窗口内不同范围的变化，Transformer 组织时间关联。'],
-    ['全局时间依赖', 'Global 分支接收部分遮蔽的窗口，利用其余可见时刻还原风电功率与天气字段。'],
-    [
-      '融合与重建',
-      '当前保留实现以局部与全局时间特征融合后的结果生成重建值；逐点平方误差汇总为异常评分。',
-    ],
-  ],
-};
-const descriptions = {
-  model1: {
-    title: '双分支自监督重建',
-    intro:
-      'STAM-AD 以 TCN 与 Transformer 为主体，结合异常增强、时间掩码和有界异常损失，学习正常模式与异常变化之间的差异。',
-    details: [
-      [
-        '局部时间依赖',
-        'Local 分支接收完整窗口，通过因果卷积提取短期变化，再由 Transformer 组织窗口内的时间关联。',
-      ],
-      [
-        '全局时间依赖',
-        'Global 分支接收部分遮蔽的窗口，通过空洞卷积扩大感受野，结合 Transformer 提取较长范围的规律。',
-      ],
-      [
-        '融合与重建',
-        '拼接局部与全局特征，由共享解码器还原窗口。重建结果与输入逐点比较，形成异常评分。',
-      ],
-    ],
-  },
-  model2: {
-    title: '多尺度时空依赖建模',
-    intro:
-      'SMST-AD 在 STAM-AD 基础上，将多尺度时间依赖与显式空间依赖协同建模，同时观察不同时间范围的变化和测点之间的关联。',
-    details: [
-      [
-        '多尺度时间分支',
-        '不同空洞率的 Local TCN 并行提取短期波动、周期模式与中期趋势，再与 Global 分支共同形成时间表示。',
-      ],
-      [
-        '显式空间分支',
-        'Transformer 在测点维度计算注意力，利用皮尔逊相关性引导空间掩码，并以异常感知空间正则抑制异常测点对正常测点的过度影响。',
-      ],
-      [
-        '时空融合与重建',
-        '拼接时间与空间特征后重建窗口，训练时联合优化有界异常损失与空间正则，测试时以重建误差形成异常评分。',
-      ],
-    ],
-  },
-};
+/** Below this width the figure's labels drop under 11px, so the grouped rows take over. */
+const FIGURE_WIDTH = 920;
+
+function useWide() {
+  const ref = useRef<HTMLDivElement>(null),
+    [wide, setWide] = useState(true);
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const update = () => setWide(element.clientWidth >= FIGURE_WIDTH);
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, wide] as const;
+}
+
 export function ModelsChapter({
   data,
   model,
@@ -68,35 +36,48 @@ export function ModelsChapter({
   model: Model;
   setModel: (value: string) => void;
 }) {
-  const multi = model.id === 'model2',
-    wind = data.dataset?.id === 'wind',
-    spatialDecoder =
-      data.methodResults?.find((method) => method.id === model.id)?.decoder === 'spatiotemporal',
-    methods = availableMethods(data),
-    description =
-      wind && !data.methodResults
-        ? windDescription
-        : !multi
-          ? descriptions.model1
-          : spatialDecoder
-            ? descriptions.model2
-            : {
-                ...descriptions.model2,
-                intro:
-                  'SMST-AD 通过多尺度时间分支与空间分支学习时间变化和测点关联，当前保留实现由时间融合特征生成重建。',
-                details: [
-                  ...descriptions.model2.details.slice(0, 2),
-                  [
-                    '时间融合与重建',
-                    '当前解码器使用局部与全局时间融合特征生成重建；空间分支计算注意力与空间正则，训练记录和评分沿用保存结果。',
-                  ],
-                ],
-              },
-    maskSpan =
-      data.methodResults?.find((method) => method.id === model.id)?.maskSpan ?? data.window / 4,
-    maskBegin = Math.round((22 * data.window) / 64);
+  const architecture: Architecture = model.id === 'model2' ? 'smst' : 'stam';
+  const comparing = availableMethods(data).length > 1;
+  const [phase, setPhase] = usePresentationState<Phase>('models:phase', 'train');
+  const [chosen, setChosen] = usePresentationState<string | null>('models:node', null);
+  const [ref, wide] = useWide();
+  // On wide screens the explanation sits under the figure; bring its opening lines into view.
+  const select = (key: string | null) => {
+    setChosen(key);
+    if (!key || !wide) return;
+    requestAnimationFrame(() => {
+      const panel = ref.current?.querySelector('.model-panel');
+      if (!panel) return;
+      const shortfall = panel.getBoundingClientRect().top - (innerHeight - 240);
+      if (shortfall > 0)
+        scrollBy({
+          top: shortfall,
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+        });
+    });
+  };
+  // Keep the choice across models and stages when the same module exists there.
+  const nodes = figureNodes(architecture, phase);
+  const mapped =
+    chosen === 'loss' && phase === 'test'
+      ? 'pot'
+      : chosen === 'pot' && phase === 'train'
+        ? 'loss'
+        : chosen;
+  const current = nodes.find((node) => node.key === mapped);
+  const selected = current && !(phase === 'test' && current.trainOnly) ? current.key : null;
+  const props = {
+    architecture,
+    phase,
+    selected,
+    select,
+    showAdded: comparing && architecture === 'smst',
+  };
+  const panel = (
+    <ModulePanel {...props} context={{ window: data.window, features: data.features.length }} />
+  );
   return (
-    <div className="models-chapter">
+    <div className="models-chapter" ref={ref}>
       <Heading
         label={chapterContent.models.title}
         title={
@@ -106,100 +87,54 @@ export function ModelsChapter({
           </>
         }
       />
-      {methods.length > 1 && (
-        <div className="model-selection-row">
-          <ModelSelect data={data} value={model.id} onChange={setModel} />
-        </div>
-      )}
-      <div className="model-intro">
-        {methods.length === 1 && <span>{modelName(model)}</span>}
-        <h2>{description.title}</h2>
-      </div>
-      <section aria-label="从输入到异常评分">
-        <div className="model-flow steps" aria-label="模型处理流程">
-          {[
-            ['输入窗口', `${data.window} 个时刻 × ${data.features.length} 个测点`],
+      <div className="model-selection-row">
+        <ModelSelect data={data} value={model.id} onChange={setModel} />
+        <div className="segmented phase-select" role="group" aria-label="阶段">
+          <SelectionIndicator />
+          {(
             [
-              multi && (!wind || spatialDecoder) ? '时间与空间编码' : '局部与全局编码',
-              multi && (!wind || spatialDecoder)
-                ? '多尺度时间建模，测点间注意力'
-                : 'TCN 提取变化，Transformer 学习关联',
-            ],
-            [spatialDecoder ? '时空融合与重建' : '特征融合与重建', '还原各时刻的测点数值'],
-            ['误差聚合与判定', '平方误差聚合为时刻分数'],
-          ].map(([title, copy], i) => (
-            <div key={title}>
-              <span>0{i + 1}</span>
-              <h3>{title}</h3>
-              <p>{copy}</p>
-            </div>
+              ['train', '训练阶段'],
+              ['test', '测试阶段'],
+            ] as const
+          ).map(([value, name]) => (
+            <button key={value} aria-pressed={phase === value} onClick={() => setPhase(value)}>
+              {name}
+            </button>
           ))}
         </div>
-      </section>
-      <div className="model-details">
-        {description.details.map(([title, text]) => (
-          <details key={title}>
-            <summary>
-              <h3>{title}</h3>
-            </summary>
-            <p>{text}</p>
-          </details>
-        ))}
       </div>
-
-      <Section title="时间掩码与上下文学习">
-        <div className="model-explanation">
-          <div
-            className="mask-example"
-            aria-label={`${data.window} 点窗口中连续 ${maskSpan} 点遮蔽`}
-            style={{ '--mask-points': data.window } as CSSProperties}
-          >
-            <div className="mask-example-top">
-              <span>Global 分支输入</span>
-              <strong>{data.window} 点</strong>
-            </div>
-            <div className="mask-example-cells">
-              {Array.from({ length: data.window }, (_, i) => (
-                <i key={i} className={i >= maskBegin && i < maskBegin + maskSpan ? 'masked' : ''} />
-              ))}
-            </div>
-            <div className="mask-example-key">
-              <span>保留可见记录</span>
-              <span>连续遮蔽 {maskSpan} 点</span>
-            </div>
-          </div>
+      <div className="model-intro" key={'intro-' + architecture}>
+        <div>
+          <h2>
+            {fullNames[architecture].map((phrase) =>
+              phrase === ' ' ? (
+                ' '
+              ) : (
+                <span key={phrase} className="title-phrase">
+                  {phrase}
+                </span>
+              ),
+            )}
+          </h2>
+          {props.showAdded && (
+            <p className="model-added-key">
+              <i aria-hidden="true" />
+              相对 STAM-AD 新增
+            </p>
+          )}
         </div>
-      </Section>
-
-      <Section title="有界异常损失">
-        <div className="loss-explanation comparison">
-          <div>
-            <span>正常位置</span>
-            <h3>减小重建误差</h3>
-          </div>
-          <div>
-            <span>异常位置</span>
-            <h3>增大重建误差，至设定边界为止</h3>
-          </div>
-        </div>
-      </Section>
-
-      {!wind && (
-        <Section title="两种方法的侧重点">
-          <div className="model-comparison comparison">
-            <div>
-              <span>STAM-AD</span>
-              <h3>局部与全局互补</h3>
-              <p>用两个时间分支分别捕捉短期变化与窗口整体规律。</p>
-            </div>
-            <div>
-              <span>SMST-AD</span>
-              <h3>多尺度时间与空间协同</h3>
-              <p>在多尺度时间建模之外，计算测点之间的依赖与空间正则；本版重建使用时间融合特征。</p>
-            </div>
-          </div>
-        </Section>
-      )}
+        <ReportFigure architecture={architecture} />
+      </div>
+      <div className="model-architecture" key={'figure-' + architecture}>
+        {wide ? (
+          <>
+            <ArchitectureFigure {...props} />
+            {panel}
+          </>
+        ) : (
+          <FlowFigure {...props} panel={panel} />
+        )}
+      </div>
     </div>
   );
 }

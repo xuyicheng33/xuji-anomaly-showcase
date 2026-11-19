@@ -1,7 +1,7 @@
 import { SelectionIndicator } from './ReportUI';
 import { useEffect, useRef, useState } from 'react';
 import { colors } from './ReportUI';
-import { curveTick } from './curveScale';
+import { tickLabel, valueTicks } from './curveScale';
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const ease = (value: number) => value * value * (3 - 2 * value);
@@ -40,6 +40,7 @@ export default function ReferenceConstruction({
   const height = 260;
   const x = (position: number) => left + (position / (values.length - 1)) * (width - left - right);
   const y = (value: number) => 20 + ((hi - value) / (hi - lo || 1)) * (height - 52);
+  const ticks = valueTicks(lo, hi);
   const points = values.map((value, index) => ({
     position: index + (values.length - 1 - 2 * index) * reverse,
     value: value + (1 - 2 * value) * flip,
@@ -61,7 +62,10 @@ export default function ReferenceConstruction({
       <div className="reference-origin">
         <span>参考来源</span>
         <p>
-          测试集第 {sourceStart + 1}—{sourceStart + values.length} 点 · {sourceTime}
+          <span>
+            测试集第 {sourceStart + 1}—{sourceStart + values.length} 点
+          </span>
+          <span>{sourceTime}</span>
         </p>
       </div>
       <div className="segmented reference-steps" role="group" aria-label="参考片段变换">
@@ -83,17 +87,11 @@ export default function ReferenceConstruction({
         </span>
       </div>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`参考片段：${names[step]}`}>
-        {[0, 0.5, 1].map((fraction) => (
-          <g key={fraction}>
-            <line
-              x1={left}
-              x2={width - right}
-              y1={y(lo + (hi - lo) * fraction)}
-              y2={y(lo + (hi - lo) * fraction)}
-              stroke="var(--line)"
-            />
-            <text x={left - 10} y={y(lo + (hi - lo) * fraction) + 4} textAnchor="end">
-              {curveTick(lo + (hi - lo) * fraction, hi - lo)}
+        {ticks.values.map((value) => (
+          <g key={value}>
+            <line x1={left} x2={width - right} y1={y(value)} y2={y(value)} stroke="var(--line)" />
+            <text x={left - 10} y={y(value) + 4} textAnchor="end">
+              {tickLabel(value, ticks.step)}
             </text>
           </g>
         ))}

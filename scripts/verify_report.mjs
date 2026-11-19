@@ -139,7 +139,7 @@ try {
       await page.locator('.case-label-cells .marked').count(),
       item.kind === 'peak' ? 9 : 24,
     );
-    await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+    await page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
     for (const cm of item.models) {
       await page.getByRole('button', { name: cm.name, exact: true }).click();
       await page.getByTestId('case-score').waitFor();

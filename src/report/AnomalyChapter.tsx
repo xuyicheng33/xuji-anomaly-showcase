@@ -391,7 +391,7 @@ export default function AnomalyChapter({
                     );
                   }}
                 >
-                  查看该片段检测 →
+                  查看该片段检测
                 </button>
               </div>
               {showResult && (
