@@ -30,10 +30,6 @@ export default function LengthConstruction({
         采样与写入位置
         <Footnote note="length-sampling" />
       </h3>
-      <p>
-        取第 {begin + 1}—{begin + values.length} 点的 {values.length} 个值，每个值重复 {scale}{' '}
-        次，得到 {end - begin} 点素材，写入第 {begin + 1}—{end} 点。
-      </p>
       <div className="length-sampling">
         <div className="length-row-label">
           <span>
@@ -98,7 +94,6 @@ export default function LengthConstruction({
           <strong>保留原值</strong>
         </span>
       </div>
-      <p className="length-total">写入后，窗口长度为 {length} 点。</p>
     </section>
   );
 }

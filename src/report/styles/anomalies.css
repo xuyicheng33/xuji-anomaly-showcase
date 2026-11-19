@@ -247,7 +247,9 @@
 }
 .case-point {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 20px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns:
+    minmax(0, 1fr) 20px minmax(0, 1fr) 20px minmax(0, 1fr)
+    minmax(0, 0.6fr);
   gap: var(--space-3) var(--space-6);
   align-items: center;
   padding: var(--space-6) 0 var(--space-5);
@@ -260,15 +262,6 @@
   grid-column: 1 / -1;
   font-size: var(--text-xs);
   color: var(--muted);
-}
-.case-explanation {
-  display: block;
-  font-size: var(--text-xs);
-  color: var(--muted);
-  line-height: 1.8;
-}
-.case-explanation p {
-  margin: 0 0 var(--space-2);
 }
 .case-point > div {
   display: flex;
@@ -370,24 +363,63 @@
   flex-shrink: 0;
   color: var(--muted);
 }
-.case-material-strip p {
+.case-material-strip p,
+.construction-chain {
   line-height: 1.8;
+  animation: rise-in var(--motion-normal) var(--ease-spring);
 }
-.case-composition {
+/* The construction chain doubles as progress: finished links turn ink. */
+.construction-chain {
+  --rise-from: 4px;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3) var(--space-6);
+  align-items: baseline;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.construction-chain li {
+  color: var(--muted);
+  transition: color var(--motion-normal) var(--ease-out);
+}
+.construction-chain li + li::before {
+  content: '→';
+  margin: 0 var(--space-2);
+  color: var(--muted);
+}
+.construction-chain li.is-done {
+  color: var(--ink);
+}
+.construction-chain button {
+  min-height: 0;
+  padding: 0 var(--space-1);
+  margin: 0 calc(-1 * var(--space-1));
+  border: 0;
+  border-radius: var(--radius-small);
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+.construction-chain button:hover {
+  background: var(--control-hover);
+}
+.construction-chain button[aria-pressed='true'] {
+  text-decoration: underline;
+  text-decoration-color: var(--blue);
+  text-underline-offset: 4px;
+  text-decoration-thickness: 2px;
+}
+.case-material-value strong {
+  color: var(--ink);
+}
+.case-blend {
   font-size: var(--text-2xs);
   color: var(--muted);
-  padding-top: var(--space-4);
+  font-variant-numeric: tabular-nums;
 }
-.case-composition strong {
-  font-weight: 500;
-  color: var(--ink);
-  margin-left: var(--space-2);
-}
-.case-composition > span:last-child {
-  color: var(--muted);
+.reference-construction .reference-end {
+  font-size: 11px;
+  fill: var(--ink);
 }
 
 .case-selection-summary {
@@ -395,69 +427,6 @@
 }
 .case-navigation-options {
   display: block;
-}
-.reference-origin {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
-  color: var(--muted);
-  font-size: var(--text-xs);
-  line-height: 1.7;
-}
-.reference-origin > span {
-  color: var(--muted);
-  flex-shrink: 0;
-}
-.reference-origin p {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 var(--space-3);
-}
-.reference-steps {
-  margin-bottom: var(--space-5);
-}
-.reference-rule {
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-.reference-construction svg {
-  display: block;
-  width: 100%;
-}
-.reference-values {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3) var(--space-7);
-  margin: var(--space-2) var(--space-4) var(--space-2) var(--space-16);
-  font-size: var(--text-xs);
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.reference-values > span {
-  display: flex;
-  flex-wrap: wrap;
-  min-width: 0;
-  gap: var(--space-2);
-  align-items: center;
-}
-.reference-values i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-.reference-first {
-  background: var(--blue);
-}
-.reference-last {
-  background: var(--ink);
-}
-.reference-values strong {
-  color: var(--ink);
-  font-weight: 500;
-}
-.reference-values small {
-  font-size: var(--text-xs);
 }
 .length-construction {
   margin-top: var(--space-8);
@@ -468,12 +437,6 @@
   font-size: var(--text-2xl);
   font-weight: 500;
   margin-bottom: var(--space-4);
-}
-.length-construction > p {
-  font-size: var(--text-sm);
-  color: var(--muted);
-  line-height: 1.9;
-  max-width: 46em;
 }
 .length-sampling {
   padding: var(--space-6) 0;
@@ -568,9 +531,6 @@
   font-size: var(--text-xs);
   font-weight: 500;
   color: var(--ink);
-}
-.length-construction .length-total {
-  margin-top: var(--space-4);
 }
 
 @media (max-width: 1120px) {
@@ -668,9 +628,6 @@
   .case-detection .rates {
     grid-template-columns: 1fr;
   }
-  .case-navigation-options .case-explanation {
-    grid-column: 1 / -1;
-  }
 }
 @media (max-width: 680px) {
   .case-layout {
@@ -706,9 +663,6 @@
     grid-template-columns: 21px 1fr;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-1);
-  }
-  .case-explanation {
-    display: block;
   }
   .case-title {
     align-items: center;
@@ -760,8 +714,12 @@
     gap: var(--space-3);
   }
   .case-point {
-    gap: var(--space-3);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4) var(--space-3);
     padding-top: var(--space-4);
+  }
+  .case-point .case-arrow {
+    display: none;
   }
   .case-point-navigation {
     display: flex;
@@ -805,31 +763,6 @@
   }
   .case-material-strip {
     gap: var(--space-3);
-  }
-  .case-composition {
-    gap: var(--space-2) var(--space-4);
-  }
-  .case-composition > span:last-child {
-    flex-basis: 100%;
-  }
-  .reference-origin {
-    display: block;
-    margin-bottom: var(--space-3);
-  }
-  .reference-origin p {
-    margin-top: var(--space-1);
-  }
-  .reference-steps {
-    margin-bottom: var(--space-3);
-  }
-  .reference-construction .curve-top {
-    flex-wrap: wrap;
-    gap: var(--space-2);
-  }
-  .reference-values {
-    margin-left: var(--space-12);
-    margin-right: var(--space-3);
-    gap: var(--space-2);
   }
 
   .length-source {
@@ -876,16 +809,6 @@
   }
   .case-kinds strong {
     font-size: var(--text-xs);
-  }
-  .case-point {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 110px), 1fr));
-    gap: var(--space-4) var(--space-2);
-  }
-  .case-point .case-arrow {
-    display: none;
-  }
-  .case-point > div:last-child {
-    grid-column: 1 / -1;
   }
   .case-point strong {
     font-size: var(--text-xl);

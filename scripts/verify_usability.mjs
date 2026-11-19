@@ -242,15 +242,10 @@ try {
         if ((await picker.getAttribute('aria-expanded')) === 'false') await picker.click();
       };
       await openPicker();
-      await page.getByText('查看构造说明与公式', { exact: true }).click();
-      assert.match(await page.locator('.case-explanation').innerText(), /用异常素材替代局部原值/);
       await page.locator('.case-methods button').last().click();
       await page.locator('.case-label-cells button').last().waitFor();
       await openPicker();
-      assert.match(await page.locator('.case-explanation').innerText(), /原始值 × \(1 − 权重\)/);
       await page.locator('.case-methods button').first().click();
-      await openPicker();
-      await page.getByText('查看构造说明与公式', { exact: true }).click();
       await page.getByRole('button', { name: '标签结果', exact: true }).click();
       const selected = () => page.locator('.case-label-cells [aria-pressed=true]');
       assert.equal(await page.locator('.case-label-cells button[tabindex="0"]').count(), 1);

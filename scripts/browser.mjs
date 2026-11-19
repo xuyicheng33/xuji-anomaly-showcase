@@ -61,3 +61,20 @@ export async function selectFeature(page, value, name = '选择测点') {
 export function featureValue(page, name = '选择测点') {
   return page.getByRole('button', { name, exact: true }).getAttribute('data-value');
 }
+
+/** The point a case opens on: a nearly flat reference falls back to its most varied point. */
+export function caseFeature(item, material, features = 125) {
+  if (item.kind !== 'reference') return item.feature;
+  const spread = (feature) => {
+    let lo = Infinity,
+      hi = -Infinity;
+    for (let t = item.begin; t < item.end; t++) {
+      const value = material[t * features + feature];
+      lo = Math.min(lo, value);
+      hi = Math.max(hi, value);
+    }
+    return hi - lo;
+  };
+  if (spread(item.feature) >= 0.1) return item.feature;
+  return item.features.reduce((best, f) => (spread(f) > spread(best) ? f : best), item.feature);
+}

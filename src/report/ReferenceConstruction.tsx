@@ -1,166 +1,85 @@
-import { SelectionIndicator } from './ReportUI';
-import { useEffect, useRef, useState } from 'react';
 import { colors } from './ReportUI';
-import { tickLabel, valueTicks } from './curveScale';
+import type { CurveScale } from './Curve';
 
 const clamp = (value: number) => Math.max(0, Math.min(1, value));
 const ease = (value: number) => value * value * (3 - 2 * value);
 
-export default function ReferenceConstruction({
+/** Sub-steps of the reference material, as shares of the material phase. */
+export const referenceSteps = [0.2, 0.65, 1];
+export function referenceStep(materialProgress: number) {
+  return materialProgress <= 0.25 ? 0 : materialProgress <= 0.65 ? 1 : 2;
+}
+
+/**
+ * The reference segment drawn over the target interval of the main chart, reversed in time
+ * and flipped in value where it stands, so the axes never change between steps.
+ */
+export function ReferenceOverlay({
+  scale,
   values,
+  begin,
   progress,
-  range,
-  sourceStart,
-  sourceTime,
-  onStep,
 }: {
+  scale: CurveScale;
   values: number[];
+  begin: number;
   progress: number;
-  range: [number, number];
-  sourceStart: number;
-  sourceTime: string;
-  onStep: (step: number) => void;
 }) {
-  const container = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(860);
-  useEffect(() => {
-    const observer = new ResizeObserver(([entry]) =>
-      setWidth(Math.max(280, entry.contentRect.width)),
-    );
-    if (container.current) observer.observe(container.current);
-    return () => observer.disconnect();
-  }, []);
   const reverse = ease(clamp((progress - 0.25) / 0.4));
   const flip = ease(clamp((progress - 0.65) / 0.35));
-  const step = progress <= 0.25 ? 0 : progress <= 0.65 ? 1 : 2;
-  const names = ['取参考片段', '时间反转', '幅值翻转'];
-  const [lo, hi] = range;
-  const left = width < 550 ? 48 : 62;
-  const right = width < 550 ? 12 : 18;
-  const height = 260;
-  const x = (position: number) => left + (position / (values.length - 1)) * (width - left - right);
-  const y = (value: number) => 20 + ((hi - value) / (hi - lo || 1)) * (height - 52);
-  const ticks = valueTicks(lo, hi);
+  const appear = ease(clamp(progress / 0.12));
+  const last = values.length - 1;
   const points = values.map((value, index) => ({
-    position: index + (values.length - 1 - 2 * index) * reverse,
+    position: index + (last - 2 * index) * reverse,
     value: value + (1 - 2 * value) * flip,
-    original: value,
     index,
   }));
   const path = points
-    .map((point, index) => `${index ? 'L' : 'M'}${x(point.position)},${y(point.value)}`)
+    .map(
+      (point, index) =>
+        `${index ? 'L' : 'M'}${scale.x(begin + point.position).toFixed(2)},${scale
+          .y(point.value)
+          .toFixed(2)}`,
+    )
     .join(' ');
-  const endpoints = [points[0], points[points.length - 1]];
+  const endpoints = [points[0], points[last]];
   return (
-    <div
-      ref={container}
-      className="curve reference-construction"
-      data-y-min={lo}
-      data-y-max={hi}
-      data-reference-step={step}
+    <g
+      className="reference-construction"
+      data-reference-step={referenceStep(progress)}
+      opacity={appear}
     >
-      <div className="reference-origin">
-        <span>参考来源</span>
-        <p>
-          <span>
-            测试集第 {sourceStart + 1}—{sourceStart + values.length} 点
-          </span>
-          <span>{sourceTime}</span>
-        </p>
-      </div>
-      <div className="segmented reference-steps" role="group" aria-label="参考片段变换">
-        <SelectionIndicator />
-        {names.map((name, index) => (
-          <button key={name} aria-pressed={step === index} onClick={() => onStep(index)}>
-            {name}
-          </button>
-        ))}
-      </div>
-      <div className="curve-top">
-        <strong>{names[step]}</strong>
-        <span className="reference-rule">
-          {step === 0
-            ? `取出连续 ${values.length} 个观测值`
-            : step === 1
-              ? `第 1 点 ↔ 第 ${values.length} 点`
-              : '新值 = 1 − 原值'}
-        </span>
-      </div>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`参考片段：${names[step]}`}>
-        {ticks.values.map((value) => (
-          <g key={value}>
-            <line x1={left} x2={width - right} y1={y(value)} y2={y(value)} stroke="var(--line)" />
-            <text x={left - 10} y={y(value) + 4} textAnchor="end">
-              {tickLabel(value, ticks.step)}
-            </text>
-          </g>
-        ))}
-        {step === 2 && (
-          <line
-            x1={left}
-            x2={width - right}
-            y1={y(0.5)}
-            y2={y(0.5)}
-            stroke={colors.muted}
-            strokeDasharray="4 5"
-            opacity=".65"
-          />
-        )}
-        <path d={path} fill="none" stroke={colors.input} strokeWidth="2" strokeLinejoin="round" />
-        {points.map((point) => (
-          <circle
-            key={point.index}
-            cx={x(point.position)}
-            cy={y(point.value)}
-            r="2.5"
-            fill={colors.input}
-          />
-        ))}
-        {endpoints.map((point, index) => (
+      <path
+        d={path}
+        fill="none"
+        stroke={colors.ink}
+        strokeWidth="2"
+        strokeDasharray="6 4"
+        strokeLinejoin="round"
+      />
+      {endpoints.map((point, index) => {
+        const cx = scale.x(begin + point.position),
+          cy = scale.y(point.value);
+        const below = cy - 16 < scale.top;
+        return (
           <g
             key={point.index}
             data-source-point={point.index}
             data-position={point.position}
             data-value={point.value}
           >
-            <circle
-              cx={x(point.position)}
-              cy={y(point.value)}
-              r="5"
-              fill={index === 0 ? colors.input : colors.ink}
-            />
+            <circle cx={cx} cy={cy} r="4.5" fill={index === 0 ? colors.input : colors.ink} />
             <text
-              x={x(point.position)}
-              y={y(point.value) - 13}
+              x={cx}
+              y={below ? cy + 20 : cy - 11}
               textAnchor="middle"
-              fill={colors.ink}
+              className="reference-end"
             >
               {index === 0 ? '起' : '末'}
             </text>
           </g>
-        ))}
-        {[0, 0.5, 1].map((fraction) => (
-          <text
-            key={fraction}
-            x={x(fraction * (values.length - 1))}
-            y={height - 9}
-            textAnchor="middle"
-          >
-            第 {Math.round(fraction * (values.length - 1)) + 1} 点
-          </text>
-        ))}
-      </svg>
-      <div className="reference-values" aria-live="off">
-        {endpoints.map((point, index) => (
-          <span key={point.index}>
-            <i className={index === 0 ? 'reference-first' : 'reference-last'} />
-            {index === 0 ? '原起点' : '原末点'} {point.original.toFixed(4)}
-            <span>→</span>
-            <strong>{point.value.toFixed(4)}</strong>
-            <small>第 {Math.round(point.position) + 1} 点</small>
-          </span>
-        ))}
-      </div>
-    </div>
+        );
+      })}
+    </g>
   );
 }

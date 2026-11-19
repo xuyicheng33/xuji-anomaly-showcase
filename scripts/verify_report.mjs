@@ -1,7 +1,7 @@
 import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
+import { caseFeature, launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
 const base = showcaseUrl;
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const inputBuffer = await readInput('public/data/journey', data);
@@ -126,14 +126,15 @@ try {
     await page.locator('.case-stage[data-case="' + item.id + '"]').waitFor();
     await page.getByRole('button', { name: '标签结果', exact: true }).click();
     const input = await values(item.input),
-      labelValues = await values(item.labels);
+      labelValues = await values(item.labels),
+      feature = caseFeature(item, await values(item.material));
     assert.equal(
       await page.getByTestId('case-after').innerText(),
-      input[30 * 125 + item.feature].toFixed(4),
+      input[30 * 125 + feature].toFixed(4),
     );
     assert.equal(
       await page.getByTestId('case-label').innerText(),
-      String(labelValues[30 * 125 + item.feature]),
+      String(labelValues[30 * 125 + feature]),
     );
     assert.equal(
       await page.locator('.case-label-cells .marked').count(),
@@ -157,7 +158,7 @@ try {
     const original = await values(item.original);
     assert.equal(
       await page.getByTestId('case-after').innerText(),
-      original[30 * 125 + item.feature].toFixed(4),
+      original[30 * 125 + feature].toFixed(4),
     );
   }
   console.log(
