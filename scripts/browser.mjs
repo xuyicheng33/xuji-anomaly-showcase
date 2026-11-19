@@ -78,3 +78,27 @@ export function caseFeature(item, material, features = 125) {
   if (spread(item.feature) >= 0.1) return item.feature;
   return item.features.reduce((best, f) => (spread(f) > spread(best) ? f : best), item.feature);
 }
+
+/** Typical points of the score page: strongest detection and false alarm, first miss and normal. */
+export function typicalPoints(labels, scores, threshold) {
+  const picks = new Map();
+  for (let i = 0; i < scores.length; i++) {
+    const alarm = scores[i] > threshold;
+    const code = labels[i] > 0 ? (alarm ? 'tp' : 'fn') : alarm ? 'fp' : 'tn';
+    const current = picks.get(code);
+    if (current === undefined) picks.set(code, i);
+    else if ((code === 'tp' || code === 'fp') && scores[i] > scores[current]) picks.set(code, i);
+  }
+  return ['tp', 'fp', 'fn', 'tn'].flatMap((code) =>
+    picks.has(code) ? [{ code, index: picks.get(code) }] : [],
+  );
+}
+
+/** The window the score page shows around a time point. */
+export const windowAround = (index, window, times) =>
+  Math.max(0, Math.min(times - window, index - (window >> 1)));
+
+/** Moves the score page to the window starting at a zero-based position. */
+export async function selectWindow(page, start) {
+  await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).fill(String(start));
+}

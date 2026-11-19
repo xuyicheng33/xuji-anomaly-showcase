@@ -168,11 +168,11 @@ try {
           contentType: 'application/json',
         });
       });
-      await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
+      await page.getByRole('link', { name: /计算过程/ }).click();
       await page.getByRole('button', { name: '重试计算索引', exact: true }).click();
-      await page.getByTestId('aggregate-equation').waitFor();
+      await page.locator('.coverage-scores').waitFor();
       assert.equal(indexRequests, 2);
-      assert.equal(await page.getByRole('slider', { name: '播放进度' }).inputValue(), '900');
+      assert.equal(await page.locator('#window-calculation').getAttribute('data-point'), '900');
     }
     await page.close();
   }

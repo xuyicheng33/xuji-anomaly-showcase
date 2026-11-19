@@ -1,7 +1,14 @@
 import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { mkdir, readFile } from 'node:fs/promises';
-import { launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
+import {
+  launchBrowser,
+  readInput,
+  selectFeature,
+  selectWindow,
+  showcaseUrl,
+  typicalPoints,
+} from './browser.mjs';
 
 const out = qaDirectory('wind');
 await mkdir(out, { recursive: true });
@@ -63,8 +70,13 @@ try {
 
     await page.goto(windUrl + '#/detection');
     for (const start of [0, 1282, 2564]) {
-      await page.getByRole('spinbutton', { name: '片段起点' }).fill(String(start + 1));
-      await page.getByTestId('calculated-score').waitFor();
+      await selectWindow(page, start);
+      await page.waitForFunction(
+        (start) =>
+          Number(document.querySelector('.score-calculation')?.getAttribute('data-point')) >
+            start && document.querySelector('[data-testid=calculated-score]'),
+        start,
+      );
       assert.equal(await page.locator('.score-calculation tbody tr').count(), 28);
       const chunk = model.windows.chunks.find((c) => start >= c.start && start < c.start + c.count);
       const predictions = await readFile('public/data/wind/' + chunk.file);
@@ -85,7 +97,14 @@ try {
       '漏检片段',
     );
     await page.getByTestId('calculated-score').waitFor();
-    assert.equal(await page.locator('#window-calculation').getAttribute('data-point'), '21');
+    const miss = typicalPoints(data.labels, model.scores, model.threshold).find(
+      (example) => example.code === 'fn',
+    );
+    assert.equal(
+      await page.locator('#window-calculation').getAttribute('data-point'),
+      String(miss.index + 1),
+    );
+    await selectFeature(page, 27);
     if (device === 'mobile')
       await page.getByRole('button', { name: '查看全部 28 个测点明细', exact: true }).click();
     await page.locator('#ref-window-calculation-label').click();
@@ -101,8 +120,8 @@ try {
     await page.screenshot({ path: `${out}/${device}-detection.png` });
     await page.reload();
     assert.equal(
-      await page.getByRole('spinbutton', { name: '片段起点' }).getAttribute('max'),
-      '2565',
+      await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).getAttribute('max'),
+      '2564',
     );
 
     await page.goto(windUrl + '#/playback');
@@ -116,13 +135,14 @@ try {
       await page.getByRole('button', { name: '收起明细', exact: true }).click();
     }
     assert.match(await page.getByTestId('played-count').innerText(), /2,628 \/ 2,628/);
-    await page.getByRole('button', { name: /查看当前点计算/ }).click();
-    await page.getByTestId('aggregate-equation').waitFor();
+    await page.getByRole('link', { name: /计算过程/ }).click();
+    await page.locator('.coverage-scores').waitFor();
     assert.equal(await page.locator('.window-score-scroll tbody tr').count(), 1);
-    await page.getByRole('button', { name: '查看 28 项', exact: true }).click();
-    await page.locator('.coverage-calculation .score-calculation').waitFor();
-    assert.equal(await page.locator('.coverage-calculation tbody tr').count(), 28);
-    await page.getByRole('button', { name: /收起计算/ }).click();
+    assert.equal(await page.locator('#window-calculation').getAttribute('data-point'), '2628');
+    assert.equal(await page.locator('#window-calculation tbody tr').count(), 28);
+    await page.goBack();
+    await page.getByRole('slider', { name: '播放进度' }).waitFor();
+    assert.match(await page.getByTestId('played-count').innerText(), /2,628 \/ 2,628/);
 
     await page.screenshot({ path: `${out}/${device}-playback.png` });
     await page.getByRole('button', { name: '重置', exact: true }).click();
@@ -159,7 +179,7 @@ try {
     }
     await page.screenshot({ path: `${out}/${device}-case.png` });
     await page.goto(windUrl + '#/metrics');
-    await page.getByRole('heading', { name: '数据与评估说明', exact: true }).waitFor();
+    await page.getByRole('heading', { name: '详细说明', exact: true }).waitFor();
     assert.equal(await page.locator('.explanation-entry').count(), 15);
     assert.ok(!(await page.locator('.explanation-page').innerText()).includes('125'));
     assert.equal(
@@ -175,10 +195,10 @@ try {
       .click();
     await page.getByRole('heading', { name: '换流设备 异常检测研究' }).waitFor();
     await page.goto(new URL('#/detection', showcaseUrl).href);
-    await page.getByRole('spinbutton', { name: '片段起点' }).waitFor();
+    await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).waitFor();
     assert.equal(
-      await page.getByRole('spinbutton', { name: '片段起点' }).getAttribute('max'),
-      '2334',
+      await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).getAttribute('max'),
+      '2333',
     );
     console.log(
       'PASS wind',

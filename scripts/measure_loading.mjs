@@ -122,20 +122,8 @@ try {
               await page.getByTestId('contribution-total').waitFor();
               await measure(
                 'calculation',
-                () => page.getByRole('button', { name: '查看当前点计算', exact: false }).click(),
-                () => page.getByTestId('aggregate-equation').waitFor(),
-              );
-              await measure(
-                'adjacent-calculation',
-                () => page.getByRole('slider', { name: '播放进度' }).fill('134'),
-                () =>
-                  page.waitForFunction(
-                    () =>
-                      document
-                        .querySelector('.aggregation-summary p')
-                        ?.textContent.includes('134') &&
-                      document.querySelector('[data-testid=aggregate-equation]'),
-                  ),
+                () => page.getByRole('link', { name: /计算过程/ }).click(),
+                () => page.getByTestId('aggregate-score').waitFor(),
               );
             }
             if (route === 'detection')

@@ -4,7 +4,7 @@ export const chapterContent = {
   anomalies: { name: '异常构造', title: '异常样本构造' },
   models: { name: '检测模型', title: '异常检测模型' },
   training: { name: '模型训练', title: '模型训练过程' },
-  detection: { name: '片段检测', title: '数据片段检测' },
+  detection: { name: '分数计算', title: '异常分数计算' },
   playback: { name: '连续回放', title: '检测结果回放' },
 } as const;
 export const chapters = Object.entries(chapterContent).map(([id, content]) => ({ id, ...content }));

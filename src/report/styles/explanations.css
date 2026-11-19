@@ -12,34 +12,15 @@
   margin-top: var(--space-1);
 }
 .score-calculation {
-  margin-top: var(--space-8);
-  padding: var(--space-7) 0 var(--space-3);
-  border-top: 1px solid var(--line);
   scroll-margin-top: var(--space-6);
 }
 .calculation-details-toggle {
   display: none;
 }
-.calculation-heading {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-5);
-}
-.calculation-heading h2 {
-  font-size: var(--title-section);
-  margin: 0 0 var(--space-3);
-}
-.calculation-heading p {
-  font-size: var(--text-sm);
-  line-height: 1.65;
-  color: var(--muted);
-}
 .calculation-time {
   font-size: var(--text-sm);
   line-height: 1.65;
   color: var(--muted);
-  margin: var(--space-2) 0 var(--space-6);
 }
 .calculation-help {
   font-size: var(--text-sm);
@@ -244,11 +225,6 @@
 .aggregation-summary button {
   white-space: nowrap;
 }
-.aggregation-detail > p {
-  margin: var(--space-6) 0;
-  font-size: var(--text-md);
-  line-height: 1.7;
-}
 .window-score-scroll table {
   min-width: 540px;
   width: 100%;
@@ -264,29 +240,12 @@
 .window-score-scroll button {
   white-space: nowrap;
 }
-.window-score-total {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-}
-.window-score-total strong {
-  color: var(--data);
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
 .score-equation {
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
   flex-wrap: wrap;
   font-variant-numeric: tabular-nums;
-}
-.coverage-calculation {
-  scroll-margin-top: var(--playback-scroll-offset, var(--space-6));
-}
-.coverage-calculation > p {
-  padding: var(--space-6) 0;
 }
 .explanation-page {
   container-type: inline-size;
@@ -338,6 +297,16 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   animation: pop-in var(--motion-normal) var(--ease-spring);
+}
+.explanation-index-group {
+  display: flex;
+  flex-direction: column;
+  padding-top: var(--space-3);
+}
+.explanation-index-chapter {
+  padding: var(--space-1) 0;
+  font-size: var(--text-2xs);
+  color: var(--muted);
 }
 .explanation-index a {
   text-wrap: balance;
@@ -473,6 +442,15 @@
     max-height: calc(100dvh - var(--sticky-top) - 56px);
     animation: none;
   }
+  .explanation-index-group + .explanation-index-group {
+    padding-top: var(--space-4);
+  }
+  .explanation-index-group {
+    padding-top: 0;
+  }
+  .explanation-index-chapter {
+    padding: 0 0 var(--space-1) var(--space-4);
+  }
   .explanation-index a {
     gap: var(--space-2);
     margin-left: -1px;
@@ -519,15 +497,6 @@
   }
 }
 @media (max-width: 680px) {
-  .calculation-heading {
-    gap: var(--space-3);
-  }
-  .calculation-heading h2 {
-    font-size: var(--title-section);
-  }
-  .calculation-heading p {
-    font-size: var(--text-xs);
-  }
   .calculation-table-scroll {
     max-height: 340px;
   }
@@ -644,12 +613,6 @@
   }
   .explanation-entry {
     padding: var(--space-7) 0;
-  }
-  .window-score-total {
-    font-size: var(--text-sm);
-  }
-  .window-score-total strong {
-    overflow-wrap: anywhere;
   }
   .explanation-body .evaluation-thresholds {
     grid-template-columns: 1fr;
@@ -1155,4 +1118,10 @@
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-2);
   }
+}
+.construction-mapping :is(th, td) {
+  text-align: left;
+}
+.construction-mapping tbody th {
+  white-space: nowrap;
 }

@@ -68,7 +68,7 @@ try {
         String(data.datasets.train.shape[0] - data.window),
       );
       await page.goto(home + '#/detection');
-      await page.getByRole('spinbutton', { name: '片段起点' }).fill('1');
+      await page.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).fill('0');
       await page.getByTestId('calculated-score').waitFor();
       assert.equal(await page.locator('.score-calculation tbody tr').count(), data.features.length);
       if (width === 390) {
@@ -87,7 +87,6 @@ try {
       assert.equal(await page.locator('.replay-workspace').isVisible(), false);
       if (wind) assert.equal(await page.locator('.model-identity').innerText(), 'SMST-AD');
       await page.getByRole('slider', { name: '播放进度' }).fill('133');
-      await page.getByRole('button', { name: '查看当前点计算', exact: false }).click();
       await page.getByTestId('aggregate-equation').waitFor();
       assert.equal(
         await page.getByTestId('aggregate-equation').locator('strong').innerText(),

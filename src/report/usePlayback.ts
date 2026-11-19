@@ -19,12 +19,14 @@ export function usePlayback(p: PlaybackProps) {
     threshold = model.threshold,
     count = Math.min(savedCount, total);
   usePauseOnNavigation(() => setPlaying(false));
+  // A new segment restarts only a playback of that segment; the full test set keeps its place.
   useEffect(() => {
     if (savedStart === start) return;
+    setSavedStart(start);
+    if (scope !== 'window') return;
     setCount(0);
     setPlaying(false);
-    setSavedStart(start);
-  }, [start, savedStart, setCount, setSavedStart]);
+  }, [start, savedStart, scope, setCount, setSavedStart]);
   useEffect(() => {
     setPlaying(false);
   }, [model.id]);

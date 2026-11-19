@@ -1,7 +1,16 @@
 import { qaDirectory } from './browser.mjs';
 import assert from 'node:assert/strict';
 import { readFile, mkdir } from 'node:fs/promises';
-import { caseFeature, launchBrowser, showcaseUrl, selectFeature, readInput } from './browser.mjs';
+import {
+  caseFeature,
+  launchBrowser,
+  readInput,
+  selectFeature,
+  selectWindow,
+  showcaseUrl,
+  typicalPoints,
+  windowAround,
+} from './browser.mjs';
 const base = showcaseUrl;
 const data = JSON.parse(await readFile('public/data/journey/manifest.json', 'utf8'));
 const inputBuffer = await readInput('public/data/journey', data);
@@ -168,7 +177,7 @@ try {
   for (const model of data.models) {
     await page.getByRole('button', { name: model.name, exact: true }).click();
     for (const start of [0, 107, 2333]) {
-      await page.getByRole('spinbutton', { name: '片段起点' }).fill(String(start + 1));
+      await selectWindow(page, start);
       await page.getByTestId('calculated-score').waitFor();
       const chunk = model.windows.chunks.find((c) => start >= c.start && start < c.start + c.count),
         buffer = await readFile('public/data/journey/' + chunk.file),
@@ -189,34 +198,30 @@ try {
           scores[offset].toFixed(9),
         );
       }
+      const index = start + 63;
       assert.equal(
-        await page.getByTestId('window-threshold').innerText(),
-        model.windowThreshold.toFixed(9),
+        await page.getByTestId('point-score').innerText(),
+        model.scores[index].toFixed(9),
       );
-      const stats = { tp: 0, fp: 0, fn: 0, tn: 0 };
-      scores.forEach(
-        (v, i) =>
-          stats[
-            data.labels[start + i]
-              ? v > model.windowThreshold
-                ? 'tp'
-                : 'fn'
-              : v > model.windowThreshold
-                ? 'fp'
-                : 'tn'
-          ]++,
+      assert.equal(
+        await page.getByTestId('point-threshold').innerText(),
+        model.threshold.toFixed(9),
       );
-      await matrix(page, stats);
+      await page.waitForFunction(
+        (expected) =>
+          document.querySelector('[data-testid=aggregate-score]')?.textContent === expected,
+        model.scores[index].toFixed(9),
+      );
     }
   }
   console.log(
-    'PASS true windows first/middle/last, 125-feature score calculation and window threshold',
+    'PASS true windows first/middle/last, 125-feature window scores, covering average and point threshold',
   );
   const exampleNames = { tp: '检出片段', fp: '误报片段', fn: '漏检片段', tn: '正常片段' };
   const outcomes = { tp: '检出异常', fp: '误报', fn: '漏检异常', tn: '正常' };
   for (const model of data.models) {
     await page.getByRole('button', { name: model.name, exact: true }).click();
-    for (const example of model.examples) {
+    for (const example of typicalPoints(data.labels, model.scores, model.threshold)) {
       await page.getByRole('button', { name: exampleNames[example.code], exact: true }).click();
       await page.getByTestId('calculated-score').waitFor();
       assert.equal(
@@ -224,12 +229,12 @@ try {
         String(example.index + 1),
       );
       assert.equal(
-        await page.locator('.calculation-total .outcome').innerText(),
+        await page.locator('.score-judgement .outcome').innerText(),
         outcomes[example.code],
       );
     }
   }
-  console.log('PASS all typical examples select a matching single-window outcome');
+  console.log('PASS all typical points select a matching point outcome');
   await go(page, 'playback');
   for (const model of data.models) {
     await page.getByRole('button', { name: model.name, exact: true }).click();
@@ -279,8 +284,13 @@ try {
   await page.close();
   const failPage = await browser.newPage();
   let fail = true;
+  const opening = windowAround(
+    typicalPoints(data.labels, data.models[0].scores, data.models[0].threshold)[0].index,
+    data.window,
+    data.times.length,
+  );
   const retryChunk = data.models[0].windows.chunks.find(
-    (chunk) => 107 >= chunk.start && 107 < chunk.start + chunk.count,
+    (chunk) => opening >= chunk.start && opening < chunk.start + chunk.count,
   );
   await failPage.route('**/' + retryChunk.file + '*', (r) =>
     fail ? r.fulfill({ status: 503, body: 'failed' }) : r.continue(),
@@ -290,7 +300,10 @@ try {
   fail = false;
   await failPage.getByRole('button', { name: '重试', exact: true }).click();
   await failPage.getByTestId('calculated-score').waitFor();
-  assert.equal(await failPage.getByRole('spinbutton', { name: '片段起点' }).inputValue(), '108');
+  assert.equal(
+    await failPage.getByRole('slider', { name: /^选择 \d+ 点片段$/ }).inputValue(),
+    String(opening),
+  );
   await failPage.close();
   console.log('PASS window failure/retry preserves selection');
   assert.deepEqual(errors, []);
