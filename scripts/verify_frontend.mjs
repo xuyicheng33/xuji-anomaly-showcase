@@ -196,7 +196,7 @@ try {
       assert.deepEqual(errors, []);
       await page.close();
       console.log(
-        `PASS ${dataset} ${width}: chapter state, invalid input, label alignment and readable detail`,
+        `PASS ${dataset} ${width}: chapter state, typical points, label alignment and readable detail`,
       );
     }
   }
