@@ -11,7 +11,6 @@ import cleaning from './cleaning-data.json';
 import { featureName } from './featureNames';
 import { availableMethods, caseGeometry } from '../resultCatalog';
 import { modelName } from './modelNames';
-import ResultVersionLink from './ResultVersionLink';
 
 export default function ExplanationChapter({ data, address }: { data: Journey; address: string }) {
   if (data.dataset?.id === 'wind') return <WindExplanation data={data} address={address} />;
@@ -367,7 +366,6 @@ export default function ExplanationChapter({ data, address }: { data: Journey; a
           同时计算空间正则。训练曲线读取保存的 MSE 记录，学习率读取对应轮次的优化器记录。
         </p>
       </NoteSection>
-      <ResultVersionLink />
     </div>
   );
 }

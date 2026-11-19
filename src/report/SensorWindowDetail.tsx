@@ -187,8 +187,9 @@ export default function SensorWindowDetail({
           收起明细
         </button>
       </div>
-      <p className="quiet">
-        第 {index + 1} 点 · {data.times[index]}
+      <p className="quiet point-context">
+        <span>第 {index + 1} 点</span>
+        <span>{data.times[index]}</span>
       </p>
       {error || inputAsset.error ? (
         <p role="alert" className="inline-error">
@@ -204,7 +205,7 @@ export default function SensorWindowDetail({
         </p>
       ) : rows && row ? (
         <>
-          <p className="window-coverage-context">{rows.length} 个窗口覆盖当前点 · 按窗口起点排列</p>
+          <p className="window-coverage-context">{rows.length} 个窗口覆盖当前点</p>
           <WindowPlot rows={rows} selected={selected} select={setSelected} />
           <div className="window-error-heading">
             <h4>

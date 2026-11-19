@@ -7,7 +7,6 @@ import WindSource from './WindSource';
 import Fraction from './Fraction';
 import { caseGeometry } from '../resultCatalog';
 import { modelName } from './modelNames';
-import ResultVersionLink from './ResultVersionLink';
 
 export default function WindExplanation({ data, address }: { data: Journey; address: string }) {
   const model = data.models[0];
@@ -188,7 +187,6 @@ export default function WindExplanation({ data, address }: { data: Journey; addr
           是记录的重建误差，训练优化还含有界异常损失等约束，二者不是同一个数。移动训练窗口只改变显示，不会触发训练。
         </p>
       </NoteSection>
-      <ResultVersionLink />
     </div>
   );
 }

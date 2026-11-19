@@ -228,7 +228,7 @@ try {
           if (width < 1050) await page.locator('.case-selection-summary').click();
           await page.locator('.case-kinds button').filter({ hasText: kinds[example.kind] }).click();
           await page.locator(`.case-stage[data-case="${example.id}"]`).waitFor();
-          await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+          await page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
           await page.waitForFunction(
             () =>
               document.querySelector('.case-reconstruction')?.getAttribute('aria-busy') === 'false',
@@ -285,10 +285,7 @@ try {
           'training, windows, playback arithmetic, cases and notes',
         );
       }
-      await page.getByRole('link', { name: /查看原版结果/ }).click();
-      await page.getByRole('link', { name: /返回新版结果/ }).waitFor();
-      assert.equal(new URL(page.url()).searchParams.get('version'), 'legacy');
-      await page.getByRole('link', { name: /返回新版结果/ }).click();
+      assert.equal(await page.getByRole('link', { name: /查看原版结果/ }).count(), 0);
       await navigate(page, 'models');
       await page.locator('.model-flow').waitFor();
       assert.equal(new URL(page.url()).searchParams.has('version'), false);

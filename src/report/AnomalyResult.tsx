@@ -38,7 +38,7 @@ export default function AnomalyResult({
         <h2>案例检测结果</h2>
         <ModelSelect data={data} value={cm.id} onChange={setModel} />
       </div>
-      <ResultSummary metrics={cm.metrics} scope={`案例窗口 · ${selected.times.length} 个时刻`} />
+      <ResultSummary metrics={cm.metrics} scope={`案例窗口 ${selected.times.length} 个时刻`} />
       <div className="case-reconstruction" aria-busy={!reconstruction.data}>
         <Curve
           title="插入结果与重建"

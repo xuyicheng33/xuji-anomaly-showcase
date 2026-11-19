@@ -61,7 +61,10 @@ export default function ReferenceConstruction({
       <div className="reference-origin">
         <span>参考来源</span>
         <p>
-          测试集第 {sourceStart + 1}—{sourceStart + values.length} 点 · {sourceTime}
+          <span>
+            测试集第 {sourceStart + 1}—{sourceStart + values.length} 点
+          </span>
+          <span>{sourceTime}</span>
         </p>
       </div>
       <div className="segmented reference-steps" role="group" aria-label="参考片段变换">

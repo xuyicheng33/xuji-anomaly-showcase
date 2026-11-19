@@ -618,6 +618,12 @@ details[open] > :not(summary) {
   font-size: var(--text-xs);
   line-height: 1.8;
 }
+/* A point and its time read as two items, spaced instead of joined by a symbol. */
+.point-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--space-3);
+}
 .state-panel[role='status'] {
   animation: fade-in var(--motion-normal) var(--ease-out) 300ms backwards;
 }

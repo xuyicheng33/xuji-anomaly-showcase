@@ -93,16 +93,27 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
         }
       />
       <div className="data-ledger facts" aria-label="数据规模">
-        <div>
-          <span>原始记录</span>
-          <strong>{number(data.summary.rawRows, 0)}</strong>
-          <small>{data.summary.rawFeatures} 个测点</small>
-        </div>
-        <div>
-          <span>整理后记录</span>
-          <strong>{number(data.summary.cleanRows, 0)}</strong>
-          <small>{data.summary.features} 个保留测点</small>
-        </div>
+        {data.summary.rawRows === data.summary.cleanRows &&
+        data.summary.rawFeatures === data.summary.features ? (
+          <div>
+            <span>建模记录</span>
+            <strong>{number(data.summary.cleanRows, 0)}</strong>
+            <small>{data.summary.features} 个测点</small>
+          </div>
+        ) : (
+          <>
+            <div>
+              <span>原始记录</span>
+              <strong>{number(data.summary.rawRows, 0)}</strong>
+              <small>{data.summary.rawFeatures} 个测点</small>
+            </div>
+            <div>
+              <span>整理后记录</span>
+              <strong>{number(data.summary.cleanRows, 0)}</strong>
+              <small>{data.summary.features} 个保留测点</small>
+            </div>
+          </>
+        )}
         <div>
           <span>训练集</span>
           <strong>{number(split.trainCount, 0)}</strong>
@@ -136,8 +147,8 @@ export default function DataChapter({ data, feature, setFeature }: Props) {
         <div className="balanced-split">
           {(
             [
-              ['前段 · 训练集', '70%', split.trainStart, split.trainEnd],
-              ['后段 · 测试集', '30%', split.testStart, split.testEnd],
+              ['训练集', '前 70%', split.trainStart, split.trainEnd],
+              ['测试集', '后 30%', split.testStart, split.testEnd],
             ] as const
           ).map(([title, ratio, begin, end]) => (
             <div key={title}>

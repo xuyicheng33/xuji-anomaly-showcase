@@ -158,7 +158,7 @@ try {
   const deferredCase = await fresh('anomalies');
   await deferredCase.page.locator('.case-stage').waitFor();
   assert.ok(!deferredCase.requests.some((file) => /model[12]\.bin$/.test(file)));
-  await deferredCase.page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+  await deferredCase.page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
   await deferredCase.page.locator('.case-reconstruction[aria-busy=false]').waitFor();
   assert.ok(deferredCase.requests.some((file) => /model1\.bin$/.test(file)));
   await deferredCase.page.close();
@@ -244,7 +244,7 @@ try {
       });
       await page.goto(base + '#/anomalies');
       await page.locator('.case-stage').waitFor();
-      await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+      await page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
       await page.locator('.case-reconstruction[aria-busy=false]').waitFor();
       await page.locator('.case-label-cells button').nth(31).click({ force: true });
       await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
@@ -284,7 +284,7 @@ try {
     ),
   );
   await caseFailure.page.locator('.case-stage').waitFor();
-  await caseFailure.page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+  await caseFailure.page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
   await caseFailure.page.getByRole('button', { name: '重试重建', exact: true }).waitFor();
   await caseFailure.page.locator('.case-label-cells button').nth(31).click({ force: true });
   await caseFailure.page.unroute('**/anomaly-cases-v1/**/*model1.bin*');
@@ -348,7 +348,7 @@ try {
       assert.equal(await page.locator('.case-stage').count(), 0);
       await page.getByRole('button', { name: '重新读取案例', exact: true }).click();
       await page.locator('.case-stage').waitFor();
-      await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+      await page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
       await page.locator('.case-reconstruction[aria-busy=false]').waitFor();
       assert.equal(reads, 2);
       await page.close();

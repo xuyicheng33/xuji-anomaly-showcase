@@ -159,7 +159,7 @@ export function PlaybackChapter(p: PlaybackProps) {
       {scope === 'window' && (
         <p className="playback-scope quiet" aria-live="polite">
           <span>
-            选定片段 · 第 {from + 1}—{from + total} 点
+            第 {from + 1}—{from + total} 点
           </span>
           <span>
             {data.times[from]} — {data.times[from + total - 1]}
@@ -304,7 +304,7 @@ export function PlaybackChapter(p: PlaybackProps) {
         </div>
         <div className="statistics playback-statistics">
           <p className="playback-statistics-context" data-testid="statistics-context">
-            {count ? `累计评估 · 统计第 ${from + 1}—${idx + 1} 点` : '尚未开始统计'}
+            {count ? `累计统计第 ${from + 1}—${idx + 1} 点` : '尚未开始统计'}
           </p>
           <Confusion metrics={stats} active={active} caption="逐点判定" />
           <div>

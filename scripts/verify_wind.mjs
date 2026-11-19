@@ -150,7 +150,7 @@ try {
         .click();
       if (device === 'mobile') await page.locator('.case-selection-summary').click();
       await page.locator('.case-kinds button').filter({ hasText: kinds[c.kind] }).click();
-      await page.getByRole('button', { name: '查看该片段检测 →', exact: true }).click();
+      await page.getByRole('button', { name: '查看该片段检测', exact: true }).click();
       await page.getByTestId('case-detection').waitFor();
       await page.waitForFunction(
         () => document.querySelector('.case-reconstruction')?.getAttribute('aria-busy') === 'false',
