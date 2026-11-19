@@ -3,6 +3,7 @@ import {
   designRows,
   figures,
   flows,
+  type FlowGroup,
   moduleText,
   type Architecture,
   type FigureNode,
@@ -25,7 +26,13 @@ export function figureNodes(architecture: Architecture, phase: Phase) {
     : figure.nodes;
 }
 
-const nodeName = (node: FigureNode) => node.lines.join('').replace('⊕', '特征拼接');
+/** Join wrapped lines; Latin words keep their space, Chinese runs join directly. */
+const nodeName = (node: FigureNode) =>
+  node.shape === 'concat'
+    ? '拼接'
+    : node.lines.reduce((name, line) =>
+        /[A-Za-z]$/.test(name) && /^[A-Za-z]/.test(line) ? name + ' ' + line : name + line,
+      );
 const isOff = (node: FigureNode, phase: Phase) => phase === 'test' && !!node.trainOnly;
 
 function pressKeys(event: KeyboardEvent, action: () => void) {
@@ -284,44 +291,54 @@ export function FlowFigure({
   panel,
 }: Selection & { showAdded: boolean; panel: ReactNode }) {
   const nodes = new Map(figureNodes(architecture, phase).map((node) => [node.key, node]));
-  const open = flows[architecture].find((group) =>
-    group.nodes.some((key) => (key === 'loss' && phase === 'test' ? 'pot' : key) === selected),
+  const resolve = (key: string) => nodes.get(key === 'loss' && phase === 'test' ? 'pot' : key)!;
+  const groups = flows[architecture].flatMap((step) =>
+    'parallel' in step ? step.parallel : [step],
+  );
+  const open = groups.find((group) =>
+    group.rows.flat().some((key) => resolve(key).key === selected),
+  );
+  const renderGroup = (group: FlowGroup) => (
+    <div key={group.key} className="model-flow-step">
+      <div className={'model-flow-group' + (group.added && showAdded ? ' is-added' : '')}>
+        {group.label && <span className="model-flow-label">{group.label}</span>}
+        {group.rows.map((row) => (
+          <div key={row.join()} className="model-flow-items">
+            {row.map((key) => {
+              const node = resolve(key);
+              const pressed = selected === node.key;
+              return (
+                <button
+                  key={node.key}
+                  className={'model-flow-node' + (node.tone === 'clay' ? ' is-clay' : '')}
+                  aria-pressed={pressed}
+                  aria-label={nodeName(node)}
+                  disabled={isOff(node, phase)}
+                  data-node={node.key}
+                  onClick={() => select(pressed ? null : node.key)}
+                >
+                  {nodeName(node)}
+                  {showAdded && node.added && <i className="flow-added" aria-hidden="true" />}
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      {open === group && panel}
+    </div>
   );
   return (
     <div className="model-flow" role="group" aria-label="模型结构">
-      {flows[architecture].map((group) => (
-        <div key={group.key} className="model-flow-step">
-          <div className={'model-flow-group' + (group.added && showAdded ? ' is-added' : '')}>
-            {group.label && <span className="model-flow-label">{group.label}</span>}
-            <div className="model-flow-items">
-              {group.nodes.map((key) => {
-                const node = nodes.get(key === 'loss' && phase === 'test' ? 'pot' : key)!;
-                const off = isOff(node, phase);
-                const pressed = selected === node.key;
-                return (
-                  <button
-                    key={node.key}
-                    className={
-                      'model-flow-node' +
-                      (node.tone ? ' is-' + node.tone : '') +
-                      (node.shape === 'concat' ? ' is-concat' : '')
-                    }
-                    aria-pressed={pressed}
-                    aria-label={nodeName(node)}
-                    disabled={off}
-                    data-node={node.key}
-                    onClick={() => select(pressed ? null : node.key)}
-                  >
-                    {node.shape === 'concat' ? '拼接' : node.lines.join('')}
-                    {showAdded && node.added && <i className="flow-added" aria-hidden="true" />}
-                  </button>
-                );
-              })}
-            </div>
+      {flows[architecture].map((step) =>
+        'parallel' in step ? (
+          <div key={step.key} className="model-flow-parallel">
+            {step.parallel.map(renderGroup)}
           </div>
-          {open === group && panel}
-        </div>
-      ))}
+        ) : (
+          renderGroup(step)
+        ),
+      )}
       {!open && panel}
     </div>
   );

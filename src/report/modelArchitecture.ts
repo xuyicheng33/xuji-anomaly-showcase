@@ -175,6 +175,7 @@ const stam: Figure = {
   texts: [{ x: 310, y: 240, text: '重叠窗口划分', anchor: 'start' }],
   end: box('pot', 'pot', '重建误差与 POT 阈值', 940, 412, 260, 72, {
     shape: 'formula',
+    tone: 'clay',
     formula: '异常分数超过阈值判为异常',
   }),
 };
@@ -296,29 +297,54 @@ const smst: Figure = {
   texts: [{ x: 310, y: 320, text: '重叠窗口划分', anchor: 'start' }],
   end: box('pot', 'pot', '重建误差与 POT 阈值', 940, 612, 260, 80, {
     shape: 'formula',
+    tone: 'clay',
     formula: '异常分数超过阈值判为异常',
   }),
 };
 export const figures: Record<Architecture, Figure> = { stam, smst };
 
-/** Narrow screens show the same modules as grouped rows, in reading order. */
-export type FlowGroup = { key: string; label?: string; nodes: string[]; added?: boolean };
-export const flows: Record<Architecture, FlowGroup[]> = {
+/** Narrow screens show the same modules as grouped rows; parallel branches share one rail. */
+export type FlowGroup = { key: string; label?: string; rows: string[][]; added?: boolean };
+export type FlowStep = FlowGroup | { key: string; parallel: FlowGroup[] };
+export const flows: Record<Architecture, FlowStep[]> = {
   stam: [
-    { key: 'input', nodes: ['input', 'insert'] },
-    { key: 'global', label: 'Global 分支', nodes: ['mask', 'gtcn', 'genc', 'gff'] },
-    { key: 'local', label: 'Local 分支', nodes: ['ltcn', 'lenc', 'lff'] },
-    { key: 'decoder', label: '拼接与解码器', nodes: ['concat', 'dff', 'sigmoid'] },
-    { key: 'loss', nodes: ['loss'] },
+    { key: 'input', rows: [['input', 'insert']] },
+    {
+      key: 'branches',
+      parallel: [
+        { key: 'global', label: 'Global 分支', rows: [['mask', 'gtcn', 'genc', 'gff']] },
+        { key: 'local', label: 'Local 分支', rows: [['ltcn', 'lenc', 'lff']] },
+      ],
+    },
+    { key: 'decoder', label: '拼接与解码器', rows: [['concat', 'dff', 'sigmoid']] },
+    { key: 'loss', rows: [['loss']] },
   ],
   smst: [
-    { key: 'input', nodes: ['input', 'insert'] },
-    { key: 'global', label: '时间分支', nodes: ['mask', 'gtcn', 'genc', 'gff'] },
-    { key: 'local', nodes: ['multiscale', 'fusion'], added: true },
-    { key: 'spatial', label: '空间分支', nodes: ['senc', 'sff'], added: true },
-    { key: 'attention', nodes: ['attention', 'regularizer'], added: true },
-    { key: 'decoder', label: '拼接与解码器', nodes: ['concat', 'dff', 'sigmoid'] },
-    { key: 'loss', nodes: ['loss'] },
+    { key: 'input', rows: [['input', 'insert']] },
+    {
+      key: 'branches',
+      parallel: [
+        {
+          key: 'time',
+          label: '时间分支',
+          rows: [
+            ['mask', 'gtcn', 'genc', 'gff'],
+            ['multiscale', 'fusion'],
+          ],
+        },
+        {
+          key: 'spatial',
+          label: '空间分支',
+          rows: [
+            ['senc', 'sff'],
+            ['attention', 'regularizer'],
+          ],
+          added: true,
+        },
+      ],
+    },
+    { key: 'decoder', label: '拼接与解码器', rows: [['concat', 'dff', 'sigmoid']] },
+    { key: 'loss', rows: [['loss']] },
   ],
 };
 

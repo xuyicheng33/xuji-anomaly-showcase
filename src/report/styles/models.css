@@ -10,11 +10,11 @@
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-8);
-  margin: var(--space-10) 0 var(--space-8);
+  margin: var(--space-6) 0 var(--space-5);
 }
 .model-intro h2 {
-  font-size: var(--title-section);
-  line-height: 1.35;
+  font-size: var(--text-xl);
+  line-height: 1.5;
 }
 /* Wide layouts break the caption between phrases, never inside a term. */
 .title-phrase {
@@ -38,24 +38,20 @@
 /* The report's original figure, small beside the redrawn one. */
 .report-figure-thumb {
   display: grid;
-  gap: var(--space-2);
-  width: 184px;
-  padding: var(--space-2);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-control);
-  background: var(--paper);
+  grid-template-columns: 112px auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
   color: var(--muted);
   font-size: var(--text-xs);
   text-align: left;
-  transition:
-    border-color var(--motion-fast) var(--ease-out),
-    box-shadow var(--motion-fast) var(--ease-out);
 }
 .report-figure-thumb:hover:not(:disabled) {
-  background: var(--paper);
-  border-color: var(--control-border);
-  box-shadow: var(--shadow-raised);
-  color: var(--ink);
+  background: none;
+  color: var(--blue);
 }
 .report-figure-thumb img {
   display: block;
@@ -63,7 +59,12 @@
   aspect-ratio: 16 / 9;
   object-fit: contain;
   background: #fff;
+  border: 1px solid var(--line);
   border-radius: var(--radius-small);
+  transition: box-shadow var(--motion-fast) var(--ease-out);
+}
+.report-figure-thumb:hover img {
+  box-shadow: var(--shadow-raised);
 }
 .report-figure-dialog {
   width: min(1240px, calc(100vw - 2 * var(--space-6)));
@@ -153,7 +154,7 @@
     stroke var(--motion-fast) var(--ease-out);
 }
 .fig-node.is-gray .fig-box {
-  fill: var(--surface);
+  fill: var(--surface-soft);
 }
 .fig-node.is-clay .fig-box,
 .fig-node.shape-stack .fig-box {
@@ -256,8 +257,45 @@
 
 /* Narrow screens: grouped rows of the same modules. */
 .model-flow {
+  --flow-rail: 24px;
+  display: grid;
+}
+/* Hairline connectors carry the data downwards; parallel branches hang off one rail. */
+.model-flow > * + * {
+  position: relative;
+  margin-top: var(--space-5);
+}
+.model-flow > * + *::before {
+  content: '';
+  position: absolute;
+  left: var(--flow-rail);
+  bottom: 100%;
+  height: var(--space-5);
+  border-left: 1px solid var(--chart-muted);
+}
+.model-flow-parallel {
   display: grid;
   gap: var(--space-3);
+  margin-left: var(--flow-rail);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--chart-muted);
+}
+.model-flow > .model-flow-parallel::before {
+  left: -1px;
+}
+.model-flow > .model-panel::before {
+  content: none;
+}
+.model-flow-parallel > .model-flow-step {
+  position: relative;
+}
+.model-flow-parallel > .model-flow-step::before {
+  content: '';
+  position: absolute;
+  top: 22px;
+  right: 100%;
+  width: var(--space-4);
+  border-top: 1px solid var(--chart-muted);
 }
 .model-flow-group {
   display: grid;
@@ -275,6 +313,10 @@
   flex-wrap: wrap;
   gap: var(--space-2);
 }
+.model-flow-items + .model-flow-items {
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--line-strong);
+}
 .model-flow-node {
   position: relative;
   min-height: 40px;
@@ -288,9 +330,6 @@
 .model-flow-node.is-clay {
   border-style: dashed;
   border-color: var(--clay-border);
-}
-.model-flow-node.is-gray {
-  background: var(--surface);
 }
 .model-flow-node[aria-pressed='true'] {
   background: var(--selected);
@@ -553,9 +592,9 @@
   margin: var(--space-4) 0 0;
 }
 .loss-visual-readout > div {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-4);
+  display: grid;
+  grid-template-columns: 6em minmax(0, 1fr);
+  gap: var(--space-3);
   font-size: var(--text-sm);
 }
 .loss-visual-readout dt {
@@ -645,18 +684,14 @@
 @container (max-width: 760px) {
   .model-intro {
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-5);
-    margin: var(--space-8) 0 var(--space-6);
+    gap: var(--space-4);
+    margin: var(--space-6) 0 var(--space-5);
   }
   .model-intro h2 {
-    font-size: var(--text-2xl);
-  }
-  .title-phrase {
-    white-space: normal;
+    font-size: var(--text-lg);
   }
   .report-figure-thumb {
     grid-template-columns: 96px minmax(0, 1fr);
-    align-items: center;
     width: 100%;
   }
   .model-panel-grid.has-visual {

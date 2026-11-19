@@ -9,8 +9,8 @@ import { ArchitectureFigure, FlowFigure, ModulePanel, figureNodes } from './Mode
 import { usePresentationState } from './usePresentationState';
 import { ReportFigure } from './ReportFigure';
 
-/** The structure figure needs about 1000px to keep its labels at reading size. */
-const FIGURE_WIDTH = 1000;
+/** Below this width the figure's labels drop under 11px, so the grouped rows take over. */
+const FIGURE_WIDTH = 920;
 
 function useWide() {
   const ref = useRef<HTMLDivElement>(null),
@@ -39,8 +39,23 @@ export function ModelsChapter({
   const architecture: Architecture = model.id === 'model2' ? 'smst' : 'stam';
   const comparing = availableMethods(data).length > 1;
   const [phase, setPhase] = usePresentationState<Phase>('models:phase', 'train');
-  const [chosen, select] = usePresentationState<string | null>('models:node', null);
+  const [chosen, setChosen] = usePresentationState<string | null>('models:node', null);
   const [ref, wide] = useWide();
+  // On wide screens the explanation sits under the figure; bring its opening lines into view.
+  const select = (key: string | null) => {
+    setChosen(key);
+    if (!key || !wide) return;
+    requestAnimationFrame(() => {
+      const panel = ref.current?.querySelector('.model-panel');
+      if (!panel) return;
+      const shortfall = panel.getBoundingClientRect().top - (innerHeight - 240);
+      if (shortfall > 0)
+        scrollBy({
+          top: shortfall,
+          behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+        });
+    });
+  };
   // Keep the choice across models and stages when the same module exists there.
   const nodes = figureNodes(architecture, phase);
   const mapped =
