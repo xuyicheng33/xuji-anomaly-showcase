@@ -274,12 +274,11 @@
   width: var(--space-4);
   border-top: 1px solid var(--chart-muted);
 }
+/* Groups are a small label over their modules; hairline rails show how they connect. */
 .model-flow-group {
   display: grid;
   gap: var(--space-2);
-  padding: var(--space-3);
-  border-radius: var(--radius-control);
-  background: var(--surface-soft);
+  padding: var(--space-1) 0;
 }
 .model-flow-label {
   font-size: var(--text-xs);
@@ -308,9 +307,10 @@
   color: var(--ink);
   font-size: var(--text-sm);
 }
-.model-flow-node.is-clay {
+/* Training-only modules, as in the test-stage veil of the wide figure. */
+.model-flow-node.is-train-only {
   border-style: dashed;
-  border-color: var(--clay-border);
+  border-color: var(--line-strong);
 }
 .model-flow-node[aria-pressed='true'] {
   background: var(--selected);
@@ -663,9 +663,6 @@
   }
   .model-flow-parallel > .model-flow-step::before {
     width: var(--space-2);
-  }
-  .model-flow-group {
-    padding: var(--space-2);
   }
 }
 @container (max-width: 420px) {
